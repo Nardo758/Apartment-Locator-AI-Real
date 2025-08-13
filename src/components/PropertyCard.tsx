@@ -87,9 +87,12 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       </div>
 
       {/* Savings Badge */}
-      <div className="flex items-center justify-end mb-4">
+<div className="flex items-center justify-between mb-4">
         <div className="bg-green-500/20 text-green-400 px-3 py-1 rounded text-sm font-medium border border-green-500/30">
           Save ${property.savings}/mo
+        </div>
+        <div className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded text-sm font-medium border border-purple-500/30">
+          + $800 in concessions
         </div>
       </div>
 
