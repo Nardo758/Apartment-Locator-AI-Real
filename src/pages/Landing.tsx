@@ -150,88 +150,57 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Benefits Section */}
+      {/* Pricing Section */}
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
-          <div className="glass-dark rounded-2xl p-12">
-            <h2 className="text-3xl font-bold text-center text-foreground mb-12">
-              Skip the Hassle, Get Approved Faster
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              Simple, One-Time Pricing
             </h2>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-6 h-6 bg-secondary rounded-full flex items-center justify-center mt-1">
-                    <Check size={16} className="text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-2">Instant Income Verification</h4>
-                    <p className="text-muted-foreground">Connect your bank account securely and prove your income instantly.</p>
-                  </div>
-                </div>
+            <p className="text-xl text-muted-foreground">
+              Get lifetime access to our AI apartment locator
+            </p>
+          </div>
 
-                <div className="flex items-start space-x-4">
-                  <div className="w-6 h-6 bg-secondary rounded-full flex items-center justify-center mt-1">
-                    <Check size={16} className="text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-2">Smart Recommendations</h4>
-                    <p className="text-muted-foreground">AI finds hidden gems and properties that match your exact needs.</p>
-                  </div>
-                </div>
+          <div className="glass-dark rounded-2xl p-12 text-center border border-primary/20">
+            <div className="mb-8">
+              <div className="text-6xl font-bold text-primary mb-4">$49</div>
+              <div className="text-xl text-muted-foreground mb-6">One-time payment</div>
+            </div>
 
-                <div className="flex items-start space-x-4">
-                  <div className="w-6 h-6 bg-secondary rounded-full flex items-center justify-center mt-1">
-                    <Check size={16} className="text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-2">Negotiation Support</h4>
-                    <p className="text-muted-foreground">Get expert help to negotiate the best terms and pricing.</p>
-                  </div>
-                </div>
+            <div className="space-y-4 mb-8">
+              <div className="flex items-center justify-center space-x-3">
+                <Check size={20} className="text-secondary" />
+                <span className="text-foreground">Unlimited AI property searches</span>
               </div>
-
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mt-1">
-                    <Check size={16} className="text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-2">Faster Applications</h4>
-                    <p className="text-muted-foreground">Pre-verified profiles speed up the application process significantly.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mt-1">
-                    <Check size={16} className="text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-2">Market Insights</h4>
-                    <p className="text-muted-foreground">Real-time data on pricing trends and neighborhood dynamics.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mt-1">
-                    <Check size={16} className="text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-2">Secure & Private</h4>
-                    <p className="text-muted-foreground">Bank-level security protects your financial information.</p>
-                  </div>
-                </div>
+              <div className="flex items-center justify-center space-x-3">
+                <Check size={20} className="text-secondary" />
+                <span className="text-foreground">Advanced market analysis</span>
+              </div>
+              <div className="flex items-center justify-center space-x-3">
+                <Check size={20} className="text-secondary" />
+                <span className="text-foreground">Negotiation offer generation</span>
+              </div>
+              <div className="flex items-center justify-center space-x-3">
+                <Check size={20} className="text-secondary" />
+                <span className="text-foreground">Income verification tools</span>
+              </div>
+              <div className="flex items-center justify-center space-x-3">
+                <Check size={20} className="text-secondary" />
+                <span className="text-foreground">Lifetime access & updates</span>
               </div>
             </div>
 
-            <div className="text-center mt-12">
-              <Link to="/signup">
-                <Button size="lg" className="btn-secondary text-lg px-8 py-4">
-                  Start Your Search Today
-                  <ArrowRight className="ml-2" size={20} />
-                </Button>
-              </Link>
-            </div>
+            <Link to="/signup">
+              <Button size="lg" className="btn-primary text-lg px-12 py-4">
+                Get Started Now
+                <ArrowRight className="ml-2" size={20} />
+              </Button>
+            </Link>
+
+            <p className="text-sm text-muted-foreground mt-4">
+              No monthly fees. No hidden costs. Pay once, use forever.
+            </p>
           </div>
         </div>
       </section>
