@@ -130,11 +130,11 @@ const GenerateOffer = () => {
                             {...field} 
                             className="flex h-10 w-full rounded-md border border-white/10 bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
                           >
-                            <option value="6">6 months</option>
-                            <option value="12">12 months</option>
-                            <option value="15">15 months</option>
-                            <option value="18">18 months</option>
-                            <option value="24">24 months</option>
+                            {Array.from({ length: 10 }, (_, i) => i + 6).map(months => (
+                              <option key={months} value={months.toString()}>
+                                {months} months
+                              </option>
+                            ))}
                           </select>
                         </FormControl>
                         <FormMessage />
