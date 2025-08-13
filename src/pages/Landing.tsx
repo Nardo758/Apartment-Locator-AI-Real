@@ -6,32 +6,100 @@ import { Button } from '@/components/ui/button';
 const Landing = () => {
   return (
     <div className="min-h-screen bg-background">{/* Dark solid background */}
-      {/* Hero Section */}
-      <section className="pt-20 pb-32 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-8 leading-tight">
-            Find Your Perfect
-            <span className="gradient-text block">Rental Home</span>
-          </h1>
-          
-          <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-            AI-powered apartment hunting with verified income and instant approvals. 
-            Skip the paperwork, get the keys faster.
-          </p>
+      <section className="pt-20 pb-16 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Column - Main Message */}
+            <div>
+              <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+                Never <span className="gradient-text">Overpay</span>
+                <br />for Rent Again
+              </h1>
+              
+              <p className="text-xl text-muted-foreground mb-8 max-w-lg">
+                Our AI discovers hidden rental opportunities and generates data-driven negotiation offers that save you an average of <span className="text-secondary font-semibold">$312/month</span>.
+              </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/signup">
-              <Button size="lg" className="btn-primary text-lg px-8 py-4">
-                Get Started
-                <ArrowRight className="ml-2" size={20} />
-              </Button>
-            </Link>
-            
-            <Link to="/dashboard">
-              <Button size="lg" variant="outline" className="text-lg px-8 py-4 glass border-border/20 hover:bg-muted/20">
-                View Properties
-              </Button>
-            </Link>
+              {/* Stats Row */}
+              <div className="grid grid-cols-3 gap-6 mb-8">
+                <div className="glass-dark rounded-lg p-4 text-center">
+                  <div className="text-3xl font-bold text-secondary mb-1">73%</div>
+                  <div className="text-sm text-muted-foreground">Success Rate</div>
+                </div>
+                <div className="glass-dark rounded-lg p-4 text-center">
+                  <div className="text-3xl font-bold text-primary mb-1">$312</div>
+                  <div className="text-sm text-muted-foreground">Avg. Monthly Savings</div>
+                </div>
+                <div className="glass-dark rounded-lg p-4 text-center">
+                  <div className="text-3xl font-bold gradient-text mb-1">15K+</div>
+                  <div className="text-sm text-muted-foreground">Happy Renters</div>
+                </div>
+              </div>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link to="/signup">
+                  <Button size="lg" className="btn-primary text-lg px-8 py-4">
+                    Start Saving Today
+                  </Button>
+                </Link>
+                
+                <Button size="lg" variant="outline" className="text-lg px-8 py-4 glass border-border/20 hover:bg-muted/20">
+                  See How It Works
+                </Button>
+              </div>
+            </div>
+
+            {/* Right Column - AI Analysis Demo */}
+            <div className="relative">
+              <div className="glass-dark rounded-xl p-6 border border-border/20">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-foreground">AI-Powered Property Analysis</h3>
+                  <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">LIVE AI</span>
+                </div>
+                
+                {/* Property Analysis Cards */}
+                <div className="space-y-4">
+                  <div className="glass rounded-lg p-4 border border-border/10">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="font-medium text-foreground">2547 Riverside Dr, Austin</h4>
+                        <div className="text-2xl font-bold text-secondary mt-1">$2,190/mo</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-red-400 mb-1">87 days vacant</div>
+                        <div className="bg-secondary/20 text-secondary px-2 py-1 rounded text-xs font-medium">
+                          Save $230/mo
+                        </div>
+                      </div>
+                    </div>
+                    <div className="w-full bg-muted/20 rounded-full h-2">
+                      <div className="bg-secondary h-2 rounded-full" style={{width: '84%'}}></div>
+                    </div>
+                    <div className="text-xs text-secondary mt-1">84% Success</div>
+                  </div>
+
+                  <div className="glass rounded-lg p-4 border border-border/10">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="font-medium text-foreground">987 Mueller District</h4>
+                        <div className="text-2xl font-bold text-secondary mt-1">$1,890/mo</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-red-400 mb-1">63 days vacant</div>
+                        <div className="bg-secondary/20 text-secondary px-2 py-1 rounded text-xs font-medium">
+                          Save $180/mo
+                        </div>
+                      </div>
+                    </div>
+                    <div className="w-full bg-muted/20 rounded-full h-2">
+                      <div className="bg-secondary h-2 rounded-full" style={{width: '91%'}}></div>
+                    </div>
+                    <div className="text-xs text-secondary mt-1">91% Success</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
