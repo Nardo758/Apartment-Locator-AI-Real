@@ -7,6 +7,7 @@ const Header: React.FC = () => {
 
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', active: true },
+    { path: '/how-it-works', label: 'How It Works' },
     { path: '/saved', label: 'Saved Properties' },
     { path: '/market-intel', label: 'Market Intel' },
     { path: '/offers', label: 'My Offers' }
