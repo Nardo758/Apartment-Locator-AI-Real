@@ -7,6 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import Header from '../components/Header';
 
 interface OfferFormData {
@@ -42,20 +44,24 @@ const GenerateOffer = () => {
     // Simulate AI analysis
     setTimeout(() => {
       setAiSuggestions({
-        recommendedOffer: 2850,
-        marketAnalysis: {
-          averageRent: 2950,
-          marketPosition: 'Competitive',
-          negotiationLikelihood: 85
+        recommendedOffer: {
+          suggestedRent: '$2,850',
+          strategy: 'Competitive pricing below market average',
+          reasoning: 'Property is priced 3.4% below market rate, increasing acceptance likelihood'
         },
-        concessions: [
-          { type: 'First Month Free', probability: 78, value: 2850 },
-          { type: 'Reduced Security Deposit', probability: 65, value: 500 },
-          { type: 'Waived Application Fee', probability: 90, value: 200 }
+        marketAnalysis: {
+          marketPosition: 'Competitive - Below market average',
+          demandLevel: 'High demand area with 85% occupancy rate',
+          competitiveAnalysis: 'Similar properties range $2,800-$3,100'
+        },
+        potentialConcessions: [
+          { type: 'First Month Free', description: 'Waive first month rent', likelihood: 'High' },
+          { type: 'Reduced Security Deposit', description: 'Lower deposit to $500', likelihood: 'Medium' },
+          { type: 'Waived Application Fee', description: 'Remove $200 application fee', likelihood: 'Very High' }
         ],
-        timing: {
-          optimal: true,
-          reason: 'End of quarter - landlords motivated to fill units'
+        timingRecommendations: {
+          bestTimeToApply: 'Within 48 hours',
+          reasoning: 'End of quarter - landlords motivated to fill units before reporting period'
         }
       });
       setIsGenerating(false);
@@ -66,17 +72,53 @@ const GenerateOffer = () => {
     const formData = form.getValues();
     
     if (!formData.userEmail) {
-      alert('Please enter your email address');
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    if (!aiSuggestions) {
+      toast.error('Please generate AI recommendations first');
       return;
     }
 
     setIsSubmitting(true);
 
-    // Simulate email sending
-    setTimeout(() => {
-      setOfferSubmitted(true);
+    try {
+      // Call the Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke('send-offer-email', {
+        body: {
+          userEmail: formData.userEmail,
+          moveInDate: formData.moveInDate,
+          leaseTerm: parseInt(formData.leaseTerm),
+          monthlyBudget: parseFloat(formData.monthlyBudget),
+          notes: formData.notes,
+          propertyId: propertyId || '1',
+          aiSuggestions: aiSuggestions,
+          propertyDetails: {
+            id: propertyId,
+            // Add more property details as needed
+          }
+        }
+      });
+
+      if (error) {
+        console.error('Error sending offer:', error);
+        toast.error('Failed to send offer. Please try again.');
+        return;
+      }
+
+      if (data?.success) {
+        setOfferSubmitted(true);
+        toast.success('Offer sent successfully!');
+      } else {
+        toast.error('Failed to send offer. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Failed to send offer. Please try again.');
+    } finally {
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   const getProbabilityColor = (probability: number) => {
@@ -298,27 +340,36 @@ const GenerateOffer = () => {
                       <TrendingUp className="text-primary" size={16} />
                     </div>
                     <div className="text-3xl font-bold gradient-text">
-                      ${aiSuggestions.recommendedOffer.toLocaleString()}
+                      {aiSuggestions.recommendedOffer.suggestedRent}
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">
-                      ${(aiSuggestions.marketAnalysis.averageRent - aiSuggestions.recommendedOffer).toLocaleString()} below market average
+                      {aiSuggestions.recommendedOffer.strategy}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {aiSuggestions.recommendedOffer.reasoning}
                     </p>
                   </div>
 
                   {/* Market Analysis */}
                   <div className="space-y-4">
                     <h3 className="font-semibold text-foreground">Market Analysis</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-3">
                       <div className="glass border border-white/5 rounded-lg p-3">
-                        <div className="text-sm text-muted-foreground">Market Average</div>
-                        <div className="text-lg font-semibold text-foreground">
-                          ${aiSuggestions.marketAnalysis.averageRent.toLocaleString()}
+                        <div className="text-sm text-muted-foreground">Market Position</div>
+                        <div className="text-sm font-medium text-foreground">
+                          {aiSuggestions.marketAnalysis.marketPosition}
                         </div>
                       </div>
                       <div className="glass border border-white/5 rounded-lg p-3">
-                        <div className="text-sm text-muted-foreground">Success Rate</div>
-                        <div className="text-lg font-semibold text-green-400">
-                          {aiSuggestions.marketAnalysis.negotiationLikelihood}%
+                        <div className="text-sm text-muted-foreground">Demand Level</div>
+                        <div className="text-sm font-medium text-foreground">
+                          {aiSuggestions.marketAnalysis.demandLevel}
+                        </div>
+                      </div>
+                      <div className="glass border border-white/5 rounded-lg p-3">
+                        <div className="text-sm text-muted-foreground">Competitive Analysis</div>
+                        <div className="text-sm font-medium text-foreground">
+                          {aiSuggestions.marketAnalysis.competitiveAnalysis}
                         </div>
                       </div>
                     </div>
@@ -328,19 +379,21 @@ const GenerateOffer = () => {
                   <div className="space-y-4">
                     <h3 className="font-semibold text-foreground">Potential Concessions</h3>
                     <div className="space-y-3">
-                      {aiSuggestions.concessions.map((concession: any, index: number) => (
-                        <div key={index} className="flex items-center justify-between p-3 glass border border-white/5 rounded-lg">
-                          <div className="flex-1">
+                      {aiSuggestions.potentialConcessions.map((concession: any, index: number) => (
+                        <div key={index} className="p-3 glass border border-white/5 rounded-lg">
+                          <div className="flex items-center justify-between mb-1">
                             <div className="font-medium text-foreground">{concession.type}</div>
-                            <div className="text-sm text-muted-foreground">
-                              Value: ${concession.value.toLocaleString()}
-                            </div>
+                            <span className={`text-xs px-2 py-1 rounded-full ${
+                              concession.likelihood === 'Very High' ? 'bg-green-500/20 text-green-400' :
+                              concession.likelihood === 'High' ? 'bg-green-500/20 text-green-400' :
+                              concession.likelihood === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                              'bg-red-500/20 text-red-400'
+                            }`}>
+                              {concession.likelihood}
+                            </span>
                           </div>
-                          <div className="text-right">
-                            <div className={`font-semibold ${getProbabilityColor(concession.probability)}`}>
-                              {concession.probability}%
-                            </div>
-                            <div className="text-xs text-muted-foreground">Likelihood</div>
+                          <div className="text-sm text-muted-foreground">
+                            {concession.description}
                           </div>
                         </div>
                       ))}
@@ -351,11 +404,17 @@ const GenerateOffer = () => {
                   <div className="glass border border-green-500/20 rounded-lg p-4">
                     <div className="flex items-center space-x-2 mb-2">
                       <AlertCircle className="text-green-400" size={16} />
-                      <span className="font-semibold text-green-400">Optimal Timing</span>
+                      <span className="font-semibold text-green-400">Timing Recommendations</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {aiSuggestions.timing.reason}
-                    </p>
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-sm font-medium text-foreground">Best Time to Apply: </span>
+                        <span className="text-sm text-green-400">{aiSuggestions.timingRecommendations.bestTimeToApply}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {aiSuggestions.timingRecommendations.reasoning}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Action Buttons */}
