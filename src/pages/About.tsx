@@ -317,7 +317,7 @@ const About = () => {
               }}
             >
               <p className="text-lg mb-6" style={{ color: '#b0b0b0', lineHeight: 1.6 }}>
-                Apartment Locator AI was founded by former property managers, leasing agents, and real estate professionals who witnessed firsthand how information asymmetry puts renters at a disadvantage. After years of seeing tenants overpay simply because they didn't know what concessions were available or when to ask for them, our founding team decided to level the playing field.
+                Apartment Locator AI was founded by former real estate professionals who witnessed firsthand how information asymmetry puts renters at a disadvantage. After years of seeing tenants overpay simply because they didn't know what concessions were available or when to ask for them, our founding team decided to level the playing field.
               </p>
               <h4 className="text-xl font-bold mb-4 text-white">We've been on the other side of the negotiation table. We know:</h4>
               <ul className="space-y-3 mb-6">
