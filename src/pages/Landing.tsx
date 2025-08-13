@@ -248,7 +248,7 @@ const Landing = () => {
             {/* Demo Interface */}
             <div 
               id="demo"
-              className="rounded-[20px] p-8 border relative overflow-hidden"
+              className="rounded-[20px] p-8 border relative overflow-hidden ml-8"
               style={{ 
                 background: 'rgba(255, 255, 255, 0.05)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -428,7 +428,7 @@ const Landing = () => {
       <section id="pricing" className="py-32" style={{ background: 'rgba(102, 126, 234, 0.02)' }}>
         <div className="max-w-5xl mx-auto px-5">
           <h2 className="text-center text-5xl font-extrabold mb-5 text-white">Choose Your Plan</h2>
-          <p className="text-center text-xl mb-16" style={{ color: '#b0b0b0' }}>Start free, upgrade when you're ready to save serious money</p>
+          <p className="text-center text-xl mb-16" style={{ color: '#b0b0b0' }}>One-time payment for AI-powered apartment hunting</p>
           
           <div className="grid md:grid-cols-3 gap-8">
             {/* Free Plan */}
@@ -447,19 +447,19 @@ const Landing = () => {
                 e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              <div className="text-2xl font-bold text-white mb-3">Free</div>
+              <div className="text-2xl font-bold text-white mb-3">Basic</div>
               <div className="text-5xl font-black mb-3" style={{ color: '#667eea' }}>
-                <span className="text-2xl align-top">$</span>0
-                <span className="text-base font-medium" style={{ color: '#b0b0b0' }}>/month</span>
+                <span className="text-2xl align-top">$</span>9.99
+                <span className="text-base font-medium" style={{ color: '#b0b0b0' }}> one-time</span>
               </div>
               <ul className="list-none my-8 text-left space-y-2">
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
-                  3 AI offers per month
+                  5 AI property analyses
                 </li>
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
-                  Basic market analytics
+                  Basic market insights
                 </li>
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
@@ -467,7 +467,7 @@ const Landing = () => {
                 </li>
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
-                  Community support
+                  7-day access
                 </li>
               </ul>
               <button 
@@ -484,7 +484,7 @@ const Landing = () => {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                Get Started Free
+                Get Started
               </button>
             </div>
 
@@ -507,13 +507,13 @@ const Landing = () => {
             >
               <div className="text-2xl font-bold text-white mb-3">Pro</div>
               <div className="text-5xl font-black mb-3" style={{ color: '#667eea' }}>
-                <span className="text-2xl align-top">$</span>19.99
-                <span className="text-base font-medium" style={{ color: '#b0b0b0' }}>/month</span>
+                <span className="text-2xl align-top">$</span>29.99
+                <span className="text-base font-medium" style={{ color: '#b0b0b0' }}> one-time</span>
               </div>
               <ul className="list-none my-8 text-left space-y-2">
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
-                  Unlimited AI offers
+                  Unlimited AI analyses
                 </li>
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
@@ -521,7 +521,7 @@ const Landing = () => {
                 </li>
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
-                  Email automation
+                  Email automation templates
                 </li>
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
@@ -529,11 +529,11 @@ const Landing = () => {
                 </li>
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
-                  Priority support
+                  30-day access
                 </li>
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
-                  Mobile app access
+                  Priority email support
                 </li>
               </ul>
               <Link to="/signup">
@@ -551,7 +551,7 @@ const Landing = () => {
                     e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
-                  Start Pro Trial
+                  Start Pro Analysis
                 </button>
               </Link>
             </div>
@@ -574,8 +574,8 @@ const Landing = () => {
             >
               <div className="text-2xl font-bold text-white mb-3">Premium</div>
               <div className="text-5xl font-black mb-3" style={{ color: '#667eea' }}>
-                <span className="text-2xl align-top">$</span>49.99
-                <span className="text-base font-medium" style={{ color: '#b0b0b0' }}>/month</span>
+                <span className="text-2xl align-top">$</span>99.99
+                <span className="text-base font-medium" style={{ color: '#b0b0b0' }}> one-time</span>
               </div>
               <ul className="list-none my-8 text-left space-y-2">
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
@@ -584,7 +584,7 @@ const Landing = () => {
                 </li>
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
-                  Concierge negotiation service
+                  Personal AI concierge
                 </li>
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
@@ -592,15 +592,15 @@ const Landing = () => {
                 </li>
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
-                  White-glove onboarding
+                  White-glove setup
+                </li>
+                <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
+                  <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
+                  90-day access
                 </li>
                 <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
                   <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
                   Direct phone support
-                </li>
-                <li className="pl-6 relative" style={{ color: '#b0b0b0' }}>
-                  <span className="absolute left-0 font-bold" style={{ color: '#4ecdc4' }}>✓</span>
-                  API access
                 </li>
               </ul>
               <button 
