@@ -7,6 +7,7 @@ import PropertyMap from '../components/PropertyMap';
 import UsageTracker from '../components/UsageTracker';
 import QuickActions from '../components/QuickActions';
 import MarketIntelligence from '../components/MarketIntelligence';
+import LocationSearch from '../components/LocationSearch';
 import AIFormulaExplainer from '../components/AIFormulaExplainer';
 import { mockProperties, mockStats } from '../data/mockData';
 import { useAIScanning } from '../hooks/useAIScanning';
@@ -17,6 +18,7 @@ const Index = () => {
   const [filterMode, setFilterMode] = useState('Best Matches');
   const [isLeaseExpiring, setIsLeaseExpiring] = useState(true);
   const [daysUntilExpiration, setDaysUntilExpiration] = useState(47);
+  const [searchLocation, setSearchLocation] = useState({ city: 'Austin', state: 'TX', radius: 25 });
   
   const { propertiesScanned, isScanning } = useAIScanning();
   const marketData = useMarketData();
@@ -173,6 +175,12 @@ const Index = () => {
 
             {/* Right Column - Sidebar */}
             <div className="col-span-12 lg:col-span-4 space-y-6">
+              {/* Location Search */}
+              <LocationSearch 
+                currentLocation={searchLocation}
+                onLocationChange={setSearchLocation}
+              />
+
               {/* Usage Tracker */}
               <UsageTracker />
 
