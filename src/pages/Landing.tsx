@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-gradient-animated">{/* Static gradient background */}
+    <div className="min-h-screen bg-background">{/* Dark solid background */}
       {/* Hero Section */}
       <section className="pt-20 pb-32 px-6">
         <div className="max-w-4xl mx-auto text-center">

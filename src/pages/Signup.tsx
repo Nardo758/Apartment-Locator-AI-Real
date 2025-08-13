@@ -143,7 +143,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-animated">{/* Static gradient background */}
+    <div className="min-h-screen bg-background">{/* Dark solid background */}
       {/* Header */}
       <header className="pt-8 pb-4 px-6">
         <div className="max-w-2xl mx-auto">

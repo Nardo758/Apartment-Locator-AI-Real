@@ -48,7 +48,7 @@ const Index = () => {
   }, [filterMode]);
 
   return (
-    <div className="min-h-screen bg-gradient-animated">{/* Static gradient background */}
+    <div className="min-h-screen bg-background">{/* Dark solid background */}
       <Header />
       
       <main className="pt-20 px-6 pb-8">
