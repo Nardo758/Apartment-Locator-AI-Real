@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Zap, DollarSign, Calendar, FileText, Sparkles, TrendingUp, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Zap, DollarSign, Calendar, FileText, Sparkles, TrendingUp, AlertCircle, Mail, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 import Header from '../components/Header';
 
 interface OfferFormData {
+  userEmail: string;
   moveInDate: string;
   leaseTerm: string;
   monthlyBudget: string;
@@ -21,10 +22,13 @@ const GenerateOffer = () => {
   const [searchParams] = useSearchParams();
   const propertyId = searchParams.get('property');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [offerSubmitted, setOfferSubmitted] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<any>(null);
 
   const form = useForm<OfferFormData>({
     defaultValues: {
+      userEmail: '',
       moveInDate: '',
       leaseTerm: '12',
       monthlyBudget: '',
@@ -56,6 +60,23 @@ const GenerateOffer = () => {
       });
       setIsGenerating(false);
     }, 3000);
+  };
+
+  const handleSubmitOffer = async () => {
+    const formData = form.getValues();
+    
+    if (!formData.userEmail) {
+      alert('Please enter your email address');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    // Simulate email sending
+    setTimeout(() => {
+      setOfferSubmitted(true);
+      setIsSubmitting(false);
+    }, 2000);
   };
 
   const getProbabilityColor = (probability: number) => {
@@ -96,8 +117,56 @@ const GenerateOffer = () => {
                 <h2 className="text-xl font-bold text-foreground">Offer Details</h2>
               </div>
 
-              <Form {...form}>
+              {offerSubmitted ? (
+                <div className="text-center space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-gradient-secondary flex items-center justify-center mx-auto mb-4">
+                    <Send size={24} className="text-white" />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground">Offer Sent Successfully!</h2>
+                  <p className="text-muted-foreground">
+                    Your offer has been emailed to the leasing office. They will respond directly to your email within 24-48 hours.
+                  </p>
+                  <div className="glass border border-secondary/20 rounded-lg p-4 mt-4">
+                    <h3 className="font-semibold text-foreground mb-2">What's Next?</h3>
+                    <ul className="text-sm text-muted-foreground space-y-1 text-left">
+                      <li>• Check your email for confirmation</li>
+                      <li>• Leasing office will review your offer</li>
+                      <li>• They'll respond with Accept/Counter/Decline</li>
+                      <li>• All future communication happens via email</li>
+                    </ul>
+                  </div>
+                  <Button 
+                    onClick={() => navigate('/')}
+                    className="btn-primary"
+                  >
+                    Back to Dashboard
+                  </Button>
+                </div>
+              ) : (
+                <Form {...form}>
                 <form onSubmit={form.handleSubmit(handleGenerateOffer)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="userEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center space-x-2">
+                          <Mail size={16} />
+                          <span>Your Email Address</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="email" 
+                            placeholder="john@example.com"
+                            {...field} 
+                            className="glass border-white/10 focus:border-primary"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="moveInDate"
@@ -201,6 +270,7 @@ const GenerateOffer = () => {
                   </Button>
                 </form>
               </Form>
+              )}
             </div>
 
             {/* AI Suggestions Section */}
@@ -290,11 +360,22 @@ const GenerateOffer = () => {
 
                   {/* Action Buttons */}
                   <div className="flex space-x-3 pt-4">
-                    <Button className="flex-1 btn-primary">
-                      Submit Offer
-                    </Button>
-                    <Button variant="outline" className="flex-1 border-white/10 hover:bg-white/5">
-                      Save Draft
+                    <Button 
+                      className="flex-1 btn-primary"
+                      onClick={handleSubmitOffer}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <div className="flex items-center space-x-2">
+                          <Mail className="animate-pulse" size={16} />
+                          <span>Sending Email...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <Send size={16} />
+                          <span>Submit Offer via Email</span>
+                        </div>
+                      )}
                     </Button>
                   </div>
                 </div>
