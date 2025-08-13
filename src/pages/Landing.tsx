@@ -44,9 +44,11 @@ const Landing = () => {
                   </Button>
                 </Link>
                 
-                <Button size="lg" variant="outline" className="text-lg px-8 py-4 glass border-border/20 hover:bg-muted/20">
-                  See How It Works
-                </Button>
+                <Link to="/how-it-works">
+                  <Button size="lg" variant="outline" className="text-lg px-8 py-4 glass border-border/20 hover:bg-muted/20">
+                    See How It Works
+                  </Button>
+                </Link>
               </div>
             </div>
 
