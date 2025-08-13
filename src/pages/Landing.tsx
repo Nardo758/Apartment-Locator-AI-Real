@@ -79,7 +79,7 @@ const Landing = () => {
             </li>
             <li>
               <a 
-                href="#about" 
+                href="/about" 
                 className="text-white font-medium relative transition-all duration-300"
                 style={{ textDecoration: 'none' }}
                 onMouseEnter={(e) => {
