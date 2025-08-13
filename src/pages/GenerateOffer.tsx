@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import Header from '../components/Header';
 
 interface OfferFormData {
@@ -72,12 +72,12 @@ const GenerateOffer = () => {
     const formData = form.getValues();
     
     if (!formData.userEmail) {
-      toast.error('Please enter your email address');
+      toast({ title: "Error", description: "Please enter your email address", variant: "destructive" });
       return;
     }
 
     if (!aiSuggestions) {
-      toast.error('Please generate AI recommendations first');
+      toast({ title: "Error", description: "Please generate AI recommendations first", variant: "destructive" });
       return;
     }
 
@@ -90,7 +90,7 @@ const GenerateOffer = () => {
           userEmail: formData.userEmail,
           moveInDate: formData.moveInDate,
           leaseTerm: parseInt(formData.leaseTerm),
-          monthlyBudget: parseFloat(formData.monthlyBudget),
+          monthlyBudget: formData.monthlyBudget ? parseFloat(formData.monthlyBudget) : null,
           notes: formData.notes,
           propertyId: propertyId || '1',
           aiSuggestions: aiSuggestions,
@@ -103,19 +103,19 @@ const GenerateOffer = () => {
 
       if (error) {
         console.error('Error sending offer:', error);
-        toast.error('Failed to send offer. Please try again.');
+        toast({ title: "Error", description: "Failed to send offer. Please try again.", variant: "destructive" });
         return;
       }
 
       if (data?.success) {
         setOfferSubmitted(true);
-        toast.success('Offer sent successfully!');
+        toast({ title: "Success", description: "Offer sent successfully!" });
       } else {
-        toast.error('Failed to send offer. Please try again.');
+        toast({ title: "Error", description: "Failed to send offer. Please try again.", variant: "destructive" });
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Failed to send offer. Please try again.');
+      toast({ title: "Error", description: "Failed to send offer. Please try again.", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }

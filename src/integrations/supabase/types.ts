@@ -20,7 +20,7 @@ export type Database = {
           created_at: string
           id: string
           lease_term: number
-          monthly_budget: number
+          monthly_budget: number | null
           move_in_date: string
           notes: string | null
           property_details: Json | null
@@ -33,7 +33,7 @@ export type Database = {
           created_at?: string
           id?: string
           lease_term: number
-          monthly_budget: number
+          monthly_budget?: number | null
           move_in_date: string
           notes?: string | null
           property_details?: Json | null
@@ -46,7 +46,7 @@ export type Database = {
           created_at?: string
           id?: string
           lease_term?: number
-          monthly_budget?: number
+          monthly_budget?: number | null
           move_in_date?: string
           notes?: string | null
           property_details?: Json | null
