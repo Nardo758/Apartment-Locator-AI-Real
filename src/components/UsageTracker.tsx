@@ -24,10 +24,10 @@ const UsageTracker: React.FC = () => {
       </div>
 
       <div className="space-y-4">
-        {/* Searches */}
+        {/* AI Property Analyses */}
         <div>
           <div className="flex items-center justify-between text-sm mb-2">
-            <span className="text-muted-foreground">Searches</span>
+            <span className="text-muted-foreground">AI Property Analyses</span>
             <span className="text-foreground font-medium">{searchesUsed}/{searchesLimit}</span>
           </div>
           <div className="w-full bg-muted/30 rounded-full h-2">
@@ -38,10 +38,10 @@ const UsageTracker: React.FC = () => {
           </div>
         </div>
 
-        {/* AI Offers */}
+        {/* AI Offers Generated */}
         <div>
           <div className="flex items-center justify-between text-sm mb-2">
-            <span className="text-muted-foreground">AI Offers</span>
+            <span className="text-muted-foreground">AI Offers Generated</span>
             <span className="text-foreground font-medium">{aiOffersUsed}/{aiOffersLimit}</span>
           </div>
           <div className="w-full bg-muted/30 rounded-full h-2">
@@ -52,10 +52,10 @@ const UsageTracker: React.FC = () => {
           </div>
         </div>
 
-        {/* Reports */}
+        {/* Automated Outreach */}
         <div>
           <div className="flex items-center justify-between text-sm mb-2">
-            <span className="text-muted-foreground">Reports</span>
+            <span className="text-muted-foreground">Automated Outreach</span>
             <span className="text-foreground font-medium">{reportsUsed}/{reportsLimit}</span>
           </div>
           <div className="w-full bg-muted/30 rounded-full h-2">
@@ -67,9 +67,20 @@ const UsageTracker: React.FC = () => {
         </div>
       </div>
 
+      {/* Success Rate Display */}
+      <div className="mt-4 p-3 rounded-lg bg-gradient-primary/10">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-muted-foreground">Success Rate</span>
+          <span className="text-lg font-bold gradient-text">73%</span>
+        </div>
+        <div className="text-xs text-muted-foreground mt-1">
+          AI negotiations this month
+        </div>
+      </div>
+
       <button className="w-full mt-6 bg-gradient-primary text-white py-2 px-4 rounded-lg font-medium hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5">
         <Zap size={16} className="inline mr-2" />
-        Upgrade Plan
+        🚀 Unlock More AI Power
       </button>
     </div>
   );

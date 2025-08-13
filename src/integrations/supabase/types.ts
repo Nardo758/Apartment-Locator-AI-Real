@@ -56,6 +56,111 @@ export type Database = {
         }
         Relationships: []
       }
+      user_profiles: {
+        Row: {
+          additional_notes: string | null
+          ai_preferences: Json | null
+          amenities: string[] | null
+          communication: string[] | null
+          created_at: string
+          credit_score: string | null
+          current_address: string | null
+          current_rent: number | null
+          deal_breakers: string[] | null
+          email: string
+          employment_type: string | null
+          gross_income: number | null
+          household_size: string | null
+          id: string
+          income_verified: boolean | null
+          lease_duration: string | null
+          lease_expiration: string | null
+          max_budget: number | null
+          max_commute: number | null
+          min_bedrooms: string | null
+          move_timeline: string | null
+          negotiation_comfort: string | null
+          neighborhoods: string | null
+          other_locations: Json | null
+          pet_info: string | null
+          rental_history: string | null
+          search_criteria: Json | null
+          transportation: string | null
+          updated_at: string
+          user_id: string | null
+          work_address: string | null
+          work_frequency: string | null
+        }
+        Insert: {
+          additional_notes?: string | null
+          ai_preferences?: Json | null
+          amenities?: string[] | null
+          communication?: string[] | null
+          created_at?: string
+          credit_score?: string | null
+          current_address?: string | null
+          current_rent?: number | null
+          deal_breakers?: string[] | null
+          email: string
+          employment_type?: string | null
+          gross_income?: number | null
+          household_size?: string | null
+          id?: string
+          income_verified?: boolean | null
+          lease_duration?: string | null
+          lease_expiration?: string | null
+          max_budget?: number | null
+          max_commute?: number | null
+          min_bedrooms?: string | null
+          move_timeline?: string | null
+          negotiation_comfort?: string | null
+          neighborhoods?: string | null
+          other_locations?: Json | null
+          pet_info?: string | null
+          rental_history?: string | null
+          search_criteria?: Json | null
+          transportation?: string | null
+          updated_at?: string
+          user_id?: string | null
+          work_address?: string | null
+          work_frequency?: string | null
+        }
+        Update: {
+          additional_notes?: string | null
+          ai_preferences?: Json | null
+          amenities?: string[] | null
+          communication?: string[] | null
+          created_at?: string
+          credit_score?: string | null
+          current_address?: string | null
+          current_rent?: number | null
+          deal_breakers?: string[] | null
+          email?: string
+          employment_type?: string | null
+          gross_income?: number | null
+          household_size?: string | null
+          id?: string
+          income_verified?: boolean | null
+          lease_duration?: string | null
+          lease_expiration?: string | null
+          max_budget?: number | null
+          max_commute?: number | null
+          min_bedrooms?: string | null
+          move_timeline?: string | null
+          negotiation_comfort?: string | null
+          neighborhoods?: string | null
+          other_locations?: Json | null
+          pet_info?: string | null
+          rental_history?: string | null
+          search_criteria?: Json | null
+          transportation?: string | null
+          updated_at?: string
+          user_id?: string | null
+          work_address?: string | null
+          work_frequency?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

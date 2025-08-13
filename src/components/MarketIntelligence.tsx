@@ -7,7 +7,7 @@ const MarketIntelligence: React.FC = () => {
 
   return (
     <div className="glass-dark rounded-xl p-6">
-      <h3 className="text-lg font-semibold text-foreground mb-4">Austin Market Intel</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-4">🤖 Live Market Intel</h3>
       
       {/* Market Metrics */}
       <div className="space-y-4 mb-6">
@@ -41,7 +41,7 @@ const MarketIntelligence: React.FC = () => {
 
       {/* Trending Concessions */}
       <div>
-        <h4 className="text-sm font-medium text-foreground mb-3">⚠️ Trending Concessions</h4>
+        <h4 className="text-sm font-medium text-foreground mb-3">🔮 AI Concession Predictions</h4>
         <div className="space-y-2">
           {trendingConcessions.map((concession, index) => (
             <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-white/5">
@@ -53,12 +53,23 @@ const MarketIntelligence: React.FC = () => {
             </div>
           ))}
         </div>
+        
+        {/* AI Prediction */}
+        <div className="mt-4 p-3 rounded-lg bg-primary/10 border border-primary/20">
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+            <span className="text-xs font-medium text-primary">AI Prediction</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            85% chance of 1-month free rent in luxury complexes within 7 days
+          </p>
+        </div>
       </div>
 
       {/* Last Updated */}
       <div className="mt-4 pt-4 border-t border-white/10">
         <div className="text-xs text-muted-foreground text-center">
-          Last updated 2 hours ago
+          AI updated: 2 minutes ago • Market data: 2 hours ago
         </div>
       </div>
     </div>

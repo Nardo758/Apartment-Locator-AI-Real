@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 // Import step components
 import CurrentLivingSituation from '@/components/signup/CurrentLivingSituation';
@@ -18,6 +19,9 @@ export interface SignupFormData {
   leaseExpiration: string;
   leaseDuration: string;
   moveFlexibility: string;
+  
+  // User info
+  email?: string;
 
   // Budget & Income
   grossIncome: number;
@@ -115,10 +119,64 @@ const Signup = () => {
     }
   };
 
-  const handleComplete = () => {
-    // Handle form completion
-    console.log('Form completed:', formData);
-    // Redirect to dashboard or show success message
+  const handleComplete = async () => {
+    try {
+      // Save user profile to Supabase
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .insert({
+          email: formData.email || 'user@example.com', // TODO: Get from auth
+          current_address: formData.currentAddress,
+          current_rent: formData.currentRent,
+          lease_expiration: formData.leaseExpiration,
+          lease_duration: formData.leaseDuration,
+          move_timeline: formData.moveFlexibility,
+          gross_income: formData.grossIncome,
+          max_budget: formData.maxBudget,
+          credit_score: formData.creditScore,
+          income_verified: formData.incomeVerified,
+          work_address: formData.workAddress,
+          max_commute: formData.maxCommute,
+          transportation: formData.transportation,
+          other_locations: formData.otherLocations,
+          employment_type: formData.employmentType,
+          work_frequency: formData.workFrequency,
+          min_bedrooms: formData.minBedrooms,
+          household_size: formData.householdSize,
+          amenities: formData.amenities,
+          deal_breakers: formData.dealBreakers,
+          pet_info: formData.petInfo,
+          neighborhoods: formData.neighborhoods,
+          rental_history: formData.rentalHistory,
+          negotiation_comfort: formData.negotiationComfort,
+          communication: formData.communication,
+          additional_notes: formData.additionalNotes,
+          ai_preferences: {
+            prioritizeCommute: formData.maxCommute <= 20,
+            budgetFocused: formData.maxBudget > 0,
+            amenityImportant: formData.amenities.length > 3
+          },
+          search_criteria: {
+            maxBudget: formData.maxBudget,
+            preferredAmenities: formData.amenities,
+            dealBreakers: formData.dealBreakers,
+            commutePriority: formData.maxCommute
+          }
+        });
+
+      if (error) {
+        console.error('Error saving profile:', error);
+        alert('Error saving profile. Please try again.');
+        return;
+      }
+
+      console.log('Profile saved successfully:', data);
+      alert('Profile setup complete! Welcome to Apartment Locator AI.');
+      // TODO: Redirect to dashboard
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An unexpected error occurred. Please try again.');
+    }
   };
 
   const updateFormData = (data: Partial<SignupFormData>) => {

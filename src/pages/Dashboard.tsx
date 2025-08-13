@@ -30,7 +30,7 @@ const Index = () => {
     }
   }, [daysUntilExpiration]);
 
-  const filterOptions = ['Best Matches', 'Hidden Gems', 'Price Drops'];
+  const filterOptions = ['Best Matches', 'Hidden Gems', 'Price Drops', 'Concession Opportunities', 'New Listings'];
 
   const filteredProperties = useMemo(() => {
     return mockProperties.sort((a, b) => {
@@ -76,7 +76,7 @@ const Index = () => {
                   <div className="flex items-center space-x-2">
                     <div className={`w-3 h-3 rounded-full ${isScanning ? 'bg-secondary ai-pulse' : 'bg-muted'}`}></div>
                     <span className="text-sm text-muted-foreground">
-                      {isScanning ? '🔍 AI scanning 127 properties' : 'Scan complete'}
+                      {isScanning ? '🤖 AI analyzing 1,247 properties' : '✅ Analysis complete - 73 matches found'}
                     </span>
                   </div>
                 </div>
@@ -85,27 +85,27 @@ const Index = () => {
               {/* Stats Cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatsCard
-                  value={`$${mockStats.propertiesScanned}`}
-                  label="Max Monthly Savings"
-                  sublabel="Rent Effective Budget"
+                  value="$312"
+                  label="Monthly Savings"
+                  sublabel="AI-Optimized Budget"
                   gradient="primary"
                 />
                 <StatsCard
-                  value={`${mockStats.aiMatchScore}%`}
-                  label="Match Score Best Property"
-                  sublabel="Lease Best Financing"
+                  value="73%"
+                  label="Success Rate"
+                  sublabel="AI Negotiations"
                   gradient="secondary"
                 />
                 <StatsCard
-                  value={mockStats.savedProperties}
-                  label="Days Until Lease Expires"
-                  sublabel="Current Apt Lease"
+                  value="1,247"
+                  label="Properties Analyzed"
+                  sublabel="Last 24 Hours"
                   gradient="primary"
                 />
                 <StatsCard
-                  value="3/3"
-                  label="First Choice Used"
-                  sublabel="Current Total Savings"
+                  value="$3,744"
+                  label="Annual Savings"
+                  sublabel="Projected Total"
                   gradient="secondary"
                 />
               </div>

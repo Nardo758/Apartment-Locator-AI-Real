@@ -5,20 +5,20 @@ const QuickActions: React.FC = () => {
   const actions = [
     {
       icon: Search,
-      label: 'Update Search',
-      description: 'Refine criteria & filters',
+      label: 'AI Property Discovery',
+      description: 'Find hidden deals',
       gradient: 'bg-gradient-primary'
     },
     {
       icon: TrendingUp,
-      label: 'Market Report',
-      description: 'Generate insights',
+      label: 'Market Intelligence',
+      description: 'Real-time insights',
       gradient: 'bg-gradient-secondary'
     },
     {
       icon: Settings,
-      label: 'Settings',
-      description: 'Preferences & alerts',
+      label: 'Concession Strategy',
+      description: 'Negotiation tactics',
       gradient: 'bg-gradient-primary'
     }
   ];
