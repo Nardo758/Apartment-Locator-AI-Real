@@ -224,9 +224,9 @@ const Landing = () => {
                   }}
                   onClick={(e) => {
                     e.preventDefault();
-                    const target = document.querySelector('#demo');
+                    const target = document.querySelector('#features');
                     if (target) {
-                      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                   }}
                   onMouseEnter={(e) => {
