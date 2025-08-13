@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MapPin, Clock, Zap, ChevronDown, ChevronUp } from 'lucide-react';
 import { Property } from '../data/mockData';
 
@@ -8,6 +9,7 @@ interface PropertyCardProps {
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const navigate = useNavigate();
 
   const getAvailabilityBadgeColor = (type: string) => {
     switch (type) {
@@ -157,7 +159,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
       {/* Action Buttons */}
       <div className="flex space-x-3">
-        <button className="flex-1 btn-primary text-sm">
+        <button 
+          className="flex-1 btn-primary text-sm"
+          onClick={() => navigate(`/generate-offer?property=${property.id}`)}
+        >
           <Zap size={14} className="mr-1" />
           Generate AI Offer
         </button>
