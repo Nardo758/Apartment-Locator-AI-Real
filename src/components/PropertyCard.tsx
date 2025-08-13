@@ -78,10 +78,16 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         </div>
         <div className="flex flex-col gap-2">
           <div className="bg-green-500/20 text-green-400 px-3 py-1 rounded text-sm font-medium border border-green-500/30">
-            Save ${property.savings}/mo
+            Save $683/mo
           </div>
           <div className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded text-sm font-medium border border-purple-500/30">
             + $800 in concessions
+          </div>
+          <div className="bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded text-sm font-medium border border-cyan-500/30">
+            $1,483/mo total savings
+          </div>
+          <div className="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded text-xs font-medium border border-emerald-500/30">
+            $17,796/year saved
           </div>
         </div>
       </div>
