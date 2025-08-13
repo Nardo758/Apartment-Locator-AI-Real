@@ -13,12 +13,36 @@ import { mockProperties, mockStats } from '../data/mockData';
 import { useAIScanning } from '../hooks/useAIScanning';
 import { useMarketData } from '../hooks/useMarketData';
 
+interface PointOfInterest {
+  id: string;
+  name: string;
+  address: string;
+  maxTime: number;
+  transportMode: 'driving' | 'transit' | 'walking' | 'biking';
+  isWorkLocation?: boolean;
+}
 const Index = () => {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [filterMode, setFilterMode] = useState('Best Matches');
   const [isLeaseExpiring, setIsLeaseExpiring] = useState(true);
   const [daysUntilExpiration, setDaysUntilExpiration] = useState(47);
-  const [searchLocation, setSearchLocation] = useState({ city: 'Austin', state: 'TX', radius: 25 });
+  const [searchLocation, setSearchLocation] = useState<{
+    city: string;
+    state: string;
+    radius: number;
+    maxDriveTime: number;
+    pointsOfInterest: PointOfInterest[];
+  }>({ 
+    city: 'Austin', 
+    state: 'TX', 
+    radius: 25, 
+    maxDriveTime: 30,
+    pointsOfInterest: [
+      { id: '1', name: 'Work', address: '123 Business St, Austin, TX', maxTime: 25, transportMode: 'driving', isWorkLocation: true },
+      { id: '2', name: 'UT Campus', address: 'University of Texas, Austin, TX', maxTime: 20, transportMode: 'transit' },
+      { id: '3', name: 'Airport', address: 'Austin-Bergstrom International Airport', maxTime: 45, transportMode: 'driving' }
+    ]
+  });
   
   const { propertiesScanned, isScanning } = useAIScanning();
   const marketData = useMarketData();
@@ -178,7 +202,7 @@ const Index = () => {
               {/* Location Search */}
               <LocationSearch 
                 currentLocation={searchLocation}
-                onLocationChange={setSearchLocation}
+                onLocationChange={(location) => setSearchLocation(location)}
               />
 
               {/* Usage Tracker */}
