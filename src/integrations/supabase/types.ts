@@ -14,7 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      rental_offers: {
+        Row: {
+          ai_suggestions: Json | null
+          created_at: string
+          id: string
+          lease_term: number
+          monthly_budget: number
+          move_in_date: string
+          notes: string | null
+          property_details: Json | null
+          property_id: string
+          updated_at: string
+          user_email: string
+        }
+        Insert: {
+          ai_suggestions?: Json | null
+          created_at?: string
+          id?: string
+          lease_term: number
+          monthly_budget: number
+          move_in_date: string
+          notes?: string | null
+          property_details?: Json | null
+          property_id: string
+          updated_at?: string
+          user_email: string
+        }
+        Update: {
+          ai_suggestions?: Json | null
+          created_at?: string
+          id?: string
+          lease_term?: number
+          monthly_budget?: number
+          move_in_date?: string
+          notes?: string | null
+          property_details?: Json | null
+          property_id?: string
+          updated_at?: string
+          user_email?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
