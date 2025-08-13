@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 const Landing = () => {
   return (
-    <div className="min-h-screen animated-bg">
+    <div className="min-h-screen bg-gradient-animated">{/* Static gradient background */}
       {/* Hero Section */}
       <section className="pt-20 pb-32 px-6">
         <div className="max-w-4xl mx-auto text-center">
@@ -41,7 +41,7 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-foreground mb-4">
-              Why Choose ApartmentIQ?
+              Why Choose Apartment Locator AI?
             </h2>
             <p className="text-xl text-muted-foreground">
               The smartest way to find and secure your next home
@@ -171,7 +171,7 @@ const Landing = () => {
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-border/20">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="text-2xl font-bold gradient-text mb-4">ApartmentIQ</div>
+          <div className="text-2xl font-bold gradient-text mb-4">Apartment Locator AI</div>
           <p className="text-muted-foreground">
             The future of apartment hunting is here.
           </p>

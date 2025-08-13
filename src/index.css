@@ -4,11 +4,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ApartmentIQ Design System - Dark theme with glassmorphism */
+/* Apartment Locator AI Design System - Dark theme with glassmorphism */
 
 @layer base {
   :root {
-    /* ApartmentIQ Dark Theme Colors (HSL) */
+    /* Apartment Locator AI Dark Theme Colors (HSL) */
     --background: 0 0% 4%;  /* #0A0A0A */
     --foreground: 0 0% 96%; /* Light text */
 

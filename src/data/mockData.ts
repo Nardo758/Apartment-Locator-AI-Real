@@ -1,4 +1,4 @@
-// Mock data for ApartmentIQ
+// Mock data for Apartment Locator AI
 
 export interface Property {
   id: string;
