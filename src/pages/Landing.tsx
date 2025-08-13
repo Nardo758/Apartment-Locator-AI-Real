@@ -1,151 +1,81 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Check, Shield, Brain, MapPin } from 'lucide-react';
+import { ArrowRight, Check, Shield, Brain, MapPin, Zap, Target, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Landing = () => {
   return (
-    <div className="min-h-screen bg-background">{/* Dark solid background */}
-      <section className="pt-20 pb-16 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Column - Main Message */}
-            <div>
-              <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-                Never <span className="gradient-text">Overpay</span>
-                <br />for Rent Again
-              </h1>
-              
-              <p className="text-xl text-muted-foreground mb-8 max-w-lg">
-                Our AI discovers hidden rental opportunities and generates data-driven negotiation offers that save you an average of <span className="text-secondary font-semibold">$312/month</span>.
-              </p>
-
-              {/* Stats Row */}
-              <div className="grid grid-cols-3 gap-6 mb-8">
-                <div className="glass-dark rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold text-secondary mb-1">73%</div>
-                  <div className="text-sm text-muted-foreground">Success Rate</div>
-                </div>
-                <div className="glass-dark rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold text-primary mb-1">$312</div>
-                  <div className="text-sm text-muted-foreground">Avg. Monthly Savings</div>
-                </div>
-                <div className="glass-dark rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold gradient-text mb-1">15K+</div>
-                  <div className="text-sm text-muted-foreground">Happy Renters</div>
-                </div>
-              </div>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/signup">
-                  <Button size="lg" className="btn-primary text-lg px-8 py-4">
-                    Start Saving Today
-                  </Button>
-                </Link>
-                
-                <Link to="/how-it-works">
-                  <Button size="lg" variant="outline" className="text-lg px-8 py-4 glass border-border/20 hover:bg-muted/20">
-                    See How It Works
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            {/* Right Column - AI Analysis Demo */}
-            <div className="relative">
-              <div className="glass-dark rounded-xl p-6 border border-border/20">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-foreground">AI-Powered Property Analysis</h3>
-                  <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">LIVE AI</span>
-                </div>
-                
-                {/* Property Analysis Cards */}
-                <div className="space-y-4">
-                  <div className="glass rounded-lg p-4 border border-border/10">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h4 className="font-medium text-foreground">2547 Riverside Dr, Austin</h4>
-                        <div className="text-2xl font-bold text-secondary mt-1">$2,190/mo</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-red-400 mb-1">87 days vacant</div>
-                        <div className="bg-secondary/20 text-secondary px-2 py-1 rounded text-xs font-medium">
-                          Save $230/mo
-                        </div>
-                      </div>
-                    </div>
-                    <div className="w-full bg-muted/20 rounded-full h-2">
-                      <div className="bg-secondary h-2 rounded-full" style={{width: '84%'}}></div>
-                    </div>
-                    <div className="text-xs text-secondary mt-1">84% Success</div>
-                  </div>
-
-                  <div className="glass rounded-lg p-4 border border-border/10">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h4 className="font-medium text-foreground">987 Mueller District</h4>
-                        <div className="text-2xl font-bold text-secondary mt-1">$1,890/mo</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-red-400 mb-1">63 days vacant</div>
-                        <div className="bg-secondary/20 text-secondary px-2 py-1 rounded text-xs font-medium">
-                          Save $180/mo
-                        </div>
-                      </div>
-                    </div>
-                    <div className="w-full bg-muted/20 rounded-full h-2">
-                      <div className="bg-secondary h-2 rounded-full" style={{width: '91%'}}></div>
-                    </div>
-                    <div className="text-xs text-secondary mt-1">91% Success</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+            Powered by <span className="gradient-text">Advanced AI</span>
+          </h1>
         </div>
       </section>
 
       {/* Features Section */}
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-foreground mb-4">
-              Why Choose Apartment Locator AI?
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              The smartest way to find and secure your next home
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="glass-dark rounded-xl p-8 text-center card-lift">
-              <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                <Brain size={32} className="text-white" />
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="glass-dark rounded-xl p-6 text-left">
+              <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
+                <Brain size={24} className="text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-foreground mb-4">AI-Powered Matching</h3>
-              <p className="text-muted-foreground">
-                Our AI analyzes thousands of properties to find perfect matches based on your preferences and lifestyle.
+              <h3 className="text-lg font-bold text-foreground mb-2">Smart Property Discovery</h3>
+              <p className="text-sm text-muted-foreground">
+                AI-driven search algorithms find properties that match your specific needs and preferences.
               </p>
             </div>
 
-            <div className="glass-dark rounded-xl p-8 text-center card-lift">
-              <div className="w-16 h-16 bg-gradient-secondary rounded-full flex items-center justify-center mx-auto mb-6">
-                <Shield size={32} className="text-white" />
+            <div className="glass-dark rounded-xl p-6 text-left">
+              <div className="w-12 h-12 bg-gradient-secondary rounded-lg flex items-center justify-center mb-4">
+                <Shield size={24} className="text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-foreground mb-4">Verified Income</h3>
-              <p className="text-muted-foreground">
-                Instant income verification through Plaid gives you an edge with landlords and speeds up approvals.
+              <h3 className="text-lg font-bold text-foreground mb-2">Instant Verification</h3>
+              <p className="text-sm text-muted-foreground">
+                Verify your income instantly through secure banking connections for faster applications.
               </p>
             </div>
 
-            <div className="glass-dark rounded-xl p-8 text-center card-lift">
-              <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                <MapPin size={32} className="text-white" />
+            <div className="glass-dark rounded-xl p-6 text-left">
+              <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
+                <MapPin size={24} className="text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-foreground mb-4">Location Intelligence</h3>
-              <p className="text-muted-foreground">
-                Find homes that perfectly fit your commute, lifestyle, and neighborhood preferences.
+              <h3 className="text-lg font-bold text-foreground mb-2">Automated Outreach</h3>
+              <p className="text-sm text-muted-foreground">
+                Automatically contact landlords and property managers with personalized inquiries.
+              </p>
+            </div>
+
+            <div className="glass-dark rounded-xl p-6 text-left">
+              <div className="w-12 h-12 bg-gradient-secondary rounded-lg flex items-center justify-center mb-4">
+                <Target size={24} className="text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-foreground mb-2">Market Intelligence</h3>
+              <p className="text-sm text-muted-foreground">
+                Get real-time market insights and pricing data to make informed decisions.
+              </p>
+            </div>
+
+            <div className="glass-dark rounded-xl p-6 text-left">
+              <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
+                <TrendingUp size={24} className="text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-foreground mb-2">Success Tracking</h3>
+              <p className="text-sm text-muted-foreground">
+                Monitor application progress and optimize your strategy with detailed analytics.
+              </p>
+            </div>
+
+            <div className="glass-dark rounded-xl p-6 text-left">
+              <div className="w-12 h-12 bg-gradient-secondary rounded-lg flex items-center justify-center mb-4">
+                <Zap size={24} className="text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-foreground mb-2">Lightning Fast</h3>
+              <p className="text-sm text-muted-foreground">
+                Complete your apartment search in days, not months, with our AI-powered platform.
               </p>
             </div>
           </div>
@@ -154,55 +84,116 @@ const Landing = () => {
 
       {/* Pricing Section */}
       <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-foreground mb-4">
-              Simple, One-Time Pricing
+              Choose Your Plan
             </h2>
             <p className="text-xl text-muted-foreground">
-              Get lifetime access to our AI apartment locator
+              Start free, upgrade when you're ready to save serious money
             </p>
           </div>
 
-          <div className="glass-dark rounded-2xl p-12 text-center border border-primary/20">
-            <div className="mb-8">
-              <div className="text-6xl font-bold text-primary mb-4">$49</div>
-              <div className="text-xl text-muted-foreground mb-6">One-time payment</div>
-            </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Free Plan */}
+            <div className="glass-dark rounded-xl p-8 text-center">
+              <h3 className="text-xl font-bold text-foreground mb-4">Free</h3>
+              <div className="text-4xl font-bold text-primary mb-4">$0</div>
+              <p className="text-sm text-muted-foreground mb-6">per month</p>
+              
+              <div className="space-y-3 mb-8 text-left">
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">5 AI-based searches</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">Basic market insights</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">Email support</span>
+                </div>
+              </div>
 
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center justify-center space-x-3">
-                <Check size={20} className="text-secondary" />
-                <span className="text-foreground">Unlimited AI property searches</span>
-              </div>
-              <div className="flex items-center justify-center space-x-3">
-                <Check size={20} className="text-secondary" />
-                <span className="text-foreground">Advanced market analysis</span>
-              </div>
-              <div className="flex items-center justify-center space-x-3">
-                <Check size={20} className="text-secondary" />
-                <span className="text-foreground">Negotiation offer generation</span>
-              </div>
-              <div className="flex items-center justify-center space-x-3">
-                <Check size={20} className="text-secondary" />
-                <span className="text-foreground">Income verification tools</span>
-              </div>
-              <div className="flex items-center justify-center space-x-3">
-                <Check size={20} className="text-secondary" />
-                <span className="text-foreground">Lifetime access & updates</span>
-              </div>
-            </div>
-
-            <Link to="/signup">
-              <Button size="lg" className="btn-primary text-lg px-12 py-4">
-                Get Started Now
-                <ArrowRight className="ml-2" size={20} />
+              <Button variant="outline" size="lg" className="w-full">
+                Get Started Free
               </Button>
-            </Link>
+            </div>
 
-            <p className="text-sm text-muted-foreground mt-4">
-              No monthly fees. No hidden costs. Pay once, use forever.
-            </p>
+            {/* Pro Plan */}
+            <div className="glass-dark rounded-xl p-8 text-center border border-primary/40">
+              <h3 className="text-xl font-bold text-foreground mb-4">Pro</h3>
+              <div className="text-4xl font-bold text-primary mb-4">$19.99</div>
+              <p className="text-sm text-muted-foreground mb-6">per month</p>
+              
+              <div className="space-y-3 mb-8 text-left">
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">Unlimited AI data</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">Advanced analytics</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">Real-time notifications</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">Priority support</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">API integrations</span>
+                </div>
+              </div>
+
+              <Link to="/signup">
+                <Button size="lg" className="btn-primary w-full">
+                  Start Pro Trial
+                </Button>
+              </Link>
+            </div>
+
+            {/* Premium Plan */}
+            <div className="glass-dark rounded-xl p-8 text-center">
+              <h3 className="text-xl font-bold text-foreground mb-4">Premium</h3>
+              <div className="text-4xl font-bold text-primary mb-4">$49.99</div>
+              <p className="text-sm text-muted-foreground mb-6">per month</p>
+              
+              <div className="space-y-3 mb-8 text-left">
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">Everything in Pro</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">White-label solutions</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">Custom integrations</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">Dedicated manager</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">SLA guarantee</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Check size={16} className="text-secondary" />
+                  <span className="text-sm text-foreground">All future</span>
+                </div>
+              </div>
+
+              <Button variant="outline" size="lg" className="w-full">
+                Contact Us
+              </Button>
+            </div>
           </div>
         </div>
       </section>
