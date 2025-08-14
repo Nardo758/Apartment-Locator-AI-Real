@@ -30,74 +30,102 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { mockProperties, type Property } from '@/data/mockData';
+import { usePropertyState } from '@/contexts/PropertyStateContext';
 import { ApartmentIQAI, SampleDataFactory } from '@/lib/apartmentiq-ai';
 import { AlgorithmAnalyticsTracker } from '@/lib/analytics-architecture-audit';
 import { toast } from '@/hooks/use-toast';
+import Breadcrumb from '@/components/Breadcrumb';
 
 const PropertyDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [property, setProperty] = useState<Property | null>(null);
+  const { 
+    selectedProperty,
+    setSelectedProperty,
+    favoriteProperties,
+    setFavoriteProperties 
+  } = usePropertyState();
+  
+  const [property, setProperty] = useState<Property | null>(selectedProperty);
   const [aiAnalysis, setAiAnalysis] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [isFavorited, setIsFavorited] = useState(false);
+  const [loading, setLoading] = useState(!selectedProperty);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  const isFavorited = property ? favoriteProperties.includes(property.id) : false;
 
   useEffect(() => {
     const loadPropertyDetails = async () => {
-      setLoading(true);
-      
-      // Find property in mock data
-      const foundProperty = mockProperties.find(p => p.id === id);
-      if (!foundProperty) {
-        navigate('/dashboard');
-        return;
+      // If we have selectedProperty from context, use it
+      if (selectedProperty && selectedProperty.id === id) {
+        setProperty(selectedProperty);
+        setLoading(false);
+      } else {
+        setLoading(true);
+        
+        // Find property in mock data
+        const foundProperty = mockProperties.find(p => p.id === id);
+        if (!foundProperty) {
+          navigate('/dashboard');
+          return;
+        }
+        
+        setProperty(foundProperty);
+        setSelectedProperty(foundProperty);
+        setLoading(false);
       }
       
-      setProperty(foundProperty);
-      
-      // Perform AI analysis
-      try {
-        const aiEngine = new ApartmentIQAI();
-        const tracker = new AlgorithmAnalyticsTracker();
-        
-        const propertyData = SampleDataFactory.createPropertyData();
-        propertyData.propertyId = foundProperty.id;
-        propertyData.rent = foundProperty.originalPrice;
-        propertyData.vacancyDuration = foundProperty.daysVacant;
-        
-        const marketData = SampleDataFactory.createMarketData();
-        const behavioralData = SampleDataFactory.createBehavioralData();
-        const tenantProfile = SampleDataFactory.createTenantProfile();
-        
-        const { result } = await tracker.trackOpportunityAnalysis(
-          propertyData,
-          marketData,
-          behavioralData,
-          tenantProfile,
-          'user-123',
-          'session-456'
-        );
-        
-        setAiAnalysis(result);
-      } catch (error) {
-        console.error('AI analysis failed:', error);
+      // Perform AI analysis if we have a property
+      if (property) {
+        try {
+          const aiEngine = new ApartmentIQAI();
+          const tracker = new AlgorithmAnalyticsTracker();
+          
+          const propertyData = SampleDataFactory.createPropertyData();
+          propertyData.propertyId = property.id;
+          propertyData.rent = property.originalPrice;
+          propertyData.vacancyDuration = property.daysVacant;
+          
+          const marketData = SampleDataFactory.createMarketData();
+          const behavioralData = SampleDataFactory.createBehavioralData();
+          const tenantProfile = SampleDataFactory.createTenantProfile();
+          
+          const { result } = await tracker.trackOpportunityAnalysis(
+            propertyData,
+            marketData,
+            behavioralData,
+            tenantProfile,
+            'user-123',
+            'session-456'
+          );
+          
+          setAiAnalysis(result);
+        } catch (error) {
+          console.error('AI analysis failed:', error);
+        }
       }
-      
-      setLoading(false);
     };
 
     if (id) {
       loadPropertyDetails();
     }
-  }, [id, navigate]);
+  }, [id, navigate, selectedProperty, setSelectedProperty]);
 
   const handleFavorite = () => {
-    setIsFavorited(!isFavorited);
-    toast({
-      title: isFavorited ? "Removed from favorites" : "Added to favorites",
-      description: isFavorited ? "Property removed from your favorites" : "Property saved to your favorites"
-    });
+    if (!property) return;
+    
+    if (isFavorited) {
+      setFavoriteProperties(favoriteProperties.filter(id => id !== property.id));
+      toast({
+        title: "Removed from favorites",
+        description: "Property removed from your favorites"
+      });
+    } else {
+      setFavoriteProperties([...favoriteProperties, property.id]);
+      toast({
+        title: "Added to favorites",
+        description: "Property saved to your favorites"
+      });
+    }
   };
 
   const handleShare = () => {
@@ -109,7 +137,10 @@ const PropertyDetails: React.FC = () => {
   };
 
   const handleGenerateOffer = () => {
-    navigate('/generate-offer', { state: { property } });
+    if (property) {
+      setSelectedProperty(property);
+      navigate('/generate-offer');
+    }
   };
 
   if (loading) {
@@ -171,6 +202,8 @@ const PropertyDetails: React.FC = () => {
       
       <main className="pt-20 pb-8">
         <div className="container mx-auto px-6">
+          <Breadcrumb />
+          
           {/* Navigation & Actions */}
           <div className="flex items-center justify-between mb-6">
             <Button

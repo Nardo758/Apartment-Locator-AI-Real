@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Clock, Zap, ChevronDown, ChevronUp } from 'lucide-react';
+import { MapPin, Clock, Zap, ChevronDown, ChevronUp, Heart } from 'lucide-react';
 import { Property } from '../data/mockData';
+import { usePropertyState } from '../contexts/PropertyStateContext';
 import PricingBreakdown from './PricingBreakdown';
+import { toast } from '@/hooks/use-toast';
 
 interface PropertyCardProps {
   property: Property;
@@ -11,6 +13,40 @@ interface PropertyCardProps {
 const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
+  const { 
+    setSelectedProperty, 
+    favoriteProperties, 
+    setFavoriteProperties 
+  } = usePropertyState();
+
+  const isFavorited = favoriteProperties.includes(property.id);
+
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isFavorited) {
+      setFavoriteProperties(favoriteProperties.filter(id => id !== property.id));
+      toast({
+        title: "Removed from favorites",
+        description: "Property removed from your favorites"
+      });
+    } else {
+      setFavoriteProperties([...favoriteProperties, property.id]);
+      toast({
+        title: "Added to favorites",
+        description: "Property saved to your favorites"
+      });
+    }
+  };
+
+  const handleViewDetails = () => {
+    setSelectedProperty(property);
+    navigate(`/property/${property.id}`);
+  };
+
+  const handleGenerateOffer = () => {
+    setSelectedProperty(property);
+    navigate('/generate-offer');
+  };
 
   const getAvailabilityBadgeColor = (type: string) => {
     switch (type) {
@@ -43,9 +79,21 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       {/* Property Header */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1">
-          <h3 className="text-xl font-semibold text-foreground mb-2">
-            {property.name}
-          </h3>
+          <div className="flex items-center gap-3 mb-2">
+            <h3 className="text-xl font-semibold text-foreground">
+              {property.name}
+            </h3>
+            <button
+              onClick={handleFavorite}
+              className={`p-1.5 rounded-lg transition-all duration-200 ${
+                isFavorited 
+                  ? 'text-red-500 bg-red-500/10 border border-red-500/20' 
+                  : 'text-muted-foreground hover:text-red-500 hover:bg-red-500/5'
+              }`}
+            >
+              <Heart size={16} className={isFavorited ? 'fill-current' : ''} />
+            </button>
+          </div>
           <div className="flex items-center text-sm text-muted-foreground mb-3">
             <MapPin size={14} className="mr-1" />
             {property.address}, {property.city}, {property.state}
@@ -178,14 +226,14 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       <div className="flex gap-3">
         <button 
           className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
-          onClick={() => navigate(`/generate-offer?property=${property.id}`)}
+          onClick={handleGenerateOffer}
         >
           <Zap size={16} />
           Generate AI Offer
         </button>
         <button 
           className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 border border-slate-600"
-          onClick={() => navigate(`/property/${property.id}`)}
+          onClick={handleViewDetails}
         >
           View Details
         </button>

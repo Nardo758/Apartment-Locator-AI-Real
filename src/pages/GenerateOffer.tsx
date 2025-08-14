@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Zap, DollarSign, Calendar, FileText, Sparkles, TrendingUp, AlertCircle, Mail, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useForm } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { usePropertyState } from '@/contexts/PropertyStateContext';
+import { Property } from '@/data/mockData';
+import Breadcrumb from '@/components/Breadcrumb';
 import Header from '../components/Header';
 
 interface OfferFormData {
@@ -37,64 +40,84 @@ interface OfferFormData {
 const GenerateOffer = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const propertyId = searchParams.get('property');
+  const { selectedProperty, setOfferFormData, offerFormData } = usePropertyState();
+  
+  // Get property from context or URL params
+  const propertyFromParams = searchParams.get('property');
+  const property: Property | null = selectedProperty || null;
+  
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [offerSubmitted, setOfferSubmitted] = useState(false);
+  
+  // Enhanced AI suggestions with property-specific data
   const [aiSuggestions, setAiSuggestions] = useState<any>({
     recommendedOffer: {
-      suggestedRent: '$2,850',
-      strategy: 'Competitive pricing below market average',
-      reasoning: 'Property is priced 3.4% below market rate, increasing acceptance likelihood'
+      suggestedRent: property?.effectivePrice ? `$${property.effectivePrice.toLocaleString()}` : '$2,850',
+      strategy: 'Competitive pricing based on AI analysis',
+      reasoning: property ? `Property shows ${property.successRate}% success rate for negotiations` : 'Property is priced below market rate, increasing acceptance likelihood'
     },
     marketAnalysis: {
-      marketPosition: 'Competitive - Below market average',
-      demandLevel: 'High demand area with 85% occupancy rate',
-      competitiveAnalysis: 'Similar properties range $2,800-$3,100'
+      marketPosition: 'Competitive - AI optimized pricing',
+      demandLevel: property ? `${property.matchScore}% match with current market demand` : 'High demand area with 85% occupancy rate',
+      competitiveAnalysis: 'Similar properties analyzed by AI system'
     },
-    potentialConcessions: [
+    potentialConcessions: property?.concessions?.map(c => ({
+      type: c.type,
+      description: `Value: ${c.value}`,
+      likelihood: c.probability > 70 ? 'High' : c.probability > 50 ? 'Medium' : 'Low'
+    })) || [
       { type: 'First Month Free', description: 'Waive first month rent', likelihood: 'High' },
       { type: 'Reduced Security Deposit', description: 'Lower deposit to $500', likelihood: 'Medium' },
       { type: 'Waived Application Fee', description: 'Remove $200 application fee', likelihood: 'Very High' }
     ],
     timingRecommendations: {
       bestTimeToApply: 'Within 48 hours',
-      reasoning: 'End of quarter - landlords motivated to fill units before reporting period'
+      reasoning: property?.daysVacant > 30 ? 'Property has been vacant for extended period - landlord motivated' : 'End of quarter - landlords motivated to fill units before reporting period'
     },
     importantTerms: [
       { term: 'Lease Term', detail: '12 months with option to renew' },
       { term: 'Security Deposit', detail: '$500 (negotiable down from $1,000)' },
-      { term: 'Pet Policy', detail: 'Pets allowed with $250 deposit' },
+      { term: 'Pet Policy', detail: property?.petPolicy || 'Pets allowed with $250 deposit' },
       { term: 'Utilities', detail: 'Tenant responsible for electric/gas' },
-      { term: 'Parking', detail: 'One reserved spot included' },
+      { term: 'Parking', detail: property?.parking || 'One reserved spot included' },
       { term: 'Move-in Date', detail: 'Flexible within 30 days' }
     ]
   });
 
   const form = useForm<OfferFormData>({
     defaultValues: {
-      userEmail: '',
-      moveInDate: '',
-      leaseTerm: '12',
-      monthlyBudget: '2850',
-      securityDeposit: '500',
-      notes: '',
+      ...offerFormData,
+      userEmail: offerFormData.userEmail || '',
+      moveInDate: offerFormData.moveInDate || '',
+      leaseTerm: offerFormData.leaseTerm || '12',
+      monthlyBudget: offerFormData.monthlyBudget || (property?.effectivePrice?.toString() || '2850'),
+      securityDeposit: offerFormData.securityDeposit || '500',
+      notes: offerFormData.notes || '',
       // Important Terms
-      petPolicy: 'Pets allowed with $250 deposit',
-      utilities: 'Tenant responsible for electric/gas',
-      parking: 'One reserved spot included',
-      trash: 'To be negotiated',
+      petPolicy: offerFormData.petPolicy || (property?.petPolicy || 'Pets allowed with $250 deposit'),
+      utilities: offerFormData.utilities || 'Tenant responsible for electric/gas',
+      parking: offerFormData.parking || (property?.parking || 'One reserved spot included'),
+      trash: offerFormData.trash || 'To be negotiated',
       // Lease Incentives
-      firstMonthFree: false,
-      reducedDeposit: true,
-      waiveAppFee: true,
+      firstMonthFree: offerFormData.firstMonthFree || false,
+      reducedDeposit: offerFormData.reducedDeposit || true,
+      waiveAppFee: offerFormData.waiveAppFee || true,
       // Qualifications
-      monthlyIncome: '',
-      creditScore: '',
-      employmentHistory: '',
-      rentalHistory: ''
+      monthlyIncome: offerFormData.monthlyIncome || '',
+      creditScore: offerFormData.creditScore || '',
+      employmentHistory: offerFormData.employmentHistory || '',
+      rentalHistory: offerFormData.rentalHistory || ''
     }
   });
+
+  // Save form data to context on changes
+  useEffect(() => {
+    const subscription = form.watch((data) => {
+      setOfferFormData(data);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, setOfferFormData]);
 
   const handleGenerateOffer = async (data: OfferFormData) => {
     setIsGenerating(true);
@@ -169,10 +192,10 @@ const GenerateOffer = () => {
             employmentHistory: formData.employmentHistory,
             rentalHistory: formData.rentalHistory
           },
-          propertyId: propertyId || '1',
+          propertyId: property?.id || propertyFromParams || '1',
           aiSuggestions: aiSuggestions,
           propertyDetails: {
-            id: propertyId,
+            id: property?.id || propertyFromParams || '1',
             name: 'Sunshine Lake Apartments',
             address: '4567 Sunburst Dr, Austin, TX 78713',
             unitType: '2 bed / 2 bath - 1,120 sqft',
@@ -213,6 +236,8 @@ const GenerateOffer = () => {
       
       <main className="pt-20 px-6 pb-8">
         <div className="max-w-4xl mx-auto">
+          <Breadcrumb />
+          
           {/* Header */}
           <div className="flex items-center space-x-4 mb-8">
             <button
