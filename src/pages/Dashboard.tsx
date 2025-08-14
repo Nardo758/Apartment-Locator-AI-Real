@@ -8,6 +8,7 @@ import UsageTracker from '../components/UsageTracker';
 import QuickActions from '../components/QuickActions';
 import MarketIntelligence from '../components/MarketIntelligence';
 import LocationSearch from '../components/LocationSearch';
+import PricingBreakdown from '../components/PricingBreakdown';
 
 import { mockProperties, mockStats } from '../data/mockData';
 import { useAIScanning } from '../hooks/useAIScanning';
@@ -138,11 +139,11 @@ const Index = () => {
                 />
               </div>
 
-              {/* Property Recommendations */}
+              {/* AI Pricing Recommendations */}
               <div className="glass-dark rounded-xl p-6">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-center mb-6">
                   <h2 className="text-xl font-bold text-foreground">
-                    🔮 AI Property Recommendations
+                    🤖 AI Pricing Intelligence
                   </h2>
                   
                   {/* View Toggle */}
@@ -164,34 +165,8 @@ const Index = () => {
                   </div>
                 </div>
 
-                {/* Filters */}
-                <div className="flex items-center space-x-3 mb-6">
-                  <Filter size={16} className="text-muted-foreground" />
-                  {filterOptions.map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => setFilterMode(option)}
-                      className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
-                        filterMode === option
-                          ? 'bg-primary text-white'
-                          : 'bg-muted/20 text-muted-foreground hover:bg-muted/40'
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Content */}
-                {viewMode === 'list' ? (
-                  <div className="grid gap-6">
-                    {filteredProperties.map((property) => (
-                      <PropertyCard key={property.id} property={property} />
-                    ))}
-                  </div>
-                ) : (
-                  <PropertyMap />
-                )}
+                {/* Pricing Breakdown Component */}
+                <PricingBreakdown />
               </div>
             </div>
 
