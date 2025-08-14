@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Clock, Zap, ChevronDown, ChevronUp } from 'lucide-react';
 import { Property } from '../data/mockData';
+import PricingBreakdown from './PricingBreakdown';
 
 interface PropertyCardProps {
   property: Property;
@@ -87,40 +88,16 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         </div>
       </div>
 
-      {/* Pricing Section - More Elegant */}
-      <div className="bg-gradient-to-r from-slate-800/30 to-slate-700/20 rounded-xl p-4 mb-6 border border-slate-600/30">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="text-sm text-muted-foreground line-through mb-2">
-              ${property.originalPrice.toLocaleString()}/mo
-            </div>
-            <div className="text-2xl font-bold text-cyan-400 mb-1">
-              ${property.aiPrice.toLocaleString()}/mo
-            </div>
-            <div className="text-lg text-cyan-300 mb-1">
-              ${property.effectivePrice.toLocaleString()}/mo effective
-            </div>
-            <div className="text-xs text-slate-400">
-              with concessions
-            </div>
-          </div>
-          
-          {/* Savings Stack - Cleaner Design */}
-          <div className="text-right space-y-2">
-            <div className="bg-green-500/10 text-green-400 px-3 py-1.5 rounded-lg text-sm font-medium border border-green-500/20">
-              Save $683/mo
-            </div>
-            <div className="bg-purple-500/10 text-purple-400 px-3 py-1.5 rounded-lg text-sm font-medium border border-purple-500/20">
-              + $800 in concessions
-            </div>
-            <div className="bg-cyan-500/10 text-cyan-400 px-3 py-1.5 rounded-lg text-sm font-semibold border border-cyan-500/20">
-              $1,483/mo total
-            </div>
-            <div className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-lg text-xs font-medium border border-emerald-500/20">
-              $17,796/year saved
-            </div>
-          </div>
-        </div>
+      {/* Pricing Section - New Vertical Layout */}
+      <div className="mb-6">
+        <PricingBreakdown
+          originalPrice={property.originalPrice}
+          aiPrice={property.aiPrice}
+          effectivePrice={property.effectivePrice}
+          concessions={800}
+          successRate={property.successRate}
+          monthlySavings={property.originalPrice - property.effectivePrice}
+        />
       </div>
 
       {/* AI Concession Strategy - Enhanced */}
