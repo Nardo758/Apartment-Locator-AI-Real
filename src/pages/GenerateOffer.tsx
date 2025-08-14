@@ -605,11 +605,14 @@ const GenerateOffer = () => {
                           name="petPolicy"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground">Pet Policy</FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground flex items-center">
+                                <span className="w-2 h-2 rounded-full bg-orange-400 mr-3"></span>
+                                Pet Policy
+                              </FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
-                                  className="glass border-white/10 focus:border-primary text-foreground"
+                                  className="glass border-white/10 focus:border-primary text-foreground ml-5"
                                 />
                               </FormControl>
                             </FormItem>
@@ -621,11 +624,14 @@ const GenerateOffer = () => {
                           name="utilities"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground">Utilities</FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground flex items-center">
+                                <span className="w-2 h-2 rounded-full bg-orange-400 mr-3"></span>
+                                Utilities
+                              </FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
-                                  className="glass border-white/10 focus:border-primary text-foreground"
+                                  className="glass border-white/10 focus:border-primary text-foreground ml-5"
                                 />
                               </FormControl>
                             </FormItem>
@@ -637,11 +643,14 @@ const GenerateOffer = () => {
                           name="parking"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground">Parking</FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground flex items-center">
+                                <span className="w-2 h-2 rounded-full bg-orange-400 mr-3"></span>
+                                Parking
+                              </FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
-                                  className="glass border-white/10 focus:border-primary text-foreground"
+                                  className="glass border-white/10 focus:border-primary text-foreground ml-5"
                                 />
                               </FormControl>
                             </FormItem>
@@ -653,11 +662,14 @@ const GenerateOffer = () => {
                           name="trash"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground">Trash Service</FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground flex items-center">
+                                <span className="w-2 h-2 rounded-full bg-orange-400 mr-3"></span>
+                                Trash Service
+                              </FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
-                                  className="glass border-white/10 focus:border-primary text-foreground"
+                                  className="glass border-white/10 focus:border-primary text-foreground ml-5"
                                 />
                               </FormControl>
                             </FormItem>
