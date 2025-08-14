@@ -183,7 +183,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
           <Zap size={16} />
           Generate AI Offer
         </button>
-        <button className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 border border-slate-600">
+        <button 
+          className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 border border-slate-600"
+          onClick={() => navigate(`/property/${property.id}`)}
+        >
           View Details
         </button>
       </div>

@@ -11,6 +11,7 @@ import SignupNew from "./pages/SignupNew";
 import Dashboard from "./pages/Dashboard";
 import DashboardNew from "./pages/DashboardNew";
 import AIFormula from "./pages/AIFormula";
+import PropertyDetails from "./pages/PropertyDetails";
 import GenerateOffer from "./pages/GenerateOffer";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard-new" element={<DashboardNew />} />
           <Route path="/ai-formula" element={<AIFormula />} />
+          <Route path="/property/:id" element={<PropertyDetails />} />
           <Route path="/generate-offer" element={<GenerateOffer />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
