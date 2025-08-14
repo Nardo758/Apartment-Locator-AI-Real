@@ -22,6 +22,7 @@ interface OfferFormData {
   petPolicy: string;
   utilities: string;
   parking: string;
+  trash: string;
   // Lease Incentives
   firstMonthFree: boolean;
   reducedDeposit: boolean;
@@ -82,6 +83,7 @@ const GenerateOffer = () => {
       petPolicy: 'Pets allowed with $250 deposit',
       utilities: 'Tenant responsible for electric/gas',
       parking: 'One reserved spot included',
+      trash: 'To be negotiated',
       // Lease Incentives
       firstMonthFree: false,
       reducedDeposit: true,
@@ -153,6 +155,7 @@ const GenerateOffer = () => {
           petPolicy: formData.petPolicy,
           utilities: formData.utilities,
           parking: formData.parking,
+          trash: formData.trash,
           // Lease Incentives
           leaseIncentives: {
             firstMonthFree: formData.firstMonthFree,
@@ -205,7 +208,7 @@ const GenerateOffer = () => {
   };
 
   return (
-    <div className="min-h-screen animated-bg">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
       <Header />
       
       <main className="pt-20 px-6 pb-8">
@@ -312,7 +315,7 @@ const GenerateOffer = () => {
                     </h2>
                     <div className="glass border border-white/5 rounded-lg p-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                           <FormField
                             control={form.control}
                             name="monthlyBudget"
@@ -360,7 +363,7 @@ const GenerateOffer = () => {
                           />
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                           <FormField
                             control={form.control}
                             name="leaseTerm"
@@ -414,7 +417,7 @@ const GenerateOffer = () => {
                   <div className="mb-8">
                     <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center">
                       <Zap size={18} className="mr-2 text-secondary" />
-                      Requested Lease Incentives
+                      Proposed Lease Incentives
                     </h2>
                     <div className="glass border border-green-500/20 rounded-lg p-6 bg-gradient-to-br from-green-500/5 to-transparent">
                       <div className="space-y-4">
@@ -589,7 +592,13 @@ const GenerateOffer = () => {
                       <FileText size={18} className="mr-2 text-primary" />
                       Important Terms
                     </h2>
-                    <div className="glass border border-white/5 rounded-lg p-6">
+                    <div className="glass border border-orange-500/20 rounded-lg p-6 bg-gradient-to-br from-orange-500/5 to-transparent">
+                      <div className="mb-4 p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+                        <p className="text-sm text-orange-400 flex items-center">
+                          <AlertCircle size={16} className="mr-2" />
+                          These terms require further negotiation with the landlord
+                        </p>
+                      </div>
                       <div className="space-y-4">
                         <FormField
                           control={form.control}
@@ -629,6 +638,22 @@ const GenerateOffer = () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="text-sm font-medium text-foreground">Parking</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  className="glass border-white/10 focus:border-primary text-foreground"
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="trash"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground">Trash Service</FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
@@ -696,23 +721,52 @@ const GenerateOffer = () => {
                       <Mail size={18} className="mr-2 text-primary" />
                       Contact Information
                     </h2>
-                    <FormField
-                      control={form.control}
-                      name="userEmail"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input 
-                              type="email" 
-                              placeholder="your.email@example.com"
-                              {...field} 
-                              className="glass border-white/10 focus:border-primary text-foreground"
-                            />
-                          </FormControl>
-                          <p className="text-xs text-muted-foreground mt-2">All communication will be sent to this email address</p>
-                        </FormItem>
-                      )}
-                    />
+                    <div className="glass border border-white/5 rounded-lg p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="userEmail"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground">Email Address</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="email" 
+                                  placeholder="your.email@example.com"
+                                  {...field} 
+                                  className="glass border-white/10 focus:border-primary text-foreground"
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <div>
+                          <FormLabel className="text-sm font-medium text-foreground">Full Name</FormLabel>
+                          <Input 
+                            placeholder="Your full name"
+                            className="glass border-white/10 focus:border-primary text-foreground"
+                          />
+                        </div>
+                        
+                        <div>
+                          <FormLabel className="text-sm font-medium text-foreground">Phone Number</FormLabel>
+                          <Input 
+                            placeholder="(555) 123-4567"
+                            className="glass border-white/10 focus:border-primary text-foreground"
+                          />
+                        </div>
+                        
+                        <div>
+                          <FormLabel className="text-sm font-medium text-foreground">Current Address</FormLabel>
+                          <Input 
+                            placeholder="Current address"
+                            className="glass border-white/10 focus:border-primary text-foreground"
+                          />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-4">All communication will be sent to the provided email address</p>
+                    </div>
                   </div>
 
                   {/* Additional Notes */}
