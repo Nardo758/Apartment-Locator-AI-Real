@@ -15,6 +15,7 @@ import AIFormula from "./pages/AIFormula";
 import PropertyDetails from "./pages/PropertyDetails";
 import GenerateOffer from "./pages/GenerateOffer";
 import SavedProperties from "./pages/SavedProperties";
+import MarketIntel from "./pages/MarketIntel";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/property/:id" element={<PropertyDetails />} />
             <Route path="/generate-offer" element={<GenerateOffer />} />
             <Route path="/saved-properties" element={<SavedProperties />} />
+            <Route path="/market-intel" element={<MarketIntel />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
