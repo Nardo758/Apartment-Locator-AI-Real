@@ -86,7 +86,7 @@ const Index = () => {
             <div className="col-span-12 lg:col-span-8 space-y-6">
               {/* Greeting Section */}
               <div className="glass-dark rounded-xl p-6">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between">
                   <div>
                     <h1 className="text-2xl font-bold text-foreground mb-2">
                       Good morning, <span className="gradient-text">John!</span>
@@ -105,30 +105,6 @@ const Index = () => {
                     <span className="text-sm text-muted-foreground">
                       {isScanning ? '🤖 AI analyzing 1,247 properties' : '✅ Analysis complete - 73 matches found'}
                     </span>
-                  </div>
-                </div>
-
-                {/* Stats Cards - Inline */}
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="bg-muted/10 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold gradient-text">$312</div>
-                    <div className="text-sm text-muted-foreground">Monthly Savings</div>
-                    <div className="text-xs text-muted-foreground">AI-Optimized Budget</div>
-                  </div>
-                  <div className="bg-muted/10 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold gradient-secondary-text">73%</div>
-                    <div className="text-sm text-muted-foreground">Success Rate</div>
-                    <div className="text-xs text-muted-foreground">AI Negotiations</div>
-                  </div>
-                  <div className="bg-muted/10 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold gradient-text">1,247</div>
-                    <div className="text-sm text-muted-foreground">Properties Analyzed</div>
-                    <div className="text-xs text-muted-foreground">Last 24 Hours</div>
-                  </div>
-                  <div className="bg-muted/10 rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold gradient-secondary-text">$3,744</div>
-                    <div className="text-sm text-muted-foreground">Annual Savings</div>
-                    <div className="text-xs text-muted-foreground">Projected Total</div>
                   </div>
                 </div>
               </div>
@@ -194,6 +170,34 @@ const Index = () => {
 
             {/* Right Column - Sidebar */}
             <div className="col-span-12 lg:col-span-4 space-y-6">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-2 gap-4">
+                <StatsCard
+                  value="$312"
+                  label="Monthly Savings"
+                  sublabel="AI-Optimized Budget"
+                  gradient="primary"
+                />
+                <StatsCard
+                  value="73%"
+                  label="Success Rate"
+                  sublabel="AI Negotiations"
+                  gradient="secondary"
+                />
+                <StatsCard
+                  value="1,247"
+                  label="Properties Analyzed"
+                  sublabel="Last 24 Hours"
+                  gradient="primary"
+                />
+                <StatsCard
+                  value="$3,744"
+                  label="Annual Savings"
+                  sublabel="Projected Total"
+                  gradient="secondary"
+                />
+              </div>
+
               {/* Location Search */}
               <LocationSearch 
                 currentLocation={searchLocation}
