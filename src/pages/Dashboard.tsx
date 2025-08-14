@@ -8,7 +8,7 @@ import UsageTracker from '../components/UsageTracker';
 import QuickActions from '../components/QuickActions';
 import MarketIntelligence from '../components/MarketIntelligence';
 import LocationSearch from '../components/LocationSearch';
-import AIFormulaExplainer from '../components/AIFormulaExplainer';
+
 import { mockProperties, mockStats } from '../data/mockData';
 import { useAIScanning } from '../hooks/useAIScanning';
 import { useMarketData } from '../hooks/useMarketData';
@@ -109,8 +109,6 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* AI Formula Explainer */}
-              <AIFormulaExplainer />
 
               {/* Stats Cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
