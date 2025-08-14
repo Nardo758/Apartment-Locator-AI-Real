@@ -39,16 +39,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
   return (
     <div className="glass-dark rounded-xl p-6 card-lift animate-slide-up">
-      {/* Header with LIVE AI badge */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold text-foreground">🧠 AI Property Recommendations</span>
-          <div className="bg-green-500/20 text-green-400 px-2 py-1 rounded text-xs font-medium border border-green-500/30">
-            LIVE AI
-          </div>
-        </div>
-      </div>
-
       {/* Property Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
@@ -59,40 +49,40 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             <MapPin size={14} className="mr-1" />
             {property.address}, {property.city}, {property.state}
           </div>
-          <div className="flex items-center gap-2">
-            <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs border ${getAvailabilityBadgeColor(property.availabilityType)}`}>
-              {property.availability}
-            </div>
-            <div className="bg-green-500/20 text-green-400 px-2 py-1 rounded text-xs font-medium border border-green-500/30">
-              {property.matchScore}% Match
-            </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="bg-red-500/20 text-red-400 px-2 py-1 rounded text-xs font-medium border border-red-500/30">
+            72 days vacant
+          </div>
+          <div className="bg-green-500/20 text-green-400 px-2 py-1 rounded text-xs font-medium border border-green-500/30">
+            {property.matchScore}% Match
           </div>
         </div>
       </div>
 
-      {/* Pricing */}
-      <div className="mb-4">
-        <div className="text-sm text-muted-foreground line-through mb-1">
-          ${property.originalPrice.toLocaleString()}/mo
+      {/* Pricing Section */}
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <div className="text-sm text-muted-foreground line-through mb-1">
+            ${property.originalPrice.toLocaleString()}/mo
+          </div>
+          <div className="text-2xl font-bold text-cyan-400 mb-1">
+            ${property.aiPrice.toLocaleString()}/mo
+          </div>
+          <div className="text-lg text-cyan-300 mb-1">
+            ${property.effectivePrice.toLocaleString()}/mo effective
+          </div>
+          <div className="text-xs text-muted-foreground">
+            with concessions
+          </div>
         </div>
-        <div className="text-2xl font-bold text-cyan-400 mb-1">
-          ${property.aiPrice.toLocaleString()}/mo
-        </div>
-        <div className="text-lg text-cyan-300 mb-2">
-          ${property.effectivePrice.toLocaleString()}/mo effective
-        </div>
-        <div className="text-xs text-muted-foreground">
-          with concessions
-        </div>
-      </div>
-
-      {/* Savings Badge */}
-<div className="flex items-center justify-between mb-4">
-        <div className="bg-green-500/20 text-green-400 px-3 py-1 rounded text-sm font-medium border border-green-500/30">
-          Save ${property.savings}/mo
-        </div>
-        <div className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded text-sm font-medium border border-purple-500/30">
-          + $800 in concessions
+        <div className="flex flex-col gap-2">
+          <div className="bg-green-500/20 text-green-400 px-3 py-1 rounded text-sm font-medium border border-green-500/30">
+            Save ${property.savings}/mo
+          </div>
+          <div className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded text-sm font-medium border border-purple-500/30">
+            + $800 in concessions
+          </div>
         </div>
       </div>
 
@@ -107,18 +97,36 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         </div>
         
         <div className="space-y-2">
-          {property.concessions.map((concession, index) => (
-            <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
-              <div className="flex items-center space-x-3">
-                <div className={`w-3 h-3 rounded-full ${getProbabilityColor(concession.color)}`}></div>
-                <span className="text-sm text-foreground font-medium">{concession.type}</span>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-bold text-cyan-400">{concession.probability}%</div>
-                <div className="text-sm font-medium text-cyan-300">{concession.value}</div>
-              </div>
+          <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500"></div>
+              <span className="text-sm text-foreground font-medium">First Month Free</span>
             </div>
-          ))}
+            <div className="flex items-center gap-4">
+              <div className="text-sm font-bold text-cyan-400">78%</div>
+              <div className="text-sm font-medium text-cyan-300">$2,350</div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500"></div>
+              <span className="text-sm text-foreground font-medium">Reduced Deposit</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-sm font-bold text-cyan-400">65%</div>
+              <div className="text-sm font-medium text-cyan-300">$350</div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500"></div>
+              <span className="text-sm text-foreground font-medium">Waived Fees</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-sm font-bold text-cyan-400">82%</div>
+              <div className="text-sm font-medium text-cyan-300">$190</div>
+            </div>
+          </div>
         </div>
       </div>
 
