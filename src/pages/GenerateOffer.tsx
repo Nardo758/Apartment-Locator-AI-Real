@@ -205,7 +205,7 @@ const GenerateOffer = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen animated-bg">
       <Header />
       
       <main className="pt-20 px-6 pb-8">
@@ -218,18 +218,47 @@ const GenerateOffer = () => {
             >
               <ArrowLeft size={20} className="text-foreground" />
             </button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">
+                <span className="gradient-text">AI Rental Offer</span>
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                AI-powered market intelligence for the perfect rental offer
+              </p>
+            </div>
           </div>
 
           {offerSubmitted ? (
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-secondary flex items-center justify-center mx-auto mb-4">
-                <Send size={24} className="text-white" />
+            <div className="glass-dark rounded-xl p-8 text-center space-y-6">
+              <div className="w-20 h-20 rounded-full bg-gradient-secondary flex items-center justify-center mx-auto mb-6">
+                <Send size={28} className="text-white" />
               </div>
-              <h2 className="text-xl font-bold text-foreground">Offer Sent Successfully!</h2>
-              <p className="text-muted-foreground">
-                Your offer has been emailed to the leasing office. They will respond directly to your email within 24-48 hours.
+              <h2 className="text-2xl font-bold text-foreground">Offer Sent Successfully!</h2>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                Your professional rental offer has been emailed to the leasing office. They will respond directly within 24-48 hours.
               </p>
-              <Button onClick={() => navigate('/')} className="btn-primary">
+              <div className="glass border border-secondary/20 rounded-lg p-6 mt-6">
+                <h3 className="font-semibold text-foreground mb-3">What's Next?</h3>
+                <ul className="text-sm text-muted-foreground space-y-2 text-left">
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+                    <span>Check your email for confirmation</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+                    <span>Leasing office will review your offer</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+                    <span>They'll respond with Accept/Counter/Decline</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+                    <span>All future communication happens via email</span>
+                  </li>
+                </ul>
+              </div>
+              <Button onClick={() => navigate('/')} className="btn-primary px-8">
                 Back to Dashboard
               </Button>
             </div>
@@ -237,162 +266,180 @@ const GenerateOffer = () => {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleGenerateOffer)} className="space-y-8">
                 {/* Document Header */}
-                <div className="bg-white rounded-lg shadow-lg border border-border p-8">
-                  <div className="text-center border-b border-border pb-6 mb-8">
-                    <h1 className="text-2xl font-bold text-primary mb-2">Rental Application & Offer</h1>
+                <div className="glass-dark rounded-xl border border-white/10 p-8">
+                  <div className="text-center border-b border-white/10 pb-6 mb-8">
+                    <h1 className="text-2xl font-bold gradient-text mb-2">Rental Application & Offer</h1>
                     <p className="text-sm text-muted-foreground">Powered by AI Market Intelligence</p>
-                    <div className="inline-block bg-primary text-white px-4 py-1 rounded-full text-xs mt-2">
+                    <div className="inline-flex items-center bg-gradient-primary text-white px-4 py-2 rounded-full text-xs mt-3">
+                      <Sparkles size={14} className="mr-2" />
                       AI Recommended
                     </div>
                   </div>
 
                   {/* Property Information */}
                   <div className="mb-8">
-                    <h2 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">
+                    <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                      <FileText size={18} className="mr-2 text-primary" />
                       Property Information
                     </h2>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="font-medium text-muted-foreground">Property:</span>
-                        <span className="ml-2 text-foreground">Sunshine Lake Apartments</span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-muted-foreground">Address:</span>
-                        <span className="ml-2 text-foreground">4567 Sunburst Dr, Austin, TX 78713</span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-muted-foreground">Unit Type:</span>
-                        <span className="ml-2 text-foreground">2 bed / 2 bath - 1,120 sqft</span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-muted-foreground">Listed Rent:</span>
-                        <span className="ml-2 text-foreground">$2,950/month</span>
+                    <div className="glass border border-white/5 rounded-lg p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Property:</span>
+                          <span className="text-foreground font-medium">Sunshine Lake Apartments</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Address:</span>
+                          <span className="text-foreground font-medium">4567 Sunburst Dr, Austin, TX</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Unit Type:</span>
+                          <span className="text-foreground font-medium">2 bed / 2 bath - 1,120 sqft</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Listed Rent:</span>
+                          <span className="text-foreground font-medium">$2,950/month</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Proposed Lease Terms */}
                   <div className="mb-8">
-                    <h2 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">
+                    <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                      <DollarSign size={18} className="mr-2 text-primary" />
                       Proposed Lease Terms
                     </h2>
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <FormField
-                          control={form.control}
-                          name="monthlyBudget"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-medium text-muted-foreground">Monthly Rent</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <div className="glass border border-white/5 rounded-lg p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <FormField
+                            control={form.control}
+                            name="monthlyBudget"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium text-foreground flex items-center">
+                                  <TrendingUp size={14} className="mr-2 text-secondary" />
+                                  Monthly Rent
+                                </FormLabel>
+                                <FormControl>
+                                  <div className="relative">
+                                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input 
+                                      type="number" 
+                                      placeholder="2850" 
+                                      {...field} 
+                                      className="pl-10 glass border-white/10 focus:border-primary text-foreground"
+                                    />
+                                  </div>
+                                </FormControl>
+                                <p className="text-xs text-secondary">AI recommended based on market analysis</p>
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="moveInDate"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium text-foreground flex items-center">
+                                  <Calendar size={14} className="mr-2 text-secondary" />
+                                  Move-in Date
+                                </FormLabel>
+                                <FormControl>
                                   <Input 
-                                    type="number" 
-                                    placeholder="2850" 
+                                    type="date" 
                                     {...field} 
-                                    className="pl-10 bg-background border-border focus:border-primary"
+                                    className="glass border-white/10 focus:border-primary text-foreground"
                                   />
-                                </div>
-                              </FormControl>
-                              <p className="text-xs text-muted-foreground">Based on current market analysis</p>
-                            </FormItem>
-                          )}
-                        />
+                                </FormControl>
+                                <p className="text-xs text-muted-foreground">Flexible within 30 days</p>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
 
-                        <FormField
-                          control={form.control}
-                          name="moveInDate"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-medium text-muted-foreground">Move-in Date</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="date" 
-                                  {...field} 
-                                  className="bg-background border-border focus:border-primary"
-                                />
-                              </FormControl>
-                              <p className="text-xs text-muted-foreground">Flexible within 30 days</p>
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <div className="space-y-4">
-                        <FormField
-                          control={form.control}
-                          name="leaseTerm"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-medium text-muted-foreground">Lease Term</FormLabel>
-                              <FormControl>
-                                <select 
-                                  {...field} 
-                                  className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
-                                >
-                                  {Array.from({ length: 10 }, (_, i) => i + 6).map(months => (
-                                    <option key={months} value={months.toString()}>
-                                      {months} months
-                                    </option>
-                                  ))}
-                                </select>
-                              </FormControl>
-                              <p className="text-xs text-muted-foreground">With option to renew</p>
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="securityDeposit"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-medium text-muted-foreground">Security Deposit</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                  <Input 
-                                    type="number" 
-                                    placeholder="500" 
+                        <div className="space-y-4">
+                          <FormField
+                            control={form.control}
+                            name="leaseTerm"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium text-foreground">Lease Term</FormLabel>
+                                <FormControl>
+                                  <select 
                                     {...field} 
-                                    className="pl-10 bg-background border-border focus:border-primary"
-                                  />
-                                </div>
-                              </FormControl>
-                              <p className="text-xs text-muted-foreground">Subject to negotiation below</p>
-                            </FormItem>
-                          )}
-                        />
+                                    className="flex h-10 w-full rounded-md border border-white/10 glass px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                                  >
+                                    {Array.from({ length: 10 }, (_, i) => i + 6).map(months => (
+                                      <option key={months} value={months.toString()}>
+                                        {months} months
+                                      </option>
+                                    ))}
+                                  </select>
+                                </FormControl>
+                                <p className="text-xs text-muted-foreground">With option to renew</p>
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="securityDeposit"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium text-foreground">Security Deposit</FormLabel>
+                                <FormControl>
+                                  <div className="relative">
+                                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input 
+                                      type="number" 
+                                      placeholder="500" 
+                                      {...field} 
+                                      className="pl-10 glass border-white/10 focus:border-primary text-foreground"
+                                    />
+                                  </div>
+                                </FormControl>
+                                <p className="text-xs text-muted-foreground">Negotiable from standard $1,000</p>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Requested Lease Incentives */}
                   <div className="mb-8">
-                    <h2 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">
+                    <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                      <Zap size={18} className="mr-2 text-secondary" />
                       Requested Lease Incentives
                     </h2>
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <div className="space-y-3">
+                    <div className="glass border border-green-500/20 rounded-lg p-6 bg-gradient-to-br from-green-500/5 to-transparent">
+                      <div className="space-y-4">
                         <FormField
                           control={form.control}
                           name="firstMonthFree"
                           render={({ field }) => (
-                            <FormItem className="flex items-center space-x-3">
-                              <FormControl>
-                                <input
-                                  type="checkbox"
-                                  checked={field.value}
-                                  onChange={field.onChange}
-                                  className="rounded border-border"
-                                />
-                              </FormControl>
-                              <div className="flex-1">
-                                <FormLabel className="text-sm font-medium text-foreground">First Month Free</FormLabel>
-                                <p className="text-xs text-muted-foreground">Waive first month rent ($2,850 value)</p>
+                            <FormItem className="flex items-center justify-between p-3 glass border border-white/5 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                    className="rounded border-white/20 bg-transparent"
+                                  />
+                                </FormControl>
+                                <div>
+                                  <FormLabel className="text-sm font-medium text-foreground">First Month Free</FormLabel>
+                                  <p className="text-xs text-muted-foreground">Waive first month rent ($2,850 value)</p>
+                                </div>
                               </div>
-                              <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">High likelihood</span>
+                              <span className="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/20">
+                                High Success
+                              </span>
                             </FormItem>
                           )}
                         />
@@ -401,20 +448,24 @@ const GenerateOffer = () => {
                           control={form.control}
                           name="reducedDeposit"
                           render={({ field }) => (
-                            <FormItem className="flex items-center space-x-3">
-                              <FormControl>
-                                <input
-                                  type="checkbox"
-                                  checked={field.value}
-                                  onChange={field.onChange}
-                                  className="rounded border-border"
-                                />
-                              </FormControl>
-                              <div className="flex-1">
-                                <FormLabel className="text-sm font-medium text-foreground">Reduced Security Deposit</FormLabel>
-                                <p className="text-xs text-muted-foreground">Lower deposit to $500 from standard $1,000</p>
+                            <FormItem className="flex items-center justify-between p-3 glass border border-white/5 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                    className="rounded border-white/20 bg-transparent"
+                                  />
+                                </FormControl>
+                                <div>
+                                  <FormLabel className="text-sm font-medium text-foreground">Reduced Security Deposit</FormLabel>
+                                  <p className="text-xs text-muted-foreground">Lower deposit to $500 from standard $1,000</p>
+                                </div>
                               </div>
-                              <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Medium likelihood</span>
+                              <span className="text-xs bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full border border-yellow-500/20">
+                                Medium Success
+                              </span>
                             </FormItem>
                           )}
                         />
@@ -423,20 +474,24 @@ const GenerateOffer = () => {
                           control={form.control}
                           name="waiveAppFee"
                           render={({ field }) => (
-                            <FormItem className="flex items-center space-x-3">
-                              <FormControl>
-                                <input
-                                  type="checkbox"
-                                  checked={field.value}
-                                  onChange={field.onChange}
-                                  className="rounded border-border"
-                                />
-                              </FormControl>
-                              <div className="flex-1">
-                                <FormLabel className="text-sm font-medium text-foreground">Waived Application Fee</FormLabel>
-                                <p className="text-xs text-muted-foreground">Application processing fee waived ($200 value)</p>
+                            <FormItem className="flex items-center justify-between p-3 glass border border-white/5 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    checked={field.value}
+                                    onChange={field.onChange}
+                                    className="rounded border-white/20 bg-transparent"
+                                  />
+                                </FormControl>
+                                <div>
+                                  <FormLabel className="text-sm font-medium text-foreground">Waived Application Fee</FormLabel>
+                                  <p className="text-xs text-muted-foreground">Application processing fee waived ($200 value)</p>
+                                </div>
                               </div>
-                              <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Very High likelihood</span>
+                              <span className="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/20">
+                                Very High Success
+                              </span>
                             </FormItem>
                           )}
                         />
@@ -446,17 +501,18 @@ const GenerateOffer = () => {
 
                   {/* Applicant Qualifications */}
                   <div className="mb-8">
-                    <h2 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">
+                    <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                      <AlertCircle size={18} className="mr-2 text-primary" />
                       Applicant Qualifications
                     </h2>
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                      <div className="grid grid-cols-2 gap-4">
+                    <div className="glass border border-yellow-500/20 rounded-lg p-6 bg-gradient-to-br from-yellow-500/5 to-transparent">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
                           control={form.control}
                           name="monthlyIncome"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-muted-foreground">Monthly Income</FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground">Monthly Income</FormLabel>
                               <FormControl>
                                 <div className="relative">
                                   <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -464,7 +520,7 @@ const GenerateOffer = () => {
                                     type="number" 
                                     placeholder="8550" 
                                     {...field} 
-                                    className="pl-10 bg-background border-border focus:border-primary"
+                                    className="pl-10 glass border-white/10 focus:border-primary text-foreground"
                                   />
                                 </div>
                               </FormControl>
@@ -477,13 +533,13 @@ const GenerateOffer = () => {
                           name="creditScore"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-muted-foreground">Credit Score</FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground">Credit Score</FormLabel>
                               <FormControl>
                                 <Input 
                                   type="number" 
                                   placeholder="750" 
                                   {...field} 
-                                  className="bg-background border-border focus:border-primary"
+                                  className="glass border-white/10 focus:border-primary text-foreground"
                                 />
                               </FormControl>
                             </FormItem>
@@ -495,12 +551,12 @@ const GenerateOffer = () => {
                           name="employmentHistory"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-muted-foreground">Employment History</FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground">Employment History</FormLabel>
                               <FormControl>
                                 <Input 
                                   placeholder="3+ years current position" 
                                   {...field} 
-                                  className="bg-background border-border focus:border-primary"
+                                  className="glass border-white/10 focus:border-primary text-foreground"
                                 />
                               </FormControl>
                             </FormItem>
@@ -512,12 +568,12 @@ const GenerateOffer = () => {
                           name="rentalHistory"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-muted-foreground">Rental History</FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground">Rental History</FormLabel>
                               <FormControl>
                                 <Input 
                                   placeholder="No prior rental history" 
                                   {...field} 
-                                  className="bg-background border-border focus:border-primary"
+                                  className="glass border-white/10 focus:border-primary text-foreground"
                                 />
                               </FormControl>
                             </FormItem>
@@ -529,82 +585,86 @@ const GenerateOffer = () => {
 
                   {/* Important Terms - Editable */}
                   <div className="mb-8">
-                    <h2 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">
+                    <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                      <FileText size={18} className="mr-2 text-primary" />
                       Important Terms
                     </h2>
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="petPolicy"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium text-muted-foreground">Pet Policy</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                className="bg-background border-border focus:border-primary"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
+                    <div className="glass border border-white/5 rounded-lg p-6">
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="petPolicy"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground">Pet Policy</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  className="glass border-white/10 focus:border-primary text-foreground"
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
 
-                      <FormField
-                        control={form.control}
-                        name="utilities"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium text-muted-foreground">Utilities</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                className="bg-background border-border focus:border-primary"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
+                        <FormField
+                          control={form.control}
+                          name="utilities"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground">Utilities</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  className="glass border-white/10 focus:border-primary text-foreground"
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
 
-                      <FormField
-                        control={form.control}
-                        name="parking"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium text-muted-foreground">Parking</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                className="bg-background border-border focus:border-primary"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
+                        <FormField
+                          control={form.control}
+                          name="parking"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground">Parking</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  className="glass border-white/10 focus:border-primary text-foreground"
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
                   </div>
 
                   {/* Response Timeline */}
                   <div className="mb-8">
-                    <h2 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">
+                    <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                      <Calendar size={18} className="mr-2 text-secondary" />
                       Response Timeline
                     </h2>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="font-medium text-muted-foreground">Application Decision:</span>
-                          <span className="text-foreground">Response within 24 hours</span>
+                    <div className="glass border border-blue-500/20 rounded-lg p-6 bg-gradient-to-br from-blue-500/5 to-transparent">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div className="flex justify-between items-center p-3 glass border border-white/5 rounded-lg">
+                          <span className="text-muted-foreground">Application Decision:</span>
+                          <span className="text-foreground font-medium">24 hours</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="font-medium text-muted-foreground">Lease Signing:</span>
-                          <span className="text-foreground">Available immediately upon approval</span>
+                        <div className="flex justify-between items-center p-3 glass border border-white/5 rounded-lg">
+                          <span className="text-muted-foreground">Lease Signing:</span>
+                          <span className="text-foreground font-medium">Upon approval</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="font-medium text-muted-foreground">Move-in Timeline:</span>
-                          <span className="text-foreground">Can be completed within 7 days</span>
+                        <div className="flex justify-between items-center p-3 glass border border-white/5 rounded-lg">
+                          <span className="text-muted-foreground">Move-in Timeline:</span>
+                          <span className="text-foreground font-medium">Within 7 days</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="font-medium text-muted-foreground">Offer Validity:</span>
-                          <span className="text-foreground">Valid for 7 days from submission</span>
+                        <div className="flex justify-between items-center p-3 glass border border-white/5 rounded-lg">
+                          <span className="text-muted-foreground">Offer Validity:</span>
+                          <span className="text-foreground font-medium">7 days</span>
                         </div>
                       </div>
                     </div>
@@ -612,40 +672,44 @@ const GenerateOffer = () => {
 
                   {/* Market Justification */}
                   <div className="mb-8">
-                    <h2 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">
+                    <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                      <TrendingUp size={18} className="mr-2 text-secondary" />
                       Market Justification
                     </h2>
-                    <div className="text-sm text-muted-foreground space-y-2">
-                      <p>
-                        Based on our AI market analysis, this property is currently priced 3.4% below the local market average.
-                        Similar 2-bedroom units in the area range from $2,800-$3,100, with an average rent of $2,950. The proposed
-                        rent of $2,850 represents a competitive offer that accounts for current market conditions.
-                      </p>
-                      <p>
-                        The area shows high demand with an 85% occupancy rate, and properties typically lease within 2-3 weeks.
-                        End-of-quarter timing may provide additional leverage for concessions as property managers aim to meet
-                        occupancy targets before their reporting period.
-                      </p>
+                    <div className="glass border border-white/5 rounded-lg p-6">
+                      <div className="text-sm text-muted-foreground space-y-3">
+                        <p>
+                          Based on our AI market analysis, this property is currently priced <span className="text-secondary font-medium">3.4% below</span> the local market average.
+                          Similar 2-bedroom units range from <span className="text-foreground">$2,800-$3,100</span>, with an average of $2,950.
+                        </p>
+                        <p>
+                          The area shows <span className="text-green-400 font-medium">high demand</span> with 85% occupancy rate. End-of-quarter timing provides
+                          additional leverage for concessions as property managers aim to meet occupancy targets.
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   {/* Contact Information */}
                   <div className="mb-8">
+                    <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center">
+                      <Mail size={18} className="mr-2 text-primary" />
+                      Contact Information
+                    </h2>
                     <FormField
                       control={form.control}
                       name="userEmail"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-muted-foreground">Contact Email</FormLabel>
                           <FormControl>
                             <Input 
                               type="email" 
                               placeholder="your.email@example.com"
                               {...field} 
-                              className="bg-background border-border focus:border-primary"
+                              className="glass border-white/10 focus:border-primary text-foreground"
                             />
                           </FormControl>
-                          <p className="text-xs text-muted-foreground">All communication will be sent to this email</p>
+                          <p className="text-xs text-muted-foreground mt-2">All communication will be sent to this email address</p>
                         </FormItem>
                       )}
                     />
@@ -653,17 +717,17 @@ const GenerateOffer = () => {
 
                   {/* Additional Notes */}
                   <div className="mb-8">
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Additional Notes</h2>
                     <FormField
                       control={form.control}
                       name="notes"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-muted-foreground">Additional Notes</FormLabel>
                           <FormControl>
                             <Textarea 
                               placeholder="Thank you for considering this application. I'm excited about the opportunity to call Sunshine Lake Apartments home and am prepared to move in quickly upon approval."
                               {...field} 
-                              className="bg-background border-border focus:border-primary min-h-[100px]"
+                              className="glass border-white/10 focus:border-primary text-foreground min-h-[120px] resize-none"
                             />
                           </FormControl>
                         </FormItem>
@@ -672,20 +736,20 @@ const GenerateOffer = () => {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex space-x-4 pt-6 border-t border-border">
+                  <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-white/10">
                     <Button 
                       type="submit" 
-                      className="flex-1 bg-primary hover:bg-primary/90 text-white" 
+                      className="flex-1 btn-primary h-12" 
                       disabled={isGenerating || isSubmitting}
                     >
                       {isSubmitting ? (
                         <div className="flex items-center space-x-2">
-                          <Mail className="animate-pulse" size={16} />
-                          <span>Sending Offer...</span>
+                          <Mail className="animate-pulse" size={18} />
+                          <span>Sending Professional Offer...</span>
                         </div>
                       ) : (
                         <div className="flex items-center space-x-2">
-                          <Send size={16} />
+                          <Send size={18} />
                           <span>Submit Offer via Email</span>
                         </div>
                       )}
@@ -694,7 +758,7 @@ const GenerateOffer = () => {
                       type="button" 
                       variant="outline"
                       onClick={() => navigate(-1)}
-                      className="px-8"
+                      className="px-8 h-12 glass border-white/20 hover:bg-white/10 text-foreground"
                     >
                       Cancel
                     </Button>
