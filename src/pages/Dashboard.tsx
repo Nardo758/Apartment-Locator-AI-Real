@@ -110,33 +110,6 @@ const Index = () => {
               </div>
 
 
-              {/* Stats Cards */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatsCard
-                  value="$312"
-                  label="Monthly Savings"
-                  sublabel="AI-Optimized Budget"
-                  gradient="primary"
-                />
-                <StatsCard
-                  value="73%"
-                  label="Success Rate"
-                  sublabel="AI Negotiations"
-                  gradient="secondary"
-                />
-                <StatsCard
-                  value="1,247"
-                  label="Properties Analyzed"
-                  sublabel="Last 24 Hours"
-                  gradient="primary"
-                />
-                <StatsCard
-                  value="$3,744"
-                  label="Annual Savings"
-                  sublabel="Projected Total"
-                  gradient="secondary"
-                />
-              </div>
 
               {/* Property Recommendations */}
               <div className="glass-dark rounded-xl p-6">
@@ -197,6 +170,34 @@ const Index = () => {
 
             {/* Right Column - Sidebar */}
             <div className="col-span-12 lg:col-span-4 space-y-6">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-2 gap-4">
+                <StatsCard
+                  value="$312"
+                  label="Monthly Savings"
+                  sublabel="AI-Optimized Budget"
+                  gradient="primary"
+                />
+                <StatsCard
+                  value="73%"
+                  label="Success Rate"
+                  sublabel="AI Negotiations"
+                  gradient="secondary"
+                />
+                <StatsCard
+                  value="1,247"
+                  label="Properties Analyzed"
+                  sublabel="Last 24 Hours"
+                  gradient="primary"
+                />
+                <StatsCard
+                  value="$3,744"
+                  label="Annual Savings"
+                  sublabel="Projected Total"
+                  gradient="secondary"
+                />
+              </div>
+
               {/* Location Search */}
               <LocationSearch 
                 currentLocation={searchLocation}
