@@ -14,6 +14,7 @@ import DashboardNew from "./pages/DashboardNew";
 import AIFormula from "./pages/AIFormula";
 import PropertyDetails from "./pages/PropertyDetails";
 import GenerateOffer from "./pages/GenerateOffer";
+import SavedProperties from "./pages/SavedProperties";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/ai-formula" element={<AIFormula />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
             <Route path="/generate-offer" element={<GenerateOffer />} />
+            <Route path="/saved-properties" element={<SavedProperties />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
