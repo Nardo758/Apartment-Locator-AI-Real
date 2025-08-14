@@ -26,7 +26,35 @@ const GenerateOffer = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [offerSubmitted, setOfferSubmitted] = useState(false);
-  const [aiSuggestions, setAiSuggestions] = useState<any>(null);
+  const [aiSuggestions, setAiSuggestions] = useState<any>({
+    recommendedOffer: {
+      suggestedRent: '$2,850',
+      strategy: 'Competitive pricing below market average',
+      reasoning: 'Property is priced 3.4% below market rate, increasing acceptance likelihood'
+    },
+    marketAnalysis: {
+      marketPosition: 'Competitive - Below market average',
+      demandLevel: 'High demand area with 85% occupancy rate',
+      competitiveAnalysis: 'Similar properties range $2,800-$3,100'
+    },
+    potentialConcessions: [
+      { type: 'First Month Free', description: 'Waive first month rent', likelihood: 'High' },
+      { type: 'Reduced Security Deposit', description: 'Lower deposit to $500', likelihood: 'Medium' },
+      { type: 'Waived Application Fee', description: 'Remove $200 application fee', likelihood: 'Very High' }
+    ],
+    timingRecommendations: {
+      bestTimeToApply: 'Within 48 hours',
+      reasoning: 'End of quarter - landlords motivated to fill units before reporting period'
+    },
+    importantTerms: [
+      { term: 'Lease Term', detail: '12 months with option to renew' },
+      { term: 'Security Deposit', detail: '$500 (negotiable down from $1,000)' },
+      { term: 'Pet Policy', detail: 'Pets allowed with $250 deposit' },
+      { term: 'Utilities', detail: 'Tenant responsible for electric/gas' },
+      { term: 'Parking', detail: 'One reserved spot included' },
+      { term: 'Move-in Date', detail: 'Flexible within 30 days' }
+    ]
+  });
 
   const form = useForm<OfferFormData>({
     defaultValues: {
@@ -395,6 +423,19 @@ const GenerateOffer = () => {
                           <div className="text-sm text-muted-foreground">
                             {concession.description}
                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Important Terms */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-foreground">Important Terms</h3>
+                    <div className="space-y-3">
+                      {aiSuggestions.importantTerms.map((term: any, index: number) => (
+                        <div key={index} className="p-3 glass border border-white/5 rounded-lg">
+                          <div className="text-sm font-medium text-foreground mb-1">{term.term}</div>
+                          <div className="text-sm text-muted-foreground">{term.detail}</div>
                         </div>
                       ))}
                     </div>
