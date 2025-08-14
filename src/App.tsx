@@ -7,7 +7,9 @@ import Landing from "./pages/Landing";
 import HowItWorks from "./pages/HowItWorks";
 import About from "./pages/About";
 import Signup from "./pages/Signup";
+import SignupNew from "./pages/SignupNew";
 import Dashboard from "./pages/Dashboard";
+import DashboardNew from "./pages/DashboardNew";
 import AIFormula from "./pages/AIFormula";
 import GenerateOffer from "./pages/GenerateOffer";
 import NotFound from "./pages/NotFound";
@@ -25,7 +27,9 @@ const App = () => (
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/about" element={<About />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/signup-new" element={<SignupNew />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard-new" element={<DashboardNew />} />
           <Route path="/ai-formula" element={<AIFormula />} />
           <Route path="/generate-offer" element={<GenerateOffer />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
