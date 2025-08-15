@@ -28,7 +28,7 @@ const MarketIntel: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const scraper = createScraperInstance();
+  const [scraper] = useState(() => createScraperInstance());
 
   useEffect(() => {
     const fetchMarketData = async () => {
