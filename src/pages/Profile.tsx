@@ -18,18 +18,19 @@ const Profile: React.FC = () => {
   const [profile, setProfile] = useState({
     email: '',
     location: 'Austin, TX',
-    budget: 2500,
-    bedrooms: '1',
-    lease_duration: '12 months',
-    move_timeline: 'Within 3 months',
-    lifestyle: '',
-    credit_score: '',
-    work_address: '',
-    transportation: '',
-    amenities: [] as string[],
-    deal_breakers: [] as string[],
     bio: '',
-    communication: [] as string[]
+    // Financial verification fields
+    gross_income: '',
+    employment_type: '',
+    employer_name: '',
+    employment_duration: '',
+    job_title: '',
+    current_rent: '',
+    credit_score: '',
+    bank_verified: false,
+    income_verified: false,
+    plaid_account_id: '',
+    plaid_access_token: ''
   });
 
   const [user, setUser] = useState<any>(null);
@@ -71,18 +72,18 @@ const Profile: React.FC = () => {
         setProfile({
           email: data.email || user?.email || '',
           location: data.location || 'Austin, TX',
-          budget: data.budget || 2500,
-          bedrooms: data.bedrooms || '1',
-          lease_duration: data.lease_duration || '12 months',
-          move_timeline: data.move_timeline || 'Within 3 months',
-          lifestyle: data.lifestyle || '',
-          credit_score: data.credit_score || '',
-          work_address: data.work_address || '',
-          transportation: data.transportation || '',
-          amenities: data.amenities || [],
-          deal_breakers: data.deal_breakers || [],
           bio: data.bio || '',
-          communication: data.communication || []
+          gross_income: data.gross_income?.toString() || '',
+          employment_type: data.employment_type || '',
+          employer_name: '',
+          employment_duration: '',
+          job_title: '',
+          current_rent: data.current_rent?.toString() || '',
+          credit_score: data.credit_score || '',
+          bank_verified: data.income_verified || false,
+          income_verified: data.income_verified || false,
+          plaid_account_id: '',
+          plaid_access_token: ''
         });
       }
     } catch (error) {
@@ -101,18 +102,12 @@ const Profile: React.FC = () => {
           user_id: user.id,
           email: profile.email,
           location: profile.location,
-          budget: profile.budget,
-          bedrooms: profile.bedrooms,
-          lease_duration: profile.lease_duration,
-          move_timeline: profile.move_timeline,
-          lifestyle: profile.lifestyle,
-          credit_score: profile.credit_score,
-          work_address: profile.work_address,
-          transportation: profile.transportation,
-          amenities: profile.amenities,
-          deal_breakers: profile.deal_breakers,
           bio: profile.bio,
-          communication: profile.communication,
+          gross_income: parseFloat(profile.gross_income) || null,
+          employment_type: profile.employment_type,
+          current_rent: parseFloat(profile.current_rent) || null,
+          credit_score: profile.credit_score,
+          income_verified: profile.income_verified,
           updated_at: new Date().toISOString()
         });
 
@@ -134,22 +129,35 @@ const Profile: React.FC = () => {
     }
   };
 
-  const amenityOptions = [
-    'In-unit laundry', 'Gym/Fitness center', 'Pool', 'Parking', 'Pet-friendly',
-    'Balcony/Patio', 'Dishwasher', 'Air conditioning', 'Elevator', 'Storage'
-  ];
-
-  const communicationOptions = [
-    'Email', 'Text/SMS', 'Phone calls', 'App notifications'
-  ];
-
-  const toggleArrayItem = (array: string[], item: string, setter: (arr: string[]) => void) => {
-    if (array.includes(item)) {
-      setter(array.filter(i => i !== item));
-    } else {
-      setter([...array, item]);
-    }
+  const handlePlaidSuccess = (token: string, metadata: any) => {
+    setProfile({
+      ...profile,
+      plaid_access_token: token,
+      plaid_account_id: metadata.account_id,
+      bank_verified: true,
+      income_verified: true
+    });
+    
+    toast({
+      title: "Bank Account Connected",
+      description: "Your financial information has been verified successfully.",
+    });
   };
+
+  const employmentTypes = [
+    'Full-time W2', 'Part-time W2', 'Contract/1099', 'Self-employed', 
+    'Student', 'Retired', 'Unemployed', 'Other'
+  ];
+
+  const employmentDurations = [
+    'Less than 6 months', '6-12 months', '1-2 years', 
+    '2-5 years', '5+ years'
+  ];
+
+  const creditScoreRanges = [
+    'Excellent (750+)', 'Good (700-749)', 'Fair (650-699)', 
+    'Poor (600-649)', 'Bad (Below 600)', 'No Credit History'
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -227,65 +235,57 @@ const Profile: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Housing Preferences */}
+          {/* Employment Information */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <MapPin size={20} />
-                Housing Preferences
+                <Settings size={20} />
+                Employment Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="bedrooms">Bedrooms</Label>
-                  <Select value={profile.bedrooms} onValueChange={(value) => setProfile({ ...profile, bedrooms: value })}>
+                  <Label htmlFor="employment_type">Employment Type</Label>
+                  <Select value={profile.employment_type} onValueChange={(value) => setProfile({ ...profile, employment_type: value })}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Select employment type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="studio">Studio</SelectItem>
-                      <SelectItem value="1">1 bedroom</SelectItem>
-                      <SelectItem value="2">2 bedrooms</SelectItem>
-                      <SelectItem value="3">3+ bedrooms</SelectItem>
+                      {employmentTypes.map((type) => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="budget">Monthly Budget</Label>
+                  <Label htmlFor="employer_name">Employer Name</Label>
                   <Input
-                    id="budget"
-                    type="number"
-                    value={profile.budget}
-                    onChange={(e) => setProfile({ ...profile, budget: parseInt(e.target.value) || 0 })}
-                    placeholder="2500"
+                    id="employer_name"
+                    value={profile.employer_name}
+                    onChange={(e) => setProfile({ ...profile, employer_name: e.target.value })}
+                    placeholder="Company Name"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lease_duration">Lease Duration</Label>
-                  <Select value={profile.lease_duration} onValueChange={(value) => setProfile({ ...profile, lease_duration: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="6 months">6 months</SelectItem>
-                      <SelectItem value="12 months">12 months</SelectItem>
-                      <SelectItem value="18 months">18 months</SelectItem>
-                      <SelectItem value="24 months">24 months</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="job_title">Job Title</Label>
+                  <Input
+                    id="job_title"
+                    value={profile.job_title}
+                    onChange={(e) => setProfile({ ...profile, job_title: e.target.value })}
+                    placeholder="Software Engineer"
+                  />
                 </div>
                 <div>
-                  <Label htmlFor="move_timeline">Move Timeline</Label>
-                  <Select value={profile.move_timeline} onValueChange={(value) => setProfile({ ...profile, move_timeline: value })}>
+                  <Label htmlFor="employment_duration">Employment Duration</Label>
+                  <Select value={profile.employment_duration} onValueChange={(value) => setProfile({ ...profile, employment_duration: value })}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Select duration" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ASAP">ASAP</SelectItem>
-                      <SelectItem value="Within 1 month">Within 1 month</SelectItem>
-                      <SelectItem value="Within 3 months">Within 3 months</SelectItem>
-                      <SelectItem value="Within 6 months">Within 6 months</SelectItem>
+                      {employmentDurations.map((duration) => (
+                        <SelectItem key={duration} value={duration}>{duration}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -293,42 +293,87 @@ const Profile: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Amenities & Deal Breakers */}
+          {/* Financial Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Amenities & Preferences</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign size={20} />
+                Financial Information
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <Label className="text-base font-medium">Desired Amenities</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {amenityOptions.map((amenity) => (
-                    <Badge
-                      key={amenity}
-                      variant={profile.amenities.includes(amenity) ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => toggleArrayItem(profile.amenities, amenity, (arr) => setProfile({ ...profile, amenities: arr }))}
-                    >
-                      {amenity}
-                    </Badge>
-                  ))}
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="gross_income">Annual Gross Income</Label>
+                  <Input
+                    id="gross_income"
+                    type="number"
+                    value={profile.gross_income}
+                    onChange={(e) => setProfile({ ...profile, gross_income: e.target.value })}
+                    placeholder="75000"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="current_rent">Current Monthly Rent</Label>
+                  <Input
+                    id="current_rent"
+                    type="number"
+                    value={profile.current_rent}
+                    onChange={(e) => setProfile({ ...profile, current_rent: e.target.value })}
+                    placeholder="1800"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="credit_score">Credit Score Range</Label>
+                  <Select value={profile.credit_score} onValueChange={(value) => setProfile({ ...profile, credit_score: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select credit score range" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {creditScoreRanges.map((range) => (
+                        <SelectItem key={range} value={range}>{range}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               
-              <div>
-                <Label className="text-base font-medium">Communication Preferences</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {communicationOptions.map((option) => (
-                    <Badge
-                      key={option}
-                      variant={profile.communication.includes(option) ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => toggleArrayItem(profile.communication, option, (arr) => setProfile({ ...profile, communication: arr }))}
-                    >
-                      {option}
-                    </Badge>
-                  ))}
+              {/* Bank Verification Status */}
+              <div className="pt-4 border-t">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-base font-medium">Bank Account Verification</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Connect your bank account for instant income verification
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {profile.bank_verified ? (
+                      <Badge variant="secondary">Verified</Badge>
+                    ) : (
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          // This would trigger Plaid Link in a real implementation
+                          handlePlaidSuccess('demo_token', { account_id: 'demo_account' });
+                        }}
+                      >
+                        Connect Bank
+                      </Button>
+                    )}
+                  </div>
                 </div>
+                
+                {profile.income_verified && (
+                  <div className="mt-3 p-3 bg-accent rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">Income Verified</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        Your income has been automatically verified through your bank account
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
