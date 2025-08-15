@@ -9,7 +9,7 @@ const AppFooter: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <img src="/lovable-uploads/e7d43e3a-89d0-41ec-ab1f-3c8f1694401a.png" alt="Apartment Locator AI Logo" className="h-6 w-auto" />
+              <img src="/lovable-uploads/10c9e4a0-b0e6-4896-884c-68dde07278eb.png" alt="Apartment Locator AI Logo" className="h-6 w-auto" />
               <div className="text-xl font-bold gradient-text">Apartment Locator AI</div>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
