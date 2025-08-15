@@ -9,6 +9,7 @@ interface ApartmentListingsProps {
   apartments: ApartmentListing[];
   onApartmentClick: (apartment: ApartmentListing) => void;
   onUpgrade: () => void;
+  onHighValueClick?: (apartment: ApartmentListing) => void;
   onSort: (sortBy: string) => void;
   className?: string;
 }
@@ -17,6 +18,7 @@ export const ApartmentListings: React.FC<ApartmentListingsProps> = ({
   apartments,
   onApartmentClick,
   onUpgrade,
+  onHighValueClick,
   onSort,
   className
 }) => {
@@ -91,7 +93,14 @@ export const ApartmentListings: React.FC<ApartmentListingsProps> = ({
           <div
             key={apartment.id}
             className="glass-dark rounded-xl border border-white/10 overflow-hidden hover:border-primary/40 transition-all duration-300 cursor-pointer group"
-            onClick={() => onApartmentClick(apartment)}
+            onClick={() => {
+              // Trigger high-value modal for exceptional apartments
+              if (apartment.leverageScore >= 85 && apartment.opportunityLevel === 'exceptional' && onHighValueClick) {
+                onHighValueClick(apartment);
+              } else {
+                onApartmentClick(apartment);
+              }
+            }}
           >
             {/* Image */}
             <div className="relative h-48 bg-muted/20">
@@ -204,7 +213,12 @@ export const ApartmentListings: React.FC<ApartmentListingsProps> = ({
               <Button
                 onClick={(e) => {
                   e.stopPropagation();
-                  onUpgrade();
+                  // Check if this is exceptional apartment
+                  if (apartment.leverageScore >= 85 && apartment.opportunityLevel === 'exceptional' && onHighValueClick) {
+                    onHighValueClick(apartment);
+                  } else {
+                    onUpgrade();
+                  }
                 }}
                 className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
               >

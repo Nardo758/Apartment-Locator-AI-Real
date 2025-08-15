@@ -6,6 +6,8 @@ import { ApartmentSearchForm } from '@/components/trial/ApartmentSearchForm';
 import { ApartmentListings } from '@/components/trial/ApartmentListings';
 import { ApartmentDetailModal } from '@/components/trial/ApartmentDetailModal';
 import { UpgradeModal } from '@/components/trial/UpgradeModal';
+import { AutoUpgradeModal } from '@/components/trial/AutoUpgradeModal';
+import { useAutoUpgradeTriggers } from '@/hooks/useAutoUpgradeTriggers';
 import { mockApartments, filterApartments, sortApartments, ApartmentListing } from '@/data/mockApartments';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -23,6 +25,14 @@ const Trial: React.FC = () => {
     shouldShowUpgradePrompt,
     convertToTeaserData
   } = useTrialManager();
+
+  // Auto-upgrade triggers
+  const {
+    activeModal,
+    closeModal,
+    triggerHighValueModal,
+    trackPremiumClick
+  } = useAutoUpgradeTriggers(trialStatus);
 
   const [searchData, setSearchData] = useState<{
     location: string;
@@ -93,14 +103,29 @@ const Trial: React.FC = () => {
     setApartments(sorted);
   };
 
+  // Handle manual upgrade button clicks
+  const handleManualUpgrade = () => {
+    setShowUpgradeModal(true);
+  };
 
-  // Auto-show upgrade modal when appropriate
+  // Handle upgrade from auto-modal
+  const handleAutoUpgrade = () => {
+    // Close auto modal and show regular upgrade flow
+    closeModal();
+    setShowUpgradeModal(true);
+  };
+
+
+  // Auto-show upgrade modal when appropriate (reduced frequency due to auto-triggers)
   useEffect(() => {
     if (trialStatus && shouldShowUpgradePrompt() && !trialStatus.hasSeenUpgradePrompt && apartments.length > 0) {
-      setShowUpgradeModal(true);
-      markUpgradePromptSeen();
+      // Only show manual modal if no auto-modal is active
+      if (!activeModal) {
+        setShowUpgradeModal(true);
+        markUpgradePromptSeen();
+      }
     }
-  }, [trialStatus, shouldShowUpgradePrompt, markUpgradePromptSeen, apartments.length]);
+  }, [trialStatus, shouldShowUpgradePrompt, markUpgradePromptSeen, apartments.length, activeModal]);
 
   // Show signup if no trial exists
   if (!trialStatus) {
@@ -144,7 +169,7 @@ const Trial: React.FC = () => {
               <TrialStatus
                 trialStatus={trialStatus}
                 timeRemaining={timeRemaining}
-                onUpgrade={() => setShowUpgradeModal(true)}
+                onUpgrade={handleManualUpgrade}
               />
             </div>
           </div>
@@ -202,7 +227,8 @@ const Trial: React.FC = () => {
               <ApartmentListings
                 apartments={apartments}
                 onApartmentClick={handleApartmentClick}
-                onUpgrade={() => setShowUpgradeModal(true)}
+                onUpgrade={handleManualUpgrade}
+                onHighValueClick={triggerHighValueModal}
                 onSort={handleSort}
               />
             )}
@@ -228,6 +254,17 @@ const Trial: React.FC = () => {
         </div>
       </main>
 
+      {/* Auto-Upgrade Modal */}
+      {activeModal && (
+        <AutoUpgradeModal
+          isOpen={true}
+          trigger={activeModal.trigger}
+          apartmentData={activeModal.data}
+          onClose={closeModal}
+          onUpgrade={handleAutoUpgrade}
+        />
+      )}
+
       {/* Apartment Detail Modal */}
       <ApartmentDetailModal
         isOpen={showDetailModal}
@@ -237,9 +274,10 @@ const Trial: React.FC = () => {
           setShowDetailModal(false);
           setShowUpgradeModal(true);
         }}
+        onPremiumClick={trackPremiumClick}
       />
 
-      {/* Upgrade Modal */}
+      {/* Manual Upgrade Modal */}
       {showUpgradeModal && (
         <UpgradeModal
           isOpen={showUpgradeModal}

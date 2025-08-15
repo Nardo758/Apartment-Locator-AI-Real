@@ -10,13 +10,15 @@ interface ApartmentDetailModalProps {
   onClose: () => void;
   apartment: ApartmentListing | null;
   onUpgrade: () => void;
+  onPremiumClick?: () => void;
 }
 
 export const ApartmentDetailModal: React.FC<ApartmentDetailModalProps> = ({
   isOpen,
   onClose,
   apartment,
-  onUpgrade
+  onUpgrade,
+  onPremiumClick
 }) => {
   if (!apartment) return null;
 
@@ -229,7 +231,10 @@ export const ApartmentDetailModal: React.FC<ApartmentDetailModalProps> = ({
                     Get exact savings: ${apartment.exactSavings}/month
                   </p>
                   <Button
-                    onClick={onUpgrade}
+                    onClick={() => {
+                      if (onPremiumClick) onPremiumClick();
+                      onUpgrade();
+                    }}
                     className="bg-gradient-primary hover:opacity-90"
                   >
                     <Zap className="w-4 h-4 mr-2" />
