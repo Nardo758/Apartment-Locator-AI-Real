@@ -2,7 +2,11 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { User } from 'lucide-react';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onSignOut?: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onSignOut }) => {
   const location = useLocation();
 
   const navItems = [
@@ -50,6 +54,15 @@ const Header: React.FC = () => {
             <div className="w-2 h-2 bg-secondary rounded-full"></div>
             <span className="text-sm font-medium text-secondary">Free Plan</span>
           </div>
+
+          {onSignOut && (
+            <button 
+              onClick={onSignOut}
+              className="text-sm text-muted-foreground hover:text-foreground px-3 py-1 rounded-lg hover:bg-white/5 transition-colors"
+            >
+              Sign Out
+            </button>
+          )}
 
           {/* User Avatar */}
           <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">

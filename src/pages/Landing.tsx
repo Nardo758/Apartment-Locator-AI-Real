@@ -196,52 +196,12 @@ const Landing = () => {
               </div>
               
               <div className="flex gap-5" style={{ animation: 'slideInUp 1s ease-out 0.6s backwards' }}>
-                <Link to="/signup">
-                  <button 
-                    className="text-white px-8 py-4 border-0 rounded-[30px] text-lg font-semibold transition-all duration-300"
-                    style={{ 
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
-                      textDecoration: 'none'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-3px)';
-                      e.currentTarget.style.boxShadow = '0 10px 30px rgba(102, 126, 234, 0.6)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.4)';
-                    }}
-                  >
-                    Start Saving Today
-                  </button>
-                </Link>
-                <button 
-                  className="text-white px-8 py-4 rounded-[30px] text-lg font-semibold transition-all duration-300"
-                  style={{ 
-                    background: 'transparent',
-                    border: '2px solid rgba(255, 255, 255, 0.3)'
-                  }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const target = document.querySelector('#features');
-                    if (target) {
-                      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                    e.currentTarget.style.borderColor = '#667eea';
-                    e.currentTarget.style.transform = 'translateY(-3px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  See How It Works
-                </button>
+                <Button size="lg" className="gradient-primary text-white font-semibold" asChild>
+                  <Link to="/auth">Get Started Free</Link>
+                </Button>
+                <Button size="lg" variant="outline" className="border-white/20 text-foreground hover:bg-white/10" asChild>
+                  <Link to="/auth">Sign In</Link>
+                </Button>
               </div>
             </div>
             

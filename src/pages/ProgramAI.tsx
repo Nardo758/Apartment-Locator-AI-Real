@@ -153,7 +153,7 @@ const ProgramAI = () => {
           location: preferences.location,
           search_radius: preferences.searchRadius,
           max_drive_time: preferences.maxDriveTime,
-          points_of_interest: preferences.pointsOfInterest,
+          points_of_interest: preferences.pointsOfInterest as any,
           budget: preferences.budget,
           bedrooms: preferences.bedrooms,
           amenities: preferences.amenities,
