@@ -17,6 +17,8 @@ import GenerateOffer from "./pages/GenerateOffer";
 import SavedProperties from "./pages/SavedProperties";
 import MarketIntel from "./pages/MarketIntel";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
+import ProgramAI from "./pages/ProgramAI";
 
 const queryClient = new QueryClient();
 
@@ -31,8 +33,10 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/about" element={<About />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signup-new" element={<SignupNew />} />
+            <Route path="/program-ai" element={<ProgramAI />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard-new" element={<DashboardNew />} />
             <Route path="/ai-formula" element={<AIFormula />} />

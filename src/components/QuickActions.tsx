@@ -3,9 +3,22 @@ import { Search, TrendingUp, Settings, Target } from 'lucide-react';
 
 interface QuickActionsProps {
   onSearchAreaClick?: () => void;
+  syncedSettings?: {
+    location: string;
+    radius: number;
+    maxDriveTime: number;
+    pointsOfInterest: Array<{
+      id: string;
+      name: string;
+      address: string;
+      maxTime: number;
+      transportMode: string;
+    }>;
+  };
+  onSettingsChange?: (settings: any) => void;
 }
 
-const QuickActions: React.FC<QuickActionsProps> = ({ onSearchAreaClick }) => {
+const QuickActions: React.FC<QuickActionsProps> = ({ onSearchAreaClick, syncedSettings, onSettingsChange }) => {
   const actions = [
     {
       icon: Target,
@@ -37,7 +50,12 @@ const QuickActions: React.FC<QuickActionsProps> = ({ onSearchAreaClick }) => {
 
   return (
     <div className="glass-dark rounded-xl p-6">
-      <h3 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-foreground">Quick Actions</h3>
+        {syncedSettings && (
+          <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" title="Settings synced" />
+        )}
+      </div>
       
       <div className="space-y-3">
         {actions.map((action, index) => {
@@ -63,6 +81,33 @@ const QuickActions: React.FC<QuickActionsProps> = ({ onSearchAreaClick }) => {
           );
         })}
       </div>
+
+      {/* Synced Settings Display */}
+      {syncedSettings && (
+        <div className="mt-4 pt-4 border-t border-border/20">
+          <div className="text-xs text-muted-foreground mb-2">Synced Settings:</div>
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span>Location:</span>
+              <span className="text-blue-400">{syncedSettings.location}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span>Radius:</span>
+              <span className="text-purple-400">{syncedSettings.radius}mi</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span>Max Drive:</span>
+              <span className="text-green-400">{syncedSettings.maxDriveTime}min</span>
+            </div>
+            {syncedSettings.pointsOfInterest.length > 0 && (
+              <div className="flex justify-between text-xs">
+                <span>POIs:</span>
+                <span className="text-yellow-400">{syncedSettings.pointsOfInterest.length}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
