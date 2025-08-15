@@ -9,6 +9,7 @@ import PropertyCard from '../components/PropertyCard';
 import LocationSearch from '../components/LocationSearch';
 import QuickActions from '../components/QuickActions';
 import MarketIntelligence from '../components/MarketIntelligence';
+import PopularCities from '../components/PopularCities';
 import { mockProperties } from '../data/mockData';
 
 const DashboardNew = () => {
@@ -22,6 +23,10 @@ const DashboardNew = () => {
     maxDriveTime: 30,
     pointsOfInterest: []
   });
+
+  const handleLocationSelect = (city: string, state: string) => {
+    setCurrentLocation(prev => ({ ...prev, city, state }));
+  };
 
   // User state - would come from auth/profile
   const userState = {
@@ -196,6 +201,12 @@ const DashboardNew = () => {
 
               {/* Market Intelligence */}
               <MarketIntelligence />
+
+              {/* Popular Cities */}
+              <PopularCities 
+                onLocationSelect={handleLocationSelect}
+                currentLocation={`${currentLocation.city}, ${currentLocation.state}`}
+              />
 
               {/* Search Preferences */}
               <Card className="glass-dark border-border/20">
