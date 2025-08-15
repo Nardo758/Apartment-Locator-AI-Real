@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { X, Lock, AlertTriangle, Zap, CheckCircle, Shield } from 'lucide-react';
 import { TeaserIntelligence, TrialStatus } from '@/hooks/useTrialManager';
+import { useStripePayment } from '@/hooks/useStripePayment';
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -19,8 +20,13 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   trialStatus,
   timeRemaining
 }) => {
+  const { createPayment, isLoading } = useStripePayment();
   const annualSavings = intelligence.potentialSavings * 12;
   const searchesRemaining = trialStatus.searchesLimit - trialStatus.searchesUsed;
+  
+  const handlePayment = (planType: 'basic' | 'pro' | 'premium') => {
+    createPayment(planType, trialStatus.email);
+  };
 
   const features = [
     'Unlimited apartment searches',
@@ -104,9 +110,10 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <div className="text-xs text-muted-foreground mb-4">5 AI analyses • 7-day access</div>
                 <Button 
                   className="w-full bg-muted hover:bg-muted/80" 
-                  onClick={() => {/* Handle basic purchase */}}
+                  onClick={() => handlePayment('basic')}
+                  disabled={isLoading}
                 >
-                  Get Basic
+                  {isLoading ? 'Processing...' : 'Get Basic'}
                 </Button>
               </div>
             </div>
@@ -125,10 +132,11 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <div className="text-xs text-muted-foreground mb-4">Unlimited analyses • 30-day access</div>
                 <Button 
                   className="w-full bg-gradient-primary hover:opacity-90" 
-                  onClick={() => {/* Handle pro subscription */}}
+                  onClick={() => handlePayment('pro')}
+                  disabled={isLoading}
                 >
                   <Zap className="w-4 h-4 mr-2" />
-                  Get Pro Access
+                  {isLoading ? 'Processing...' : 'Get Pro Access'}
                 </Button>
               </div>
             </div>
@@ -142,9 +150,10 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <div className="text-xs text-muted-foreground mb-4">Everything + concierge • 90-day access</div>
                 <Button 
                   className="w-full bg-muted hover:bg-muted/80" 
-                  onClick={() => {/* Handle premium purchase */}}
+                  onClick={() => handlePayment('premium')}
+                  disabled={isLoading}
                 >
-                  Go Premium
+                  {isLoading ? 'Processing...' : 'Go Premium'}
                 </Button>
               </div>
             </div>

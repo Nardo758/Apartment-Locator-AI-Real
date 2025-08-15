@@ -269,6 +269,7 @@ const Trial: React.FC = () => {
           apartmentData={activeModal.data}
           onClose={closeModal}
           onUpgrade={handleAutoUpgrade}
+          userEmail={trialStatus?.email || ''}
         />
       )}
 

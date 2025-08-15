@@ -4,6 +4,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { ApartmentListing } from '@/data/mockApartments';
 import { X, Zap, Clock, CheckCircle, MapPin, DollarSign } from 'lucide-react';
+import { useStripePayment } from '@/hooks/useStripePayment';
 
 type TriggerType = 'trial_exhausted' | 'time_expired' | 'high_value_apartment' | 'return_visit' | 'premium_clicks';
 
@@ -13,6 +14,7 @@ interface AutoUpgradeModalProps {
   apartmentData?: ApartmentListing;
   onClose?: () => void;
   onUpgrade: () => void;
+  userEmail: string;
 }
 
 export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
@@ -20,10 +22,17 @@ export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
   trigger,
   apartmentData,
   onClose,
-  onUpgrade
+  onUpgrade,
+  userEmail
 }) => {
+  const { createPayment, isLoading } = useStripePayment();
   const [timeRemaining, setTimeRemaining] = useState(10);
   const [isPulsing, setIsPulsing] = useState(false);
+
+  const handleUpgrade = () => {
+    createPayment('pro', userEmail);
+    onUpgrade();
+  };
 
   // Auto-close prevention for critical triggers
   const canClose = trigger !== 'trial_exhausted' && trigger !== 'time_expired';
@@ -222,8 +231,9 @@ export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
           {/* Action buttons */}
           <div className="space-y-3">
             <Button
-              onClick={onUpgrade}
+              onClick={handleUpgrade}
               size="lg"
+              disabled={isLoading}
               className={`w-full font-bold text-lg ${
                 content.urgency === 'critical' 
                   ? 'bg-red-600 hover:bg-red-700 animate-pulse text-white' 
@@ -231,7 +241,7 @@ export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
               }`}
             >
               <Zap className="w-5 h-5 mr-2" />
-              {content.ctaText}
+              {isLoading ? 'Processing...' : content.ctaText}
             </Button>
             
             {canClose && onClose && (
