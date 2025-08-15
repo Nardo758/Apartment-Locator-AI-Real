@@ -435,6 +435,7 @@ const Landing = () => {
                 style={{ 
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                 }}
+                onClick={() => window.open('/trial', '_self')}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)';
@@ -444,7 +445,7 @@ const Landing = () => {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                Get Started
+                Start Free Trial
               </button>
             </div>
 
@@ -496,24 +497,23 @@ const Landing = () => {
                   Priority email support
                 </li>
               </ul>
-              <Link to="/signup">
-                <button 
-                  className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
-                  style={{ 
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                >
-                  Start Pro Analysis
-                </button>
-              </Link>
+              <button 
+                className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
+                style={{ 
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                }}
+                onClick={() => window.open('/trial', '_self')}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                Start Free Trial
+              </button>
             </div>
 
             {/* Premium Plan */}
@@ -568,6 +568,7 @@ const Landing = () => {
                 style={{ 
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                 }}
+                onClick={() => window.open('/trial', '_self')}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)';
@@ -577,7 +578,7 @@ const Landing = () => {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                Go Premium
+                Start Free Trial
               </button>
             </div>
           </div>
