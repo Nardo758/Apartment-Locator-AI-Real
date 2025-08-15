@@ -7,9 +7,6 @@ import { PropertyStateProvider } from "./contexts/PropertyStateContext";
 import Landing from "./pages/Landing";
 import HowItWorks from "./pages/HowItWorks";
 import About from "./pages/About";
-import Signup from "./pages/Signup";
-import SignupNew from "./pages/SignupNew";
-import Dashboard from "./pages/Dashboard";
 import DashboardNew from "./pages/DashboardNew";
 import AIFormula from "./pages/AIFormula";
 import PropertyDetails from "./pages/PropertyDetails";
@@ -36,11 +33,9 @@ const App = () => (
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/about" element={<About />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/signup-new" element={<SignupNew />} />
+            <Route path="/signup" element={<Trial />} />
             <Route path="/program-ai" element={<ProgramAI />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard-new" element={<DashboardNew />} />
+            <Route path="/dashboard" element={<DashboardNew />} />
             <Route path="/ai-formula" element={<AIFormula />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
             <Route path="/generate-offer" element={<GenerateOffer />} />
