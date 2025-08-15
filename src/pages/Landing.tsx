@@ -95,7 +95,7 @@ const Landing = () => {
               </a>
             </li>
           </ul>
-          <Link to="/signup">
+          <Link to="/trial">
             <button 
               className="text-white px-6 py-3 border-0 rounded-[25px] font-semibold transition-all duration-300"
               style={{ 
@@ -197,7 +197,7 @@ const Landing = () => {
               
               <div className="flex gap-5" style={{ animation: 'slideInUp 1s ease-out 0.6s backwards' }}>
                 <Button size="lg" className="gradient-primary text-white font-semibold" asChild>
-                  <Link to="/auth">Get Started Free</Link>
+                  <Link to="/trial">Get Started Free</Link>
                 </Button>
                 <Button size="lg" variant="outline" className="border-white/20 text-foreground hover:bg-white/10" asChild>
                   <Link to="/auth">Sign In</Link>

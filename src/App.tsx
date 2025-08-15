@@ -19,6 +19,7 @@ import MarketIntel from "./pages/MarketIntel";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ProgramAI from "./pages/ProgramAI";
+import Trial from "./pages/Trial";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/generate-offer" element={<GenerateOffer />} />
             <Route path="/saved-properties" element={<SavedProperties />} />
             <Route path="/market-intel" element={<MarketIntel />} />
+            <Route path="/trial" element={<Trial />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
