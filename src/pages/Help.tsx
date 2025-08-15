@@ -13,7 +13,7 @@ const Help: React.FC = () => {
   const faqs = [
     {
       id: 'getting-started',
-      question: 'How do I get started with ApartmentIQ?',
+      question: 'How do I get started with Apartment Locator AI?',
       answer: 'Getting started is easy! Sign up for an account, complete your housing preferences, and our AI will immediately begin analyzing properties that match your criteria. You can start browsing recommendations right away.'
     },
     {
@@ -57,7 +57,7 @@ const Help: React.FC = () => {
     {
       title: 'Getting Started',
       icon: Book,
-      description: 'Learn the basics of using ApartmentIQ',
+      description: 'Learn the basics of using Apartment Locator AI',
       topics: ['Account setup', 'Profile configuration', 'First search']
     },
     {
@@ -189,7 +189,7 @@ const Help: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                Can't find what you're looking for? Our support team is here to help you get the most out of ApartmentIQ.
+                Can't find what you're looking for? Our support team is here to help you get the most out of Apartment Locator AI.
               </p>
               <div className="flex gap-4">
                 <Button onClick={() => navigate('/contact')} className="gap-2">

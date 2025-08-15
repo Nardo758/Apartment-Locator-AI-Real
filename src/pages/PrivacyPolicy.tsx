@@ -150,7 +150,7 @@ const PrivacyPolicy: React.FC = () => {
             <section>
               <h2 className="text-lg font-semibold mb-3">8. Third-Party Services</h2>
               <p className="text-muted-foreground">
-                Our service may contain links to third-party websites or integrate with third-party services. This privacy policy applies only to ApartmentIQ. We are not responsible for the privacy practices of third-party services and encourage you to review their privacy policies.
+                Our service may contain links to third-party websites or integrate with third-party services. This privacy policy applies only to Apartment Locator AI. We are not responsible for the privacy practices of third-party services and encourage you to review their privacy policies.
               </p>
             </section>
 
@@ -181,7 +181,7 @@ const PrivacyPolicy: React.FC = () => {
                 If you have any questions about this privacy policy or our data practices, please contact us at:
               </p>
               <div className="mt-2 text-muted-foreground">
-                <p>Email: privacy@apartmentiq.com</p>
+                <p>Email: privacy@apartmentlocatorai.com</p>
                 <p>Address: 123 Tech Street, San Francisco, CA 94105</p>
                 <p>Phone: (555) 123-4567</p>
               </div>

@@ -488,7 +488,7 @@ const ProgramAI = () => {
               <div>
                 <Label className="text-sm font-medium">Use Case</Label>
                 <Textarea
-                  placeholder="How do you plan to use ApartmentIQ?"
+                  placeholder="How do you plan to use Apartment Locator AI?"
                   value={preferences.useCase}
                   onChange={(e) => updatePreference('useCase', e.target.value)}
                   className="mt-1 bg-slate-800/50 border-slate-600/50"

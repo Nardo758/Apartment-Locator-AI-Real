@@ -41,7 +41,7 @@ const Contact: React.FC = () => {
       icon: Mail,
       title: 'Email Support',
       description: 'Get help via email',
-      detail: 'support@apartmentiq.com',
+      detail: 'support@apartmentlocatorai.com',
       response: 'Response within 24 hours'
     },
     {

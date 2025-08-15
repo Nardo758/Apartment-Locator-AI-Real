@@ -35,7 +35,7 @@ export const PaymentSuccess: React.FC = () => {
           </h1>
           
           <p className="text-muted-foreground mb-6">
-            Welcome to ApartmentIQ {currentPlan.name}
+            Welcome to Apartment Locator AI {currentPlan.name}
           </p>
 
           {/* Plan Details */}
@@ -67,7 +67,7 @@ export const PaymentSuccess: React.FC = () => {
 
           {/* Contact Info */}
           <div className="mt-6 text-xs text-muted-foreground">
-            Questions? Contact support@apartmentiq.com
+            Questions? Contact support@apartmentlocatorai.com
           </div>
         </div>
       </div>

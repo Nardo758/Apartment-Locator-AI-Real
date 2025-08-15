@@ -47,14 +47,14 @@ const TermsOfService: React.FC = () => {
             <section>
               <h2 className="text-lg font-semibold mb-3">1. Acceptance of Terms</h2>
               <p className="text-muted-foreground">
-                By accessing and using ApartmentIQ ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+                By accessing and using Apartment Locator AI ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
               </p>
             </section>
 
             <section>
               <h2 className="text-lg font-semibold mb-3">2. Description of Service</h2>
               <p className="text-muted-foreground">
-                ApartmentIQ is an AI-powered rental property discovery and analysis platform that provides:
+                Apartment Locator AI is an AI-powered rental property discovery and analysis platform that provides:
               </p>
               <ul className="list-disc pl-6 mt-2 text-muted-foreground space-y-1">
                 <li>Property recommendations based on user preferences</li>
@@ -80,7 +80,7 @@ const TermsOfService: React.FC = () => {
             <section>
               <h2 className="text-lg font-semibold mb-3">4. Subscription and Payment</h2>
               <p className="text-muted-foreground">
-                ApartmentIQ offers subscription-based access to premium features:
+                Apartment Locator AI offers subscription-based access to premium features:
               </p>
               <ul className="list-disc pl-6 mt-2 text-muted-foreground space-y-1">
                 <li>Subscriptions are billed monthly or annually as selected</li>
@@ -114,7 +114,7 @@ const TermsOfService: React.FC = () => {
             <section>
               <h2 className="text-lg font-semibold mb-3">7. AI-Generated Content</h2>
               <p className="text-muted-foreground">
-                ApartmentIQ uses artificial intelligence to generate recommendations and offers. While we strive for accuracy:
+                Apartment Locator AI uses artificial intelligence to generate recommendations and offers. While we strive for accuracy:
               </p>
               <ul className="list-disc pl-6 mt-2 text-muted-foreground space-y-1">
                 <li>AI-generated content is for informational purposes only</li>
@@ -127,7 +127,7 @@ const TermsOfService: React.FC = () => {
             <section>
               <h2 className="text-lg font-semibold mb-3">8. Intellectual Property</h2>
               <p className="text-muted-foreground">
-                The Service and its original content, features, and functionality are owned by ApartmentIQ and are protected by international copyright, trademark, and other intellectual property laws.
+                The Service and its original content, features, and functionality are owned by Apartment Locator AI and are protected by international copyright, trademark, and other intellectual property laws.
               </p>
             </section>
 
@@ -158,7 +158,7 @@ const TermsOfService: React.FC = () => {
                 If you have any questions about these Terms, please contact us at:
               </p>
               <div className="mt-2 text-muted-foreground">
-                <p>Email: legal@apartmentiq.com</p>
+                <p>Email: legal@apartmentlocatorai.com</p>
                 <p>Address: 123 Tech Street, San Francisco, CA 94105</p>
               </div>
             </section>

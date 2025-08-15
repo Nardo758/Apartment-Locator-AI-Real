@@ -119,7 +119,7 @@ const Auth = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="text-2xl font-bold text-foreground">
-            ApartmentIQ
+            Apartment Locator AI
           </Link>
           <p className="text-muted-foreground mt-2">
             Your AI-powered rental search assistant
