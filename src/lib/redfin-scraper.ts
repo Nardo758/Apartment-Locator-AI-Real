@@ -31,16 +31,20 @@ interface RentalMarketMetrics {
   // Confidence & Quality
   dataQuality: 'high' | 'medium' | 'low';
   sampleSize: number;
+  dataSource?: 'redfin_api' | 'fallback_realistic' | 'fallback_generic';
+  lastUpdated: Date;
+  isRealData?: boolean;
 }
 
-interface RenterInsight {
-  insightType: 'leverage' | 'timing' | 'geographic' | 'seasonal' | 'competition';
+export interface RenterInsight {
+  insightType: 'leverage' | 'timing' | 'geographic' | 'seasonal' | 'competition' | 'ownership';
   severity: 'high' | 'medium' | 'low';
   title: string;
   description: string;
   actionable: string;
   confidence: number;
   expiresAt?: Date;
+  savingsPotential?: number;
 }
 
 interface MarketTrend {
@@ -184,7 +188,10 @@ class RedfinRentalScraper {
       
       // Quality metrics
       dataQuality: this.assessDataQuality(row),
-      sampleSize: row.property_count || 0
+      sampleSize: row.property_count || 0,
+      lastUpdated: new Date(),
+      dataSource: 'fallback_realistic' as const,
+      isRealData: false
     }));
   }
 
@@ -509,7 +516,10 @@ class RedfinRentalScraper {
         quarterEndPressure: this.isQuarterEnd(date),
         monthEndPressure: this.isMonthEnd(date),
         dataQuality: 'high' as const,
-        sampleSize: 500 + Math.random() * 200
+        sampleSize: 500 + Math.random() * 200,
+        lastUpdated: new Date(),
+        dataSource: 'fallback_realistic' as const,
+        isRealData: false
       });
     }
     
@@ -609,7 +619,6 @@ export {
   RedfinRentalScraper,
   RentalMarketIntelligence,
   type RentalMarketMetrics,
-  type RenterInsight,
   type MarketTrend,
   type GeographicOpportunity
 };
