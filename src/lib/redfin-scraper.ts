@@ -107,7 +107,8 @@ class RedfinRentalScraper {
   async downloadAndParseData(dataType: string): Promise<any[]> {
     // For Lovable environment, external APIs are restricted, so we'll use mock data
     console.log(`Using mock data for ${dataType} due to CORS restrictions`);
-    return this.generateMockData(dataType);
+    // Return raw data that will be processed by processRawDataToMetrics
+    return this.generateRawMockData();
   }
 
   private parseTSVData(tsvText: string): any[] {
@@ -486,7 +487,7 @@ class RedfinRentalScraper {
     const mockData = [];
     const baseDate = new Date();
     
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 6; i++) {
       const date = new Date(baseDate);
       date.setMonth(date.getMonth() - i);
       
@@ -511,6 +512,43 @@ class RedfinRentalScraper {
         sampleSize: 500 + Math.random() * 200
       });
     }
+    
+    return mockData;
+  }
+
+  private generateRawMockData(): any[] {
+    const locations = ['Austin, TX', 'Dallas, TX', 'Houston, TX'];
+    const mockData = [];
+    const baseDate = new Date();
+    
+    locations.forEach((location, locIndex) => {
+      for (let i = 0; i < 6; i++) {
+        const date = new Date(baseDate);
+        date.setMonth(date.getMonth() - i);
+        
+        const baseRent = 2200 + (locIndex * 200) + (Math.random() - 0.5) * 300;
+        const seasonalFactor = this.calculateSeasonalIndex(date) / 100;
+        
+        mockData.push({
+          period_end: date.toISOString().split('T')[0],
+          region_name: location,
+          city: location.split(',')[0],
+          state: location.split(', ')[1],
+          metro: location,
+          median_list_price: Math.round(baseRent * (0.8 + seasonalFactor * 0.4)),
+          median_list_price_yoy: (Math.random() - 0.3) * 15,
+          median_list_price_mm: (Math.random() - 0.4) * 5,
+          active_listing_count: Math.round(600 + Math.random() * 800 + seasonalFactor * 400),
+          median_days_on_market: Math.round(25 + Math.random() * 40 + (1 - seasonalFactor) * 20),
+          new_listing_count: Math.round(100 + Math.random() * 150),
+          price_drop_count_yoy: Math.random() * 25,
+          sold_above_list_pct: Math.round(15 + Math.random() * 30),
+          sold_count: Math.round(80 + Math.random() * 80),
+          tours_per_listing: 1.5 + Math.random() * 3,
+          property_count: Math.round(400 + Math.random() * 300)
+        });
+      }
+    });
     
     return mockData;
   }
