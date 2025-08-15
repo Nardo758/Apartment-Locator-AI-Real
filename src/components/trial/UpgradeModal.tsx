@@ -20,17 +20,17 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   timeRemaining
 }) => {
   const annualSavings = intelligence.potentialSavings * 12;
-  const queriesRemaining = trialStatus.queriesLimit - trialStatus.queriesUsed;
+  const searchesRemaining = trialStatus.searchesLimit - trialStatus.searchesUsed;
 
   const features = [
-    'Exact savings calculations and leverage score',
-    'Specific negotiation tactics and talking points',
-    'Landlord financial analysis and pressure points',
-    'Optimal timing strategies and deadlines',
-    'Market trend analysis and competitor data',
-    'Property owner contact information',
-    'Historical pricing and concession data',
-    'AI-powered negotiation scripts'
+    'Unlimited apartment searches',
+    'Exact savings calculations for each property',
+    'Specific negotiation scripts and talking points',
+    'Landlord and property manager contact info',
+    'Optimal application timing strategies',
+    'Property-specific pressure points',
+    'Historical rent data and trends',
+    'Direct application assistance'
   ];
 
   return (
@@ -39,7 +39,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
         {/* Header */}
         <DialogHeader className="relative">
           <DialogTitle className="text-2xl font-bold text-center">
-            Unlock Your Full Analysis
+            Unlock Apartment Negotiation Intelligence
           </DialogTitle>
           <Button
             variant="ghost"
@@ -55,10 +55,10 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
           {/* Value Proposition */}
           <div className="text-center p-6 rounded-xl bg-gradient-secondary/10 border border-secondary/20">
             <div className="text-3xl font-extrabold gradient-secondary-text mb-2">
-              Potential Savings: ${intelligence.potentialSavings}/month
+              Save $400+ per month with proven negotiation tactics
             </div>
             <div className="text-lg text-muted-foreground">
-              ${annualSavings.toLocaleString()}/year value
+              Your potential annual savings: $4,800+
             </div>
           </div>
 
@@ -70,11 +70,11 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <span className="font-semibold">⚠️ Limited Time Remaining</span>
               </div>
               <div className="text-sm text-muted-foreground">
-                {queriesRemaining === 0 
-                  ? 'No trial queries remaining'
+                {searchesRemaining === 0 
+                  ? 'No trial searches remaining'
                   : timeRemaining.hours === 0 
                     ? 'Trial has expired' 
-                    : `Only ${timeRemaining.hours} hours and ${queriesRemaining} queries left in your trial`
+                    : `Only ${timeRemaining.hours} hours and ${searchesRemaining} searches left in your trial`
                 }
               </div>
             </div>
@@ -95,17 +95,17 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
 
           {/* Pricing Options */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Single Property */}
+            {/* Quarterly Plan */}
             <div className="glass-dark rounded-lg p-5 border border-white/10">
               <div className="text-center">
-                <h4 className="text-lg font-semibold text-foreground mb-2">Single Property</h4>
-                <div className="text-3xl font-bold text-foreground mb-1">$49</div>
-                <div className="text-sm text-muted-foreground mb-4">One-time analysis</div>
+                <h4 className="text-lg font-semibold text-foreground mb-2">Quarterly Plan</h4>
+                <div className="text-3xl font-bold text-foreground mb-1">$69</div>
+                <div className="text-sm text-muted-foreground mb-4">$18 saved</div>
                 <Button 
                   className="w-full bg-muted hover:bg-muted/80" 
-                  onClick={() => {/* Handle single property purchase */}}
+                  onClick={() => {/* Handle quarterly purchase */}}
                 >
-                  Get This Analysis
+                  Get Quarterly Access
                 </Button>
               </div>
             </div>
@@ -126,7 +126,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                   onClick={() => {/* Handle monthly subscription */}}
                 >
                   <Zap className="w-4 h-4 mr-2" />
-                  Start Monthly Plan
+                  Unlock Full Access
                 </Button>
               </div>
             </div>
@@ -143,9 +143,14 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             </Button>
             <div className="flex items-center space-x-4">
               {/* Trust Elements */}
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Shield className="w-4 h-4" />
-                <span>30-day money-back guarantee</span>
+              <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                <div className="flex items-center space-x-2">
+                  <Shield className="w-4 h-4" />
+                  <span>Average user saves $400/month</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span>95% successful negotiation rate</span>
+                </div>
               </div>
             </div>
           </div>

@@ -16,21 +16,21 @@ export const TrialStatus: React.FC<TrialStatusProps> = ({
   onUpgrade, 
   className 
 }) => {
-  const queriesRemaining = trialStatus.queriesLimit - trialStatus.queriesUsed;
+  const searchesRemaining = trialStatus.searchesLimit - trialStatus.searchesUsed;
   
   const getStatusColor = () => {
-    if (queriesRemaining === 0 || timeRemaining.hours === 0) return 'text-destructive';
+    if (searchesRemaining === 0 || timeRemaining.hours === 0) return 'text-destructive';
     if (timeRemaining.isUrgent) return 'text-yellow-400';
     return 'text-secondary';
   };
 
   const getProgressColor = () => {
-    if (queriesRemaining === 0 || timeRemaining.hours === 0) return 'bg-destructive';
+    if (searchesRemaining === 0 || timeRemaining.hours === 0) return 'bg-destructive';
     if (timeRemaining.isUrgent) return 'bg-yellow-400';
     return 'bg-secondary';
   };
 
-  const progressWidth = (trialStatus.queriesUsed / trialStatus.queriesLimit) * 100;
+  const progressWidth = (trialStatus.searchesUsed / trialStatus.searchesLimit) * 100;
 
   return (
     <div className={`glass-dark rounded-xl p-4 border border-white/10 ${className}`}>
@@ -52,9 +52,9 @@ export const TrialStatus: React.FC<TrialStatusProps> = ({
       <div className="space-y-3 mb-4">
         {/* Queries Remaining */}
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Analyses Remaining</span>
+          <span className="text-sm text-muted-foreground">Searches Remaining</span>
           <span className={`font-bold ${getStatusColor()}`}>
-            {queriesRemaining}/{trialStatus.queriesLimit}
+            {searchesRemaining}/{trialStatus.searchesLimit}
           </span>
         </div>
 
@@ -79,7 +79,7 @@ export const TrialStatus: React.FC<TrialStatusProps> = ({
       </div>
 
       {/* Upgrade Button */}
-      {(timeRemaining.isUrgent || queriesRemaining <= 1) && (
+      {(timeRemaining.isUrgent || searchesRemaining <= 1) && (
         <Button
           onClick={onUpgrade}
           size="sm"

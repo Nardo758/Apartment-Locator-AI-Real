@@ -50,10 +50,10 @@ export const TrialSignup: React.FC<TrialSignupProps> = ({ onSignupComplete, clas
             <Mail className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-foreground mb-2">
-            Start Your <span className="gradient-text">Free Trial</span>
+            Start Finding <span className="gradient-text">Apartments</span>
           </h2>
           <p className="text-muted-foreground">
-            Discover hidden rental opportunities with AI-powered analysis
+            Discover apartments with built-in negotiation advantages
           </p>
         </div>
 
@@ -63,7 +63,7 @@ export const TrialSignup: React.FC<TrialSignupProps> = ({ onSignupComplete, clas
             <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center">
               <span className="text-white font-bold text-xs">✓</span>
             </div>
-            <span className="text-foreground">3 free property analyses</span>
+            <span className="text-foreground">3 free apartment searches</span>
           </div>
           <div className="flex items-center space-x-3 text-sm">
             <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center">
@@ -75,7 +75,7 @@ export const TrialSignup: React.FC<TrialSignupProps> = ({ onSignupComplete, clas
             <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center">
               <span className="text-white font-bold text-xs">✓</span>
             </div>
-            <span className="text-foreground">No credit card required</span>
+            <span className="text-foreground">See negotiation savings potential</span>
           </div>
         </div>
 
@@ -107,7 +107,7 @@ export const TrialSignup: React.FC<TrialSignupProps> = ({ onSignupComplete, clas
                 Setting up your trial...
               </>
             ) : (
-              'Start Free Trial'
+              'Start Finding Apartments'
             )}
           </Button>
         </form>

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useTrialManager, TeaserIntelligence } from '@/hooks/useTrialManager';
-import { useUnifiedRentalIntelligence } from '@/hooks/useUnifiedRentalIntelligence';
 import { TrialSignup } from '@/components/trial/TrialSignup';
 import { TrialStatus } from '@/components/trial/TrialStatus';
-import { PropertySearchForm } from '@/components/trial/PropertySearchForm';
-import { TeaserDashboard } from '@/components/trial/TeaserDashboard';
+import { ApartmentSearchForm } from '@/components/trial/ApartmentSearchForm';
+import { ApartmentListings } from '@/components/trial/ApartmentListings';
+import { ApartmentDetailModal } from '@/components/trial/ApartmentDetailModal';
 import { UpgradeModal } from '@/components/trial/UpgradeModal';
+import { mockApartments, filterApartments, sortApartments, ApartmentListing } from '@/data/mockApartments';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -15,8 +16,8 @@ const Trial: React.FC = () => {
     trialStatus,
     isExpired,
     initializeTrial,
-    canMakeQuery,
-    recordQuery,
+    canMakeSearch,
+    recordSearch,
     markUpgradePromptSeen,
     getTimeRemaining,
     shouldShowUpgradePrompt,
@@ -25,19 +26,53 @@ const Trial: React.FC = () => {
 
   const [searchData, setSearchData] = useState<{
     location: string;
-    currentRent: number;
-    propertyValue: number;
+    minRent: number;
+    maxRent: number;
+    bedrooms?: number;
+    bathrooms?: number;
+    moveInTimeline: string;
   } | null>(null);
 
-  const [teaserIntelligence, setTeaserIntelligence] = useState<TeaserIntelligence | null>(null);
+  const [apartments, setApartments] = useState<ApartmentListing[]>([]);
+  const [selectedApartment, setSelectedApartment] = useState<ApartmentListing | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Use the intelligence hook when we have search data
-  const { intelligence, loading, error } = useUnifiedRentalIntelligence(
-    searchData?.location || '',
-    searchData?.currentRent || 0,
-    searchData?.propertyValue || 0
-  );
+  // Handle apartment search
+  const handleSearch = (data: {
+    location: string;
+    minRent: number;
+    maxRent: number;
+    bedrooms?: number;
+    bathrooms?: number;
+    moveInTimeline: string;
+  }) => {
+    if (!canMakeSearch()) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
+    if (recordSearch()) {
+      setLoading(true);
+      setSearchData(data);
+      
+      // Simulate API call and filter apartments
+      setTimeout(() => {
+        const filtered = filterApartments(mockApartments, {
+          location: data.location,
+          minRent: data.minRent,
+          maxRent: data.maxRent,
+          bedrooms: data.bedrooms,
+          bathrooms: data.bathrooms
+        });
+        
+        const sorted = sortApartments(filtered, 'best_leverage');
+        setApartments(sorted);
+        setLoading(false);
+      }, 1500);
+    }
+  };
 
   const timeRemaining = getTimeRemaining();
 
@@ -46,33 +81,26 @@ const Trial: React.FC = () => {
     initializeTrial(email);
   };
 
-  // Handle property analysis
-  const handleAnalyze = (data: { location: string; currentRent: number; propertyValue: number }) => {
-    if (!canMakeQuery()) {
-      setShowUpgradeModal(true);
-      return;
-    }
-
-    if (recordQuery()) {
-      setSearchData(data);
-    }
+  // Handle apartment click
+  const handleApartmentClick = (apartment: ApartmentListing) => {
+    setSelectedApartment(apartment);
+    setShowDetailModal(true);
   };
 
-  // Convert full intelligence to teaser when available
-  useEffect(() => {
-    if (intelligence && !loading && !error) {
-      const teaser = convertToTeaserData(intelligence);
-      setTeaserIntelligence(teaser);
-    }
-  }, [intelligence, loading, error, convertToTeaserData]);
+  // Handle sorting
+  const handleSort = (sortBy: string) => {
+    const sorted = sortApartments(apartments, sortBy);
+    setApartments(sorted);
+  };
+
 
   // Auto-show upgrade modal when appropriate
   useEffect(() => {
-    if (trialStatus && shouldShowUpgradePrompt() && !trialStatus.hasSeenUpgradePrompt) {
+    if (trialStatus && shouldShowUpgradePrompt() && !trialStatus.hasSeenUpgradePrompt && apartments.length > 0) {
       setShowUpgradeModal(true);
       markUpgradePromptSeen();
     }
-  }, [trialStatus, shouldShowUpgradePrompt, markUpgradePromptSeen]);
+  }, [trialStatus, shouldShowUpgradePrompt, markUpgradePromptSeen, apartments.length]);
 
   // Show signup if no trial exists
   if (!trialStatus) {
@@ -86,10 +114,10 @@ const Trial: React.FC = () => {
               <span>Back to Home</span>
             </Link>
             <h1 className="text-4xl font-bold text-foreground mb-4">
-              Try <span className="gradient-text">ApartmentIQ</span> Free
+              Find <span className="gradient-text">Smart Apartments</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Discover hidden rental opportunities with AI-powered negotiation intelligence. 
+              Discover apartments with built-in negotiation advantages and savings potential. 
               No credit card required.
             </p>
           </div>
@@ -125,12 +153,12 @@ const Trial: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Left Column - Search Form */}
           <div className="lg:col-span-1">
-            <PropertySearchForm
-              onAnalyze={handleAnalyze}
-              canMakeQuery={canMakeQuery()}
+            <ApartmentSearchForm
+              onSearch={handleSearch}
+              canMakeSearch={canMakeSearch()}
               isLoading={loading}
             />
 
@@ -143,8 +171,8 @@ const Trial: React.FC = () => {
                   <span className="text-foreground">{trialStatus.email}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Queries Used:</span>
-                  <span className="text-foreground">{trialStatus.queriesUsed}/{trialStatus.queriesLimit}</span>
+                  <span className="text-muted-foreground">Searches Used:</span>
+                  <span className="text-foreground">{trialStatus.searchesUsed}/{trialStatus.searchesLimit}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Time Left:</span>
@@ -157,45 +185,42 @@ const Trial: React.FC = () => {
           </div>
 
           {/* Right Column - Results */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             {loading && (
               <div className="glass-dark rounded-xl p-8 border border-white/10 text-center">
                 <div className="animate-pulse space-y-4">
                   <div className="w-16 h-16 bg-primary/20 rounded-full mx-auto"></div>
-                  <h3 className="text-lg font-semibold text-foreground">Analyzing Property...</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Finding Apartments...</h3>
                   <p className="text-muted-foreground">
-                    Our AI is processing market data and generating your negotiation intelligence
+                    Searching for apartments with negotiation advantages in your area
                   </p>
                 </div>
               </div>
             )}
 
-            {error && (
-              <div className="glass-dark rounded-xl p-8 border border-destructive/20 text-center">
-                <h3 className="text-lg font-semibold text-destructive mb-2">Analysis Failed</h3>
-                <p className="text-muted-foreground">{error}</p>
-                <Button 
-                  onClick={() => setSearchData(null)} 
-                  className="mt-4"
-                  variant="outline"
-                >
-                  Try Again
-                </Button>
-              </div>
-            )}
-
-            {teaserIntelligence && !loading && !error && (
-              <TeaserDashboard
-                intelligence={teaserIntelligence}
+            {apartments.length > 0 && !loading && (
+              <ApartmentListings
+                apartments={apartments}
+                onApartmentClick={handleApartmentClick}
                 onUpgrade={() => setShowUpgradeModal(true)}
+                onSort={handleSort}
               />
             )}
 
-            {!teaserIntelligence && !loading && !error && (
+            {apartments.length === 0 && !loading && searchData && (
               <div className="glass-dark rounded-xl p-8 border border-white/10 text-center">
-                <h3 className="text-lg font-semibold text-foreground mb-2">Ready to Analyze</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-2">No Apartments Found</h3>
                 <p className="text-muted-foreground">
-                  Enter a property location and details to get started with your AI-powered analysis
+                  Try adjusting your search criteria to find apartments with negotiation potential
+                </p>
+              </div>
+            )}
+
+            {!searchData && !loading && (
+              <div className="glass-dark rounded-xl p-8 border border-white/10 text-center">
+                <h3 className="text-lg font-semibold text-foreground mb-2">Ready to Find Apartments</h3>
+                <p className="text-muted-foreground">
+                  Enter your search criteria to discover apartments with built-in negotiation advantages
                 </p>
               </div>
             )}
@@ -203,12 +228,36 @@ const Trial: React.FC = () => {
         </div>
       </main>
 
+      {/* Apartment Detail Modal */}
+      <ApartmentDetailModal
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        apartment={selectedApartment}
+        onUpgrade={() => {
+          setShowDetailModal(false);
+          setShowUpgradeModal(true);
+        }}
+      />
+
       {/* Upgrade Modal */}
-      {showUpgradeModal && teaserIntelligence && (
+      {showUpgradeModal && (
         <UpgradeModal
           isOpen={showUpgradeModal}
           onClose={() => setShowUpgradeModal(false)}
-          intelligence={teaserIntelligence}
+          intelligence={{
+            leverageScore: 80,
+            savingsRange: { min: 200, max: 500 },
+            opportunityLevel: 'HIGH',
+            insightsCount: 3,
+            advantages: {
+              hasTimingAdvantage: true,
+              hasSeasonalAdvantage: true,
+              marketCondition: 'Favorable',
+              hasOwnershipAdvantage: true
+            },
+            blurredInsights: [],
+            potentialSavings: 400
+          }}
           trialStatus={trialStatus}
           timeRemaining={timeRemaining}
         />

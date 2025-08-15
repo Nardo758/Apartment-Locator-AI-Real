@@ -4,10 +4,10 @@ export interface TrialStatus {
   id: string;
   email: string;
   createdAt: string;
-  queriesUsed: number;
-  queriesLimit: number;
+  searchesUsed: number;
+  searchesLimit: number;
   hasSeenUpgradePrompt: boolean;
-  lastQueryAt?: string;
+  lastSearchAt?: string;
 }
 
 export interface TeaserIntelligence {
@@ -30,7 +30,7 @@ export interface TeaserIntelligence {
 }
 
 const TRIAL_DURATION_HOURS = 72;
-const QUERY_LIMIT = 3;
+const SEARCH_LIMIT = 3;
 
 export const useTrialManager = () => {
   const [trialStatus, setTrialStatus] = useState<TrialStatus | null>(null);
@@ -56,8 +56,8 @@ export const useTrialManager = () => {
       id: `trial_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       email,
       createdAt: new Date().toISOString(),
-      queriesUsed: 0,
-      queriesLimit: QUERY_LIMIT,
+      searchesUsed: 0,
+      searchesLimit: SEARCH_LIMIT,
       hasSeenUpgradePrompt: false
     };
 
@@ -67,24 +67,24 @@ export const useTrialManager = () => {
     return trial;
   }, []);
 
-  const canMakeQuery = useCallback((): boolean => {
+  const canMakeSearch = useCallback((): boolean => {
     if (!trialStatus || isExpired) return false;
-    return trialStatus.queriesUsed < trialStatus.queriesLimit;
+    return trialStatus.searchesUsed < trialStatus.searchesLimit;
   }, [trialStatus, isExpired]);
 
-  const recordQuery = useCallback((): boolean => {
-    if (!trialStatus || !canMakeQuery()) return false;
+  const recordSearch = useCallback((): boolean => {
+    if (!trialStatus || !canMakeSearch()) return false;
 
     const updatedTrial = {
       ...trialStatus,
-      queriesUsed: trialStatus.queriesUsed + 1,
-      lastQueryAt: new Date().toISOString()
+      searchesUsed: trialStatus.searchesUsed + 1,
+      lastSearchAt: new Date().toISOString()
     };
 
     localStorage.setItem('apartmentiq_trial', JSON.stringify(updatedTrial));
     setTrialStatus(updatedTrial);
     return true;
-  }, [trialStatus, canMakeQuery]);
+  }, [trialStatus, canMakeSearch]);
 
   const markUpgradePromptSeen = useCallback(() => {
     if (!trialStatus) return;
@@ -108,7 +108,7 @@ export const useTrialManager = () => {
 
     return {
       hours: Math.floor(hoursRemaining),
-      isUrgent: hoursRemaining < 24 || trialStatus.queriesUsed >= trialStatus.queriesLimit - 1
+      isUrgent: hoursRemaining < 24 || trialStatus.searchesUsed >= trialStatus.searchesLimit - 1
     };
   }, [trialStatus]);
 
@@ -117,9 +117,9 @@ export const useTrialManager = () => {
     
     const timeInfo = getTimeRemaining();
     return (
-      trialStatus.queriesUsed >= 2 || 
+      trialStatus.searchesUsed >= 2 || 
       timeInfo.isUrgent || 
-      trialStatus.queriesUsed >= trialStatus.queriesLimit ||
+      trialStatus.searchesUsed >= trialStatus.searchesLimit ||
       isExpired
     );
   }, [trialStatus, getTimeRemaining, isExpired]);
@@ -165,8 +165,8 @@ export const useTrialManager = () => {
     trialStatus,
     isExpired,
     initializeTrial,
-    canMakeQuery,
-    recordQuery,
+    canMakeSearch,
+    recordSearch,
     markUpgradePromptSeen,
     getTimeRemaining,
     shouldShowUpgradePrompt,
