@@ -78,15 +78,15 @@ export const TrialStatus: React.FC<TrialStatusProps> = ({
         </div>
       </div>
 
-      {/* Upgrade Button */}
-      {(timeRemaining.isUrgent || searchesRemaining <= 1) && (
+      {/* Upgrade Button - Always show after first search */}
+      {(timeRemaining.isUrgent || searchesRemaining <= 1 || trialStatus.searchesUsed >= 1) && (
         <Button
           onClick={onUpgrade}
           size="sm"
           className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
         >
           <Zap className="w-4 h-4 mr-2" />
-          Upgrade Now
+          {searchesRemaining === 0 ? 'Upgrade Required' : 'Upgrade Now'}
         </Button>
       )}
     </div>

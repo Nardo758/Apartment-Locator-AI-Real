@@ -10,7 +10,7 @@ import { AutoUpgradeModal } from '@/components/trial/AutoUpgradeModal';
 import { useAutoUpgradeTriggers } from '@/hooks/useAutoUpgradeTriggers';
 import { mockApartments, filterApartments, sortApartments, ApartmentListing } from '@/data/mockApartments';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Trial: React.FC = () => {
@@ -245,9 +245,16 @@ const Trial: React.FC = () => {
             {!searchData && !loading && (
               <div className="glass-dark rounded-xl p-8 border border-white/10 text-center">
                 <h3 className="text-lg font-semibold text-foreground mb-2">Ready to Find Apartments</h3>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground mb-4">
                   Enter your search criteria to discover apartments with built-in negotiation advantages
                 </p>
+                <Button
+                  onClick={handleManualUpgrade}
+                  className="bg-gradient-primary hover:opacity-90"
+                >
+                  <Zap className="w-4 h-4 mr-2" />
+                  Upgrade for Unlimited Access
+                </Button>
               </div>
             )}
           </div>
