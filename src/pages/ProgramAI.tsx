@@ -55,7 +55,7 @@ const ProgramAI = () => {
   
   const [preferences, setPreferences] = useState<AIPreferences>({
     location: searchFilters.location || 'Austin, TX',
-    searchRadius: searchFilters.priceRange ? 25 : 25,
+    searchRadius: 25,
     maxDriveTime: 30,
     pointsOfInterest: [],
     budget: userPreferences.budget || 2500,
@@ -69,6 +69,51 @@ const ProgramAI = () => {
     useCase: '',
     additionalNotes: ''
   });
+
+  // Load user profile data on component mount
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profile, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error loading profile:', error);
+          return;
+        }
+
+        if (profile) {
+          setPreferences(prev => ({
+            ...prev,
+            location: profile.location || 'Austin, TX',
+            searchRadius: profile.search_radius || 25,
+            maxDriveTime: profile.max_drive_time || 30,
+            pointsOfInterest: (profile.points_of_interest as any) || [],
+            budget: profile.budget || 2500,
+            bedrooms: profile.bedrooms || '1',
+            amenities: profile.amenities || [],
+            dealBreakers: profile.deal_breakers || [],
+            lifestyle: profile.lifestyle || '',
+            workSchedule: profile.work_schedule || '',
+            priorities: profile.priorities || [],
+            bio: profile.bio || '',
+            useCase: profile.use_case || '',
+            additionalNotes: profile.additional_notes || ''
+          }));
+        }
+      } catch (error) {
+        console.error('Error loading user profile:', error);
+      }
+    };
+
+    loadUserProfile();
+  }, []);
 
   const commonAmenities = [
     'Pool', 'Gym/Fitness Center', 'Parking', 'Laundry', 'Pet-Friendly',
@@ -115,7 +160,7 @@ const ProgramAI = () => {
   };
 
   const syncWithGlobalState = () => {
-    // Sync search filters
+    // Sync search filters with global state
     setSearchFilters({
       location: preferences.location,
       priceRange: [0, preferences.budget] as [number, number],
@@ -123,13 +168,18 @@ const ProgramAI = () => {
       amenities: preferences.amenities
     });
 
-    // Sync user preferences  
+    // Sync user preferences with global state
     setUserPreferences({
       budget: preferences.budget,
       location: preferences.location,
       moveInDate: userPreferences.moveInDate
     });
   };
+
+  // Auto-sync when key preferences change
+  useEffect(() => {
+    syncWithGlobalState();
+  }, [preferences.location, preferences.budget, preferences.amenities, preferences.bedrooms]);
 
   const handleSave = async () => {
     try {
@@ -145,41 +195,42 @@ const ProgramAI = () => {
         return;
       }
 
-      const { error } = await supabase
-        .from('user_profiles')
-        .upsert({
-          user_id: user.id,
-          email: user.email,
-          location: preferences.location,
-          search_radius: preferences.searchRadius,
-          max_drive_time: preferences.maxDriveTime,
-          points_of_interest: preferences.pointsOfInterest as any,
-          budget: preferences.budget,
-          bedrooms: preferences.bedrooms,
-          amenities: preferences.amenities,
-          deal_breakers: preferences.dealBreakers,
-          lifestyle: preferences.lifestyle,
-          work_schedule: preferences.workSchedule,
-          priorities: preferences.priorities,
-          bio: preferences.bio,
-          use_case: preferences.useCase,
-          additional_notes: preferences.additionalNotes,
-          ai_preferences: {
-            prioritizeCommute: preferences.maxDriveTime <= 20,
-            budgetFocused: preferences.budget > 0,
-            amenityImportant: preferences.amenities.length > 3,
-            lifestyle: preferences.lifestyle,
-            priorities: preferences.priorities
-          },
-          search_criteria: {
-            maxBudget: preferences.budget,
-            preferredAmenities: preferences.amenities,
-            dealBreakers: preferences.dealBreakers,
-            commutePriority: preferences.maxDriveTime,
+        const { error } = await supabase
+          .from('user_profiles')
+          .upsert({
+            user_id: user.id,
+            email: user.email,
             location: preferences.location,
-            radius: preferences.searchRadius
-          }
-        });
+            search_radius: preferences.searchRadius,
+            max_drive_time: preferences.maxDriveTime,
+            points_of_interest: preferences.pointsOfInterest as any,
+            budget: preferences.budget,
+            bedrooms: preferences.bedrooms,
+            amenities: preferences.amenities,
+            deal_breakers: preferences.dealBreakers,
+            lifestyle: preferences.lifestyle,
+            work_schedule: preferences.workSchedule,
+            priorities: preferences.priorities,
+            bio: preferences.bio,
+            use_case: preferences.useCase,
+            additional_notes: preferences.additionalNotes,
+            has_completed_ai_programming: true,
+            ai_preferences: {
+              prioritizeCommute: preferences.maxDriveTime <= 20,
+              budgetFocused: preferences.budget > 0,
+              amenityImportant: preferences.amenities.length > 3,
+              lifestyle: preferences.lifestyle,
+              priorities: preferences.priorities
+            },
+            search_criteria: {
+              maxBudget: preferences.budget,
+              preferredAmenities: preferences.amenities,
+              dealBreakers: preferences.dealBreakers,
+              commutePriority: preferences.maxDriveTime,
+              location: preferences.location,
+              radius: preferences.searchRadius
+            }
+          });
 
       if (error) throw error;
 
@@ -213,15 +264,15 @@ const ProgramAI = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-blue-400" />
-                Location & Search
+                Search Area Profile
               </CardTitle>
-              <CardDescription>Configure your search area and preferences</CardDescription>
+              <CardDescription>Configure your search area and preferences (syncs with dashboard)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <Label className="text-sm font-medium">Preferred Location</Label>
                 <Input
-                  placeholder="City, State"
+                  placeholder="City, State (e.g., Austin, TX)"
                   value={preferences.location}
                   onChange={(e) => updatePreference('location', e.target.value)}
                   className="mt-1 bg-slate-800/50 border-slate-600/50"
