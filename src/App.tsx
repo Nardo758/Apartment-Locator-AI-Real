@@ -17,6 +17,12 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ProgramAI from "./pages/ProgramAI";
 import Trial from "./pages/Trial";
+import Profile from "./pages/Profile";
+import Billing from "./pages/Billing";
+import Help from "./pages/Help";
+import Contact from "./pages/Contact";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
 
 const queryClient = new QueryClient();
@@ -43,6 +49,12 @@ const App = () => (
             <Route path="/market-intel" element={<MarketIntel />} />
             <Route path="/trial" element={<Trial />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/billing" element={<Billing />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
