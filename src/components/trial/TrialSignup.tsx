@@ -47,7 +47,7 @@ export const TrialSignup: React.FC<TrialSignupProps> = ({ onSignupComplete, clas
         {/* Header */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-primary flex items-center justify-center">
-            <Mail className="w-8 h-8 text-white" />
+            <Mail className="w-8 h-8 text-primary-foreground" />
           </div>
           <h2 className="text-3xl font-bold text-foreground mb-2">
             Start Finding <span className="gradient-text">Apartments</span>
@@ -61,19 +61,19 @@ export const TrialSignup: React.FC<TrialSignupProps> = ({ onSignupComplete, clas
         <div className="space-y-3 mb-8">
           <div className="flex items-center space-x-3 text-sm">
             <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center">
-              <span className="text-white font-bold text-xs">✓</span>
+              <span className="text-secondary-foreground font-bold text-xs">✓</span>
             </div>
             <span className="text-foreground">3 free apartment searches</span>
           </div>
           <div className="flex items-center space-x-3 text-sm">
             <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center">
-              <span className="text-white font-bold text-xs">✓</span>
+              <span className="text-secondary-foreground font-bold text-xs">✓</span>
             </div>
             <span className="text-foreground">72-hour trial period</span>
           </div>
           <div className="flex items-center space-x-3 text-sm">
             <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center">
-              <span className="text-white font-bold text-xs">✓</span>
+              <span className="text-secondary-foreground font-bold text-xs">✓</span>
             </div>
             <span className="text-foreground">See negotiation savings potential</span>
           </div>

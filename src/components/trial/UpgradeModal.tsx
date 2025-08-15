@@ -121,7 +121,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             {/* Pro Plan - Popular */}
             <div className="glass-dark rounded-lg p-5 border border-primary/40 relative">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold">
+                <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-semibold">
                   POPULAR
                 </span>
               </div>

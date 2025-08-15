@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({ onSignOut }) => {
               className={`px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
                 isActive(item.path)
                   ? 'bg-primary/20 text-primary border border-primary/30'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
               }`}
             >
               {item.label}
@@ -73,7 +73,7 @@ const Header: React.FC<HeaderProps> = ({ onSignOut }) => {
                   className={`px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
                     isActive(item.path)
                       ? 'bg-primary/20 text-primary border border-primary/30'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -131,7 +131,7 @@ const Header: React.FC<HeaderProps> = ({ onSignOut }) => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 px-2">
                 <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
-                  <User size={16} className="text-white" />
+                  <User size={16} className="text-primary-foreground" />
                 </div>
                 <ChevronDown size={14} className="text-muted-foreground" />
               </Button>

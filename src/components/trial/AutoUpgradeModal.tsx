@@ -136,16 +136,16 @@ export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
         {/* Header */}
         <div className={`p-6 -m-6 mb-0 bg-gradient-to-r ${content.gradient}`}>
           <div className="flex items-center justify-between">
-            <div className="text-white">
+            <div className="text-primary-foreground">
               <h2 className="text-2xl font-bold mb-1">{content.title}</h2>
-              <p className="text-white/90">{content.subtitle}</p>
+              <p className="text-primary-foreground/90">{content.subtitle}</p>
             </div>
             {canClose && onClose && (
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="text-white hover:text-white/80 hover:bg-white/10"
+                className="text-primary-foreground hover:text-primary-foreground/80 hover:bg-background/10"
               >
                 <X className="w-5 h-5" />
               </Button>
@@ -161,7 +161,7 @@ export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
             <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg p-4 mb-6 border border-orange-500/20">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold text-foreground">This Apartment:</h3>
-                <Badge className="bg-orange-500 text-white font-bold">
+                <Badge variant="opportunity-medium" className="font-bold">
                   {apartmentData.leverageScore}+ LEVERAGE
                 </Badge>
               </div>
@@ -221,7 +221,7 @@ export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
           {/* Pricing */}
           <div className="text-center mb-6">
             <div className="inline-block bg-primary rounded-lg p-4 border border-primary/20">
-              <div className="text-3xl font-bold text-white">
+              <div className="text-3xl font-bold text-primary-foreground">
                 $29.99<span className="text-lg"> one-time</span>
               </div>
               <div className="text-primary-foreground/80 text-sm">Pro Plan • No recurring charges</div>
@@ -236,7 +236,7 @@ export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
               disabled={isLoading}
               className={`w-full font-bold text-lg ${
                 content.urgency === 'critical' 
-                  ? 'bg-red-600 hover:bg-red-700 animate-pulse text-white' 
+                  ? 'bg-destructive hover:bg-destructive/90 animate-pulse text-destructive-foreground' 
                   : 'bg-gradient-primary hover:opacity-90'
               }`}
             >

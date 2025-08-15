@@ -44,7 +44,7 @@ const MarketIntelligence: React.FC = () => {
         <h4 className="text-sm font-medium text-foreground mb-3">🔮 AI Concession Predictions</h4>
         <div className="space-y-2">
           {trendingConcessions.map((concession, index) => (
-            <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-white/5">
+            <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-background/5">
               <span className="text-sm text-foreground">{concession.type}</span>
               <div className="flex items-center text-xs text-green-400">
                 <TrendingUp size={12} className="mr-1" />
