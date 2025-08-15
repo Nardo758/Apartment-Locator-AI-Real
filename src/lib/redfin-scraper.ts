@@ -105,26 +105,9 @@ class RedfinRentalScraper {
   }
 
   async downloadAndParseData(dataType: string): Promise<any[]> {
-    const url = this.baseUrls[dataType as keyof typeof this.baseUrls];
-    if (!url) {
-      throw new Error(`Invalid data type: ${dataType}`);
-    }
-
-    try {
-      // For Lovable compatibility, we'll use fetch with proper error handling
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const textData = await response.text();
-      return this.parseTSVData(textData);
-    } catch (error) {
-      console.error(`Error downloading data from ${url}:`, error);
-      
-      // Fallback to mock data for development/testing
-      return this.generateMockData(dataType);
-    }
+    // For Lovable environment, external APIs are restricted, so we'll use mock data
+    console.log(`Using mock data for ${dataType} due to CORS restrictions`);
+    return this.generateMockData(dataType);
   }
 
   private parseTSVData(tsvText: string): any[] {
