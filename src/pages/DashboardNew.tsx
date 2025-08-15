@@ -15,7 +15,7 @@ import { mockProperties } from '../data/mockData';
 const DashboardNew = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('recommended');
-  const [showQuickActions, setShowQuickActions] = useState(true);
+  const [showSearchArea, setShowSearchArea] = useState(false);
   const [currentLocation, setCurrentLocation] = useState({
     city: 'Austin',
     state: 'TX',
@@ -134,11 +134,26 @@ const DashboardNew = () => {
                 </div>
               )}
 
-              {/* Search Area Component */}
-              <LocationSearch 
-                onLocationChange={setCurrentLocation}
-                currentLocation={currentLocation}
-              />
+              {/* Search Area Modal/Overlay */}
+              {showSearchArea && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                  <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                    <LocationSearch 
+                      onLocationChange={setCurrentLocation}
+                      currentLocation={currentLocation}
+                    />
+                    <div className="mt-4 text-center">
+                      <Button 
+                        onClick={() => setShowSearchArea(false)}
+                        variant="outline"
+                        className="bg-slate-800/50"
+                      >
+                        Close
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Filter Tabs */}
               <div className="glass-dark rounded-xl p-6">
@@ -178,7 +193,7 @@ const DashboardNew = () => {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Quick Actions */}
-              <QuickActions />
+              <QuickActions onSearchAreaClick={() => setShowSearchArea(true)} />
 
               {/* Market Intelligence */}
               <MarketIntelligence />
