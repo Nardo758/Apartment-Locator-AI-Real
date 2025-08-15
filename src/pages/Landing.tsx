@@ -388,30 +388,7 @@ const Landing = () => {
       <section id="pricing" className="py-32" style={{ background: 'rgba(102, 126, 234, 0.02)' }}>
         <div className="max-w-5xl mx-auto px-5">
           <h2 className="text-center text-5xl font-extrabold mb-5 text-white">Choose Your Plan</h2>
-          <p className="text-center text-xl mb-8" style={{ color: '#b0b0b0' }}>One-time payment for AI-powered apartment hunting</p>
-          
-          {/* Start Free Trial Button */}
-          <div className="text-center mb-12">
-            <button 
-              className="text-white px-12 py-5 border-0 rounded-[25px] text-xl font-bold transition-all duration-300"
-              style={{ 
-                background: 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)',
-                boxShadow: '0 10px 30px rgba(78, 205, 196, 0.3)'
-              }}
-              onClick={() => window.open('/trial', '_self')}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)';
-                e.currentTarget.style.boxShadow = '0 15px 35px rgba(78, 205, 196, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                e.currentTarget.style.boxShadow = '0 10px 30px rgba(78, 205, 196, 0.3)';
-              }}
-            >
-              🚀 Start Free Trial
-            </button>
-            <p className="text-sm mt-3" style={{ color: '#b0b0b0' }}>3 free searches • No credit card required</p>
-          </div>
+          <p className="text-center text-xl mb-16" style={{ color: '#b0b0b0' }}>One-time payment for AI-powered apartment hunting</p>
           
           <div className="grid md:grid-cols-3 gap-8">
             {/* Free Plan */}
@@ -468,7 +445,7 @@ const Landing = () => {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                Start Free Trial
+                Get Basic Plan
               </button>
             </div>
 
