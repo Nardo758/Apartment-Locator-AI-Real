@@ -123,6 +123,23 @@ const Landing = () => {
                 About
               </a>
             </li>
+            <li>
+              <a 
+                href="/contact" 
+                className="text-white font-medium relative transition-all duration-300"
+                style={{ textDecoration: 'none' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#667eea';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#ffffff';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                Contact
+              </a>
+            </li>
           </ul>
           <Link to="/trial">
             <button 
@@ -613,6 +630,59 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="py-16 border-t border-white/10" style={{ background: 'rgba(102, 126, 234, 0.02)' }}>
+        <div className="max-w-6xl mx-auto px-5">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="text-2xl font-extrabold mb-4" style={{ 
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                WebkitBackgroundClip: 'text', 
+                backgroundClip: 'text', 
+                WebkitTextFillColor: 'transparent' 
+              }}>
+                🏠 Apartment Locator AI
+              </div>
+              <p className="text-muted-foreground mb-4">
+                AI-powered apartment hunting that saves you time and money.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="text-white font-semibold mb-4">Product</h4>
+              <ul className="space-y-2">
+                <li><Link to="/how-it-works" className="text-muted-foreground hover:text-primary transition-colors">How It Works</Link></li>
+                <li><Link to="/trial" className="text-muted-foreground hover:text-primary transition-colors">Start Free Trial</Link></li>
+                <li><Link to="/auth" className="text-muted-foreground hover:text-primary transition-colors">Sign In</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-white font-semibold mb-4">Company</h4>
+              <ul className="space-y-2">
+                <li><Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
+                <li><Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact</Link></li>
+                <li><Link to="/help" className="text-muted-foreground hover:text-primary transition-colors">Help Center</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-white font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2">
+                <li><Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link></li>
+                <li><Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-white/10 mt-8 pt-8 text-center">
+            <p className="text-muted-foreground">
+              © 2024 Apartment Locator AI. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
 
       {/* Quick Purchase Modal */}
       <QuickPurchaseModal

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Star, Calendar, MapPin, TrendingUp, Clock, Home, AlertCircle, X, Bell, Settings, ChevronRight, DollarSign, Zap, Heart, Eye } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +15,7 @@ import LocationSearch from '@/components/LocationSearch';
 import QuickActions from '@/components/QuickActions';
 import MarketIntelligence from '@/components/MarketIntelligence';
 import PopularCities from '@/components/PopularCities';
+import QuickLinksCard from '@/components/QuickLinksCard';
 import { mockProperties } from '@/data/mockData';
 
 interface UserProfile {
@@ -466,6 +467,9 @@ const DashboardNew = () => {
                   </Button>
                 </CardContent>
               </Card>
+
+              {/* Quick Links */}
+              <QuickLinksCard variant="sidebar" />
             </div>
           </div>
         </div>
