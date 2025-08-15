@@ -8,8 +8,9 @@ const AppFooter: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <div className="text-xl font-bold mb-4 gradient-text">
-              🏠 Apartment Locator AI
+            <div className="flex items-center space-x-2 mb-4">
+              <img src="/lovable-uploads/e7d43e3a-89d0-41ec-ab1f-3c8f1694401a.png" alt="Apartment Locator AI Logo" className="h-6 w-auto" />
+              <div className="text-xl font-bold gradient-text">Apartment Locator AI</div>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
               AI-powered apartment hunting that saves you time and money.

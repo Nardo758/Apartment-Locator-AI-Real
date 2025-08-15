@@ -66,8 +66,11 @@ const Landing = () => {
       {/* Header */}
       <header className="fixed top-0 w-full z-[1000] py-4" style={{ background: 'rgba(10, 10, 10, 0.95)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
         <nav className="max-w-[1200px] mx-auto px-5 flex justify-between items-center">
-          <div className="text-2xl font-extrabold" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            🏠 Apartment Locator AI
+          <div className="flex items-center space-x-2">
+            <img src="/lovable-uploads/e7d43e3a-89d0-41ec-ab1f-3c8f1694401a.png" alt="Apartment Locator AI Logo" className="h-8 w-auto" />
+            <div className="text-2xl font-extrabold" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Apartment Locator AI
+            </div>
           </div>
           <ul className="hidden md:flex gap-8 list-none">
             <li>
@@ -636,13 +639,16 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto px-5">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="text-2xl font-extrabold mb-4" style={{ 
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-                WebkitBackgroundClip: 'text', 
-                backgroundClip: 'text', 
-                WebkitTextFillColor: 'transparent' 
-              }}>
-                🏠 Apartment Locator AI
+              <div className="flex items-center space-x-2 mb-4">
+                <img src="/lovable-uploads/e7d43e3a-89d0-41ec-ab1f-3c8f1694401a.png" alt="Apartment Locator AI Logo" className="h-6 w-auto" />
+                <div className="text-2xl font-extrabold" style={{ 
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                  WebkitBackgroundClip: 'text', 
+                  backgroundClip: 'text', 
+                  WebkitTextFillColor: 'transparent' 
+                }}>
+                  Apartment Locator AI
+                </div>
               </div>
               <p className="text-muted-foreground mb-4">
                 AI-powered apartment hunting that saves you time and money.

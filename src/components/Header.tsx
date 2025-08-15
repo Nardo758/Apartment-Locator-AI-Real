@@ -36,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({ onSignOut }) => {
       <div className="flex items-center justify-between px-6 py-4">
         {/* Logo */}
         <div className="flex items-center space-x-2">
-          <span className="text-2xl">🏠</span>
+          <img src="/lovable-uploads/e7d43e3a-89d0-41ec-ab1f-3c8f1694401a.png" alt="Apartment Locator AI Logo" className="h-8 w-auto" />
           <h1 className="text-xl font-bold gradient-text">Apartment Locator AI</h1>
         </div>
 
