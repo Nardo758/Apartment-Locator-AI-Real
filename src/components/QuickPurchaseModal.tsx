@@ -95,22 +95,6 @@ export const QuickPurchaseModal: React.FC<QuickPurchaseModalProps> = ({
             )}
           </Button>
 
-          {/* Trial Alternative */}
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-2">
-              Want to try it first?
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => {
-                window.location.href = '/trial';
-              }}
-              className="w-full"
-              disabled={isLoading}
-            >
-              Start Free Trial Instead
-            </Button>
-          </div>
 
           {/* Trust Elements */}
           <div className="text-xs text-center text-muted-foreground space-y-1">
