@@ -6,12 +6,22 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '../components/Header';
 import PropertyCard from '../components/PropertyCard';
+import LocationSearch from '../components/LocationSearch';
+import QuickActions from '../components/QuickActions';
+import MarketIntelligence from '../components/MarketIntelligence';
 import { mockProperties } from '../data/mockData';
 
 const DashboardNew = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('recommended');
   const [showQuickActions, setShowQuickActions] = useState(true);
+  const [currentLocation, setCurrentLocation] = useState({
+    city: 'Austin',
+    state: 'TX',
+    radius: 25,
+    maxDriveTime: 30,
+    pointsOfInterest: []
+  });
 
   // User state - would come from auth/profile
   const userState = {
@@ -119,6 +129,12 @@ const DashboardNew = () => {
                 </div>
               )}
 
+              {/* Search Area Component */}
+              <LocationSearch 
+                onLocationChange={setCurrentLocation}
+                currentLocation={currentLocation}
+              />
+
               {/* Search and Filters */}
               <div className="glass-dark rounded-xl p-6">
                 <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -176,68 +192,10 @@ const DashboardNew = () => {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Quick Actions */}
-              <Card className="glass-dark border-border/20">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <Zap size={20} className="mr-2 text-primary" />
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {quickActions.map((action) => {
-                    const Icon = action.icon;
-                    return (
-                      <Button
-                        key={action.id}
-                        variant="ghost"
-                        className="w-full justify-between p-3 h-auto"
-                      >
-                        <div className="flex items-center">
-                          <Icon size={16} className="mr-3 text-muted-foreground" />
-                          <span>{action.label}</span>
-                        </div>
-                        {action.count > 0 && (
-                          <Badge variant="secondary" className="text-xs">
-                            {action.count}
-                          </Badge>
-                        )}
-                      </Button>
-                    );
-                  })}
-                </CardContent>
-              </Card>
+              <QuickActions />
 
-              {/* AI Insights */}
-              <Card className="glass-dark border-border/20">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <TrendingUp size={20} className="mr-2 text-secondary" />
-                    Market Insights
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Avg. Rent</span>
-                      <span className="text-sm font-medium">$2,340</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Market Trend</span>
-                      <span className="text-sm font-medium text-green-400">↗ +3.2%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Best Time to Move</span>
-                      <span className="text-sm font-medium">Sep-Oct</span>
-                    </div>
-                  </div>
-                  
-                  <div className="pt-3 border-t border-border/20">
-                    <p className="text-xs text-muted-foreground">
-                      💡 Tip: Properties typically drop prices 10-15% in September
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Market Intelligence */}
+              <MarketIntelligence />
 
               {/* Search Preferences */}
               <Card className="glass-dark border-border/20">
