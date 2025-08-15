@@ -140,27 +140,8 @@ const DashboardNew = () => {
                 currentLocation={currentLocation}
               />
 
-              {/* Search and Filters */}
+              {/* Filter Tabs */}
               <div className="glass-dark rounded-xl p-6">
-                <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                  <div className="flex-1">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                      <Input
-                        placeholder="Search by neighborhood, property name, or address..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <Button variant="outline" className="whitespace-nowrap">
-                    <Filter size={16} className="mr-2" />
-                    More Filters
-                  </Button>
-                </div>
-
-                {/* Filter Tabs */}
                 <div className="flex flex-wrap gap-2 mb-6">
                   {filters.map((filter) => (
                     <Button
