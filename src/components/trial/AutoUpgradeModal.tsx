@@ -213,9 +213,9 @@ export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
           <div className="text-center mb-6">
             <div className="inline-block bg-primary rounded-lg p-4 border border-primary/20">
               <div className="text-3xl font-bold text-white">
-                $29<span className="text-lg">/month</span>
+                $29.99<span className="text-lg"> one-time</span>
               </div>
-              <div className="text-primary-foreground/80 text-sm">Cancel anytime</div>
+              <div className="text-primary-foreground/80 text-sm">Pro Plan • No recurring charges</div>
             </div>
           </div>
 
@@ -247,7 +247,7 @@ export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
 
           {/* Guarantee */}
           <div className="text-center mt-4 text-xs text-muted-foreground">
-            💰 30-day money-back guarantee • Cancel anytime
+            💰 One-time payment • 30-day money-back guarantee
           </div>
         </div>
       </DialogContent>

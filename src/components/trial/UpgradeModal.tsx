@@ -94,23 +94,24 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
           </div>
 
           {/* Pricing Options */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Quarterly Plan */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Basic Plan */}
             <div className="glass-dark rounded-lg p-5 border border-white/10">
               <div className="text-center">
-                <h4 className="text-lg font-semibold text-foreground mb-2">Quarterly Plan</h4>
-                <div className="text-3xl font-bold text-foreground mb-1">$69</div>
-                <div className="text-sm text-muted-foreground mb-4">$18 saved</div>
+                <h4 className="text-lg font-semibold text-foreground mb-2">Basic</h4>
+                <div className="text-3xl font-bold text-foreground mb-1">$9.99</div>
+                <div className="text-sm text-muted-foreground mb-4">one-time payment</div>
+                <div className="text-xs text-muted-foreground mb-4">5 AI analyses • 7-day access</div>
                 <Button 
                   className="w-full bg-muted hover:bg-muted/80" 
-                  onClick={() => {/* Handle quarterly purchase */}}
+                  onClick={() => {/* Handle basic purchase */}}
                 >
-                  Get Quarterly Access
+                  Get Basic
                 </Button>
               </div>
             </div>
 
-            {/* Monthly Plan - Popular */}
+            {/* Pro Plan - Popular */}
             <div className="glass-dark rounded-lg p-5 border border-primary/40 relative">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <span className="bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold">
@@ -118,15 +119,32 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 </span>
               </div>
               <div className="text-center">
-                <h4 className="text-lg font-semibold text-foreground mb-2">Monthly Plan</h4>
-                <div className="text-3xl font-bold text-foreground mb-1">$29</div>
-                <div className="text-sm text-muted-foreground mb-4">per month</div>
+                <h4 className="text-lg font-semibold text-foreground mb-2">Pro</h4>
+                <div className="text-3xl font-bold text-foreground mb-1">$29.99</div>
+                <div className="text-sm text-muted-foreground mb-4">one-time payment</div>
+                <div className="text-xs text-muted-foreground mb-4">Unlimited analyses • 30-day access</div>
                 <Button 
                   className="w-full bg-gradient-primary hover:opacity-90" 
-                  onClick={() => {/* Handle monthly subscription */}}
+                  onClick={() => {/* Handle pro subscription */}}
                 >
                   <Zap className="w-4 h-4 mr-2" />
-                  Unlock Full Access
+                  Get Pro Access
+                </Button>
+              </div>
+            </div>
+
+            {/* Premium Plan */}
+            <div className="glass-dark rounded-lg p-5 border border-white/10">
+              <div className="text-center">
+                <h4 className="text-lg font-semibold text-foreground mb-2">Premium</h4>
+                <div className="text-3xl font-bold text-foreground mb-1">$99.99</div>
+                <div className="text-sm text-muted-foreground mb-4">one-time payment</div>
+                <div className="text-xs text-muted-foreground mb-4">Everything + concierge • 90-day access</div>
+                <Button 
+                  className="w-full bg-muted hover:bg-muted/80" 
+                  onClick={() => {/* Handle premium purchase */}}
+                >
+                  Go Premium
                 </Button>
               </div>
             </div>
@@ -153,6 +171,11 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Guarantee */}
+          <div className="text-center mt-4 text-xs text-muted-foreground">
+            💰 One-time payment • No recurring charges • 30-day money-back guarantee
           </div>
         </div>
       </DialogContent>
