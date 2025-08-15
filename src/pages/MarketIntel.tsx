@@ -16,7 +16,6 @@ import { useUnifiedRentalIntelligence } from '@/hooks/useUnifiedRentalIntelligen
 import { LeverageScoreCard } from '@/components/intelligence/LeverageScoreCard';
 import { InsightsList } from '@/components/intelligence/InsightsList';
 import { OwnershipAnalysisCard } from '@/components/intelligence/OwnershipAnalysisCard';
-import { RentVsBuyAnalyzer } from '@/components/RentVsBuyAnalyzer';
 
 const MarketIntel: React.FC = () => {
   const navigate = useNavigate();
@@ -219,13 +218,6 @@ const MarketIntel: React.FC = () => {
                 <InsightsList insights={intelligence.combinedInsights} />
               </div>
             </div>
-
-            {/* Rent vs Buy Analyzer */}
-            <RentVsBuyAnalyzer
-              propertyValue={propertyValue}
-              currentRent={currentRent}
-              location={getLocationName()}
-            />
 
             {/* Ownership Analysis (if available) */}
             {intelligence.ownershipAnalysis && (
