@@ -192,6 +192,7 @@ const ProgramAI = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error('Please sign in to save preferences');
+        navigate('/auth');
         return;
       }
 

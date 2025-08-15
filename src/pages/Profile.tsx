@@ -43,8 +43,7 @@ const Profile: React.FC = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) {
-        // Allow demo access
-        setUser({ email: 'demo@example.com' });
+        navigate('/auth');
         return;
       }
       
@@ -52,6 +51,7 @@ const Profile: React.FC = () => {
       loadProfile(session.user.id);
     } catch (error) {
       console.error('Auth check failed:', error);
+      navigate('/auth');
     }
   };
 

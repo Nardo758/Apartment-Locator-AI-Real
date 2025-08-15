@@ -1,13 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, CheckCircle, TrendingUp, Users, DollarSign, Clock, Zap, Target, BarChart, Brain, Search, Mail, Star, Building, MapPin, Calendar } from 'lucide-react';
 import heroImage from '@/assets/hero-rental-negotiation.jpg';
 import successStory1 from '@/assets/success-story-1.jpg';
 import successStory2 from '@/assets/success-story-2.jpg';
 import { QuickPurchaseModal } from '@/components/QuickPurchaseModal';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 
 const Landing = () => {
+  const navigate = useNavigate();
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        navigate('/dashboard');
+      }
+    };
+    checkAuth();
+  }, [navigate]);
   const [purchaseModal, setPurchaseModal] = useState<{
     isOpen: boolean;
     planType: 'basic' | 'pro' | 'premium';
@@ -246,7 +259,7 @@ const Landing = () => {
               
               <div className="flex gap-5" style={{ animation: 'slideInUp 1s ease-out 0.6s backwards' }}>
                 <Button size="lg" className="gradient-primary text-white font-semibold" asChild>
-                  <Link to="/trial">Get Started Free</Link>
+                  <Link to="/auth">Get Started Free</Link>
                 </Button>
                 <Button size="lg" variant="outline" className="border-white/20 text-foreground hover:bg-white/10" asChild>
                   <Link to="/auth">Sign In</Link>
