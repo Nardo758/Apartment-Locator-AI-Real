@@ -75,8 +75,11 @@ const DashboardNew = () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
+        // Allow viewing without authentication for demo purposes
         if (!session?.user) {
-          navigate('/auth');
+          // Set demo user state for non-authenticated users
+          setUser({ email: 'demo@example.com' });
+          setLoading(false);
           return;
         }
 
