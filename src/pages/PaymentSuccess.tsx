@@ -23,7 +23,7 @@ const PaymentSuccess: React.FC = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-md w-full text-center">
-        <div className="bg-card rounded-lg p-8 border border-border shadow-lg">
+        <div className="bg-card rounded-lg p-6 md:p-8 border border-border shadow-lg">
           {/* Success Icon */}
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-8 h-8 text-green-600" />
@@ -39,13 +39,29 @@ const PaymentSuccess: React.FC = () => {
           </p>
 
           {/* Plan Details */}
-          <div className="bg-muted/20 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold text-foreground mb-2">Your Plan:</h3>
-            <div className="text-sm text-muted-foreground space-y-1">
-              <div>✓ {currentPlan.searches}</div>
-              <div>✓ {currentPlan.duration} access</div>
-              <div>✓ Negotiation strategies</div>
-              <div>✓ Landlord contact info</div>
+          <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg p-4 mb-6 border border-primary/10">
+            <h3 className="font-semibold text-foreground mb-3">Your Plan Features:</h3>
+            <div className="text-sm text-muted-foreground space-y-2">
+              <div className="flex items-center">
+                <span className="text-green-500 mr-2">✓</span>
+                {currentPlan.searches}
+              </div>
+              <div className="flex items-center">
+                <span className="text-green-500 mr-2">✓</span>
+                {currentPlan.duration} access
+              </div>
+              <div className="flex items-center">
+                <span className="text-green-500 mr-2">✓</span>
+                AI-powered negotiation strategies
+              </div>
+              <div className="flex items-center">
+                <span className="text-green-500 mr-2">✓</span>
+                Landlord contact information
+              </div>
+              <div className="flex items-center">
+                <span className="text-green-500 mr-2">✓</span>
+                Market intelligence insights
+              </div>
             </div>
           </div>
 

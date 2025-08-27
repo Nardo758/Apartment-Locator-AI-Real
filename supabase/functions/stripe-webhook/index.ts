@@ -1,17 +1,11 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import Stripe from "https://esm.sh/stripe@14.21.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
-// Helper logging function
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
 };
 
 serve(async (req) => {
@@ -20,9 +14,6 @@ serve(async (req) => {
   }
 
   try {
-    logStep("Webhook received");
-
-    // Initialize services
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
     });
@@ -34,77 +25,130 @@ serve(async (req) => {
     );
 
     const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-
-    // Get the raw body for signature verification
-    const body = await req.text();
+    
     const signature = req.headers.get("stripe-signature");
-
-    if (!signature) {
-      throw new Error("Missing Stripe signature");
-    }
-
-    // Verify webhook signature (you'll need to add STRIPE_WEBHOOK_SECRET)
+    const body = await req.text();
+    
     let event;
     try {
       event = stripe.webhooks.constructEvent(
         body,
-        signature,
-        Deno.env.get("STRIPE_WEBHOOK_SECRET") || ""
+        signature!,
+        Deno.env.get("STRIPE_WEBHOOK_SECRET")!
       );
     } catch (err) {
-      logStep("Webhook signature verification failed", { error: err.message });
+      console.error("Webhook signature verification failed:", err);
       return new Response(`Webhook Error: ${err.message}`, { status: 400 });
     }
 
-    logStep("Event received", { type: event.type, id: event.id });
+    console.log("Received webhook event:", event.type, "ID:", event.id);
 
-    // Handle different event types
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        logStep("Processing checkout.session.completed", { sessionId: session.id });
+        console.log("Processing completed checkout session:", session.id);
+        
+        const { 
+          plan_type, 
+          user_email, 
+          user_name, 
+          user_id, 
+          access_token,
+          plan_end 
+        } = session.metadata || {};
 
-        // Create order record with updated structure
-        const { error: insertError } = await supabase
-          .from("orders")
-          .upsert({
-            user_id: session.metadata?.user_id || null,
-            stripe_session_id: session.id,
-            stripe_payment_intent_id: session.payment_intent as string,
-            user_email: session.metadata?.user_email || session.customer_email,
-            plan_type: session.metadata?.plan_type || "unknown",
-            amount: session.amount_total || 0,
-            currency: session.currency || "usd",
-            status: "paid",
-          }, { 
-            onConflict: 'stripe_session_id' 
-          });
+        if (!user_email || !plan_type) {
+          console.error("Missing required metadata in session:", session.id);
+          break;
+        }
 
-        if (insertError) {
-          logStep("Error creating order", { error: insertError });
+        // Update subscriber status to active
+        const { error: updateError } = await supabase
+          .from("subscribers")
+          .update({
+            status: "active",
+            stripe_customer_id: session.customer as string,
+            plan_start: new Date().toISOString()
+          })
+          .eq("stripe_session_id", session.id);
+
+        if (updateError) {
+          console.error("Error updating subscriber:", updateError);
         } else {
-          logStep("Order created successfully");
+          console.log("Successfully activated subscription for:", user_email);
+        }
+
+        // Create access token record
+        if (access_token && plan_end) {
+          const { error: tokenError } = await supabase
+            .from("access_tokens")
+            .insert({
+              token: access_token,
+              email: user_email,
+              plan_type: plan_type,
+              expires_at: plan_end
+            });
+
+          if (tokenError) {
+            console.error("Error creating access token:", tokenError);
+          }
         }
 
         // Send confirmation email
-        if (session.customer_email) {
+        const planDetails = {
+          basic: { name: "Basic", duration: "7 days", features: "5 AI analyses, basic market insights, email templates" },
+          pro: { name: "Pro", duration: "30 days", features: "Unlimited AI analyses, advanced market intelligence, email automation" },
+          premium: { name: "Premium", duration: "90 days", features: "Everything in Pro + personal AI concierge, custom reports, phone support" }
+        };
+
+        const plan = planDetails[plan_type as keyof typeof planDetails];
+        
+        if (plan) {
+          const emailContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h1 style="color: #333; text-align: center;">Welcome to Apartment Locator AI!</h1>
+              
+              <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h2 style="color: #333; margin-top: 0;">Your ${plan.name} Plan is Active 🎉</h2>
+                <p><strong>Plan Duration:</strong> ${plan.duration}</p>
+                <p><strong>Features:</strong> ${plan.features}</p>
+                ${access_token ? `<p><strong>Access Token:</strong> ${access_token}</p>` : ''}
+              </div>
+
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${Deno.env.get("SUPABASE_URL")?.replace('.supabase.co', '.app') || 'https://apartmentlocatorai.com'}/dashboard" 
+                   style="background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                  Start Finding Apartments
+                </a>
+              </div>
+
+              <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px;">
+                <h3 style="color: #333;">Getting Started:</h3>
+                <ol style="color: #666;">
+                  <li>Visit your dashboard to start searching for apartments</li>
+                  <li>Use our AI-powered analysis tools to evaluate properties</li>
+                  <li>Get personalized negotiation strategies</li>
+                  <li>Access landlord contact information</li>
+                </ol>
+              </div>
+
+              <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 14px;">
+                <p>Need help? Contact us at support@apartmentlocatorai.com</p>
+                <p>Apartment Locator AI - Your AI-powered apartment hunting assistant</p>
+              </div>
+            </div>
+          `;
+
           try {
             await resend.emails.send({
-              from: "ApartmentIQ <support@apartmentiq.com>",
-              to: [session.customer_email],
-              subject: "Payment Confirmed - Welcome to ApartmentIQ!",
-              html: `
-                <h1>Payment Successful! 🎉</h1>
-                <p>Thank you for your purchase! Your ${session.metadata?.plan_type || "premium"} plan is now active.</p>
-                <p><strong>Plan:</strong> ${session.metadata?.plan_type || "Premium"}</p>
-                <p><strong>Amount:</strong> $${((session.amount_total || 0) / 100).toFixed(2)}</p>
-                <p><a href="${Deno.env.get("SITE_URL") || "https://apartmentiq.com"}/dashboard">Start analyzing apartments →</a></p>
-                <p>Questions? Reply to this email or contact support.</p>
-              `,
+              from: "Apartment Locator AI <noreply@apartmentlocatorai.com>",
+              to: [user_email],
+              subject: `Welcome to Apartment Locator AI ${plan.name} Plan!`,
+              html: emailContent
             });
-            logStep("Confirmation email sent");
+            console.log("Confirmation email sent to:", user_email);
           } catch (emailError) {
-            logStep("Error sending email", { error: emailError });
+            console.error("Error sending confirmation email:", emailError);
           }
         }
         break;
@@ -112,53 +156,37 @@ serve(async (req) => {
 
       case "payment_intent.succeeded": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        logStep("Processing payment_intent.succeeded", { paymentIntentId: paymentIntent.id });
-
-        // Update order status
-        const { error: updateError } = await supabase
-          .from("orders")
-          .update({ status: "paid" })
-          .eq("stripe_payment_intent_id", paymentIntent.id);
-
-        if (updateError) {
-          logStep("Error updating order", { error: updateError });
-        } else {
-          logStep("Order status updated to paid");
-        }
+        console.log("Payment succeeded:", paymentIntent.id);
         break;
       }
 
       case "payment_intent.payment_failed": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        logStep("Processing payment_intent.payment_failed", { paymentIntentId: paymentIntent.id });
-
-        // Update order status
-        const { error: updateError } = await supabase
-          .from("orders")
-          .update({ status: "failed" })
-          .eq("stripe_payment_intent_id", paymentIntent.id);
-
-        if (updateError) {
-          logStep("Error updating order", { error: updateError });
-        } else {
-          logStep("Order status updated to failed");
+        console.log("Payment failed:", paymentIntent.id);
+        
+        // Update any related orders or subscribers to failed status
+        const { error } = await supabase
+          .from("subscribers")
+          .update({ status: "pending" })
+          .eq("stripe_session_id", paymentIntent.metadata?.session_id);
+          
+        if (error) {
+          console.error("Error updating failed payment:", error);
         }
         break;
       }
 
       default:
-        logStep("Unhandled event type", { type: event.type });
+        console.log("Unhandled event type:", event.type);
     }
 
     return new Response(JSON.stringify({ received: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
-
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR in webhook", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    console.error("Webhook error:", error);
+    return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

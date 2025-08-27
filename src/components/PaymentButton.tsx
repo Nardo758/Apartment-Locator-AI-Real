@@ -23,7 +23,11 @@ export const PaymentButton: React.FC<PaymentButtonProps> = ({
   const { createPayment, isLoading } = usePayment();
 
   const handlePayment = async () => {
-    await createPayment(plan);
+    try {
+      await createPayment(plan);
+    } catch (error) {
+      console.error('Payment button error:', error);
+    }
   };
 
   return (

@@ -14,15 +14,32 @@ serve(async (req) => {
   }
 
   try {
-    // Get request body for plan type and optional email
+    // Get request body for plan type, guest email, and name
     const body = await req.json().catch(() => ({}));
-    const { plan = 'pro', guestEmail } = body;
+    const { plan = 'pro', guestEmail, guestName } = body;
     
-    // Plan pricing configuration
+    console.log("Processing payment request:", { plan, guestEmail, guestName });
+    
+    // Plan pricing configuration with detailed descriptions
     const planConfig = {
-      basic: { amount: 999, name: "ApartmentIQ Basic - 7-Day Access" },
-      pro: { amount: 2999, name: "ApartmentIQ Pro - 30-Day Access" }, 
-      premium: { amount: 9999, name: "ApartmentIQ Premium - 90-Day Access" }
+      basic: { 
+        amount: 999, 
+        name: "Basic Plan - 7-Day Access",
+        description: "5 AI property analyses, basic market insights, email templates, 7-day access",
+        accessDays: 7
+      },
+      pro: { 
+        amount: 2999, 
+        name: "Pro Plan - 30-Day Access",
+        description: "Unlimited AI analyses, advanced market intelligence, email automation templates, success probability scoring, 30-day access, priority email support",
+        accessDays: 30
+      }, 
+      premium: { 
+        amount: 9999, 
+        name: "Premium Plan - 90-Day Access",
+        description: "Everything in Pro + personal AI concierge, custom market reports, white-glove setup, 90-day access, direct phone support",
+        accessDays: 90
+      }
     };
     
     const selectedPlan = planConfig[plan] || planConfig.pro;
@@ -34,6 +51,8 @@ serve(async (req) => {
     );
 
     let userEmail = guestEmail;
+    let userName = guestName;
+    let userId = null;
 
     // Try to get authenticated user if available
     const authHeader = req.headers.get("Authorization");
@@ -42,6 +61,9 @@ serve(async (req) => {
       const { data } = await supabaseClient.auth.getUser(token);
       if (data.user?.email) {
         userEmail = data.user.email;
+        userId = data.user.id;
+        // Try to get user name from user metadata or profile
+        userName = data.user.user_metadata?.name || data.user.user_metadata?.full_name || "";
         console.log("Processing payment for authenticated user:", userEmail);
       }
     }
@@ -51,7 +73,7 @@ serve(async (req) => {
       throw new Error("Email is required for payment processing");
     }
 
-    console.log("Processing payment for:", userEmail, "Plan:", plan);
+    console.log("Processing payment for:", userEmail, "Plan:", plan, "Name:", userName);
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -68,6 +90,11 @@ serve(async (req) => {
       console.log("No existing customer found, will create one during checkout");
     }
 
+    // Generate access token for plan access
+    const accessToken = crypto.randomUUID();
+    const planEndDate = new Date();
+    planEndDate.setDate(planEndDate.getDate() + selectedPlan.accessDays);
+
     // Create a one-time payment session with dynamic pricing
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -78,7 +105,7 @@ serve(async (req) => {
             currency: "usd",
             product_data: { 
               name: selectedPlan.name,
-              description: `${plan === 'basic' ? '5 AI analyses, 7-day access' : plan === 'pro' ? 'Unlimited searches, 30-day access' : 'Everything in Pro + concierge, 90-day access'}`
+              description: selectedPlan.description
             },
             unit_amount: selectedPlan.amount,
           },
@@ -88,9 +115,42 @@ serve(async (req) => {
       mode: "payment",
       success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
       cancel_url: `${req.headers.get("origin")}/`,
+      metadata: {
+        plan_type: plan,
+        user_email: userEmail,
+        user_name: userName || "",
+        user_id: userId || "",
+        access_token: accessToken,
+        plan_end: planEndDate.toISOString()
+      }
     });
 
     console.log("Created checkout session:", session.id);
+
+    // Create subscriber record with pending status
+    const supabaseService = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+
+    const { error: insertError } = await supabaseService.from("subscribers").upsert({
+      user_id: userId,
+      email: userEmail,
+      name: userName,
+      stripe_session_id: session.id,
+      plan_type: plan,
+      amount: selectedPlan.amount,
+      status: "pending",
+      plan_end: planEndDate.toISOString(),
+      access_token: accessToken
+    }, { onConflict: 'email,plan_type' });
+
+    if (insertError) {
+      console.error("Error creating subscriber record:", insertError);
+    } else {
+      console.log("Created subscriber record for:", userEmail);
+    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

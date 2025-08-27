@@ -6,25 +6,32 @@ export const usePayment = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const createPayment = async (plan: 'basic' | 'pro' | 'premium' = 'pro', guestEmail?: string) => {
+  const createPayment = async (
+    plan: 'basic' | 'pro' | 'premium' = 'pro', 
+    guestEmail?: string,
+    guestName?: string
+  ) => {
     try {
       setIsLoading(true);
       
       // Get current session (if user is logged in)
       const { data: { session } } = await supabase.auth.getSession();
       
-      // If no session and no guest email, require email
+      // If no session and no guest email, collect guest information
       if (!session && !guestEmail) {
         const email = prompt('Please enter your email address to continue with payment:');
-        if (!email) {
+        if (!email || !email.includes('@')) {
           toast({
             variant: "destructive",
-            title: "Email Required",
-            description: "Email address is required to process payment."
+            title: "Valid Email Required",
+            description: "Please enter a valid email address to process payment."
           });
           return null;
         }
+        
+        const name = prompt('Please enter your name for the receipt (optional):');
         guestEmail = email;
+        guestName = name || "";
       }
 
       // Prepare headers and body
@@ -38,7 +45,8 @@ export const usePayment = () => {
 
       const body = {
         plan,
-        ...(guestEmail && { guestEmail })
+        ...(guestEmail && { guestEmail }),
+        ...(guestName && { guestName })
       };
 
       // Call the create-payment edge function
@@ -54,6 +62,12 @@ export const usePayment = () => {
       if (data?.url) {
         // Open Stripe checkout in a new tab
         window.open(data.url, '_blank');
+        
+        toast({
+          title: "Payment Started",
+          description: "You've been redirected to our secure payment page."
+        });
+        
         return data.url;
       } else {
         throw new Error('No checkout URL received');
@@ -63,7 +77,7 @@ export const usePayment = () => {
       toast({
         variant: "destructive",
         title: "Payment Error",
-        description: error.message || "Failed to create payment session"
+        description: error.message || "Failed to create payment session. Please try again."
       });
       return null;
     } finally {
