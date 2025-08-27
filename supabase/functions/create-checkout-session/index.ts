@@ -25,10 +25,11 @@ serve(async (req) => {
     });
 
     // Parse request body
-    const { planType, email } = await req.json();
+    const { plan, planType, email } = await req.json();
+    const selectedPlan = plan || planType; // Support both field names
 
-    if (!planType) {
-      throw new Error("planType is required");
+    if (!selectedPlan) {
+      throw new Error("plan is required");
     }
 
     // Map plan types to Stripe Price IDs (you'll need to create these in Stripe Dashboard)
@@ -50,9 +51,9 @@ serve(async (req) => {
       premium: "90-day",
     };
 
-    const priceId = planPriceIds[planType as keyof typeof planPriceIds];
-    const planName = planNames[planType as keyof typeof planNames];
-    const accessPeriod = planAccess[planType as keyof typeof planAccess];
+    const priceId = planPriceIds[selectedPlan as keyof typeof planPriceIds];
+    const planName = planNames[selectedPlan as keyof typeof planNames];
+    const accessPeriod = planAccess[selectedPlan as keyof typeof planAccess];
 
     if (!priceId || !planName) {
       throw new Error("Invalid plan type");
@@ -75,7 +76,7 @@ serve(async (req) => {
       cancel_url: `${origin}/pricing`,
       customer_email: email || undefined,
       metadata: {
-        planType,
+        planType: selectedPlan,
         planName,
         accessPeriod,
       },
