@@ -32,11 +32,11 @@ serve(async (req) => {
       throw new Error("plan is required");
     }
 
-    // Map plan types to Stripe Price IDs (you'll need to create these in Stripe Dashboard)
+    // Map plan types to Stripe Price IDs - Update these with your actual Stripe Price IDs
     const planPriceIds = {
-      basic: "price_basic_999",     // Replace with actual Price ID from Stripe
-      pro: "price_pro_2999",       // Replace with actual Price ID from Stripe  
-      premium: "price_premium_9999" // Replace with actual Price ID from Stripe
+      basic: "price_1S0nxJJICNabdVUwXXXXXXXX",     // Replace with your Basic plan Price ID
+      pro: "price_1S0nxJJICNabdVUwYYYYYYYY",       // Replace with your Pro plan Price ID  
+      premium: "price_1S0nxJJICNabdVUwZZZZZZZZ"     // Replace with your Premium plan Price ID
     };
 
     const planNames = {

@@ -60,11 +60,11 @@ export const PricingCard: React.FC<PricingCardProps> = ({
   };
 
   return (
-    <Card className={`relative glass card-lift ${isPopular ? 'ring-2 ring-primary' : ''} h-full flex flex-col`}>
+    <Card className={`relative bg-card/50 backdrop-blur-sm border border-border/50 ${isPopular ? 'ring-2 ring-primary shadow-lg shadow-primary/20' : ''} h-full flex flex-col hover:shadow-xl transition-all duration-300`}>
       {isPopular && (
         <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-          <Badge className="bg-primary text-primary-foreground flex items-center gap-1">
-            <Star className="h-3 w-3" />
+          <Badge className="bg-primary text-primary-foreground flex items-center gap-1 px-3 py-1">
+            <Star className="h-3 w-3 fill-current" />
             Most Popular
           </Badge>
         </div>
@@ -73,7 +73,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
       <CardHeader className="text-center pb-6">
         <CardTitle className="text-xl font-bold text-foreground">{title}</CardTitle>
         <div className="mt-4">
-          <span className="text-4xl font-bold gradient-text">{price}</span>
+          <span className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">{price}</span>
           <div className="text-sm text-muted-foreground mt-1">
             One-time payment • {accessDays} days access
           </div>
@@ -98,7 +98,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         <Button
           onClick={handlePurchase}
           disabled={isLoading}
-          className={`w-full ${isPopular ? 'btn-primary' : 'bg-card border border-border hover:bg-accent'} transition-all duration-200`}
+          className={`w-full ${isPopular ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20' : 'bg-card border border-border hover:bg-accent'} transition-all duration-200`}
           size="lg"
         >
           {isLoading ? (
