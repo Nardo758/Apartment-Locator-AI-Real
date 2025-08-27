@@ -37,6 +37,7 @@ const PLAN_CONFIG = {
 };
 
 serve(async (req) => {
+  // Updated: 2025-08-27 - Secret key configured
   logStep("=== FUNCTION STARTED ===");
   logStep("Request method", { method: req.method });
   logStep("Request headers", { 
