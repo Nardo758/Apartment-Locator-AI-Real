@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -109,6 +110,33 @@ serve(async (req) => {
     });
 
     logStep("Payment session created", { sessionId: session.id, url: session.url });
+
+    // Create order record in database
+    try {
+      const supabaseService = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+        { auth: { persistSession: false } }
+      );
+
+      const { error: orderError } = await supabaseService.from("orders").insert({
+        user_email: email,
+        stripe_session_id: session.id,
+        plan_type: planType,
+        amount: plan.amount,
+        currency: "usd",
+        status: "pending"
+      });
+
+      if (orderError) {
+        logStep("Order creation error", { error: orderError });
+      } else {
+        logStep("Order created in database");
+      }
+    } catch (dbError) {
+      logStep("Database error (non-blocking)", { error: dbError });
+      // Don't fail the payment for database issues
+    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
