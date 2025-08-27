@@ -4,7 +4,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { ApartmentListing } from '@/data/mockApartments';
 import { X, Zap, Clock, CheckCircle, MapPin, DollarSign } from 'lucide-react';
-import { useStripePayment } from '@/hooks/useStripePayment';
+
 
 type TriggerType = 'trial_exhausted' | 'time_expired' | 'high_value_apartment' | 'return_visit' | 'premium_clicks';
 
@@ -25,12 +25,11 @@ export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
   onUpgrade,
   userEmail
 }) => {
-  const { createPayment, isLoading } = useStripePayment();
   const [timeRemaining, setTimeRemaining] = useState(10);
   const [isPulsing, setIsPulsing] = useState(false);
 
   const handleUpgrade = () => {
-    createPayment('pro', userEmail);
+    // Payment functionality removed
     onUpgrade();
   };
 
@@ -233,7 +232,6 @@ export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
             <Button
               onClick={handleUpgrade}
               size="lg"
-              disabled={isLoading}
               className={`w-full font-bold text-lg ${
                 content.urgency === 'critical' 
                   ? 'bg-destructive hover:bg-destructive/90 animate-pulse text-destructive-foreground' 
@@ -241,7 +239,7 @@ export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
               }`}
             >
               <Zap className="w-5 h-5 mr-2" />
-              {isLoading ? 'Processing...' : content.ctaText}
+              {content.ctaText}
             </Button>
             
             {canClose && onClose && (

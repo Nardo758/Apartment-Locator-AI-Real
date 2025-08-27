@@ -4,7 +4,7 @@ import { ArrowRight, CheckCircle, TrendingUp, Users, DollarSign, Clock, Zap, Tar
 import heroImage from '@/assets/hero-rental-negotiation.jpg';
 import successStory1 from '@/assets/success-story-1.jpg';
 import successStory2 from '@/assets/success-story-2.jpg';
-import { QuickPurchaseModal } from '@/components/QuickPurchaseModal';
+
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -21,30 +21,6 @@ const Landing = () => {
     };
     checkAuth();
   }, [navigate]);
-  const [purchaseModal, setPurchaseModal] = useState<{
-    isOpen: boolean;
-    planType: 'basic' | 'pro' | 'premium';
-    planName: string;
-    price: string;
-  }>({
-    isOpen: false,
-    planType: 'pro',
-    planName: '',
-    price: ''
-  });
-
-  const openPurchaseModal = (planType: 'basic' | 'pro' | 'premium', planName: string, price: string) => {
-    setPurchaseModal({
-      isOpen: true,
-      planType,
-      planName,
-      price
-    });
-  };
-
-  const closePurchaseModal = () => {
-    setPurchaseModal(prev => ({ ...prev, isOpen: false }));
-  };
   const [currentDemo, setCurrentDemo] = useState(0);
 
   useEffect(() => {
@@ -497,7 +473,7 @@ const Landing = () => {
                 style={{ 
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                 }}
-                onClick={() => openPurchaseModal('basic', 'Basic', '$9.99')}
+                onClick={() => {/* Payment functionality removed */}}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)';
@@ -564,7 +540,7 @@ const Landing = () => {
                 style={{ 
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                 }}
-                onClick={() => openPurchaseModal('pro', 'Pro', '$29.99')}
+                onClick={() => {/* Payment functionality removed */}}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)';
@@ -630,7 +606,7 @@ const Landing = () => {
                 style={{ 
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                 }}
-                onClick={() => openPurchaseModal('premium', 'Premium', '$99.99')}
+                onClick={() => {/* Payment functionality removed */}}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)';
@@ -703,14 +679,6 @@ const Landing = () => {
         </div>
       </footer>
 
-      {/* Quick Purchase Modal */}
-      <QuickPurchaseModal
-        isOpen={purchaseModal.isOpen}
-        onClose={closePurchaseModal}
-        planType={purchaseModal.planType}
-        planName={purchaseModal.planName}
-        price={purchaseModal.price}
-      />
     </div>
   );
 };

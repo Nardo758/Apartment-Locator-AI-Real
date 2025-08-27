@@ -23,7 +23,7 @@ import Contact from "./pages/Contact";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PaymentSuccess from "./pages/PaymentSuccess";
-import PaymentTest from "./pages/PaymentTest";
+
 
 const queryClient = new QueryClient();
 
@@ -48,7 +48,7 @@ const App = () => (
             <Route path="/market-intel" element={<MarketIntel />} />
             <Route path="/trial" element={<Trial />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/payment-test" element={<PaymentTest />} />
+            
             <Route path="/profile" element={<Profile />} />
             <Route path="/billing" element={<Billing />} />
             <Route path="/help" element={<Help />} />

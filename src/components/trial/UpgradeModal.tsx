@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { X, Lock, AlertTriangle, Zap, CheckCircle, Shield } from 'lucide-react';
 import { TeaserIntelligence, TrialStatus } from '@/hooks/useTrialManager';
-import { useStripePayment } from '@/hooks/useStripePayment';
+
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -20,12 +20,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   trialStatus,
   timeRemaining
 }) => {
-  const { createPayment, isLoading } = useStripePayment();
   const annualSavings = intelligence.potentialSavings * 12;
   const searchesRemaining = trialStatus.searchesLimit - trialStatus.searchesUsed;
   
   const handlePayment = (planType: 'basic' | 'pro' | 'premium') => {
-    createPayment(planType, trialStatus.email);
+    // Payment functionality removed
+    console.log('Payment would be initiated for plan:', planType);
   };
 
   const features = [
@@ -111,9 +111,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <Button 
                   className="w-full bg-muted hover:bg-muted/80" 
                   onClick={() => handlePayment('basic')}
-                  disabled={isLoading}
                 >
-                  {isLoading ? 'Processing...' : 'Get Basic'}
+                  Get Basic
                 </Button>
               </div>
             </div>
@@ -133,10 +132,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <Button 
                   className="w-full bg-gradient-primary hover:opacity-90" 
                   onClick={() => handlePayment('pro')}
-                  disabled={isLoading}
                 >
                   <Zap className="w-4 h-4 mr-2" />
-                  {isLoading ? 'Processing...' : 'Get Pro Access'}
+                  Get Pro Access
                 </Button>
               </div>
             </div>
@@ -151,9 +149,8 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <Button 
                   className="w-full bg-muted hover:bg-muted/80" 
                   onClick={() => handlePayment('premium')}
-                  disabled={isLoading}
                 >
-                  {isLoading ? 'Processing...' : 'Go Premium'}
+                  Go Premium
                 </Button>
               </div>
             </div>
