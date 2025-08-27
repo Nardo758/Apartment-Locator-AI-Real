@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_tokens: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          plan_type: string
+          token: string
+          used: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          plan_type: string
+          token: string
+          used?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          plan_type?: string
+          token?: string
+          used?: boolean | null
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number
@@ -95,6 +125,60 @@ export type Database = {
           property_id?: string
           updated_at?: string
           user_email?: string
+        }
+        Relationships: []
+      }
+      subscribers: {
+        Row: {
+          access_token: string | null
+          amount: number
+          created_at: string
+          currency: string | null
+          email: string
+          id: string
+          name: string | null
+          plan_end: string
+          plan_start: string | null
+          plan_type: string
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          amount: number
+          created_at?: string
+          currency?: string | null
+          email: string
+          id?: string
+          name?: string | null
+          plan_end: string
+          plan_start?: string | null
+          plan_type: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          email?: string
+          id?: string
+          name?: string | null
+          plan_end?: string
+          plan_start?: string | null
+          plan_type?: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
