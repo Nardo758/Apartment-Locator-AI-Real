@@ -1,5 +1,8 @@
 project_id = "xtaqdaamzqzqvhqeijjh"
 
+[functions.create-payment]
+verify_jwt = false
+
 [functions.send-offer-email]
 verify_jwt = false
 
