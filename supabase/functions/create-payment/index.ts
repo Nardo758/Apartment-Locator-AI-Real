@@ -6,6 +6,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper logging function
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[CREATE-PAYMENT] ${step}${detailsStr}`);
+};
+
 interface PaymentRequest {
   planType: 'basic' | 'pro' | 'premium';
   email: string;
@@ -36,9 +42,18 @@ serve(async (req) => {
   }
 
   try {
-    const { planType, email }: PaymentRequest = await req.json();
+    logStep("Function started");
     
-    console.log(`Creating payment for plan: ${planType}, email: ${email}`);
+    // Verify Stripe secret key
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      logStep("ERROR: STRIPE_SECRET_KEY not found");
+      throw new Error("Stripe secret key is not configured");
+    }
+    logStep("Stripe key verified");
+
+    const { planType, email }: PaymentRequest = await req.json();
+    logStep("Request parsed", { planType, email });
 
     if (!planType || !email) {
       throw new Error("Plan type and email are required");
@@ -49,11 +64,13 @@ serve(async (req) => {
     }
 
     // Initialize Stripe
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
     });
+    logStep("Stripe initialized");
 
     const plan = PLAN_CONFIG[planType];
+    logStep("Plan selected", { planName: plan.name, amount: plan.amount });
 
     // Check if customer exists
     const customers = await stripe.customers.list({ email, limit: 1 });
@@ -61,9 +78,9 @@ serve(async (req) => {
     
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
-      console.log(`Found existing customer: ${customerId}`);
+      logStep("Found existing customer", { customerId });
     } else {
-      console.log("Creating new customer");
+      logStep("Creating new customer");
     }
 
     // Create checkout session for one-time payment
@@ -92,15 +109,16 @@ serve(async (req) => {
       }
     });
 
-    console.log(`Payment session created: ${session.id}`);
+    logStep("Payment session created", { sessionId: session.id, url: session.url });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
-    console.error("Error in create-payment function:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStep("ERROR in create-payment", { message: errorMessage, stack: error instanceof Error ? error.stack : undefined });
+    return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

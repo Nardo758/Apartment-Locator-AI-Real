@@ -22,7 +22,7 @@ import Help from "./pages/Help";
 import Contact from "./pages/Contact";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import { PaymentSuccess } from "./pages/PaymentSuccess";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 const queryClient = new QueryClient();
 

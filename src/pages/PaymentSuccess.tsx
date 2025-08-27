@@ -3,7 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export const PaymentSuccess: React.FC = () => {
+const PaymentSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();
   const plan = searchParams.get('plan') || 'pro';
 
@@ -74,3 +74,5 @@ export const PaymentSuccess: React.FC = () => {
     </div>
   );
 };
+
+export default PaymentSuccess;
