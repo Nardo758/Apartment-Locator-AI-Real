@@ -23,6 +23,8 @@ import Contact from "./pages/Contact";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import Pricing from "./pages/Pricing";
+import Success from "./pages/Success";
 
 
 const queryClient = new QueryClient();
@@ -48,6 +50,8 @@ const App = () => (
             <Route path="/market-intel" element={<MarketIntel />} />
             <Route path="/trial" element={<Trial />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/success" element={<Success />} />
             
             <Route path="/profile" element={<Profile />} />
             <Route path="/billing" element={<Billing />} />
