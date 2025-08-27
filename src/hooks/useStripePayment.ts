@@ -13,8 +13,14 @@ export const useStripePayment = () => {
     try {
       console.log(`Initiating payment for ${planType} plan with email: ${email}`);
       
+      // Get current session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const { data, error } = await supabase.functions.invoke('create-payment', {
-        body: { planType, email }
+        body: { planType, email },
+        headers: session ? {
+          Authorization: `Bearer ${session.access_token}`
+        } : {}
       });
 
       if (error) {

@@ -64,17 +64,20 @@ serve(async (req) => {
         const session = event.data.object as Stripe.Checkout.Session;
         logStep("Processing checkout.session.completed", { sessionId: session.id });
 
-        // Create order record
+        // Create order record with updated structure
         const { error: insertError } = await supabase
           .from("orders")
           .upsert({
+            user_id: session.metadata?.user_id || null,
             stripe_session_id: session.id,
             stripe_payment_intent_id: session.payment_intent as string,
             user_email: session.metadata?.user_email || session.customer_email,
             plan_type: session.metadata?.plan_type || "unknown",
             amount: session.amount_total || 0,
             currency: session.currency || "usd",
-            status: "completed",
+            status: "paid",
+          }, { 
+            onConflict: 'stripe_session_id' 
           });
 
         if (insertError) {

@@ -52,8 +52,27 @@ serve(async (req) => {
     }
     logStep("Stripe key verified");
 
+    // Initialize Supabase with service role for database operations
+    const supabaseService = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+
+    // Get user from auth header if provided
+    let userId = null;
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data: userData } = await supabaseService.auth.getUser(token);
+      if (userData.user) {
+        userId = userData.user.id;
+        logStep("User authenticated", { userId });
+      }
+    }
+
     const { planType, email }: PaymentRequest = await req.json();
-    logStep("Request parsed", { planType, email });
+    logStep("Request parsed", { planType, email, userId });
 
     if (!planType || !email) {
       throw new Error("Plan type and email are required");
@@ -105,7 +124,8 @@ serve(async (req) => {
       cancel_url: `${req.headers.get("origin")}/trial`,
       metadata: {
         plan_type: planType,
-        user_email: email
+        user_email: email,
+        user_id: userId || ''
       }
     });
 
@@ -113,29 +133,31 @@ serve(async (req) => {
 
     // Create order record in database
     try {
-      const supabaseService = createClient(
-        Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-        { auth: { persistSession: false } }
-      );
-
-      const { error: orderError } = await supabaseService.from("orders").insert({
+      const orderData = {
+        user_id: userId,
         user_email: email,
         stripe_session_id: session.id,
         plan_type: planType,
         amount: plan.amount,
-        currency: "usd",
-        status: "pending"
-      });
+        currency: 'usd',
+        status: 'pending'
+      };
+
+      const { data: order, error: orderError } = await supabaseService
+        .from('orders')
+        .insert(orderData)
+        .select()
+        .single();
 
       if (orderError) {
-        logStep("Order creation error", { error: orderError });
+        logStep("WARNING: Failed to create order record", { error: orderError.message });
+        // Continue with payment even if order creation fails
       } else {
-        logStep("Order created in database");
+        logStep("Order record created", { orderId: order.id });
       }
     } catch (dbError) {
-      logStep("Database error (non-blocking)", { error: dbError });
-      // Don't fail the payment for database issues
+      logStep("WARNING: Database error", { error: dbError });
+      // Continue with payment even if database operation fails
     }
 
     return new Response(JSON.stringify({ url: session.url }), {
