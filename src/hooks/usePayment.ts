@@ -1,13 +1,21 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+interface PaymentData {
+  plan: 'basic' | 'pro' | 'premium';
+  guestEmail?: string;
+  guestName?: string;
+}
+
 export const usePayment = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showGuestModal, setShowGuestModal] = useState(false);
+  const [pendingPlan, setPendingPlan] = useState<'basic' | 'pro' | 'premium' | null>(null);
   const { toast } = useToast();
 
-  const createPayment = async (
-    plan: 'basic' | 'pro' | 'premium' = 'pro', 
+  const processPayment = useCallback(async (
+    plan: 'basic' | 'pro' | 'premium',
     guestEmail?: string,
     guestName?: string
   ) => {
@@ -16,23 +24,6 @@ export const usePayment = () => {
       
       // Get current session (if user is logged in)
       const { data: { session } } = await supabase.auth.getSession();
-      
-      // If no session and no guest email, collect guest information
-      if (!session && !guestEmail) {
-        const email = prompt('Please enter your email address to continue with payment:');
-        if (!email || !email.includes('@')) {
-          toast({
-            variant: "destructive",
-            title: "Valid Email Required",
-            description: "Please enter a valid email address to process payment."
-          });
-          return null;
-        }
-        
-        const name = prompt('Please enter your name for the receipt (optional):');
-        guestEmail = email;
-        guestName = name || "";
-      }
 
       // Prepare headers and body
       const headers: Record<string, string> = {
@@ -43,7 +34,7 @@ export const usePayment = () => {
         headers.Authorization = `Bearer ${session.access_token}`;
       }
 
-      const body = {
+      const body: PaymentData = {
         plan,
         ...(guestEmail && { guestEmail }),
         ...(guestName && { guestName })
@@ -83,10 +74,47 @@ export const usePayment = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
+
+  const createPayment = useCallback(async (
+    plan: 'basic' | 'pro' | 'premium' = 'pro', 
+    guestEmail?: string,
+    guestName?: string
+  ) => {
+    // Get current session (if user is logged in)
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    // If no session and no guest email, show guest modal
+    if (!session && !guestEmail) {
+      setPendingPlan(plan);
+      setShowGuestModal(true);
+      return null;
+    }
+
+    // Process payment directly
+    return processPayment(plan, guestEmail, guestName);
+  }, [processPayment]);
+
+  const handleGuestSubmit = useCallback((email: string, name: string) => {
+    if (pendingPlan) {
+      setShowGuestModal(false);
+      setPendingPlan(null);
+      processPayment(pendingPlan, email, name);
+    }
+  }, [pendingPlan, processPayment]);
+
+  const handleGuestCancel = useCallback(() => {
+    setShowGuestModal(false);
+    setPendingPlan(null);
+  }, []);
 
   return {
     createPayment,
-    isLoading
+    processPayment,
+    isLoading,
+    showGuestModal,
+    pendingPlan,
+    handleGuestSubmit,
+    handleGuestCancel
   };
 };
