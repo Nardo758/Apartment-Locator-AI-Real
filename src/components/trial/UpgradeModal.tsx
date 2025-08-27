@@ -110,12 +110,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <div className="text-3xl font-bold text-foreground mb-1">$9.99</div>
                 <div className="text-sm text-muted-foreground mb-4">one-time payment</div>
                 <div className="text-xs text-muted-foreground mb-4">5 AI property analyses • 7-day access</div>
-                <Button 
-                  className="w-full bg-muted hover:bg-muted/80" 
-                  onClick={() => handlePayment('basic')}
+                <PaymentButton 
+                  plan="basic"
+                  className="w-full bg-muted hover:bg-muted/80"
                 >
                   Get Basic
-                </Button>
+                </PaymentButton>
               </div>
             </div>
 
@@ -132,6 +132,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <div className="text-sm text-muted-foreground mb-4">one-time payment</div>
                 <div className="text-xs text-muted-foreground mb-4">Unlimited AI analyses • 30-day access</div>
                 <PaymentButton 
+                  plan="pro"
                   variant="default"
                   size="default"
                   className="w-full bg-gradient-primary hover:opacity-90"
@@ -149,12 +150,12 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <div className="text-3xl font-bold text-foreground mb-1">$99.99</div>
                 <div className="text-sm text-muted-foreground mb-4">one-time payment</div>
                 <div className="text-xs text-muted-foreground mb-4">Everything in Pro + concierge • 90-day access</div>
-                <Button 
-                  className="w-full bg-muted hover:bg-muted/80" 
-                  onClick={() => handlePayment('premium')}
+                <PaymentButton 
+                  plan="premium"
+                  className="w-full bg-muted hover:bg-muted/80"
                 >
                   Go Premium
-                </Button>
+                </PaymentButton>
               </div>
             </div>
           </div>

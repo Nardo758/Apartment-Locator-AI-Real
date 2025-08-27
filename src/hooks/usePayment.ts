@@ -6,26 +6,45 @@ export const usePayment = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const createPayment = async () => {
+  const createPayment = async (plan: 'basic' | 'pro' | 'premium' = 'pro', guestEmail?: string) => {
     try {
       setIsLoading(true);
       
-      // Get current session
+      // Get current session (if user is logged in)
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast({
-          variant: "destructive",
-          title: "Authentication Required",
-          description: "Please log in to make a purchase."
-        });
-        return null;
+      
+      // If no session and no guest email, require email
+      if (!session && !guestEmail) {
+        const email = prompt('Please enter your email address to continue with payment:');
+        if (!email) {
+          toast({
+            variant: "destructive",
+            title: "Email Required",
+            description: "Email address is required to process payment."
+          });
+          return null;
+        }
+        guestEmail = email;
       }
+
+      // Prepare headers and body
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+      
+      if (session) {
+        headers.Authorization = `Bearer ${session.access_token}`;
+      }
+
+      const body = {
+        plan,
+        ...(guestEmail && { guestEmail })
+      };
 
       // Call the create-payment edge function
       const { data, error } = await supabase.functions.invoke('create-payment', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        }
+        headers,
+        body
       });
 
       if (error) {

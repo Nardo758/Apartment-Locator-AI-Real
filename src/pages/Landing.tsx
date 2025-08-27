@@ -469,23 +469,19 @@ const Landing = () => {
                   7-day access
                 </li>
               </ul>
-              <button 
-                className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
-                style={{ 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                }}
-                onClick={() => {/* Payment functionality removed */}}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                Get Basic Plan
-              </button>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <PaymentButton 
+                  plan="basic"
+                  variant="default"
+                  size="default"
+                  className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                  }}
+                >
+                  Get Basic Plan
+                </PaymentButton>
+              </div>
             </div>
 
             {/* Pro Plan - Featured */}
@@ -597,23 +593,19 @@ const Landing = () => {
                   Direct phone support
                 </li>
               </ul>
-              <button 
-                className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
-                style={{ 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                }}
-                onClick={() => {/* Payment functionality removed */}}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                Get Premium Plan
-              </button>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <PaymentButton 
+                  plan="premium"
+                  variant="default"
+                  size="default"
+                  className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                  }}
+                >
+                  Get Premium Plan
+                </PaymentButton>
+              </div>
             </div>
           </div>
         </div>

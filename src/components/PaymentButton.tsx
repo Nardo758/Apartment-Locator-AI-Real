@@ -8,6 +8,7 @@ interface PaymentButtonProps {
   size?: "default" | "sm" | "lg" | "icon";
   className?: string;
   style?: React.CSSProperties;
+  plan?: 'basic' | 'pro' | 'premium';
   children?: React.ReactNode;
 }
 
@@ -16,12 +17,13 @@ export const PaymentButton: React.FC<PaymentButtonProps> = ({
   size = "default",
   className = "",
   style,
+  plan = 'pro',
   children
 }) => {
   const { createPayment, isLoading } = usePayment();
 
   const handlePayment = async () => {
-    await createPayment();
+    await createPayment(plan);
   };
 
   return (
@@ -38,7 +40,7 @@ export const PaymentButton: React.FC<PaymentButtonProps> = ({
       ) : (
         <Zap className="w-4 h-4 mr-2" />
       )}
-      {children || (isLoading ? "Processing..." : "Get Pro Access - $29.99")}
+      {children || (isLoading ? "Processing..." : `Get ${plan.charAt(0).toUpperCase() + plan.slice(1)} Access`)}
     </Button>
   );
 };
