@@ -31,11 +31,11 @@ serve(async (req) => {
       throw new Error("planType is required");
     }
 
-    // Map plan types to prices (in cents)
-    const planPrices = {
-      basic: 999,    // $9.99
-      pro: 2999,     // $29.99
-      premium: 9999, // $99.99
+    // Map plan types to Stripe Price IDs (you'll need to create these in Stripe Dashboard)
+    const planPriceIds = {
+      basic: "price_basic_999",     // Replace with actual Price ID from Stripe
+      pro: "price_pro_2999",       // Replace with actual Price ID from Stripe  
+      premium: "price_premium_9999" // Replace with actual Price ID from Stripe
     };
 
     const planNames = {
@@ -50,11 +50,11 @@ serve(async (req) => {
       premium: "90-day",
     };
 
-    const price = planPrices[planType as keyof typeof planPrices];
+    const priceId = planPriceIds[planType as keyof typeof planPriceIds];
     const planName = planNames[planType as keyof typeof planNames];
     const accessPeriod = planAccess[planType as keyof typeof planAccess];
 
-    if (!price || !planName) {
+    if (!priceId || !planName) {
       throw new Error("Invalid plan type");
     }
 
@@ -67,14 +67,7 @@ serve(async (req) => {
       mode: "payment",
       line_items: [
         {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: planName,
-              description: `AI Apartment Locator - ${accessPeriod} access`,
-            },
-            unit_amount: price,
-          },
+          price: priceId,
           quantity: 1,
         },
       ],
