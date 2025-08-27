@@ -7,6 +7,7 @@ interface PaymentButtonProps {
   variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
   size?: "default" | "sm" | "lg" | "icon";
   className?: string;
+  style?: React.CSSProperties;
   children?: React.ReactNode;
 }
 
@@ -14,6 +15,7 @@ export const PaymentButton: React.FC<PaymentButtonProps> = ({
   variant = "default",
   size = "default",
   className = "",
+  style,
   children
 }) => {
   const { createPayment, isLoading } = usePayment();
@@ -29,6 +31,7 @@ export const PaymentButton: React.FC<PaymentButtonProps> = ({
       variant={variant}
       size={size}
       className={className}
+      style={style}
     >
       {isLoading ? (
         <Loader2 className="w-4 h-4 mr-2 animate-spin" />

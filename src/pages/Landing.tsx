@@ -7,6 +7,7 @@ import successStory2 from '@/assets/success-story-2.jpg';
 
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { PaymentButton } from '@/components/PaymentButton';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -535,23 +536,18 @@ const Landing = () => {
                   Priority email support
                 </li>
               </ul>
-              <button 
-                className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
-                style={{ 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                }}
-                onClick={() => {/* Payment functionality removed */}}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                Get Pro Plan
-              </button>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <PaymentButton 
+                  variant="default"
+                  size="default"
+                  className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                  }}
+                >
+                  Get Pro Plan - $29.99
+                </PaymentButton>
+              </div>
             </div>
 
             {/* Premium Plan */}

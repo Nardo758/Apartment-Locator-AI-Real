@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { X, Lock, AlertTriangle, Zap, CheckCircle, Shield } from 'lucide-react';
 import { TeaserIntelligence, TrialStatus } from '@/hooks/useTrialManager';
+import { PaymentButton } from '@/components/PaymentButton';
 
 
 interface UpgradeModalProps {
@@ -24,8 +25,9 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   const searchesRemaining = trialStatus.searchesLimit - trialStatus.searchesUsed;
   
   const handlePayment = (planType: 'basic' | 'pro' | 'premium') => {
-    // Payment functionality removed
-    console.log('Payment would be initiated for plan:', planType);
+    // Note: Currently only Pro plan ($29.99) is integrated with Stripe
+    // Basic and Premium would need separate price configurations
+    console.log('Payment initiated for plan:', planType);
   };
 
   const features = [
@@ -129,13 +131,14 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
                 <div className="text-3xl font-bold text-foreground mb-1">$29.99</div>
                 <div className="text-sm text-muted-foreground mb-4">one-time payment</div>
                 <div className="text-xs text-muted-foreground mb-4">Unlimited AI analyses • 30-day access</div>
-                <Button 
-                  className="w-full bg-gradient-primary hover:opacity-90" 
-                  onClick={() => handlePayment('pro')}
+                <PaymentButton 
+                  variant="default"
+                  size="default"
+                  className="w-full bg-gradient-primary hover:opacity-90"
                 >
                   <Zap className="w-4 h-4 mr-2" />
-                  Get Pro Access
-                </Button>
+                  Get Pro Access - $29.99
+                </PaymentButton>
               </div>
             </div>
 
