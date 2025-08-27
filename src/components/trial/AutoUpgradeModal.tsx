@@ -4,6 +4,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { ApartmentListing } from '@/data/mockApartments';
 import { X, Zap, Clock, CheckCircle, MapPin, DollarSign } from 'lucide-react';
+import { usePayment } from '@/hooks/usePayment';
 
 
 type TriggerType = 'trial_exhausted' | 'time_expired' | 'high_value_apartment' | 'return_visit' | 'premium_clicks';
@@ -27,10 +28,13 @@ export const AutoUpgradeModal: React.FC<AutoUpgradeModalProps> = ({
 }) => {
   const [timeRemaining, setTimeRemaining] = useState(10);
   const [isPulsing, setIsPulsing] = useState(false);
+  const { createPayment } = usePayment();
 
-  const handleUpgrade = () => {
-    // Payment functionality removed
-    onUpgrade();
+  const handleUpgrade = async () => {
+    const paymentUrl = await createPayment();
+    if (paymentUrl) {
+      onUpgrade();
+    }
   };
 
   // Auto-close prevention for critical triggers
