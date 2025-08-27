@@ -1,17 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useStripePayment } from '@/hooks/useStripePayment';
 import { supabase } from '@/integrations/supabase/client';
 
 const PaymentTest: React.FC = () => {
-  const { createPayment, isLoading } = useStripePayment();
+  const [diagnosticResult, setDiagnosticResult] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleTestPayment = (plan: 'basic' | 'pro' | 'premium') => {
-    createPayment(plan, 'test@example.com');
+  const runDiagnostic = async () => {
+    setIsLoading(true);
+    console.log('Running payment diagnostic...');
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('payment-diagnostic');
+      
+      console.log('Diagnostic result:', { data, error });
+      setDiagnosticResult({ data, error });
+      
+      if (error) {
+        console.error('Diagnostic error:', error);
+      }
+    } catch (err) {
+      console.error('Diagnostic exception:', err);
+      setDiagnosticResult({ error: err.message });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDirectTest = async () => {
-    console.log('Testing direct function call...');
+  const testStripePayment = async () => {
+    console.log('Testing Stripe payment...');
+    
     try {
       const { data, error } = await supabase.functions.invoke('create-payment', {
         body: { 
@@ -20,10 +38,10 @@ const PaymentTest: React.FC = () => {
         }
       });
       
-      console.log('Direct test result:', { data, error });
+      console.log('Payment test result:', { data, error });
       
       if (error) {
-        console.error('Direct test error:', error);
+        console.error('Payment test error:', error);
       }
       
       if (data?.url) {
@@ -31,60 +49,47 @@ const PaymentTest: React.FC = () => {
         window.open(data.url, '_blank');
       }
     } catch (err) {
-      console.error('Direct test exception:', err);
+      console.error('Payment test exception:', err);
     }
   };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <div className="max-w-md w-full space-y-6">
-        <h1 className="text-2xl font-bold text-center">Payment Test</h1>
+      <div className="max-w-2xl w-full space-y-6">
+        <h1 className="text-2xl font-bold text-center">Payment System Diagnostic</h1>
         
         <div className="space-y-4">
           <Button 
-            onClick={() => handleTestPayment('basic')} 
+            onClick={runDiagnostic}
             disabled={isLoading}
             className="w-full"
+            variant="outline"
           >
-            Test Basic Plan ($9.99)
+            {isLoading ? 'Running Diagnostic...' : 'Run Environment Diagnostic'}
           </Button>
           
           <Button 
-            onClick={() => handleTestPayment('pro')} 
-            disabled={isLoading}
+            onClick={testStripePayment}
             className="w-full bg-gradient-primary"
           >
-            Test Pro Plan ($29.99)
-          </Button>
-          
-          <Button 
-            onClick={() => handleTestPayment('premium')} 
-            disabled={isLoading}
-            className="w-full"
-          >
-            Test Premium Plan ($99.99)
-          </Button>
-          
-          <hr className="my-4" />
-          
-          <Button 
-            onClick={handleDirectTest}
-            variant="outline" 
-            className="w-full"
-          >
-            Direct Function Test
+            Test Stripe Payment Function
           </Button>
         </div>
         
-        {isLoading && (
-          <p className="text-center mt-4 text-muted-foreground">
-            Creating payment session...
-          </p>
+        {diagnosticResult && (
+          <div className="bg-card p-4 rounded border">
+            <h3 className="font-semibold mb-2">Diagnostic Results:</h3>
+            <pre className="text-xs overflow-auto bg-muted p-2 rounded">
+              {JSON.stringify(diagnosticResult, null, 2)}
+            </pre>
+          </div>
         )}
         
         <div className="text-xs text-muted-foreground space-y-1">
-          <p>Check browser console for detailed logs</p>
-          <p>Open DevTools → Network tab to see requests</p>
+          <p><strong>Step 1:</strong> Run diagnostic to check environment</p>
+          <p><strong>Step 2:</strong> If diagnostic passes, test payment function</p>
+          <p><strong>Step 3:</strong> Check browser console for detailed logs</p>
+          <p><strong>Step 4:</strong> Check function logs in Supabase dashboard</p>
         </div>
       </div>
     </div>
