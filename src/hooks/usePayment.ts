@@ -40,8 +40,8 @@ export const usePayment = () => {
         ...(guestName && { guestName })
       };
 
-      // Call the create-payment edge function
-      const { data, error } = await supabase.functions.invoke('create-payment', {
+      // Call the create-checkout-session edge function
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         headers,
         body
       });
