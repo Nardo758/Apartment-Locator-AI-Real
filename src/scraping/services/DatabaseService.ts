@@ -823,17 +823,20 @@ export class DatabaseService {
   }
 }
 
-// Create database service instance
+// Import Hetzner configuration
+import { getEnvironmentConfig, validateHetznerConfig, PERFORMANCE_CONFIG } from '../config/hetzner-database';
+
+// Create database service instance with Hetzner configuration
 const dbConfig: DatabaseConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME || 'apartment_scraper',
-  user: process.env.DB_USER || 'scraper_user',
-  password: process.env.DB_PASSWORD || '',
-  ssl: process.env.NODE_ENV === 'production',
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  ...getEnvironmentConfig(),
+  max: PERFORMANCE_CONFIG.poolSize.max,
+  idleTimeoutMillis: PERFORMANCE_CONFIG.poolSize.idle,
+  connectionTimeoutMillis: PERFORMANCE_CONFIG.poolSize.acquire,
 };
+
+// Validate configuration before creating service
+if (!validateHetznerConfig()) {
+  throw new Error('Invalid Hetzner database configuration. Please check your environment variables.');
+}
 
 export const databaseService = new DatabaseService(dbConfig);
