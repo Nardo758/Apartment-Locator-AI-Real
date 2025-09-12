@@ -10,12 +10,19 @@ export * from './core/ScraperOrchestrator';
 // Scraper implementations
 export * from './scrapers/ApartmentsScraper';
 export * from './scrapers/ZillowScraper';
+export * from './scrapers/RentScraper';
+export * from './scrapers/CraigslistScraper';
 
 // Utilities
 export * from './utils/DataValidator';
 export * from './utils/RateLimiter';
 export * from './utils/ProxyManager';
 export * from './utils/Logger';
+
+// AI and Services
+export * from './ai/MarketAnalyzer';
+export * from './services/GeocodingService';
+export * from './services/NotificationService';
 
 // Configuration
 export * from './config/settings';
@@ -36,7 +43,7 @@ export async function scrapeApartments(options: ScrapingOptions = {}): Promise<S
 export async function scrapeCityApartments(
   city: string, 
   state: string, 
-  sources: string[] = ['apartments.com', 'zillow.com'],
+  sources: string[] = ['apartments.com', 'zillow.com', 'rent.com'],
   options: ScrapingOptions = {}
 ): Promise<ScrapingResult[]> {
   const results: ScrapingResult[] = [];
@@ -47,6 +54,37 @@ export async function scrapeCityApartments(
   }
   
   return results;
+}
+
+/**
+ * Enhanced scraping with AI analysis
+ */
+export async function scrapeWithAI(
+  city: string,
+  state: string,
+  sources: string[] = ['apartments.com', 'zillow.com', 'rent.com'],
+  options: ScrapingOptions = {}
+): Promise<Array<{
+  result: ScrapingResult;
+  analysis: any;
+  predictions: any[];
+  concessions: any[];
+}>> {
+  const results = [];
+  
+  for (const source of sources) {
+    const enhanced = await scraperOrchestrator.scrapeWithAIEnhancement(source, city, state, options);
+    results.push(enhanced);
+  }
+  
+  return results;
+}
+
+/**
+ * Get comprehensive market intelligence
+ */
+export async function getMarketIntelligence(city: string, state: string) {
+  return scraperOrchestrator.getMarketIntelligence(city, state);
 }
 
 /**

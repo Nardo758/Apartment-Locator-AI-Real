@@ -13,7 +13,12 @@
     "test:scraping": "jest src/scraping/tests/",
     "scrape:austin": "node -e \"import('./src/scraping/index.js').then(s => s.scrapeCityApartments('austin', 'tx'))\"",
     "scrape:all": "node -e \"import('./src/scraping/index.js').then(s => s.scrapeApartments())\"",
-    "start:scheduler": "node -e \"import('./src/scraping/core/TaskScheduler.js').then(s => s.taskScheduler.start())\""
+    "scrape:ai": "node -e \"import('./src/scraping/index.js').then(s => s.scrapeWithAI('austin', 'tx'))\"",
+    "market:intelligence": "node -e \"import('./src/scraping/index.js').then(s => s.getMarketIntelligence('austin', 'tx'))\"",
+    "start:scheduler": "node -e \"import('./src/scraping/core/TaskScheduler.js').then(s => s.taskScheduler.start())\"",
+    "example:comprehensive": "node -e \"import('./src/scraping/examples/comprehensive-example.js').then(e => e.comprehensiveApartmentHuntingExample())\"",
+    "example:monitoring": "node -e \"import('./src/scraping/examples/comprehensive-example.js').then(e => e.marketMonitoringExample())\"",
+    "example:deals": "node -e \"import('./src/scraping/examples/comprehensive-example.js').then(e => e.dealFindingExample())\""
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
