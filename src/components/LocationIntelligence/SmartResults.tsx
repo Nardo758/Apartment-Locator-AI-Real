@@ -25,6 +25,11 @@ const SmartResults: React.FC<SmartResultsProps> = ({
   const [hoveredProperty, setHoveredProperty] = useState<string | null>(null);
 
   const sortedResults = [...smartResults].sort((a, b) => {
+    // Always prioritize AI Top Picks first
+    if (a.isTopPick && !b.isTopPick) return -1;
+    if (!a.isTopPick && b.isTopPick) return 1;
+    
+    // Then sort by selected criteria
     switch (sortBy) {
       case 'combinedScore':
         return b.combinedScore - a.combinedScore;

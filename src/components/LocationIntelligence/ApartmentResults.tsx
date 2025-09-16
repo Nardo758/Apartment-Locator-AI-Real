@@ -174,6 +174,11 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
   };
 
   const sortedApartments = [...displayApartments].sort((a, b) => {
+    // Always prioritize AI Top Picks first
+    if (a.isTopPick && !b.isTopPick) return -1;
+    if (!a.isTopPick && b.isTopPick) return 1;
+    
+    // Then sort by selected criteria
     switch (sortBy) {
       case 'aiScore':
         return (b.combinedScore || b.aiMatchScore) - (a.combinedScore || a.aiMatchScore);
