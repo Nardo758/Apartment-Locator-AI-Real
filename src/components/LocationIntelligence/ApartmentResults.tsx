@@ -422,11 +422,11 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                             {apartment.apartmentIQData.concessionType}
                           </div>
                           
-                          {/* Pricing Intelligence Breakdown */}
+                          {/* Combined AI Pricing & Concession Analysis */}
                           {recommendations[apartment.id] && (
                             <div className="text-xs text-muted-foreground bg-slate-700/30 rounded p-3 space-y-2 mb-3">
-                              <div className="flex justify-between font-semibold text-blue-400 border-b border-slate-600/30 pb-1 mb-2">
-                                <span>🤖 AI Pricing Intelligence</span>
+                              <div className="flex justify-between font-semibold text-green-400 border-b border-slate-600/30 pb-1 mb-2">
+                                <span>💰 Monthly Savings Analysis</span>
                                 <span className={`${getUrgencyColor(recommendations[apartment.id].urgencyLevel)} px-2 py-1 rounded text-xs border`}>
                                   {recommendations[apartment.id].urgencyLevel.toUpperCase()}
                                 </span>
@@ -434,19 +434,21 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                               <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1">
                                   <div className="flex justify-between">
-                                    <span>Current Rent:</span>
-                                    <span>${recommendations[apartment.id].currentRent.toLocaleString()}/mo</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>AI Suggested:</span>
-                                    <span className={`font-semibold ${getStrategyColor(recommendations[apartment.id].strategy)}`}>
-                                      ${recommendations[apartment.id].suggestedRent.toLocaleString()}/mo
+                                    <span>AI Rent Reduction:</span>
+                                    <span className="font-semibold text-green-400">
+                                      ${Math.abs(recommendations[apartment.id].adjustmentAmount).toLocaleString()}/mo
                                     </span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span>Adjustment:</span>
-                                    <span className={`font-semibold ${recommendations[apartment.id].adjustmentAmount >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                      {recommendations[apartment.id].adjustmentAmount >= 0 ? '+' : ''}${recommendations[apartment.id].adjustmentAmount.toLocaleString()}
+                                    <span>Concession Value:</span>
+                                    <span className="font-semibold text-green-400">
+                                      ${Math.round(apartment.apartmentIQData.concessionValue / 12).toLocaleString()}/mo
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between border-t border-slate-600/30 pt-1 font-bold text-green-300">
+                                    <span>Total Monthly Savings:</span>
+                                    <span>
+                                      ${(Math.abs(recommendations[apartment.id].adjustmentAmount) + Math.round(apartment.apartmentIQData.concessionValue / 12)).toLocaleString()}/mo
                                     </span>
                                   </div>
                                 </div>
@@ -458,34 +460,15 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                                     </span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span>Confidence:</span>
-                                    <span className="text-green-400 font-semibold">
-                                      {Math.round(recommendations[apartment.id].confidenceScore * 100)}%
+                                    <span>Days on Market:</span>
+                                    <span className="font-semibold text-orange-400">
+                                      {apartment.apartmentIQData.daysOnMarket} days
                                     </span>
                                   </div>
-                                  <div className="flex justify-between">
-                                    <span>Lease Timeline:</span>
-                                    <span className="text-blue-400 font-semibold">
-                                      {recommendations[apartment.id].expectedLeaseDays}d
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              {/* Revenue Impact Analysis */}
-                              <div className="border-t border-slate-600/30 pt-2 mt-2">
-                                <div className="text-xs font-semibold text-yellow-400 mb-1">📊 Revenue Impact Analysis</div>
-                                <div className="grid grid-cols-2 gap-2 text-xs">
-                                  <div className="flex justify-between">
-                                    <span>Annual Revenue:</span>
-                                    <span className="text-green-400 font-semibold">
-                                      ${recommendations[apartment.id].revenueImpact.suggestedAnnualRevenue.toLocaleString()}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>Total Impact:</span>
-                                    <span className={`font-semibold ${recommendations[apartment.id].revenueImpact.totalImpact >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                      {recommendations[apartment.id].revenueImpact.totalImpact >= 0 ? '+' : ''}${recommendations[apartment.id].revenueImpact.totalImpact.toLocaleString()}
+                                  <div className="flex justify-between border-t border-slate-600/30 pt-1 font-bold text-green-300">
+                                    <span>Annual Savings:</span>
+                                    <span>
+                                      ${((Math.abs(recommendations[apartment.id].adjustmentAmount) + Math.round(apartment.apartmentIQData.concessionValue / 12)) * 12).toLocaleString()}
                                     </span>
                                   </div>
                                 </div>
@@ -500,6 +483,44 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                                   </div>
                                 </div>
                               )}
+                            </div>
+                          )}
+
+                          {/* Landlord Revenue Impact Analysis */}
+                          {recommendations[apartment.id] && (
+                            <div className="text-xs text-muted-foreground bg-red-900/20 border border-red-500/30 rounded p-3 space-y-2 mb-3">
+                              <div className="flex justify-between font-semibold text-red-400 border-b border-red-500/30 pb-1 mb-2">
+                                <span>📉 Landlord Loss Analysis</span>
+                                <span className="text-xs text-red-300">If unit stays empty</span>
+                              </div>
+                              <div className="grid grid-cols-3 gap-3 text-center">
+                                <div className="space-y-1 bg-red-900/30 rounded p-2">
+                                  <div className="text-red-300 font-semibold">30 Days</div>
+                                  <div className="text-red-400 font-bold">
+                                    ${apartment.apartmentIQData.currentRent.toLocaleString()}
+                                  </div>
+                                  <div className="text-xs text-red-300">Lost Revenue</div>
+                                </div>
+                                <div className="space-y-1 bg-red-900/30 rounded p-2">
+                                  <div className="text-red-300 font-semibold">60 Days</div>
+                                  <div className="text-red-400 font-bold">
+                                    ${(apartment.apartmentIQData.currentRent * 2).toLocaleString()}
+                                  </div>
+                                  <div className="text-xs text-red-300">Lost Revenue</div>
+                                </div>
+                                <div className="space-y-1 bg-red-900/30 rounded p-2">
+                                  <div className="text-red-300 font-semibold">90 Days</div>
+                                  <div className="text-red-400 font-bold">
+                                    ${(apartment.apartmentIQData.currentRent * 3).toLocaleString()}
+                                  </div>
+                                  <div className="text-xs text-red-300">Lost Revenue</div>
+                                </div>
+                              </div>
+                              <div className="pt-2 border-t border-red-500/30 text-center">
+                                <div className="text-red-300 text-xs">
+                                  Total Impact: ${recommendations[apartment.id].revenueImpact.totalImpact.toLocaleString()} annual loss potential
+                                </div>
+                              </div>
                             </div>
                           )}
                           
