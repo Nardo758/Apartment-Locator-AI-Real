@@ -199,7 +199,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
   return (
     <div className="space-y-6">
       {/* Property Results */}
-      <div className="flex flex-col space-y-4 min-h-0" key={`apartments-${filterBy}-${sortBy}`}>
+      <div className="space-y-4" key={`${filterBy}-${sortBy}`}>
         {filteredApartments.length === 0 ? (
           <Card className="bg-slate-800/30 border border-slate-700/30">
             <CardContent className="p-8 text-center">
@@ -225,7 +225,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
         ) : (
           filteredApartments.map((apartment) => (
             <Card 
-              key={`${apartment.id}-${filterBy}`}
+              key={apartment.id}
               className="bg-slate-800/50 border border-slate-700/50 hover:bg-slate-800/60 transition-all duration-200"
             >
               <CardContent className="p-6">

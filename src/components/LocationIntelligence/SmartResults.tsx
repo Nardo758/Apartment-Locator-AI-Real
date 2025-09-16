@@ -117,38 +117,15 @@ const SmartResults: React.FC<SmartResultsProps> = ({
       </Card>
 
       {/* Property Results */}
-      <div className="flex flex-col space-y-4 min-h-0" key={`results-${filterBy}-${sortBy}`}>
-        {filteredResults.length === 0 ? (
-          <Card className="bg-slate-800/30 border border-slate-700/30">
-            <CardContent className="p-8 text-center">
-              <div className="text-4xl mb-4">🔍</div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">No properties found</h3>
-              <p className="text-muted-foreground mb-4">
-                {filterBy === 'topPicks' 
-                  ? 'No top picks match your current criteria. Try adjusting your filters.'
-                  : filterBy === 'budgetMatch'
-                  ? 'No properties match your budget criteria. Try expanding your search.'
-                  : 'No properties match your current search criteria.'
-                }
-              </p>
-              <Button 
-                variant="outline" 
-                onClick={() => setFilterBy('all')}
-                className="bg-slate-700/30 border-slate-600/50"
-              >
-                Show All Results
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          filteredResults.map((property) => (
-            <Card 
-              key={`${property.id}-${filterBy}`}
-              className={`bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/40 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
-                property.isTopPick ? 'ring-1 ring-green-500/30 bg-gradient-to-r from-green-500/5 to-transparent' : ''
-              }`}
-              onMouseEnter={() => setHoveredProperty(property.id)}
-              onMouseLeave={() => setHoveredProperty(null)}
+      <div className="space-y-4">
+        {filteredResults.map((property) => (
+          <Card 
+            key={property.id}
+            className={`bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/40 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
+              property.isTopPick ? 'ring-1 ring-green-500/30 bg-gradient-to-r from-green-500/5 to-transparent' : ''
+            }`}
+            onMouseEnter={() => setHoveredProperty(property.id)}
+            onMouseLeave={() => setHoveredProperty(null)}
           >
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-6">
@@ -298,8 +275,7 @@ const SmartResults: React.FC<SmartResultsProps> = ({
               )}
             </CardContent>
           </Card>
-          ))
-        )}
+        ))}
       </div>
     </div>
   );
