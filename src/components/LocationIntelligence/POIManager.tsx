@@ -97,8 +97,8 @@ const POIManager: React.FC<POIManagerProps> = ({
   ];
 
   return (
-    <Card className="bg-slate-800/30 border border-slate-700/30">
-      <CardHeader>
+    <Card className="bg-slate-800/30 border border-slate-700/30 h-full flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <MapPin className="w-5 h-5 text-blue-400" />
@@ -203,9 +203,9 @@ const POIManager: React.FC<POIManagerProps> = ({
         </div>
       </CardHeader>
       
-      <CardContent>
+      <CardContent className="flex-1 flex flex-col">
         {pointsOfInterest.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-12 flex-1 flex flex-col justify-center">
             <div className="w-20 h-20 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-6">
               <MapPin className="w-10 h-10 text-muted-foreground" />
             </div>
@@ -230,54 +230,59 @@ const POIManager: React.FC<POIManagerProps> = ({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {pointsOfInterest.map((poi) => {
-              const categoryStyle = getCategoryIcon(poi.category);
-              return (
-                <div key={poi.id} className="p-4 rounded-xl bg-slate-700/30 border border-slate-600/30 hover:bg-slate-700/40 transition-all duration-200 hover:shadow-lg group">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-xl ${categoryStyle.color} flex items-center justify-center text-xl shadow-lg`}>
-                        {categoryStyle.icon}
+          <div className="flex-1 flex flex-col">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 flex-1">
+              {pointsOfInterest.map((poi) => {
+                const categoryStyle = getCategoryIcon(poi.category);
+                return (
+                  <div key={poi.id} className="p-4 rounded-xl bg-slate-700/30 border border-slate-600/30 hover:bg-slate-700/40 transition-all duration-200 hover:shadow-lg group">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-xl ${categoryStyle.color} flex items-center justify-center text-xl shadow-lg`}>
+                          {categoryStyle.icon}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-foreground text-lg">{poi.name}</div>
+                          <div className="text-sm text-muted-foreground">{poi.address}</div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="font-semibold text-foreground text-lg">{poi.name}</div>
-                        <div className="text-sm text-muted-foreground">{poi.address}</div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onRemovePOI(poi.id)}
+                        className="w-8 h-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/20 hover:border-red-500/30"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={getPriorityColor(poi.priority)}>
+                          {poi.priority.toUpperCase()}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {getTransportIcon(poi.transportMode)} {poi.maxTime}min
+                        </Badge>
                       </div>
+                      <Select value={poi.priority} onValueChange={(value: any) => onUpdatePriority(poi.id, value)}>
+                        <SelectTrigger className="w-20 h-6 bg-transparent border-0 p-0 text-xs">
+                          <ChevronDown className="w-3 h-3" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-slate-600">
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="low">Low</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => onRemovePOI(poi.id)}
-                      className="w-8 h-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/20 hover:border-red-500/30"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
                   </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className={getPriorityColor(poi.priority)}>
-                        {poi.priority.toUpperCase()}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {getTransportIcon(poi.transportMode)} {poi.maxTime}min
-                      </Badge>
-                    </div>
-                    <Select value={poi.priority} onValueChange={(value: any) => onUpdatePriority(poi.id, value)}>
-                      <SelectTrigger className="w-20 h-6 bg-transparent border-0 p-0 text-xs">
-                        <ChevronDown className="w-3 h-3" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-slate-600">
-                        <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="low">Low</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+            
+            {/* Spacer to fill remaining height and push content to match Search Settings */}
+            <div className="flex-grow min-h-8"></div>
           </div>
         )}
       </CardContent>

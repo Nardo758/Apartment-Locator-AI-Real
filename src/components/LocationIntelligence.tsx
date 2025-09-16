@@ -90,10 +90,10 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* POI Management and Search Settings */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 items-stretch">
         {/* POI Management Panel - 2/3 width */}
-        <div className="lg:col-span-2 flex">
-          <div className="w-full">
+        <div className="lg:col-span-2 flex h-full">
+          <div className="w-full flex flex-col">
             <POIManager
               pointsOfInterest={pointsOfInterest}
               onAddPOI={addPOI}
@@ -106,7 +106,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         </div>
 
         {/* Enhanced Search Settings - 1/3 width */}
-        <div className="lg:col-span-1 flex">
+        <div className="lg:col-span-1 flex h-full">
           <EnhancedSearchSettings
             onSettingsChange={setSearchSettings}
           />
