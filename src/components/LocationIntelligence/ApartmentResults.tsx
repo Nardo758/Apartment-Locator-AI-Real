@@ -209,7 +209,12 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                 Available Apartments
               </CardTitle>
               <p className="text-muted-foreground mt-1">
-                {filteredApartments.length} properties matching your search criteria
+                {filteredApartments.length} properties matching your criteria
+                {filterBy !== 'all' && (
+                  <span className="ml-2 text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">
+                    {filterBy === 'topPicks' ? 'Top Picks Only' : 'Budget Match Only'}
+                  </span>
+                )}
               </p>
             </div>
             
@@ -217,7 +222,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-48 bg-slate-700/50 border-slate-600/50">
                   <ArrowUpDown className="w-4 h-4 mr-2" />
-                  <SelectValue />
+                  <SelectValue placeholder="Sort by..." />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-600">
                   <SelectItem value="aiScore">AI Match Score</SelectItem>
@@ -229,7 +234,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
               <Select value={filterBy} onValueChange={setFilterBy}>
                 <SelectTrigger className="w-36 bg-slate-700/50 border-slate-600/50">
                   <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue />
+                  <SelectValue placeholder="Filter..." />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-600">
                   <SelectItem value="all">All Results</SelectItem>
@@ -244,7 +249,30 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
 
       {/* Property Results */}
       <div className="space-y-4">
-        {filteredApartments.map((apartment) => (
+        {filteredApartments.length === 0 ? (
+          <Card className="bg-slate-800/30 border border-slate-700/30">
+            <CardContent className="p-8 text-center">
+              <div className="text-4xl mb-4">🔍</div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">No apartments found</h3>
+              <p className="text-muted-foreground mb-4">
+                {filterBy === 'topPicks' 
+                  ? 'No top picks match your current criteria. Try adjusting your filters.'
+                  : filterBy === 'budgetMatch'
+                  ? 'No apartments match your budget criteria. Try expanding your search.'
+                  : 'No apartments match your current search criteria.'
+                }
+              </p>
+              <Button 
+                variant="outline" 
+                onClick={() => setFilterBy('all')}
+                className="bg-slate-700/30 border-slate-600/50"
+              >
+                Show All Results
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          filteredApartments.map((apartment) => (
           <Card 
             key={apartment.id}
             className={`bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/40 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
@@ -419,7 +447,8 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
               )}
             </CardContent>
           </Card>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Load More */}
