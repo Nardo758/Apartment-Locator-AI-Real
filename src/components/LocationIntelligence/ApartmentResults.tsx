@@ -199,53 +199,6 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Results Header with Controls */}
-      <Card className="bg-slate-800/30 border border-slate-700/30">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <TrendingUp className="w-6 h-6 text-blue-400" />
-                Available Apartments
-              </CardTitle>
-              <p className="text-muted-foreground mt-1">
-                {filteredApartments.length} properties matching your criteria
-                {filterBy !== 'all' && (
-                  <span className="ml-2 text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">
-                    {filterBy === 'topPicks' ? 'Top Picks Only' : 'Budget Match Only'}
-                  </span>
-                )}
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-48 bg-slate-700/50 border-slate-600/50">
-                  <ArrowUpDown className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Sort by..." />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-600">
-                  <SelectItem value="aiScore">AI Match Score</SelectItem>
-                  <SelectItem value="price">Price (Low to High)</SelectItem>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Select value={filterBy} onValueChange={setFilterBy}>
-                <SelectTrigger className="w-36 bg-slate-700/50 border-slate-600/50">
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Filter..." />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-600">
-                  <SelectItem value="all">All Results</SelectItem>
-                  <SelectItem value="topPicks">Top Picks</SelectItem>
-                  <SelectItem value="budgetMatch">Budget Match</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
 
       {/* Property Results */}
       <div className="space-y-4">
