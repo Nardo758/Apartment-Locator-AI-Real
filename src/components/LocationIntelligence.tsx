@@ -31,6 +31,8 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   const preferencesCount = getAIPreferencesCount();
   const hasAIPreferences = preferencesCount > 0;
 
+  console.log('🎯 Location Intelligence loaded:', { userProfile, preferencesCount, hasAIPreferences });
+
   return (
     <div className="glass-dark rounded-xl p-6 space-y-6">
       {/* Section Header */}
