@@ -159,9 +159,9 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* Main Content Area */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 xl:grid-cols-6 gap-6 mb-8">
         {/* Map or List View */}
-        <div className="xl:col-span-3">
+        <div className="xl:col-span-5">
           {viewMode === 'map' ? (
             <SmartMap
               pointsOfInterest={pointsOfInterest}
