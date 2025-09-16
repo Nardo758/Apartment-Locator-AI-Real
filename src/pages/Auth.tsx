@@ -272,6 +272,13 @@ const Auth = () => {
                 </p>
               </div>
             )}
+
+            {/* Or view demo */}
+            <div className="mt-4">
+              <Link to="/demo">
+                <Button variant="outline" className="w-full">View Demo (no login)</Button>
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </div>

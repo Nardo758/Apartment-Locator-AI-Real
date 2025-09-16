@@ -21,6 +21,7 @@ const Header: React.FC<HeaderProps> = ({ onSignOut }) => {
 
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', active: true },
+    { path: '/demo', label: 'Demo' },
     { path: '/ai-formula', label: 'AI Formula' },
     { path: '/program-ai', label: 'Program AI' },
     { path: '/saved-properties', label: 'Saved Properties' },

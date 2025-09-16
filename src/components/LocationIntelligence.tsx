@@ -34,7 +34,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   console.log('🎯 Location Intelligence loaded:', { userProfile, preferencesCount, hasAIPreferences });
 
   return (
-    <div className="glass-dark rounded-xl p-6 space-y-6">
+    <div id="location-intelligence" className="glass-dark rounded-xl p-6 space-y-6">
       {/* Section Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
