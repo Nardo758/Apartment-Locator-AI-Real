@@ -106,16 +106,6 @@ const SmartMap: React.FC<SmartMapProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* POI Management Section */}
-      <POIManager
-        pointsOfInterest={pointsOfInterest}
-        onAddPOI={handlePOIAdd}
-        onRemovePOI={handlePOIRemove}
-        onUpdatePriority={handlePOIUpdatePriority}
-        showModal={showPOIModal}
-        setShowModal={setShowPOIModal}
-      />
-
       {/* Interactive Map */}
       <Card className="bg-slate-800/30 border border-slate-700/30 overflow-hidden">
         <CardContent className="p-0 relative">
