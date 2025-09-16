@@ -28,6 +28,13 @@ interface Apartment {
   locationScore?: number;
   combinedScore?: number;
   savings?: number; // monthly savings compared to market average
+  walkScore?: number;
+  transitScore?: number;
+  bikeScore?: number;
+  yearBuilt?: number;
+  petPolicy?: string;
+  parking?: string;
+  utilities?: string[];
 }
 
 interface ApartmentResultsProps {
@@ -70,7 +77,14 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       lifestyleMatch: true,
       locationScore: 92,
       combinedScore: 95,
-      savings: 284
+      savings: 284,
+      walkScore: 95,
+      transitScore: 88,
+      bikeScore: 92,
+      yearBuilt: 2019,
+      petPolicy: 'Dogs & Cats Welcome',
+      parking: 'Covered Garage',
+      utilities: ['Water', 'Trash', 'Internet']
     },
     {
       id: '2',
@@ -96,7 +110,14 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       lifestyleMatch: true,
       locationScore: 85,
       combinedScore: 89,
-      savings: 134
+      savings: 134,
+      walkScore: 89,
+      transitScore: 82,
+      bikeScore: 85,
+      yearBuilt: 2021,
+      petPolicy: 'Cats Only',
+      parking: 'Assigned Spot',
+      utilities: ['Water', 'Trash']
     },
     {
       id: '3',
@@ -122,7 +143,14 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       lifestyleMatch: false,
       locationScore: 88,
       combinedScore: 87,
-      savings: 534
+      savings: 534,
+      walkScore: 92,
+      transitScore: 95,
+      bikeScore: 88,
+      yearBuilt: 2020,
+      petPolicy: 'No Pets',
+      parking: 'Street Parking',
+      utilities: ['Internet']
     },
     {
       id: '4',
@@ -148,7 +176,14 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       lifestyleMatch: true,
       locationScore: 78,
       combinedScore: 82,
-      savings: 34
+      savings: 34,
+      walkScore: 76,
+      transitScore: 71,
+      bikeScore: 80,
+      yearBuilt: 2018,
+      petPolicy: 'Dogs Welcome',
+      parking: 'Valet Parking',
+      utilities: ['Water', 'Trash', 'Internet', 'Cable']
     }
   ];
 
@@ -376,6 +411,64 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                   </div>
                 </div>
               )}
+
+              {/* Additional Property Details */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                {/* Walkability Scores */}
+                <div className="p-3 rounded-lg bg-slate-700/30 border border-slate-600/30">
+                  <h5 className="text-sm font-semibold text-foreground mb-2">Walkability</h5>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Walk Score:</span>
+                      <span className="font-medium text-foreground">{apartment.walkScore || 85}/100</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Transit:</span>
+                      <span className="font-medium text-foreground">{apartment.transitScore || 78}/100</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Bike Score:</span>
+                      <span className="font-medium text-foreground">{apartment.bikeScore || 82}/100</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Property Info */}
+                <div className="p-3 rounded-lg bg-slate-700/30 border border-slate-600/30">
+                  <h5 className="text-sm font-semibold text-foreground mb-2">Property Info</h5>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Year Built:</span>
+                      <span className="font-medium text-foreground">{apartment.yearBuilt || 2020}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Pet Policy:</span>
+                      <span className="font-medium text-foreground">{apartment.petPolicy || 'Contact for details'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Parking:</span>
+                      <span className="font-medium text-foreground">{apartment.parking || 'Available'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Utilities & Features */}
+                <div className="p-3 rounded-lg bg-slate-700/30 border border-slate-600/30">
+                  <h5 className="text-sm font-semibold text-foreground mb-2">Included</h5>
+                  <div className="space-y-1">
+                    {apartment.utilities && apartment.utilities.length > 0 ? (
+                      apartment.utilities.map((utility, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <div className="w-1 h-1 bg-green-400 rounded-full"></div>
+                          <span className="text-xs text-muted-foreground">{utility}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Contact for details</span>
+                    )}
+                  </div>
+                </div>
+              </div>
 
               {/* Score Breakdown on Hover */}
               {hoveredProperty === apartment.id && (
