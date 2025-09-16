@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { Heart, MessageCircle, Eye, Star, MapPin, Car, Clock, Check, TrendingUp, Filter, ArrowUpDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Heart, MessageCircle, Eye, Star, MapPin, Car, Clock, Check, TrendingUp, Filter, ArrowUpDown, AlertTriangle, Target, DollarSign, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
+import { PricingEngine, type ApartmentIQData } from '@/lib/pricing-engine';
+import { usePricingIntelligence } from '@/hooks/usePricingIntelligence';
 
 interface Apartment {
   id: string;
@@ -36,18 +38,7 @@ interface Apartment {
   parking?: string;
   utilities?: string[];
   marketAverage?: number; // market average rent for comparison
-  // Enhanced ApartmentIQ Integration
-  apartmentIQScore: number; // Overall ApartmentIQ score /100
-  baseRent: number; // Original rent before concessions
-  effectiveRent: number; // Actual monthly cost after concessions
-  concessionType: string; // e.g., "2 months free on 12-month lease"
-  totalLeaseSavings: number; // Total savings over lease term
-  savingsRatio: number; // Percentage savings vs market (100%, 200%, 300%)
-  daysOnMarket: number; // Market timing intelligence
-  negotiationPotential: number; // Score /10
-  leaseTermMonths: number; // Lease duration
-  marketPosition: 'undervalued' | 'fair' | 'overpriced';
-  velocity: 'hot' | 'normal' | 'stale';
+  apartmentIQData: ApartmentIQData; // Complete ApartmentIQ data structure
 }
 
 interface ApartmentResultsProps {
@@ -64,13 +55,13 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
   const [savedApartments, setSavedApartments] = useState<Set<string>>(new Set());
   const [hoveredProperty, setHoveredProperty] = useState<string | null>(null);
 
-  // Enhanced mock apartment data for demo with list view design elements
+  // Enhanced mock apartment data with comprehensive ApartmentIQ integration
   const mockApartments: Apartment[] = [
     {
       id: '1',
       name: 'Portiva Unit A218',
       address: '123 Downtown Ave, Austin, TX 78701',
-      price: 2200,
+      price: 1200,
       aiMatchScore: 95,
       image: '/placeholder-apartment.jpg',
       bedrooms: 1,
@@ -99,29 +90,52 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       petPolicy: 'Dogs & Cats Welcome',
       parking: 'Covered Garage',
       utilities: ['Water', 'Trash', 'Internet'],
-      // Enhanced ApartmentIQ Integration
-      apartmentIQScore: 89,
-      baseRent: 1200,
-      effectiveRent: 1000,
-      concessionType: '2 months free on 12-month lease',
-      totalLeaseSavings: 2400,
-      savingsRatio: 200,
-      daysOnMarket: 21,
-      negotiationPotential: 9,
-      leaseTermMonths: 12,
-      marketPosition: 'undervalued',
-      velocity: 'stale'
+      apartmentIQData: {
+        unitId: 'portiva-a218',
+        propertyName: 'Portiva',
+        unitNumber: 'A218',
+        address: '123 Downtown Ave, Austin, TX 78701',
+        zipCode: '78701',
+        currentRent: 1200,
+        originalRent: 1200,
+        effectiveRent: 1000,
+        rentPerSqft: 1.60,
+        bedrooms: 1,
+        bathrooms: 1,
+        sqft: 750,
+        floor: 2,
+        floorPlan: 'A2',
+        daysOnMarket: 21,
+        firstSeen: '2024-08-26',
+        marketVelocity: 'stale' as const,
+        concessionValue: 2400,
+        concessionType: '2 months free on 12-month lease',
+        concessionUrgency: 'aggressive' as const,
+        rentTrend: 'stable' as const,
+        rentChangePercent: 0,
+        concessionTrend: 'increasing' as const,
+        marketPosition: 'at_market' as const,
+        percentileRank: 75,
+        amenityScore: 85,
+        locationScore: 92,
+        managementScore: 78,
+        leaseProbability: 0.65,
+        negotiationPotential: 9,
+        urgencyScore: 8,
+        dataFreshness: '2024-09-16T10:00:00Z',
+        confidenceScore: 0.95
+      }
     },
     {
       id: '2',
-      name: 'Riverside Unit C105',
+      name: 'SkyLoft Unit C105',
       address: '456 River Road, Austin, TX 78704',
-      price: 2350,
+      price: 1500,
       aiMatchScore: 89,
       image: '/placeholder-apartment.jpg',
-      bedrooms: 1,
-      bathrooms: 1,
-      sqft: 820,
+      bedrooms: 2,
+      bathrooms: 2,
+      sqft: 1000,
       amenities: ['Pool', 'Gym', 'Balcony', 'Laundry'],
       poiDistances: {
         'work': { distance: '1.2 mi', driveTime: 8 },
@@ -145,24 +159,47 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       petPolicy: 'Cats Only',
       parking: 'Assigned Spot',
       utilities: ['Water', 'Trash'],
-      // Enhanced ApartmentIQ Integration
-      apartmentIQScore: 92,
-      baseRent: 1500,
-      effectiveRent: 1200,
-      concessionType: '3 months free on 15-month lease',
-      totalLeaseSavings: 4500,
-      savingsRatio: 300,
-      daysOnMarket: 14,
-      negotiationPotential: 8,
-      leaseTermMonths: 15,
-      marketPosition: 'undervalued',
-      velocity: 'hot'
+      apartmentIQData: {
+        unitId: 'skyloft-c105',
+        propertyName: 'SkyLoft',
+        unitNumber: 'C105',
+        address: '456 River Road, Austin, TX 78704',
+        zipCode: '78704',
+        currentRent: 1500,
+        originalRent: 1500,
+        effectiveRent: 1250,
+        rentPerSqft: 1.50,
+        bedrooms: 2,
+        bathrooms: 2,
+        sqft: 1000,
+        floor: 10,
+        floorPlan: 'C1',
+        daysOnMarket: 8,
+        firstSeen: '2024-09-08',
+        marketVelocity: 'normal' as const,
+        concessionValue: 4500,
+        concessionType: '3 months free on 15-month lease',
+        concessionUrgency: 'standard' as const,
+        rentTrend: 'increasing' as const,
+        rentChangePercent: 2.5,
+        concessionTrend: 'none' as const,
+        marketPosition: 'below_market' as const,
+        percentileRank: 25,
+        amenityScore: 95,
+        locationScore: 88,
+        managementScore: 92,
+        leaseProbability: 0.85,
+        negotiationPotential: 7,
+        urgencyScore: 4,
+        dataFreshness: '2024-09-16T10:00:00Z',
+        confidenceScore: 0.92
+      }
     },
     {
       id: '3',
       name: 'Tech District Unit 2314',
       address: '789 Innovation Blvd, Austin, TX 78702',
-      price: 1950,
+      price: 1800,
       aiMatchScore: 87,
       image: '/placeholder-apartment.jpg',
       bedrooms: 1,
@@ -191,66 +228,48 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       petPolicy: 'No Pets',
       parking: 'Street Parking',
       utilities: ['Internet'],
-      // Enhanced ApartmentIQ Integration
-      apartmentIQScore: 81,
-      baseRent: 1800,
-      effectiveRent: 1650,
-      concessionType: '1 month free on 12-month lease',
-      totalLeaseSavings: 1800,
-      savingsRatio: 100,
-      daysOnMarket: 3,
-      negotiationPotential: 7,
-      leaseTermMonths: 12,
-      marketPosition: 'fair',
-      velocity: 'hot'
-    },
-    {
-      id: '4',
-      name: 'Garden Heights Unit B304',
-      address: '321 Garden St, Austin, TX 78703',
-      price: 2450,
-      aiMatchScore: 82,
-      image: '/placeholder-apartment.jpg',
-      bedrooms: 1,
-      bathrooms: 1,
-      sqft: 900,
-      amenities: ['Pool', 'Parking', 'Balcony', 'Air Conditioning'],
-      poiDistances: {
-        'work': { distance: '1.8 mi', driveTime: 12 },
-        'gym': { distance: '0.4 mi', driveTime: 2 }
-      },
-      available: true,
-      listingAge: 7,
-      saved: false,
-      isTopPick: false,
-      budgetMatch: false,
-      amenityMatch: true,
-      lifestyleMatch: true,
-      locationScore: 78,
-      combinedScore: 82,
-      savings: 34,
-      marketAverage: 2484,
-      walkScore: 76,
-      transitScore: 71,
-      bikeScore: 80,
-      yearBuilt: 2018,
-      petPolicy: 'Dogs Welcome',
-      parking: 'Valet Parking',
-      utilities: ['Water', 'Trash', 'Internet', 'Cable'],
-      // Enhanced ApartmentIQ Integration
-      apartmentIQScore: 75,
-      baseRent: 2450,
-      effectiveRent: 2350,
-      concessionType: '$100/month off for 12 months',
-      totalLeaseSavings: 1200,
-      savingsRatio: 50,
-      daysOnMarket: 45,
-      negotiationPotential: 6,
-      leaseTermMonths: 12,
-      marketPosition: 'overpriced',
-      velocity: 'stale'
+      apartmentIQData: {
+        unitId: 'tech-2314',
+        propertyName: 'Tech District',
+        unitNumber: '2314',
+        address: '789 Innovation Blvd, Austin, TX 78702',
+        zipCode: '78702',
+        currentRent: 1800,
+        originalRent: 1800,
+        effectiveRent: 1650,
+        rentPerSqft: 2.65,
+        bedrooms: 1,
+        bathrooms: 1,
+        sqft: 680,
+        floor: 23,
+        floorPlan: 'B1',
+        daysOnMarket: 3,
+        firstSeen: '2024-09-13',
+        marketVelocity: 'hot' as const,
+        concessionValue: 1800,
+        concessionType: '1 month free on 12-month lease',
+        concessionUrgency: 'none' as const,
+        rentTrend: 'increasing' as const,
+        rentChangePercent: 5.2,
+        concessionTrend: 'none' as const,
+        marketPosition: 'above_market' as const,
+        percentileRank: 90,
+        amenityScore: 75,
+        locationScore: 95,
+        managementScore: 88,
+        leaseProbability: 0.92,
+        negotiationPotential: 3,
+        urgencyScore: 2,
+        dataFreshness: '2024-09-16T10:00:00Z',
+        confidenceScore: 0.98
+      }
     }
   ];
+
+  // Use pricing intelligence hook
+  const { recommendations, loading: pricingLoading } = usePricingIntelligence(
+    mockApartments.map(apt => ({ id: apt.id, apartmentIQData: apt.apartmentIQData }))
+  );
 
   const displayApartments = apartments.length > 0 ? apartments : mockApartments;
 
@@ -266,6 +285,26 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
     if (score >= 80) return 'bg-yellow-500/20 border-yellow-500/30';
     if (score >= 70) return 'bg-orange-500/20 border-orange-500/30';
     return 'bg-red-500/20 border-red-500/30';
+  };
+
+  const getUrgencyColor = (urgency: string) => {
+    switch (urgency) {
+      case 'immediate': return 'text-red-400 bg-red-500/20 border-red-500/30';
+      case 'soon': return 'text-orange-400 bg-orange-500/20 border-orange-500/30';
+      case 'moderate': return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
+      case 'low': return 'text-green-400 bg-green-500/20 border-green-500/30';
+      default: return 'text-slate-400 bg-slate-500/20 border-slate-500/30';
+    }
+  };
+
+  const getStrategyColor = (strategy: string) => {
+    switch (strategy) {
+      case 'aggressive_reduction': return 'text-red-400';
+      case 'moderate_reduction': return 'text-orange-400';
+      case 'hold': return 'text-blue-400';
+      case 'increase': return 'text-green-400';
+      default: return 'text-slate-400';
+    }
   };
 
   const toggleSaved = (apartmentId: string) => {
@@ -365,37 +404,126 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                           {apartment.address}
                         </p>
                         
-                        {/* Enhanced ApartmentIQ Pricing */}
+                        {/* Enhanced ApartmentIQ Pricing with Recommendations */}
                         <div className="mb-4">
                           <div className="flex items-baseline gap-3 mb-2">
-                            <div className="text-lg line-through text-slate-400">${apartment.baseRent.toLocaleString()}/mo</div>
-                            <div className="text-2xl font-bold text-green-400">${apartment.effectiveRent.toLocaleString()}/mo</div>
+                            <div className="text-lg line-through text-slate-400">${apartment.apartmentIQData.originalRent.toLocaleString()}/mo</div>
+                            <div className="text-2xl font-bold text-green-400">${apartment.apartmentIQData.effectiveRent.toLocaleString()}/mo</div>
+                            {recommendations[apartment.id] && (
+                              <div className="text-sm">
+                                <span className="text-muted-foreground">→ Rec: </span>
+                                <span className={`font-bold ${getStrategyColor(recommendations[apartment.id].strategy)}`}>
+                                  ${recommendations[apartment.id].suggestedRent.toLocaleString()}/mo
+                                </span>
+                              </div>
+                            )}
                           </div>
                           <div className="text-sm font-semibold text-green-400 mb-2">
-                            {apartment.concessionType}
+                            {apartment.apartmentIQData.concessionType}
                           </div>
+                          
+                          {/* Pricing Intelligence Breakdown */}
+                          {recommendations[apartment.id] && (
+                            <div className="text-xs text-muted-foreground bg-slate-700/30 rounded p-3 space-y-2 mb-3">
+                              <div className="flex justify-between font-semibold text-blue-400 border-b border-slate-600/30 pb-1 mb-2">
+                                <span>🤖 AI Pricing Intelligence</span>
+                                <span className={`${getUrgencyColor(recommendations[apartment.id].urgencyLevel)} px-2 py-1 rounded text-xs border`}>
+                                  {recommendations[apartment.id].urgencyLevel.toUpperCase()}
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                  <div className="flex justify-between">
+                                    <span>Current Rent:</span>
+                                    <span>${recommendations[apartment.id].currentRent.toLocaleString()}/mo</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>AI Suggested:</span>
+                                    <span className={`font-semibold ${getStrategyColor(recommendations[apartment.id].strategy)}`}>
+                                      ${recommendations[apartment.id].suggestedRent.toLocaleString()}/mo
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Adjustment:</span>
+                                    <span className={`font-semibold ${recommendations[apartment.id].adjustmentAmount >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                      {recommendations[apartment.id].adjustmentAmount >= 0 ? '+' : ''}${recommendations[apartment.id].adjustmentAmount.toLocaleString()}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="flex justify-between">
+                                    <span>Strategy:</span>
+                                    <span className={`font-semibold capitalize ${getStrategyColor(recommendations[apartment.id].strategy)}`}>
+                                      {recommendations[apartment.id].strategy.replace('_', ' ')}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Confidence:</span>
+                                    <span className="text-green-400 font-semibold">
+                                      {Math.round(recommendations[apartment.id].confidenceScore * 100)}%
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Lease Timeline:</span>
+                                    <span className="text-blue-400 font-semibold">
+                                      {recommendations[apartment.id].expectedLeaseDays}d
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Revenue Impact Analysis */}
+                              <div className="border-t border-slate-600/30 pt-2 mt-2">
+                                <div className="text-xs font-semibold text-yellow-400 mb-1">📊 Revenue Impact Analysis</div>
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                  <div className="flex justify-between">
+                                    <span>Annual Revenue:</span>
+                                    <span className="text-green-400 font-semibold">
+                                      ${recommendations[apartment.id].revenueImpact.suggestedAnnualRevenue.toLocaleString()}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span>Total Impact:</span>
+                                    <span className={`font-semibold ${recommendations[apartment.id].revenueImpact.totalImpact >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                      {recommendations[apartment.id].revenueImpact.totalImpact >= 0 ? '+' : ''}${recommendations[apartment.id].revenueImpact.totalImpact.toLocaleString()}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* AI Reasoning */}
+                              {recommendations[apartment.id].reasoning.length > 0 && (
+                                <div className="border-t border-slate-600/30 pt-2 mt-2">
+                                  <div className="text-xs font-semibold text-purple-400 mb-1">🧠 AI Reasoning</div>
+                                  <div className="text-xs text-slate-300">
+                                    {recommendations[apartment.id].reasoning.slice(0, 2).join(' • ')}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
                           
                           {/* Enhanced Math Breakdown */}
                           <div className="text-xs text-muted-foreground bg-slate-700/30 rounded p-3 space-y-1">
                             <div className="flex justify-between font-semibold text-green-400 border-b border-slate-600/30 pb-1 mb-2">
-                              <span>🎯 ApartmentIQ Analysis:</span>
-                              <span>{apartment.savingsRatio}% Savings Ratio</span>
+                              <span>🎯 Concession Analysis:</span>
+                              <span>{Math.round((apartment.apartmentIQData.concessionValue / apartment.apartmentIQData.originalRent) * 100)}% Value</span>
                             </div>
                             <div className="flex justify-between">
                               <span>Base Rent:</span>
-                              <span>${apartment.baseRent.toLocaleString()}/mo</span>
+                              <span>${apartment.apartmentIQData.originalRent.toLocaleString()}/mo</span>
                             </div>
                             <div className="flex justify-between">
                               <span>Effective Rent:</span>
-                              <span>${apartment.effectiveRent.toLocaleString()}/mo</span>
+                              <span>${apartment.apartmentIQData.effectiveRent.toLocaleString()}/mo</span>
                             </div>
                             <div className="flex justify-between">
-                              <span>Total Lease Savings:</span>
-                              <span className="text-green-400 font-semibold">${apartment.totalLeaseSavings.toLocaleString()}</span>
+                              <span>Total Concession Value:</span>
+                              <span className="text-green-400 font-semibold">${apartment.apartmentIQData.concessionValue.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span>Monthly Budget Impact:</span>
-                              <span className="text-green-400 font-semibold">${apartment.baseRent - apartment.effectiveRent}/mo</span>
+                              <span>Monthly Savings:</span>
+                              <span className="text-green-400 font-semibold">${apartment.apartmentIQData.originalRent - apartment.apartmentIQData.effectiveRent}/mo</span>
                             </div>
                           </div>
                         </div>
@@ -413,47 +541,91 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                             AI TOP PICK
                           </Badge>
                         )}
-                        {/* Market Velocity Badge */}
+                        {/* Market Velocity and Urgency Badges */}
                         <Badge className={`px-3 py-1 text-xs ${
-                          apartment.velocity === 'hot' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                          apartment.velocity === 'normal' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                          apartment.apartmentIQData.marketVelocity === 'hot' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                          apartment.apartmentIQData.marketVelocity === 'normal' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
                           'bg-blue-500/20 text-blue-400 border-blue-500/30'
                         }`}>
-                          {apartment.velocity.toUpperCase()} • {apartment.daysOnMarket}d
+                          {apartment.apartmentIQData.marketVelocity.toUpperCase()} • {apartment.apartmentIQData.daysOnMarket}d
                         </Badge>
+                        
+                        {/* Pricing Strategy Badge */}
+                        {recommendations[apartment.id] && (
+                          <Badge className={`px-3 py-1 text-xs border ${getUrgencyColor(recommendations[apartment.id].urgencyLevel)}`}>
+                            <Target className="w-3 h-3 mr-1" />
+                            {recommendations[apartment.id].strategy.replace('_', ' ').toUpperCase()}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Enhanced ApartmentIQ Scores */}
+                {/* Enhanced ApartmentIQ Scores & Pricing Intelligence */}
                 <div className="text-right space-y-3">
-                  <div className={`inline-flex items-center gap-3 px-4 py-3 rounded-xl border ${getScoreBg(apartment.apartmentIQScore)}`}>
+                  <div className={`inline-flex items-center gap-3 px-4 py-3 rounded-xl border ${getScoreBg(apartment.apartmentIQData.amenityScore)}`}>
                     <div className="text-right">
                       <div className="text-xs text-muted-foreground mb-1">🧠 ApartmentIQ Score</div>
-                      <div className={`text-3xl font-bold ${getScoreColor(apartment.apartmentIQScore)}`}>
-                        {apartment.apartmentIQScore}
+                      <div className={`text-3xl font-bold ${getScoreColor(apartment.apartmentIQData.amenityScore)}`}>
+                        {apartment.apartmentIQData.amenityScore}
                       </div>
                       <div className="text-xs text-muted-foreground">/100</div>
                     </div>
                   </div>
                   
+                  {/* Pricing Intelligence Summary */}
+                  {recommendations[apartment.id] && (
+                    <div className="bg-slate-700/30 rounded-lg p-3 space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">💡 AI Strategy:</span>
+                        <span className={`font-bold capitalize ${getStrategyColor(recommendations[apartment.id].strategy)}`}>
+                          {recommendations[apartment.id].strategy.replace('_', ' ')}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">🎯 Price Target:</span>
+                        <span className={`font-bold ${getStrategyColor(recommendations[apartment.id].strategy)}`}>
+                          ${recommendations[apartment.id].suggestedRent.toLocaleString()}/mo
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">⏱️ Expected Lease:</span>
+                        <span className="text-blue-400 font-bold">
+                          {recommendations[apartment.id].expectedLeaseDays} days
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">📈 Revenue Impact:</span>
+                        <span className={`font-bold ${recommendations[apartment.id].revenueImpact.totalImpact >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {recommendations[apartment.id].revenueImpact.totalImpact >= 0 ? '+' : ''}${recommendations[apartment.id].revenueImpact.totalImpact.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
                   {/* Market Intelligence */}
                   <div className="text-xs space-y-1">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Negotiation Potential:</span>
-                      <span className={`font-semibold ${getScoreColor(apartment.negotiationPotential * 10)}`}>
-                        {apartment.negotiationPotential}/10
+                      <span className={`font-semibold ${getScoreColor(apartment.apartmentIQData.negotiationPotential * 10)}`}>
+                        {apartment.apartmentIQData.negotiationPotential}/10
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Market Position:</span>
                       <span className={`font-semibold capitalize ${
-                        apartment.marketPosition === 'undervalued' ? 'text-green-400' :
-                        apartment.marketPosition === 'fair' ? 'text-yellow-400' :
+                        apartment.apartmentIQData.marketPosition === 'below_market' ? 'text-green-400' :
+                        apartment.apartmentIQData.marketPosition === 'at_market' ? 'text-yellow-400' :
                         'text-red-400'
                       }`}>
-                        {apartment.marketPosition}
+                        {apartment.apartmentIQData.marketPosition.replace('_', ' ')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Lease Probability:</span>
+                      <span className={`font-semibold ${getScoreColor(apartment.apartmentIQData.leaseProbability * 100)}`}>
+                        {Math.round(apartment.apartmentIQData.leaseProbability * 100)}%
                       </span>
                     </div>
                   </div>
