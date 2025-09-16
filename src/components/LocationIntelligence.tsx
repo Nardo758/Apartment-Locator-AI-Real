@@ -67,7 +67,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
                 size="sm"
                 variant={viewMode === 'map' ? "default" : "ghost"}
                 onClick={() => setViewMode('map')}
-                className="h-9 px-4"
+                className={`h-9 px-4 ${viewMode === 'map' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'hover:bg-slate-700/50'}`}
               >
                 <Eye className="w-4 h-4 mr-2" />
                 Map View
@@ -76,7 +76,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
                 size="sm"
                 variant={viewMode === 'list' ? "default" : "ghost"}
                 onClick={() => setViewMode('list')}
-                className="h-9 px-4"
+                className={`h-9 px-4 ${viewMode === 'list' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'hover:bg-slate-700/50'}`}
               >
                 <List className="w-4 h-4 mr-2" />
                 List View
