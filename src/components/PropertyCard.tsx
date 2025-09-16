@@ -80,7 +80,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
           {/* Left Section */}
           <div className="flex items-start gap-4 flex-1">
             {/* Property Image */}
-            <div className="w-20 h-20 rounded-lg bg-slate-700/50 border border-slate-600/50 flex items-center justify-center flex-shrink-0">
+            <div className="w-16 h-16 rounded-lg bg-slate-700/50 border border-slate-600/50 flex items-center justify-center flex-shrink-0">
               <div className="text-center">
                 <div className="text-xs text-muted-foreground">Property</div>
                 <div className="text-xs text-muted-foreground">Image</div>
@@ -89,15 +89,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             
             {/* Property Details */}
             <div className="flex-1 min-w-0">
+              {/* Property Name and Address */}
               <div className="mb-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-lg font-bold text-foreground">{property.name}</h3>
-                  {isTopPick && (
-                    <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs px-2 py-1">
-                      AI TOP PICK
-                    </Badge>
-                  )}
-                </div>
+                <h3 className="text-lg font-bold text-foreground mb-1">{property.name}</h3>
                 <p className="text-sm text-muted-foreground flex items-center gap-1 mb-2">
                   <MapPin className="w-3 h-3" />
                   {property.address}, {property.city}, {property.state}
@@ -139,41 +133,29 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                   Commute Times
                 </h4>
                 <div className="flex gap-2">
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-700/30 border border-slate-600/30">
-                    <span className="text-sm text-muted-foreground">My Office</span>
-                    <Badge 
-                      variant="outline" 
-                      className="text-xs bg-green-500/20 text-green-400 border-green-500/30"
-                    >
-                      5min
-                    </Badge>
+                  <div className="px-3 py-1 rounded-lg text-sm bg-green-500/20 text-green-400">
+                    My Office 5min
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-700/30 border border-slate-600/30">
-                    <span className="text-sm text-muted-foreground">Local Gym</span>
-                    <Badge 
-                      variant="outline" 
-                      className="text-xs bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-                    >
-                      15min
-                    </Badge>
+                  <div className="px-3 py-1 rounded-lg text-sm bg-yellow-500/20 text-yellow-400">
+                    Local Gym 15min
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Section - Scores */}
+          {/* Right Section - Scores and Actions */}
           <div className="flex flex-col items-end gap-3 ml-6">
             {/* Combined Score */}
-            <div className={`px-4 py-3 rounded-lg border text-center ${getScoreBg(property.matchScore)}`}>
+            <div className={`px-4 py-3 rounded-lg text-center ${getScoreBg(property.matchScore)}`}>
               <div className="text-xs text-muted-foreground mb-1">Combined Score</div>
-              <div className={`text-2xl font-bold ${getScoreColor(property.matchScore)}`}>
+              <div className={`text-3xl font-bold ${getScoreColor(property.matchScore)}`}>
                 {property.matchScore}
               </div>
             </div>
 
             {/* Individual Scores */}
-            <div className="space-y-2 text-right">
+            <div className="space-y-1 text-right">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">AI Match:</span>
                 <span className="text-sm font-medium text-orange-400">{property.matchScore}%</span>

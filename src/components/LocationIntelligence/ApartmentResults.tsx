@@ -226,16 +226,14 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
           filteredApartments.map((apartment) => (
             <Card 
               key={apartment.id}
-              className={`bg-slate-800/50 border border-slate-700/50 hover:bg-slate-800/60 transition-all duration-200 ${
-                apartment.isTopPick ? 'ring-1 ring-green-500/30' : ''
-              }`}
+              className="bg-slate-800/50 border border-slate-700/50 hover:bg-slate-800/60 transition-all duration-200"
             >
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   {/* Left Section */}
                   <div className="flex items-start gap-4 flex-1">
                     {/* Property Image */}
-                    <div className="w-20 h-20 rounded-lg bg-slate-700/50 border border-slate-600/50 flex items-center justify-center flex-shrink-0">
+                    <div className="w-16 h-16 rounded-lg bg-slate-700/50 border border-slate-600/50 flex items-center justify-center flex-shrink-0">
                       <div className="text-center">
                         <div className="text-xs text-muted-foreground">Property</div>
                         <div className="text-xs text-muted-foreground">Image</div>
@@ -244,15 +242,9 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                     
                     {/* Property Details */}
                     <div className="flex-1 min-w-0">
+                      {/* Property Name and Address */}
                       <div className="mb-3">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-lg font-bold text-foreground">{apartment.name}</h3>
-                          {apartment.isTopPick && (
-                            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs px-2 py-1">
-                              AI TOP PICK
-                            </Badge>
-                          )}
-                        </div>
+                        <h3 className="text-lg font-bold text-foreground mb-1">{apartment.name}</h3>
                         <p className="text-sm text-muted-foreground flex items-center gap-1 mb-2">
                           <MapPin className="w-3 h-3" />
                           {apartment.address}
@@ -299,20 +291,14 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                             if (!distance) return null;
                             
                             const getTimeColor = (time: number) => {
-                              if (time <= 10) return 'bg-green-500/20 text-green-400 border-green-500/30';
-                              if (time <= 20) return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-                              return 'bg-red-500/20 text-red-400 border-red-500/30';
+                              if (time <= 10) return 'bg-green-500/20 text-green-400';
+                              if (time <= 20) return 'bg-yellow-500/20 text-yellow-400';
+                              return 'bg-red-500/20 text-red-400';
                             };
                             
                             return (
-                              <div key={poi.id} className="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-700/30 border border-slate-600/30">
-                                <span className="text-sm text-muted-foreground">{poi.name}</span>
-                                <Badge 
-                                  variant="outline" 
-                                  className={`text-xs ${getTimeColor(distance.driveTime)}`}
-                                >
-                                  {distance.driveTime}min
-                                </Badge>
+                              <div key={poi.id} className={`px-3 py-1 rounded-lg text-sm ${getTimeColor(distance.driveTime)}`}>
+                                {poi.name} {distance.driveTime}min
                               </div>
                             );
                           })}
@@ -321,25 +307,25 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                     </div>
                   </div>
 
-                  {/* Right Section - Scores */}
+                  {/* Right Section - Scores and Actions */}
                   <div className="flex flex-col items-end gap-3 ml-6">
                     {/* Combined Score */}
-                    <div className={`px-4 py-3 rounded-lg border text-center ${getScoreBg(apartment.combinedScore || apartment.aiMatchScore)}`}>
+                    <div className={`px-4 py-3 rounded-lg text-center ${getScoreBg(apartment.combinedScore || apartment.aiMatchScore)}`}>
                       <div className="text-xs text-muted-foreground mb-1">Combined Score</div>
-                      <div className={`text-2xl font-bold ${getScoreColor(apartment.combinedScore || apartment.aiMatchScore)}`}>
+                      <div className={`text-3xl font-bold ${getScoreColor(apartment.combinedScore || apartment.aiMatchScore)}`}>
                         {apartment.combinedScore || apartment.aiMatchScore}
                       </div>
                     </div>
 
                     {/* Individual Scores */}
-                    <div className="space-y-2 text-right">
+                    <div className="space-y-1 text-right">
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-muted-foreground">AI Match:</span>
                         <span className="text-sm font-medium text-orange-400">{apartment.aiMatchScore}%</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-muted-foreground">Location:</span>
-                        <span className="text-sm font-medium text-green-400">{apartment.locationScore || 85}%</span>
+                        <span className="text-sm font-medium text-green-400">{apartment.locationScore || 92}%</span>
                       </div>
                     </div>
 
