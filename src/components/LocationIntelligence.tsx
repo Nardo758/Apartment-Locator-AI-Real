@@ -89,9 +89,9 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         </div>
       </div>
 
-      {/* POI Management and Search Settings */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 items-stretch">
-        {/* POI Management Panel - 2/3 width */}
+      {/* POI Management, Search Settings, and Live Market Intel */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6 items-stretch">
+        {/* POI Management Panel - 2/5 width */}
         <div className="lg:col-span-2 flex h-full">
           <div className="w-full flex flex-col">
             <POIManager
@@ -105,39 +105,16 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
           </div>
         </div>
 
-        {/* Enhanced Search Settings - 1/3 width */}
+        {/* Enhanced Search Settings - 1.5/5 width */}
         <div className="lg:col-span-1 flex h-full">
           <EnhancedSearchSettings
             onSettingsChange={setSearchSettings}
           />
         </div>
-      </div>
 
-      {/* Main Content Area */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mb-8">
-        {/* Map or List View */}
-        <div className="xl:col-span-3">
-          {viewMode === 'map' ? (
-            <SmartMap
-              pointsOfInterest={pointsOfInterest}
-              smartResults={smartResults}
-              userProfile={userProfile}
-            />
-          ) : (
-            <SmartResults
-              smartResults={smartResults}
-              pointsOfInterest={pointsOfInterest}
-              userProfile={userProfile}
-              getCombinedScore={getCombinedScore}
-            />
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <div className="xl:col-span-1 space-y-6">
-
-          {/* Live Market Intel */}
-          <Card className="bg-slate-800/30 border border-slate-700/30">
+        {/* Live Market Intel - 1.5/5 width */}
+        <div className="lg:col-span-2 flex h-full">
+          <Card className="bg-slate-800/30 border border-slate-700/30 w-full">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <div className="w-2 h-2 rounded-full bg-green-400"></div>
@@ -178,6 +155,31 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
               </div>
             </CardContent>
           </Card>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mb-8">
+        {/* Map or List View */}
+        <div className="xl:col-span-3">
+          {viewMode === 'map' ? (
+            <SmartMap
+              pointsOfInterest={pointsOfInterest}
+              smartResults={smartResults}
+              userProfile={userProfile}
+            />
+          ) : (
+            <SmartResults
+              smartResults={smartResults}
+              pointsOfInterest={pointsOfInterest}
+              userProfile={userProfile}
+              getCombinedScore={getCombinedScore}
+            />
+          )}
+        </div>
+
+        {/* Sidebar */}
+        <div className="xl:col-span-1 space-y-6">
 
           {/* Smart Insights */}
           <Card className="bg-slate-800/30 border border-slate-700/30">
