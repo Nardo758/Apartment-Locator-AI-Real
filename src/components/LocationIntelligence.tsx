@@ -89,75 +89,82 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       {/* POI Management and Search Settings */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* POI Management Panel - 2/3 width */}
-        <div className="lg:col-span-2">
-          <POIManager
-            pointsOfInterest={pointsOfInterest}
-            onAddPOI={addPOI}
-            onRemovePOI={removePOI}
-            onUpdatePriority={updatePOIPriority}
-            showModal={showPOIModal}
-            setShowModal={setShowPOIModal}
-          />
+        <div className="lg:col-span-2 flex">
+          <div className="w-full">
+            <POIManager
+              pointsOfInterest={pointsOfInterest}
+              onAddPOI={addPOI}
+              onRemovePOI={removePOI}
+              onUpdatePriority={updatePOIPriority}
+              showModal={showPOIModal}
+              setShowModal={setShowPOIModal}
+            />
+          </div>
         </div>
 
         {/* Search Settings - 1/3 width */}
-        <div className="lg:col-span-1">
-          <Card className="bg-slate-800/30 border border-slate-700/30">
-            <CardHeader className="pb-3">
+        <div className="lg:col-span-1 flex">
+          <Card className="bg-slate-800/30 border border-slate-700/30 w-full flex flex-col">
+            <CardHeader className="pb-3 flex-shrink-0">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <div className="w-2 h-2 rounded-full bg-blue-400"></div>
                 Search Settings
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Budget Range</label>
-                <div className="flex gap-2">
-                  <input 
-                    type="number" 
-                    defaultValue="2000" 
-                    className="w-20 px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground"
-                  />
-                  <span className="text-xs text-muted-foreground self-center">-</span>
-                  <input 
-                    type="number" 
-                    defaultValue="2500" 
-                    className="w-20 px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground"
-                  />
+            <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Budget Range</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="number" 
+                      defaultValue="2000" 
+                      className="w-20 px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground"
+                    />
+                    <span className="text-xs text-muted-foreground self-center">-</span>
+                    <input 
+                      type="number" 
+                      defaultValue="2500" 
+                      className="w-20 px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground"
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Search Radius</label>
+                  <select className="w-full px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground">
+                    <option value="10">10 miles</option>
+                    <option value="15">15 miles</option>
+                    <option value="25" selected>25 miles</option>
+                    <option value="50">50 miles</option>
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Max Drive Time</label>
+                  <select className="w-full px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground">
+                    <option value="15">15 minutes</option>
+                    <option value="20">20 minutes</option>
+                    <option value="30" selected>30 minutes</option>
+                    <option value="45">45 minutes</option>
+                    <option value="60">60 minutes</option>
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Bedrooms</label>
+                  <select className="w-full px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground">
+                    <option value="studio">Studio</option>
+                    <option value="1" selected>1 bedroom</option>
+                    <option value="2">2 bedrooms</option>
+                    <option value="3">3 bedrooms</option>
+                    <option value="4+">4+ bedrooms</option>
+                  </select>
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Search Radius</label>
-                <select className="w-full px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground">
-                  <option value="10">10 miles</option>
-                  <option value="15">15 miles</option>
-                  <option value="25" selected>25 miles</option>
-                  <option value="50">50 miles</option>
-                </select>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Max Drive Time</label>
-                <select className="w-full px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground">
-                  <option value="15">15 minutes</option>
-                  <option value="20">20 minutes</option>
-                  <option value="30" selected>30 minutes</option>
-                  <option value="45">45 minutes</option>
-                  <option value="60">60 minutes</option>
-                </select>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Bedrooms</label>
-                <select className="w-full px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground">
-                  <option value="studio">Studio</option>
-                  <option value="1" selected>1 bedroom</option>
-                  <option value="2">2 bedrooms</option>
-                  <option value="3">3 bedrooms</option>
-                  <option value="4+">4+ bedrooms</option>
-                </select>
-              </div>
+              {/* Spacer to push content to match POI height */}
+              <div className="flex-1"></div>
             </CardContent>
           </Card>
         </div>
