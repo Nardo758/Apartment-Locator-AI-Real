@@ -65,11 +65,18 @@ const LocationIntelligenceDemo = () => {
               <p className="text-sm text-muted-foreground">Experience AI-powered location intelligence</p>
             </div>
           </div>
-          <Link to="/auth">
-            <Button className="bg-blue-600 hover:bg-blue-700">
-              Get Full Access
-            </Button>
-          </Link>
+            <div className="flex gap-2">
+              <Link to="/renter-intelligence">
+                <Button variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
+                  Try RenterIQ
+                </Button>
+              </Link>
+              <Link to="/auth">
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  Get Full Access
+                </Button>
+              </Link>
+            </div>
         </div>
       </header>
 
