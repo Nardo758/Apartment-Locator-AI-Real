@@ -117,11 +117,11 @@ const SmartResults: React.FC<SmartResultsProps> = ({
       </Card>
 
       {/* Property Results */}
-      <div className="space-y-4">
+      <div className="space-y-4 w-full">
         {filteredResults.map((property) => (
           <Card 
             key={property.id}
-            className={`bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/40 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
+            className={`w-full max-w-none bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/40 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
               property.isTopPick ? 'ring-1 ring-green-500/30 bg-gradient-to-r from-green-500/5 to-transparent' : ''
             }`}
             onMouseEnter={() => setHoveredProperty(property.id)}

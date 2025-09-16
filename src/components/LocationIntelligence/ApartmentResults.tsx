@@ -201,7 +201,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
     <div className="space-y-6">
 
       {/* Property Results */}
-      <div className="space-y-4">
+      <div className="space-y-4 w-full">
         {filteredApartments.length === 0 ? (
           <Card className="bg-slate-800/30 border border-slate-700/30">
             <CardContent className="p-8 text-center">
@@ -228,7 +228,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
           filteredApartments.map((apartment) => (
           <Card 
             key={apartment.id}
-            className={`bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/40 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
+            className={`w-full max-w-none bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/40 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
               apartment.isTopPick ? 'ring-1 ring-green-500/30 bg-gradient-to-r from-green-500/5 to-transparent' : ''
             }`}
             onMouseEnter={() => setHoveredProperty(apartment.id)}
