@@ -523,30 +523,6 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                               </div>
                             </div>
                           )}
-                          
-                          {/* Enhanced Math Breakdown */}
-                          <div className="text-xs text-muted-foreground bg-slate-700/30 rounded p-3 space-y-1">
-                            <div className="flex justify-between font-semibold text-green-400 border-b border-slate-600/30 pb-1 mb-2">
-                              <span>🎯 Concession Analysis:</span>
-                              <span>{Math.round((apartment.apartmentIQData.concessionValue / apartment.apartmentIQData.originalRent) * 100)}% Value</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Base Rent:</span>
-                              <span>${apartment.apartmentIQData.originalRent.toLocaleString()}/mo</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Effective Rent:</span>
-                              <span>${apartment.apartmentIQData.effectiveRent.toLocaleString()}/mo</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Total Concession Value:</span>
-                              <span className="text-green-400 font-semibold">${apartment.apartmentIQData.concessionValue.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Monthly Savings:</span>
-                              <span className="text-green-400 font-semibold">${apartment.apartmentIQData.originalRent - apartment.apartmentIQData.effectiveRent}/mo</span>
-                            </div>
-                          </div>
                         </div>
                         
                         <div className="text-sm text-muted-foreground flex items-center gap-4">
