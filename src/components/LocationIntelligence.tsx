@@ -90,9 +90,9 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* POI Management, Search Settings, and Live Market Intel */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6 items-stretch">
-        {/* POI Management Panel - 2/5 width */}
-        <div className="lg:col-span-2 flex h-full">
+      <div className="flex gap-6 mb-6">
+        {/* POI Management Panel - 45% width */}
+        <div className="w-[45%] flex h-full">
           <div className="w-full flex flex-col">
             <POIManager
               pointsOfInterest={pointsOfInterest}
@@ -105,15 +105,15 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
           </div>
         </div>
 
-        {/* Enhanced Search Settings - 1.5/5 width */}
-        <div className="lg:col-span-1 flex h-full">
+        {/* Enhanced Search Settings - 35% width */}
+        <div className="w-[35%] flex h-full">
           <EnhancedSearchSettings
             onSettingsChange={setSearchSettings}
           />
         </div>
 
-        {/* Live Market Intel - 1.5/5 width */}
-        <div className="lg:col-span-2 flex h-full">
+        {/* Live Market Intel - 20% width */}
+        <div className="w-[20%] flex h-full">
           <Card className="bg-slate-800/30 border border-slate-700/30 w-full">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
