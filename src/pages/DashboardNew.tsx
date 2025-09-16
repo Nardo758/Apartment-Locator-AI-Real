@@ -16,6 +16,7 @@ import QuickActions from '@/components/QuickActions';
 import MarketIntelligence from '@/components/MarketIntelligence';
 import PopularCities from '@/components/PopularCities';
 import QuickLinksCard from '@/components/QuickLinksCard';
+import LocationIntelligence from '@/components/LocationIntelligence';
 import { mockProperties } from '@/data/mockData';
 
 interface UserProfile {
@@ -402,7 +403,7 @@ const DashboardNew = () => {
                   ))}
                 </div>
 
-                {/* Properties Grid */}
+              {/* Properties Grid */}
                 <div className="space-y-4">
                   {mockProperties.slice(0, 6).map((property) => (
                     <PropertyCard key={property.id} property={property} />
@@ -415,6 +416,9 @@ const DashboardNew = () => {
                   </Button>
                 </div>
               </div>
+
+              {/* Location Intelligence Section */}
+              <LocationIntelligence userProfile={userProfile} />
             </div>
 
             {/* Sidebar */}

@@ -304,75 +304,24 @@ const ProgramAI = () => {
                 />
               </div>
 
-              {/* Points of Interest */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <Label className="text-sm font-medium">Points of Interest</Label>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setIsNewPOI(true)}
-                    className="text-xs"
-                  >
-                    <Plus className="w-3 h-3 mr-1" />
-                    Add POI
-                  </Button>
+              {/* Link to Location Intelligence */}
+              <div className="bg-blue-500/5 border border-blue-500/20 rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <Target className="w-5 h-5 text-blue-400" />
+                  <h4 className="font-medium text-foreground">Location Intelligence</h4>
                 </div>
-
-                {isNewPOI && (
-                  <div className="bg-slate-800/30 rounded-lg p-3 mb-3 space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <Input
-                        placeholder="Name (e.g., Work)"
-                        value={newPOI.name}
-                        onChange={(e) => setNewPOI({...newPOI, name: e.target.value})}
-                        className="bg-slate-700/50 border-slate-600/50"
-                      />
-                      <Input
-                        placeholder="Address"
-                        value={newPOI.address}
-                        onChange={(e) => setNewPOI({...newPOI, address: e.target.value})}
-                        className="bg-slate-700/50 border-slate-600/50"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Input
-                        type="number"
-                        placeholder="Max time (min)"
-                        value={newPOI.maxTime}
-                        onChange={(e) => setNewPOI({...newPOI, maxTime: Number(e.target.value)})}
-                        className="bg-slate-700/50 border-slate-600/50"
-                      />
-                      <Select value={newPOI.transportMode} onValueChange={(value: any) => setNewPOI({...newPOI, transportMode: value})}>
-                        <SelectTrigger className="bg-slate-700/50 border-slate-600/50">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="driving">🚗 Driving</SelectItem>
-                          <SelectItem value="transit">🚌 Transit</SelectItem>
-                          <SelectItem value="walking">🚶 Walking</SelectItem>
-                          <SelectItem value="biking">🚴 Biking</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={addPOI}>Add</Button>
-                      <Button size="sm" variant="outline" onClick={() => setIsNewPOI(false)}>Cancel</Button>
-                    </div>
-                  </div>
-                )}
-
-                {preferences.pointsOfInterest.map((poi) => (
-                  <div key={poi.id} className="flex items-center justify-between p-2 rounded-lg bg-slate-800/30 border border-slate-700/30 mb-2">
-                    <div>
-                      <div className="text-sm font-medium">{poi.name}</div>
-                      <div className="text-xs text-muted-foreground">{poi.address} • {poi.maxTime}min</div>
-                    </div>
-                    <Button size="sm" variant="outline" onClick={() => removePOI(poi.id)} className="w-6 h-6 p-0">
-                      <X className="w-3 h-3" />
-                    </Button>
-                  </div>
-                ))}
+                <p className="text-sm text-muted-foreground mb-3">
+                  Manage your points of interest and get location-optimized apartment recommendations in the Location Intelligence section.
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => window.location.href = '/dashboard#location-intelligence'}
+                  className="w-full"
+                >
+                  <MapPin className="w-4 h-4 mr-1" />
+                  Go to Location Intelligence
+                </Button>
               </div>
             </CardContent>
           </Card>
