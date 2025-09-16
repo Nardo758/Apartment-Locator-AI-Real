@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ProgramAI from "./pages/ProgramAI";
 import Trial from "./pages/Trial";
+import LocationIntelligenceDemo from "./pages/LocationIntelligenceDemo";
 import Profile from "./pages/Profile";
 import Billing from "./pages/Billing";
 import Help from "./pages/Help";
@@ -39,6 +40,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/about" element={<About />} />
+            <Route path="/demo" element={<LocationIntelligenceDemo />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/signup" element={<Trial />} />
             <Route path="/program-ai" element={<ProgramAI />} />

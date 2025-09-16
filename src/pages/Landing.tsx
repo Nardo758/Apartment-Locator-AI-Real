@@ -240,7 +240,7 @@ const Landing = () => {
                   <Link to="/auth">Get Started Free</Link>
                 </Button>
                 <Button size="lg" variant="outline" className="border-white/20 text-foreground hover:bg-white/10" asChild>
-                  <Link to="/auth">Sign In</Link>
+                  <Link to="/demo">View Demo</Link>
                 </Button>
               </div>
             </div>
