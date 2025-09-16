@@ -76,7 +76,137 @@ const LocationIntelligenceDemo = () => {
       {/* Main Content */}
       <main className="p-6">
         <div className="max-w-7xl mx-auto">
-          <LocationIntelligence userProfile={mockUserProfile} />
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            {/* Main Content Area */}
+            <div className="xl:col-span-3">
+              <LocationIntelligence userProfile={mockUserProfile} />
+            </div>
+
+            {/* Demo Sidebar */}
+            <div className="xl:col-span-1 space-y-6">
+              {/* AI Preferences Status */}
+              <div className="flex items-center justify-between bg-slate-900/50 rounded-lg p-4 border border-slate-700/50">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                  <span className="text-sm text-green-400 font-medium">AI Preferences Active (1)</span>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-primary">3</div>
+                  <div className="text-xs text-muted-foreground">new matches</div>
+                </div>
+              </div>
+
+              {/* Smart Insights */}
+              <div className="glass-dark rounded-xl border-l-4 border-l-green-400">
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                    <h3 className="text-lg font-semibold text-foreground">Smart Insights</h3>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-foreground">Price Alert</div>
+                        <div className="text-xs text-muted-foreground">3 properties dropped price</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-orange-400"></div>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-foreground">Market Trend</div>
+                        <div className="text-xs text-muted-foreground">Prices trending up 2.3%</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-foreground">New Matches</div>
+                        <div className="text-xs text-muted-foreground">5 new properties found</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Market Intel */}
+              <div className="glass-dark rounded-xl">
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse"></div>
+                    <h3 className="text-lg font-semibold text-foreground">Live Market Intel</h3>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-muted-foreground">Median Rent</span>
+                        <span className="text-sm font-semibold text-foreground">$2,340</span>
+                      </div>
+                      <div className="text-xs text-green-400">
+                        +5.2% vs last month
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-muted-foreground">Days on Market</span>
+                        <span className="text-sm font-semibold text-foreground">18 days</span>
+                      </div>
+                      <div className="text-xs text-red-400">
+                        -2 days vs last month
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-muted-foreground">Occupancy Rate</span>
+                        <span className="text-sm font-semibold text-foreground">94.2%</span>
+                      </div>
+                      <div className="text-xs text-green-400">
+                        +1.8% vs last month
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-muted-foreground">New Listings</span>
+                        <span className="text-sm font-semibold text-foreground">23</span>
+                      </div>
+                      <div className="text-xs text-green-400">
+                        +8 vs last week
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Search Settings */}
+              <div className="glass-dark rounded-xl">
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-lg font-semibold text-foreground">Search Settings</span>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Budget Range</span>
+                      <span className="text-sm font-medium text-foreground">$2500</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Location</span>
+                      <span className="text-sm font-medium text-foreground">atlanta, TX</span>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full mt-3"
+                    >
+                      Update Preferences
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     </div>
