@@ -50,43 +50,32 @@ const mockUserProfile = {
 const LocationIntelligenceDemo = () => {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Simplified Header */}
       <header className="bg-slate-900/50 border-b border-slate-700/50 p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/">
               <Button variant="outline" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Landing
+                Back
               </Button>
             </Link>
             <div>
-              <h1 className="text-xl font-bold text-foreground">Location Intelligence Demo</h1>
-              <p className="text-sm text-muted-foreground">Experience AI-powered apartment recommendations</p>
+              <h1 className="text-xl font-bold text-foreground">Interactive Demo</h1>
+              <p className="text-sm text-muted-foreground">Experience AI-powered location intelligence</p>
             </div>
           </div>
           <Link to="/auth">
             <Button className="bg-blue-600 hover:bg-blue-700">
-              Sign Up for Full Access
+              Get Full Access
             </Button>
           </Link>
         </div>
       </header>
 
-      {/* Demo Content */}
-      <main className="p-4">
+      {/* Main Content */}
+      <main className="p-6">
         <div className="max-w-7xl mx-auto">
-          {/* Demo Notice */}
-          <div className="mb-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
-            <div className="flex items-center gap-2 text-blue-400 font-medium mb-1">
-              🎯 Interactive Demo
-            </div>
-            <p className="text-sm text-muted-foreground">
-              This is a fully interactive demo with sample POIs and AI preferences. Sign up to add your own locations and preferences!
-            </p>
-          </div>
-
-          {/* Location Intelligence Component */}
           <LocationIntelligence userProfile={mockUserProfile} />
         </div>
       </main>

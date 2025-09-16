@@ -205,54 +205,67 @@ const POIManager: React.FC<POIManagerProps> = ({
       
       <CardContent>
         {pointsOfInterest.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
-              <MapPin className="w-8 h-8 text-muted-foreground" />
+          <div className="text-center py-12">
+            <div className="w-20 h-20 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-6">
+              <MapPin className="w-10 h-10 text-muted-foreground" />
             </div>
-            <p className="text-muted-foreground mb-4">No points of interest added yet</p>
-            <div className="grid grid-cols-2 gap-2 max-w-sm mx-auto">
+            <h3 className="text-lg font-medium text-foreground mb-2">No Points of Interest</h3>
+            <p className="text-muted-foreground mb-6">Add locations important to you to get better apartment recommendations</p>
+            <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
               {quickAddOptions.map((option) => (
                 <Button
                   key={option.category}
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setNewPOI({ ...newPOI, name: option.name, category: option.category as 'work' | 'gym' | 'school' | 'shopping' | 'custom' });
+                    setNewPOI({ ...newPOI, name: option.name, category: option.category });
                     setShowModal(true);
                   }}
-                  className="justify-start"
+                  className="h-12 flex-col gap-1 bg-slate-800/30 hover:bg-slate-700/50 border-slate-600/50"
                 >
-                  <span className="mr-2">{option.icon}</span>
-                  {option.name}
+                  <span className="text-lg">{option.icon}</span>
+                  <span className="text-xs">{option.name}</span>
                 </Button>
               ))}
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {pointsOfInterest.map((poi) => {
               const categoryStyle = getCategoryIcon(poi.category);
               return (
-                <div key={poi.id} className="flex items-center justify-between p-4 rounded-lg bg-slate-700/30 border border-slate-600/30 hover:bg-slate-700/40 transition-all duration-200">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg ${categoryStyle.color} flex items-center justify-center text-lg`}>
-                      {categoryStyle.icon}
+                <div key={poi.id} className="p-4 rounded-xl bg-slate-700/30 border border-slate-600/30 hover:bg-slate-700/40 transition-all duration-200 hover:shadow-lg group">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 rounded-xl ${categoryStyle.color} flex items-center justify-center text-xl shadow-lg`}>
+                        {categoryStyle.icon}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-foreground text-lg">{poi.name}</div>
+                        <div className="text-sm text-muted-foreground">{poi.address}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-medium text-foreground">{poi.name}</div>
-                      <div className="text-sm text-muted-foreground">{poi.address}</div>
-                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onRemovePOI(poi.id)}
+                      className="w-8 h-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/20 hover:border-red-500/30"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className={getPriorityColor(poi.priority)}>
-                      {poi.priority}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs">
-                      {getTransportIcon(poi.transportMode)} {poi.maxTime}min
-                    </Badge>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className={getPriorityColor(poi.priority)}>
+                        {poi.priority.toUpperCase()}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {getTransportIcon(poi.transportMode)} {poi.maxTime}min
+                      </Badge>
+                    </div>
                     <Select value={poi.priority} onValueChange={(value: any) => onUpdatePriority(poi.id, value)}>
-                      <SelectTrigger className="w-16 h-6 bg-transparent border-0 p-0">
+                      <SelectTrigger className="w-20 h-6 bg-transparent border-0 p-0 text-xs">
                         <ChevronDown className="w-3 h-3" />
                       </SelectTrigger>
                       <SelectContent className="bg-slate-800 border-slate-600">
@@ -261,14 +274,6 @@ const POIManager: React.FC<POIManagerProps> = ({
                         <SelectItem value="low">Low</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => onRemovePOI(poi.id)}
-                      className="w-6 h-6 p-0 hover:bg-red-500/20 hover:border-red-500/30"
-                    >
-                      <X className="w-3 h-3" />
-                    </Button>
                   </div>
                 </div>
               );

@@ -42,47 +42,85 @@ const SmartMap: React.FC<SmartMapProps> = ({
 
   return (
     <Card className="bg-slate-800/30 border border-slate-700/30">
-      <CardContent className="p-0">
+      <CardContent className="p-0 relative">
         {/* Map Controls */}
-        <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
-          <div className="bg-slate-800/90 rounded-lg border border-slate-600/50 p-2 space-y-2">
+        <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+          <div className="bg-slate-900/90 backdrop-blur-sm rounded-lg border border-slate-600/50 p-2 space-y-1">
             <Button
               size="sm"
               variant={showIsochrones ? "default" : "outline"}
               onClick={() => setShowIsochrones(!showIsochrones)}
-              className="w-full justify-start text-xs"
+              className="w-full justify-start text-xs h-8 bg-slate-800/80 hover:bg-slate-700/80 border-slate-600/50"
             >
-              <Clock className="w-3 h-3 mr-1" />
+              <Clock className="w-3 h-3 mr-2" />
               Isochrones
             </Button>
             <Button
               size="sm"
               variant={showLayers ? "default" : "outline"}
               onClick={() => setShowLayers(!showLayers)}
-              className="w-full justify-start text-xs"
+              className="w-full justify-start text-xs h-8 bg-slate-800/80 hover:bg-slate-700/80 border-slate-600/50"
             >
-              <Layers className="w-3 h-3 mr-1" />
+              <Layers className="w-3 h-3 mr-2" />
               Layers
             </Button>
             <Button
               size="sm"
               variant={showTransit ? "default" : "outline"}
               onClick={() => setShowTransit(!showTransit)}
-              className="w-full justify-start text-xs"
+              className="w-full justify-start text-xs h-8 bg-slate-800/80 hover:bg-slate-700/80 border-slate-600/50"
             >
-              <Navigation className="w-3 h-3 mr-1" />
+              <Navigation className="w-3 h-3 mr-2" />
               Transit
             </Button>
           </div>
         </div>
 
         {/* Map Container */}
-        <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg h-[400px] overflow-hidden">
-          {/* Map Placeholder */}
-          <div className="absolute inset-0 bg-slate-700/20 rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="w-12 h-12 text-slate-400 mx-auto mb-2" />
-              <span className="text-slate-400 text-sm">Interactive Map with Smart Scoring</span>
+        <div className="relative rounded-lg h-[600px] overflow-hidden">
+          {/* Sophisticated Map Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 rounded-lg">
+            {/* Grid Pattern */}
+            <div 
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage: `
+                  linear-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px)
+                `,
+                backgroundSize: '50px 50px'
+              }}
+            />
+            
+            {/* Map Info Overlay */}
+            <div className="absolute top-4 left-4 bg-slate-900/90 backdrop-blur-sm rounded-lg border border-slate-600/50 p-4 z-10">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                <span className="text-sm font-medium text-foreground">Smart Scoring Active</span>
+              </div>
+              <div className="text-xs text-muted-foreground space-y-1">
+                <div className="flex items-center gap-2">
+                  <span>📍</span>
+                  <span>{pointsOfInterest.length} POIs tracked</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>🏠</span>
+                  <span>{smartResults.filter(r => r.isTopPick).length} top picks found</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>🎯</span>
+                  <span>Location + AI combined</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Center Map Placeholder */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <MapPin className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+                <div className="text-slate-400 text-lg font-medium mb-2">Interactive Map</div>
+                <div className="text-slate-500 text-sm">AI-Powered Location Intelligence</div>
+              </div>
             </div>
           </div>
 
@@ -97,45 +135,53 @@ const SmartMap: React.FC<SmartMapProps> = ({
               }}
               title={`${poi.name} - ${poi.priority} priority`}
             >
-              <div className="relative">
+              <div className="relative group">
                 {/* Isochrone zones */}
                 {showIsochrones && (
                   <>
-                    <div className="absolute w-24 h-24 rounded-full bg-green-400/10 border border-green-400/20 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"></div>
-                    <div className="absolute w-16 h-16 rounded-full bg-yellow-400/10 border border-yellow-400/20 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"></div>
-                    <div className="absolute w-8 h-8 rounded-full bg-red-400/10 border border-red-400/20 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"></div>
+                    <div className="absolute w-32 h-32 rounded-full bg-green-400/10 border border-green-400/20 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 animate-pulse"></div>
+                    <div className="absolute w-20 h-20 rounded-full bg-yellow-400/15 border border-yellow-400/30 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 animate-pulse"></div>
+                    <div className="absolute w-12 h-12 rounded-full bg-red-400/20 border border-red-400/40 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 animate-pulse"></div>
                   </>
                 )}
                 
                 {/* POI Marker */}
-                <div className={`w-8 h-8 rounded-lg bg-blue-500/20 border-2 border-blue-400 flex items-center justify-center text-lg hover:scale-110 transition-transform ${
-                  poi.priority === 'high' ? 'ring-2 ring-red-400/50' : 
-                  poi.priority === 'medium' ? 'ring-2 ring-yellow-400/50' : 
-                  'ring-2 ring-green-400/50'
-                }`}>
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/30 to-blue-600/50 border-2 border-blue-400 flex items-center justify-center text-lg hover:scale-110 transition-all duration-200 ${
+                  poi.priority === 'high' ? 'ring-2 ring-red-400/60 shadow-lg shadow-red-400/30' : 
+                  poi.priority === 'medium' ? 'ring-2 ring-yellow-400/60 shadow-lg shadow-yellow-400/30' : 
+                  'ring-2 ring-green-400/60 shadow-lg shadow-green-400/30'
+                } group-hover:shadow-xl`}>
                   {getCategoryIcon(poi.category)}
+                </div>
+
+                {/* POI Tooltip */}
+                <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  <div className="bg-slate-900/95 backdrop-blur-sm rounded-lg p-2 border border-slate-600/50 text-xs text-foreground whitespace-nowrap">
+                    <div className="font-medium">{poi.name}</div>
+                    <div className="text-muted-foreground">{poi.priority} priority</div>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
 
           {/* Property Markers */}
-          {smartResults.slice(0, 8).map((property, index) => (
+          {smartResults.slice(0, 12).map((property, index) => (
             <div
               key={property.id}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10"
+              className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-15"
               style={{
-                left: `${15 + index * 12 + (index % 2) * 20}%`,
-                top: `${20 + index * 8 + (index % 3) * 15}%`
+                left: `${15 + (index % 4) * 20 + (index % 2) * 10}%`,
+                top: `${20 + Math.floor(index / 4) * 25 + (index % 3) * 8}%`
               }}
               onClick={() => setSelectedProperty(property.id === selectedProperty ? null : property.id)}
             >
-              <div className={`w-8 h-8 rounded-full ${getScoreColor(property.combinedScore)} border-2 border-background hover:scale-110 transition-transform flex items-center justify-center relative`}>
+              <div className={`relative w-10 h-10 rounded-full ${getScoreColor(property.combinedScore)} border-3 border-background hover:scale-125 transition-all duration-200 flex items-center justify-center shadow-lg cursor-pointer group`}>
                 <span className="text-xs font-bold text-white">{property.combinedScore}</span>
                 
                 {/* Top Pick Badge */}
                 {property.isTopPick && (
-                  <div className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                  <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg">
                     <span className="text-xs">⭐</span>
                   </div>
                 )}
@@ -143,36 +189,36 @@ const SmartMap: React.FC<SmartMapProps> = ({
               
               {/* Property Tooltip */}
               {selectedProperty === property.id && (
-                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-slate-800/95 rounded-lg p-3 w-56 border border-slate-600 shadow-xl z-30">
+                <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 bg-slate-900/95 backdrop-blur-sm rounded-lg p-4 w-64 border border-slate-600/50 shadow-xl z-30 animate-in slide-in-from-bottom-2 duration-200">
                   <div className="text-sm font-medium text-foreground mb-1">{property.name}</div>
-                  <div className="text-xs text-muted-foreground mb-2">{property.address}</div>
+                  <div className="text-xs text-muted-foreground mb-3">{property.address}</div>
                   
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-bold text-green-400">${property.price.toLocaleString()}/mo</span>
-                    <Badge variant="outline" className={property.isTopPick ? "border-green-500/50 text-green-400" : ""}>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-lg font-bold text-green-400">${property.price.toLocaleString()}/mo</span>
+                    <Badge variant="outline" className={property.isTopPick ? "border-green-500/50 text-green-400 bg-green-500/10" : "border-blue-500/50 text-blue-400"}>
                       {property.isTopPick ? "AI TOP PICK" : `${property.combinedScore}% Match`}
                     </Badge>
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-2 mb-3">
                     <div className="flex justify-between text-xs">
-                      <span>AI Score:</span>
-                      <span className="font-medium">{property.aiMatchScore}%</span>
+                      <span className="text-muted-foreground">AI Score:</span>
+                      <span className="font-medium text-foreground">{property.aiMatchScore}%</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span>Location:</span>
-                      <span className="font-medium">{property.locationScore}%</span>
+                      <span className="text-muted-foreground">Location:</span>
+                      <span className="font-medium text-foreground">{property.locationScore}%</span>
                     </div>
                   </div>
 
                   {/* POI Times */}
                   {property.poiTimes.length > 0 && (
-                    <div className="mt-2 pt-2 border-t border-slate-600/50">
-                      <div className="text-xs text-muted-foreground mb-1">Commute Times:</div>
+                    <div className="pt-3 border-t border-slate-600/50">
+                      <div className="text-xs text-muted-foreground mb-2">Commute Times:</div>
                       <div className="space-y-1">
                         {property.poiTimes.slice(0, 3).map((poiTime) => (
                           <div key={poiTime.poiId} className="flex justify-between text-xs">
-                            <span>{poiTime.poiName}:</span>
+                            <span className="text-muted-foreground">{poiTime.poiName}:</span>
                             <span className={`font-medium ${
                               poiTime.color === 'green' ? 'text-green-400' :
                               poiTime.color === 'yellow' ? 'text-yellow-400' : 'text-red-400'
@@ -188,42 +234,6 @@ const SmartMap: React.FC<SmartMapProps> = ({
               )}
             </div>
           ))}
-        </div>
-
-        {/* Map Legend */}
-        <div className="absolute bottom-4 left-4 bg-slate-800/90 rounded-lg border border-slate-600/50 p-3 z-10">
-          <h4 className="text-xs font-medium text-foreground mb-2">Combined AI Score</h4>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-green-500"></div>
-              <span className="text-xs text-muted-foreground">90%+ (Top Picks)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-              <span className="text-xs text-muted-foreground">80-89% (Good)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-              <span className="text-xs text-muted-foreground">70-79% (Fair)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500"></div>
-              <span className="text-xs text-muted-foreground">Below 70%</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Map Info Panel */}
-        <div className="absolute top-4 left-4 bg-slate-800/90 rounded-lg border border-slate-600/50 p-3 z-10">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-green-400"></div>
-            <span className="text-xs font-medium text-foreground">Smart Scoring Active</span>
-          </div>
-          <div className="text-xs text-muted-foreground space-y-1">
-            <div>📍 {pointsOfInterest.length} POIs tracked</div>
-            <div>🏠 {smartResults.filter(r => r.isTopPick).length} top picks found</div>
-            <div>🎯 Location + AI preferences combined</div>
-          </div>
         </div>
       </CardContent>
     </Card>
