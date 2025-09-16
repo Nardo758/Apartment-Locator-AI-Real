@@ -1,21 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Star, Calendar, MapPin, TrendingUp, Clock, Home, AlertCircle, X, Bell, Settings, ChevronRight, DollarSign, Zap, Heart, Eye } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Calendar, AlertCircle, X, Settings, TrendingUp, Activity, Home, Users, DollarSign } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
-import { usePropertyState } from '@/contexts/PropertyStateContext';
 import { toast } from 'sonner';
 import Header from '@/components/Header';
-import PropertyCard from '@/components/PropertyCard';
-import LocationSearch from '@/components/LocationSearch';
-import QuickActions from '@/components/QuickActions';
-import MarketIntelligence from '@/components/MarketIntelligence';
-import PopularCities from '@/components/PopularCities';
-import QuickLinksCard from '@/components/QuickLinksCard';
 import LocationIntelligence from '@/components/LocationIntelligence';
 import { mockProperties } from '@/data/mockData';
 
@@ -30,6 +22,8 @@ interface UserProfile {
   budget?: number;
   bedrooms?: string;
   amenities?: string[];
+  priorities?: string[];
+  deal_breakers?: string[];
   has_completed_ai_programming?: boolean;
   program_ai_prompt_dismissed?: boolean;
 }
@@ -45,7 +39,6 @@ interface UserState {
 
 const DashboardNew = () => {
   const navigate = useNavigate();
-  const { searchFilters, setSearchFilters } = usePropertyState();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('AI Recommended');
   const [showSearchArea, setShowSearchArea] = useState(false);
@@ -201,30 +194,20 @@ const DashboardNew = () => {
     }
   };
 
-  const quickActions = [
-    { id: 'schedule', label: 'Schedule Tours', icon: Calendar, count: 3 },
-    { id: 'saved', label: 'Saved Properties', icon: Heart, count: userState.savedProperties },
-    { id: 'applications', label: 'Applications', icon: TrendingUp, count: 1 },
-    { id: 'alerts', label: 'Price Alerts', icon: Bell, count: 2 }
-  ];
+  // Check if user has AI preferences setup
+  const hasAIPreferences = userProfile?.has_completed_ai_programming || 
+    (userProfile?.amenities && userProfile.amenities.length > 0) ||
+    (userProfile?.priorities && userProfile.priorities.length > 0) ||
+    userProfile?.budget;
 
-  const filters = [
-    { id: 'recommended', label: '🎯 AI Recommended', count: 12 },
-    { id: 'new', label: '✨ New Matches', count: 3 },
-    { id: 'deals', label: '💰 Best Deals', count: 8 },
-    { id: 'tours', label: '🏠 Tour Ready', count: 15 }
-  ];
-
-  const priorityInsights = [
-    {
-      type: 'alert',
-      title: 'Lease expiration reminder',
-      description: `Your lease expires ${userState.leaseExpiration}`,
-      action: 'Update Timeline',
-      urgency: 'medium',
-      icon: Calendar
-    }
-  ];
+  const getAIPreferencesCount = () => {
+    let count = 0;
+    if (userProfile?.budget) count++;
+    if (userProfile?.amenities?.length > 0) count++;
+    if (userProfile?.priorities?.length > 0) count++;
+    if (userProfile?.deal_breakers?.length > 0) count++;
+    return count;
+  };
 
   if (loading) {
     return (
@@ -236,14 +219,6 @@ const DashboardNew = () => {
       </div>
     );
   }
-
-  // Get synced settings for Quick Actions
-  const syncedSettings = userProfile ? {
-    location: userProfile.location || 'Austin, TX',
-    radius: userProfile.search_radius || 25,
-    maxDriveTime: userProfile.max_drive_time || 30,
-    pointsOfInterest: (userProfile.points_of_interest as any) || []
-  } : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -286,7 +261,7 @@ const DashboardNew = () => {
       
       <main className="pt-20 px-4 sm:px-6 lg:px-8 pb-8">
         <div className="max-w-7xl mx-auto">
-          {/* Welcome Section - Simplified */}
+          {/* Header Section */}
           <div className="mb-8">
             <div className="glass-dark rounded-xl p-6">
               <div className="flex items-center justify-between">
@@ -295,71 +270,179 @@ const DashboardNew = () => {
                     Welcome back, <span className="gradient-text">{userState.name}</span>! 👋
                   </h1>
                   <p className="text-muted-foreground">
-                    Found {mockProperties.length} properties in {userProfile?.location || 'Austin, TX'}
+                    Found {mockProperties.length} properties in {userProfile?.location || 'atlanta, TX'}
                   </p>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold gradient-text">3</div>
-                  <div className="text-sm text-muted-foreground">new matches</div>
+                <div className="flex items-center gap-4">
+                  {/* AI Status Indicator */}
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                    <div className={`w-2 h-2 rounded-full ${hasAIPreferences ? 'bg-green-400 animate-pulse' : 'bg-yellow-400'}`}></div>
+                    <Badge 
+                      variant={hasAIPreferences ? "default" : "outline"}
+                      className={hasAIPreferences ? "bg-green-500/20 text-green-400 border-green-500/30" : ""}
+                    >
+                      {hasAIPreferences ? `AI Preferences Active (${getAIPreferencesCount()})` : 'Setup AI Preferences'}
+                    </Badge>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold gradient-text">3</div>
+                    <div className="text-sm text-muted-foreground">new matches</div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Location Intelligence - Primary Feature */}
-          <LocationIntelligence userProfile={userProfile} />
-
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-8">
-            {/* Main Content */}
-            <div className="lg:col-span-3 space-y-6">
-              {/* Priority Insights - Only Lease Expiration */}
-              {priorityInsights.length > 0 && (
-                <div className="space-y-3">
-                  {priorityInsights.map((insight, index) => {
-                    const Icon = insight.icon;
-                    return (
-                      <div key={index} className={`glass-dark rounded-lg p-4 border-l-4 ${
-                        insight.urgency === 'high' ? 'border-l-red-400' : 
-                        insight.urgency === 'medium' ? 'border-l-yellow-400' : 'border-l-green-400'
-                      }`}>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                              insight.urgency === 'high' ? 'bg-red-400/20' : 
-                              insight.urgency === 'medium' ? 'bg-yellow-400/20' : 'bg-green-400/20'
-                            }`}>
-                              <Icon size={16} className={
-                                insight.urgency === 'high' ? 'text-red-400' : 
-                                insight.urgency === 'medium' ? 'text-yellow-400' : 'text-green-400'
-                              } />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-foreground">{insight.title}</h3>
-                              <p className="text-sm text-muted-foreground">{insight.description}</p>
-                            </div>
-                          </div>
-                          <Button variant="ghost" size="sm" className="text-primary">
-                            {insight.action}
-                            <ChevronRight size={16} className="ml-1" />
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* AI-Matched Property Details */}
+          {/* Main Grid Layout */}
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            {/* Main Content - Location Intelligence Hero */}
+            <div className="xl:col-span-3 space-y-6">
+              <LocationIntelligence userProfile={userProfile} />
+              
+              {/* Selected Apartment Details - Shows when apartment is clicked */}
               <div className="glass-dark rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Top AI Match</h3>
-                <PropertyCard property={mockProperties[0]} />
+                <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30">AI TOP PICK</Badge>
+                  Selected Property
+                </h3>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="text-xl font-bold text-foreground mb-1">Mosaic Lake Apartments</h4>
+                    <p className="text-muted-foreground mb-3">123 Lakefront Dr, Atlanta, TX 75551</p>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <div className="text-2xl font-bold text-primary">${mockProperties[0]?.effectivePrice || 2450}/mo</div>
+                        <div className="text-sm text-muted-foreground">Base Rent</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-green-400">94%</div>
+                        <div className="text-sm text-muted-foreground">AI Match Score</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-semibold text-foreground">18 min</div>
+                        <div className="text-sm text-muted-foreground">Avg Commute</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-semibold text-green-400">92%</div>
+                        <div className="text-sm text-muted-foreground">Preference Match</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">To Work</span>
+                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30">12 min</Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">To Gym</span>
+                        <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">22 min</Badge>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="bg-slate-800/30 rounded-lg p-4 h-40 flex items-center justify-center mb-4">
+                      <span className="text-muted-foreground">Property Images</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" className="flex-1">Schedule Tour</Button>
+                      <Button size="sm" variant="outline" className="flex-1">Save Property</Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Market Intelligence */}
-              <MarketIntelligence />
+            <div className="xl:col-span-1 space-y-6">
+              {/* Smart Insights */}
+              <Card className="glass-dark border-l-4 border-l-green-400">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                    Smart Insights
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-foreground">Price Alert</div>
+                      <div className="text-xs text-muted-foreground">3 properties dropped price</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-orange-400"></div>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-foreground">Market Trend</div>
+                      <div className="text-xs text-muted-foreground">Prices trending up 2.3%</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-foreground">New Matches</div>
+                      <div className="text-xs text-muted-foreground">5 new properties found</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Live Market Intel */}
+              <Card className="glass-dark border-border/20">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse"></div>
+                    Live Market Intel
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm text-muted-foreground">Median Rent</span>
+                      <span className="text-sm font-semibold text-foreground">$2,340</span>
+                    </div>
+                    <div className="text-xs text-green-400 flex items-center">
+                      <TrendingUp className="w-3 h-3 mr-1" />
+                      +5.2% vs last month
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm text-muted-foreground">Days on Market</span>
+                      <span className="text-sm font-semibold text-foreground">18 days</span>
+                    </div>
+                    <div className="text-xs text-red-400 flex items-center">
+                      <Activity className="w-3 h-3 mr-1" />
+                      -2 days vs last month
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm text-muted-foreground">Occupancy Rate</span>
+                      <span className="text-sm font-semibold text-foreground">94.2%</span>
+                    </div>
+                    <div className="text-xs text-green-400 flex items-center">
+                      <Users className="w-3 h-3 mr-1" />
+                      +1.8% vs last month
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm text-muted-foreground">New Listings</span>
+                      <span className="text-sm font-semibold text-foreground">23</span>
+                    </div>
+                    <div className="text-xs text-green-400 flex items-center">
+                      <Home className="w-3 h-3 mr-1" />
+                      +8 vs last week
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Search Preferences */}
               <Card className="glass-dark border-border/20">
@@ -376,7 +459,7 @@ const DashboardNew = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Location</span>
-                    <span className="text-sm font-medium">{userProfile?.location || 'Austin, TX'}</span>
+                    <span className="text-sm font-medium">{userProfile?.location || 'Atlanta, TX'}</span>
                   </div>
                   <Button 
                     variant="outline" 
@@ -388,17 +471,6 @@ const DashboardNew = () => {
                   </Button>
                 </CardContent>
               </Card>
-
-              {/* Popular Cities */}
-              <PopularCities 
-                onLocationSelect={(city, state) => {
-                  setCurrentLocation(prev => ({ ...prev, city, state }));
-                }}
-                currentLocation={`${currentLocation.city}, ${currentLocation.state}`}
-              />
-
-              {/* Quick Links */}
-              <QuickLinksCard variant="sidebar" />
             </div>
           </div>
         </div>
