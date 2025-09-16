@@ -128,32 +128,53 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Budget Range</span>
-                <div className="text-right">
-                  <div className="text-sm font-medium text-foreground">$2,000 - $2,500</div>
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Budget Range</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="number" 
+                    defaultValue="2000" 
+                    className="w-20 px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground"
+                  />
+                  <span className="text-xs text-muted-foreground self-center">-</span>
+                  <input 
+                    type="number" 
+                    defaultValue="2500" 
+                    className="w-20 px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground"
+                  />
                 </div>
               </div>
               
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Search Radius</span>
-                <div className="text-right">
-                  <div className="text-sm font-medium text-foreground">25 miles</div>
-                </div>
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Search Radius</label>
+                <select className="w-full px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground">
+                  <option value="10">10 miles</option>
+                  <option value="15">15 miles</option>
+                  <option value="25" selected>25 miles</option>
+                  <option value="50">50 miles</option>
+                </select>
               </div>
               
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Max Drive Time</span>
-                <div className="text-right">
-                  <div className="text-sm font-medium text-foreground">30 minutes</div>
-                </div>
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Max Drive Time</label>
+                <select className="w-full px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground">
+                  <option value="15">15 minutes</option>
+                  <option value="20">20 minutes</option>
+                  <option value="30" selected>30 minutes</option>
+                  <option value="45">45 minutes</option>
+                  <option value="60">60 minutes</option>
+                </select>
               </div>
               
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Bedrooms</span>
-                <div className="text-right">
-                  <div className="text-sm font-medium text-foreground">1 bedroom</div>
-                </div>
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Bedrooms</label>
+                <select className="w-full px-2 py-1 text-xs bg-slate-700 border border-slate-600 rounded text-foreground">
+                  <option value="studio">Studio</option>
+                  <option value="1" selected>1 bedroom</option>
+                  <option value="2">2 bedrooms</option>
+                  <option value="3">3 bedrooms</option>
+                  <option value="4+">4+ bedrooms</option>
+                </select>
               </div>
             </CardContent>
           </Card>
