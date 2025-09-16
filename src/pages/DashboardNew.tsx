@@ -217,28 +217,12 @@ const DashboardNew = () => {
 
   const priorityInsights = [
     {
-      type: 'opportunity',
-      title: 'New properties in your price range',
-      description: '3 properties matching your criteria posted today',
-      action: 'View Properties',
-      urgency: 'high',
-      icon: TrendingUp
-    },
-    {
       type: 'alert',
       title: 'Lease expiration reminder',
       description: `Your lease expires ${userState.leaseExpiration}`,
       action: 'Update Timeline',
       urgency: 'medium',
       icon: Calendar
-    },
-    {
-      type: 'savings',
-      title: 'Potential concession opportunity',
-      description: 'Properties offering first month free near you',
-      action: 'Explore Deals',
-      urgency: 'low',
-      icon: DollarSign
     }
   ];
 
@@ -322,10 +306,13 @@ const DashboardNew = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Location Intelligence - Primary Feature */}
+          <LocationIntelligence userProfile={userProfile} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-8">
             {/* Main Content */}
             <div className="lg:col-span-3 space-y-6">
-              {/* Priority Insights */}
+              {/* Priority Insights - Only Lease Expiration */}
               {priorityInsights.length > 0 && (
                 <div className="space-y-3">
                   {priorityInsights.map((insight, index) => {
@@ -362,84 +349,17 @@ const DashboardNew = () => {
                 </div>
               )}
 
-              {/* Search Area Modal/Overlay */}
-              {showSearchArea && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                  <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                    <LocationSearch 
-                      onLocationChange={handleLocationSelect}
-                      currentLocation={currentLocation}
-                    />
-                    <div className="mt-4 text-center">
-                      <Button 
-                        onClick={() => setShowSearchArea(false)}
-                        variant="outline"
-                        className="bg-slate-800/50"
-                      >
-                        Close
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Filter Tabs */}
+              {/* AI-Matched Property Details */}
               <div className="glass-dark rounded-xl p-6">
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {filters.map((filter) => (
-                    <Button
-                      key={filter.id}
-                      variant={activeFilter === filter.id ? "default" : "outline"}
-                      onClick={() => setActiveFilter(filter.id)}
-                      className="relative"
-                    >
-                      {filter.label}
-                      {filter.count > 0 && (
-                        <Badge variant="secondary" className="ml-2 text-xs">
-                          {filter.count}
-                        </Badge>
-                      )}
-                    </Button>
-                  ))}
-                </div>
-
-              {/* Properties Grid */}
-                <div className="space-y-4">
-                  {mockProperties.slice(0, 6).map((property) => (
-                    <PropertyCard key={property.id} property={property} />
-                  ))}
-                </div>
-
-                <div className="text-center mt-6">
-                  <Button variant="outline">
-                    Load More Properties
-                  </Button>
-                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-4">Top AI Match</h3>
+                <PropertyCard property={mockProperties[0]} />
               </div>
-
-              {/* Location Intelligence Section */}
-              <LocationIntelligence userProfile={userProfile} />
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Quick Actions */}
-              <QuickActions 
-                onSearchAreaClick={() => setShowSearchArea(true)}
-                syncedSettings={syncedSettings}
-                onSettingsChange={handleLocationSelect}
-              />
-
               {/* Market Intelligence */}
               <MarketIntelligence />
-
-              {/* Popular Cities */}
-              <PopularCities 
-                onLocationSelect={(city, state) => {
-                  setCurrentLocation(prev => ({ ...prev, city, state }));
-                }}
-                currentLocation={`${currentLocation.city}, ${currentLocation.state}`}
-              />
 
               {/* Search Preferences */}
               <Card className="glass-dark border-border/20">
@@ -468,6 +388,14 @@ const DashboardNew = () => {
                   </Button>
                 </CardContent>
               </Card>
+
+              {/* Popular Cities */}
+              <PopularCities 
+                onLocationSelect={(city, state) => {
+                  setCurrentLocation(prev => ({ ...prev, city, state }));
+                }}
+                currentLocation={`${currentLocation.city}, ${currentLocation.state}`}
+              />
 
               {/* Quick Links */}
               <QuickLinksCard variant="sidebar" />
