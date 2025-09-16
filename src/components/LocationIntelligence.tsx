@@ -181,32 +181,6 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         {/* Sidebar */}
         <div className="xl:col-span-1 space-y-6">
 
-          {/* Smart Insights */}
-          <Card className="bg-slate-800/30 border border-slate-700/30">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <div className="w-2 h-2 rounded-full bg-purple-400"></div>
-                Smart Insights
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="p-3 bg-slate-700/30 rounded-lg">
-                <div className="text-sm font-medium text-foreground mb-1">Best Time to Apply</div>
-                <div className="text-xs text-muted-foreground">Weekday mornings have 23% higher response rates</div>
-              </div>
-              
-              <div className="p-3 bg-slate-700/30 rounded-lg">
-                <div className="text-sm font-medium text-foreground mb-1">Negotiation Potential</div>
-                <div className="text-xs text-muted-foreground">Medium - 47% of similar properties negotiated</div>
-              </div>
-              
-              <div className="p-3 bg-slate-700/30 rounded-lg">
-                <div className="text-sm font-medium text-foreground mb-1">Market Trend</div>
-                <div className="text-xs text-muted-foreground">Prices rising 2.3% monthly - act quickly</div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* No AI Preferences Call-to-Action */}
           {!hasAIPreferences && (
             <Card className="border border-yellow-500/30 bg-yellow-500/5">
