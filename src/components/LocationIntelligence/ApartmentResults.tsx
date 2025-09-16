@@ -386,12 +386,30 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-6">
                 <div className="flex items-start gap-6">
-                  {/* Property Image */}
-                  <div className="w-32 h-32 rounded-xl bg-gradient-to-br from-slate-700/50 to-slate-800/50 flex items-center justify-center border border-slate-600/50">
-                    <div className="text-center">
-                      <div className="text-4xl mb-2">🏢</div>
-                      <div className="text-xs text-muted-foreground">Property</div>
-                      <div className="text-xs text-muted-foreground">Image</div>
+                  {/* Property Images Section */}
+                  <div className="space-y-3">
+                    <div className="w-32 h-32 rounded-xl bg-gradient-to-br from-slate-700/50 to-slate-800/50 flex items-center justify-center border border-slate-600/50">
+                      <div className="text-center">
+                        <div className="text-4xl mb-2">🏢</div>
+                        <div className="text-xs text-muted-foreground">Property</div>
+                        <div className="text-xs text-muted-foreground">Image</div>
+                      </div>
+                    </div>
+                    
+                    {/* Pictures Section */}
+                    <div className="w-32">
+                      <h4 className="text-xs font-semibold text-muted-foreground mb-2">📸 Pictures</h4>
+                      <div className="grid grid-cols-3 gap-1">
+                        {[1, 2, 3, 4, 5, 6].map((i) => (
+                          <div 
+                            key={i}
+                            className="w-9 h-9 rounded bg-slate-600/30 border border-slate-500/30 flex items-center justify-center cursor-pointer hover:bg-slate-600/50 transition-colors"
+                          >
+                            <div className="text-xs">📷</div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1 text-center">6 photos</div>
                     </div>
                   </div>
                   
@@ -544,7 +562,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                           apartment.apartmentIQData.marketVelocity === 'normal' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
                           'bg-blue-500/20 text-blue-400 border-blue-500/30'
                         }`}>
-                          {apartment.apartmentIQData.marketVelocity.toUpperCase()} • {apartment.apartmentIQData.daysOnMarket}d
+                          {apartment.apartmentIQData.marketVelocity.toUpperCase()} • Days on Market {apartment.apartmentIQData.daysOnMarket}D
                         </Badge>
                         
                         {/* Pricing Strategy Badge */}
