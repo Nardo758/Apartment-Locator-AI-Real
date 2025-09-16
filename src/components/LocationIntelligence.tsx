@@ -210,10 +210,15 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* Apartment Results Section */}
-      <div className="mt-8">
-        <ApartmentResults 
-          pointsOfInterest={pointsOfInterest}
-        />
+      <div className="grid grid-cols-1 xl:grid-cols-6 gap-6 mt-8">
+        <div className="xl:col-span-5">
+          <ApartmentResults 
+            pointsOfInterest={pointsOfInterest}
+          />
+        </div>
+        <div className="xl:col-span-1">
+          {/* Empty space to match the layout above */}
+        </div>
       </div>
     </div>
   );
