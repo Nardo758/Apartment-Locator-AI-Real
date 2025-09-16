@@ -162,6 +162,36 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
             </CardContent>
           </Card>
 
+          {/* Scoring Legend */}
+          <Card className="bg-slate-800/30 border border-slate-700/30">
+            <CardHeader>
+              <CardTitle className="text-lg">Scoring Legend</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                <span className="text-sm text-muted-foreground">90%+ (AI Top Picks)</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
+                <span className="text-sm text-muted-foreground">80-89% (Good Match)</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded-full bg-orange-500"></div>
+                <span className="text-sm text-muted-foreground">70-79% (Fair Match)</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded-full bg-red-500"></div>
+                <span className="text-sm text-muted-foreground">Below 70%</span>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-600/30">
+                <div className="text-xs text-muted-foreground">
+                  Scores combine location (35%), budget (25%), lifestyle (20%), and amenities (20%)
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* No AI Preferences Call-to-Action */}
           {!hasAIPreferences && (
             <Card className="border border-yellow-500/30 bg-yellow-500/5">
