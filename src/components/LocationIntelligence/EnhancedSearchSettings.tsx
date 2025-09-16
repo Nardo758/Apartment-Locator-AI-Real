@@ -49,7 +49,7 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
     { value: 'studio', label: 'Studio', icon: '🏠' },
     { value: '1', label: '1 BR', icon: '🛏️' },
     { value: '2', label: '2 BR', icon: '🛏️🛏️' },
-    { value: '3', label: '3 BR', icon: '🛏️🛏️🛏️' }
+    { value: '3+', label: '3+ BR', icon: '🏘️' }
   ];
 
   const amenityOptions = [
