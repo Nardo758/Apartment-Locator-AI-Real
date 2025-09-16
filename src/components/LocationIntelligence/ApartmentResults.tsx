@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Heart, MessageCircle, Eye, Star, MapPin, Car, Clock, Wifi, Dog, Coffee } from 'lucide-react';
+import { Heart, MessageCircle, Eye, Star, MapPin, Car, Clock, Check, TrendingUp, Filter, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
 
 interface Apartment {
   id: string;
@@ -20,6 +21,12 @@ interface Apartment {
   available: boolean;
   listingAge: number; // days
   saved: boolean;
+  isTopPick?: boolean;
+  budgetMatch?: boolean;
+  amenityMatch?: boolean;
+  lifestyleMatch?: boolean;
+  locationScore?: number;
+  combinedScore?: number;
 }
 
 interface ApartmentResultsProps {
@@ -32,14 +39,16 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
   pointsOfInterest = [] 
 }) => {
   const [sortBy, setSortBy] = useState('aiScore');
+  const [filterBy, setFilterBy] = useState('all');
   const [savedApartments, setSavedApartments] = useState<Set<string>>(new Set());
+  const [hoveredProperty, setHoveredProperty] = useState<string | null>(null);
 
-  // Mock apartment data for demo
+  // Enhanced mock apartment data for demo with list view design elements
   const mockApartments: Apartment[] = [
     {
       id: '1',
       name: 'Austin Skyline Apartments',
-      address: '123 Downtown Ave, Austin, TX',
+      address: '123 Downtown Ave, Austin, TX 78701',
       price: 2200,
       aiMatchScore: 95,
       image: '/placeholder-apartment.jpg',
@@ -53,12 +62,18 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       },
       available: true,
       listingAge: 2,
-      saved: false
+      saved: false,
+      isTopPick: true,
+      budgetMatch: true,
+      amenityMatch: true,
+      lifestyleMatch: true,
+      locationScore: 92,
+      combinedScore: 95
     },
     {
       id: '2',
       name: 'Riverside Modern Living',
-      address: '456 River Road, Austin, TX',
+      address: '456 River Road, Austin, TX 78704',
       price: 2350,
       aiMatchScore: 89,
       image: '/placeholder-apartment.jpg',
@@ -72,12 +87,18 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       },
       available: true,
       listingAge: 5,
-      saved: false
+      saved: false,
+      isTopPick: false,
+      budgetMatch: true,
+      amenityMatch: false,
+      lifestyleMatch: true,
+      locationScore: 85,
+      combinedScore: 89
     },
     {
       id: '3',
       name: 'Tech District Studios',
-      address: '789 Innovation Blvd, Austin, TX',
+      address: '789 Innovation Blvd, Austin, TX 78702',
       price: 1950,
       aiMatchScore: 87,
       image: '/placeholder-apartment.jpg',
@@ -91,12 +112,18 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       },
       available: true,
       listingAge: 1,
-      saved: false
+      saved: false,
+      isTopPick: true,
+      budgetMatch: true,
+      amenityMatch: true,
+      lifestyleMatch: false,
+      locationScore: 88,
+      combinedScore: 87
     },
     {
       id: '4',
       name: 'Garden Heights Complex',
-      address: '321 Garden St, Austin, TX',
+      address: '321 Garden St, Austin, TX 78703',
       price: 2450,
       aiMatchScore: 82,
       image: '/placeholder-apartment.jpg',
@@ -110,31 +137,30 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       },
       available: true,
       listingAge: 7,
-      saved: false
+      saved: false,
+      isTopPick: false,
+      budgetMatch: false,
+      amenityMatch: true,
+      lifestyleMatch: true,
+      locationScore: 78,
+      combinedScore: 82
     }
   ];
 
   const displayApartments = apartments.length > 0 ? apartments : mockApartments;
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'bg-green-500/20 text-green-400 border-green-500/30';
-    if (score >= 80) return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-    if (score >= 70) return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-    return 'bg-red-500/20 text-red-400 border-red-500/30';
+    if (score >= 90) return 'text-green-400';
+    if (score >= 80) return 'text-yellow-400';
+    if (score >= 70) return 'text-orange-400';
+    return 'text-red-400';
   };
 
-  const getAmenityIcon = (amenity: string) => {
-    switch (amenity.toLowerCase()) {
-      case 'pool': return '🏊';
-      case 'gym': return '🏋️';
-      case 'parking': return '🚗';
-      case 'pet-friendly': return '🐕';
-      case 'wifi': return '📶';
-      case 'balcony': return '🏙️';
-      case 'laundry': return '👕';
-      case 'air conditioning': return '❄️';
-      default: return '✨';
-    }
+  const getScoreBg = (score: number) => {
+    if (score >= 90) return 'bg-green-500/20 border-green-500/30';
+    if (score >= 80) return 'bg-yellow-500/20 border-yellow-500/30';
+    if (score >= 70) return 'bg-orange-500/20 border-orange-500/30';
+    return 'bg-red-500/20 border-red-500/30';
   };
 
   const toggleSaved = (apartmentId: string) => {
@@ -150,7 +176,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
   const sortedApartments = [...displayApartments].sort((a, b) => {
     switch (sortBy) {
       case 'aiScore':
-        return b.aiMatchScore - a.aiMatchScore;
+        return (b.combinedScore || b.aiMatchScore) - (a.combinedScore || a.aiMatchScore);
       case 'price':
         return a.price - b.price;
       case 'newest':
@@ -160,162 +186,237 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
     }
   });
 
+  const filteredApartments = sortedApartments.filter(apartment => {
+    switch (filterBy) {
+      case 'topPicks':
+        return apartment.isTopPick;
+      case 'budgetMatch':
+        return apartment.budgetMatch;
+      default:
+        return true;
+    }
+  });
+
   return (
     <div className="space-y-6">
-      {/* Results Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-xl font-semibold text-foreground">
-            {displayApartments.length} Apartments Found
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Showing results within your search criteria
-          </p>
-        </div>
-        
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-48 bg-slate-700/50 border-slate-600">
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent className="bg-slate-800 border-slate-600">
-            <SelectItem value="aiScore">
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-yellow-400" />
-                AI Match Score
-              </div>
-            </SelectItem>
-            <SelectItem value="price">
-              <div className="flex items-center gap-2">
-                <span className="text-green-400">$</span>
-                Price (Low to High)
-              </div>
-            </SelectItem>
-            <SelectItem value="newest">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-blue-400" />
-                Newest First
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Results Header with Controls */}
+      <Card className="bg-slate-800/30 border border-slate-700/30">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <TrendingUp className="w-6 h-6 text-blue-400" />
+                Available Apartments
+              </CardTitle>
+              <p className="text-muted-foreground mt-1">
+                {filteredApartments.length} properties matching your search criteria
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-48 bg-slate-700/50 border-slate-600/50">
+                  <ArrowUpDown className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-600">
+                  <SelectItem value="aiScore">AI Match Score</SelectItem>
+                  <SelectItem value="price">Price (Low to High)</SelectItem>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={filterBy} onValueChange={setFilterBy}>
+                <SelectTrigger className="w-36 bg-slate-700/50 border-slate-600/50">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-600">
+                  <SelectItem value="all">All Results</SelectItem>
+                  <SelectItem value="topPicks">Top Picks</SelectItem>
+                  <SelectItem value="budgetMatch">Budget Match</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
 
-      {/* Results Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {sortedApartments.map((apartment) => (
-          <Card key={apartment.id} className="bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/40 transition-all duration-300 group">
-            <CardContent className="p-0">
-              {/* Image Placeholder */}
-              <div className="relative h-48 bg-slate-700/50 rounded-t-lg overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center text-4xl">
-                  🏢
+      {/* Property Results */}
+      <div className="space-y-4">
+        {filteredApartments.map((apartment) => (
+          <Card 
+            key={apartment.id}
+            className={`bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/40 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
+              apartment.isTopPick ? 'ring-1 ring-green-500/30 bg-gradient-to-r from-green-500/5 to-transparent' : ''
+            }`}
+            onMouseEnter={() => setHoveredProperty(apartment.id)}
+            onMouseLeave={() => setHoveredProperty(null)}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-start gap-6">
+                  {/* Property Image */}
+                  <div className="w-32 h-32 rounded-xl bg-gradient-to-br from-slate-700/50 to-slate-800/50 flex items-center justify-center border border-slate-600/50">
+                    <div className="text-center">
+                      <div className="text-4xl mb-2">🏢</div>
+                      <div className="text-xs text-muted-foreground">Property</div>
+                      <div className="text-xs text-muted-foreground">Image</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1">
+                    <div className="flex items-start gap-3 mb-2">
+                      <div>
+                        <h3 className="text-xl font-bold text-foreground mb-1">{apartment.name}</h3>
+                        <p className="text-muted-foreground mb-3 flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {apartment.address}
+                        </p>
+                        <div className="text-2xl font-bold text-green-400 mb-2">${apartment.price.toLocaleString()}/mo</div>
+                        <div className="text-sm text-muted-foreground flex items-center gap-4">
+                          <span>{apartment.bedrooms}bd</span>
+                          <span>{apartment.bathrooms}ba</span>
+                          <span>{apartment.sqft} sqft</span>
+                        </div>
+                      </div>
+                      {apartment.isTopPick && (
+                        <Badge className="bg-gradient-to-r from-green-500/20 to-green-600/20 text-green-400 border-green-500/30 px-3 py-1">
+                          <Star className="w-4 h-4 mr-1" />
+                          AI TOP PICK
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                
-                {/* AI Score Badge */}
-                <Badge 
-                  className={`absolute top-3 left-3 ${getScoreColor(apartment.aiMatchScore)} font-semibold`}
-                >
-                  <Star className="w-3 h-3 mr-1" />
-                  {apartment.aiMatchScore}% Match
-                </Badge>
-                
-                {/* Save Button */}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => toggleSaved(apartment.id)}
-                  className={`absolute top-3 right-3 w-8 h-8 p-0 transition-all duration-200 ${
-                    savedApartments.has(apartment.id)
-                      ? 'bg-red-500/20 border-red-500/30 text-red-400'
-                      : 'bg-slate-800/50 border-slate-600/50 text-slate-400 hover:text-red-400'
-                  }`}
-                >
-                  <Heart className={`w-4 h-4 ${savedApartments.has(apartment.id) ? 'fill-current' : ''}`} />
-                </Button>
 
-                {/* New Listing Badge */}
-                {apartment.listingAge <= 3 && (
-                  <Badge className="absolute top-3 right-14 bg-blue-500/20 text-blue-400 border-blue-500/30">
-                    New
-                  </Badge>
-                )}
+                {/* Scores and Actions */}
+                <div className="text-right space-y-3">
+                  <div className={`inline-flex items-center gap-3 px-4 py-3 rounded-xl border ${getScoreBg(apartment.combinedScore || apartment.aiMatchScore)}`}>
+                    <div className="text-right">
+                      <div className="text-xs text-muted-foreground mb-1">AI Match Score</div>
+                      <div className={`text-3xl font-bold ${getScoreColor(apartment.combinedScore || apartment.aiMatchScore)}`}>
+                        {apartment.combinedScore || apartment.aiMatchScore}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => toggleSaved(apartment.id)}
+                      className={`w-8 h-8 p-0 transition-all duration-200 ${
+                        savedApartments.has(apartment.id)
+                          ? 'bg-red-500/20 border-red-500/30 text-red-400'
+                          : 'bg-slate-700/30 border-slate-600/50 text-slate-400 hover:text-red-400'
+                      }`}
+                    >
+                      <Heart className={`w-4 h-4 ${savedApartments.has(apartment.id) ? 'fill-current' : ''}`} />
+                    </Button>
+                    <Button size="sm" variant="outline" className="w-8 h-8 p-0">
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="w-8 h-8 p-0">
+                      <MessageCircle className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
 
-              {/* Content */}
-              <div className="p-4 space-y-4">
-                {/* Header */}
-                <div>
-                  <h4 className="font-semibold text-lg text-foreground group-hover:text-blue-400 transition-colors">
-                    {apartment.name}
+              {/* Preference Matches */}
+              <div className="flex items-center gap-6 mb-6">
+                <div className="flex items-center gap-2">
+                  <Check className={`w-5 h-5 ${apartment.budgetMatch ? 'text-green-400' : 'text-slate-500'}`} />
+                  <span className={`text-sm font-medium ${apartment.budgetMatch ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    Budget Match
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className={`w-5 h-5 ${apartment.amenityMatch ? 'text-green-400' : 'text-slate-500'}`} />
+                  <span className={`text-sm font-medium ${apartment.amenityMatch ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    Amenities Match
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className={`w-5 h-5 ${apartment.lifestyleMatch ? 'text-green-400' : 'text-slate-500'}`} />
+                  <span className={`text-sm font-medium ${apartment.lifestyleMatch ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    Lifestyle Match
+                  </span>
+                </div>
+              </div>
+
+              {/* POI Commute Times */}
+              {pointsOfInterest.length > 0 && (
+                <div className="mb-6">
+                  <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Commute Times
                   </h4>
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <MapPin className="w-3 h-3" />
-                    {apartment.address}
-                  </div>
-                </div>
-
-                {/* Price and Details */}
-                <div className="flex items-center justify-between">
-                  <div className="text-2xl font-bold text-green-400">
-                    ${apartment.price.toLocaleString()}
-                    <span className="text-sm text-muted-foreground font-normal">/month</span>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {apartment.bedrooms}BR • {apartment.bathrooms}BA • {apartment.sqft} sqft
-                  </div>
-                </div>
-
-                {/* POI Distances */}
-                {pointsOfInterest.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {pointsOfInterest.slice(0, 2).map((poi) => {
                       const distance = apartment.poiDistances[poi.category];
                       if (!distance) return null;
                       
+                      const getTimeColor = (time: number) => {
+                        if (time <= 10) return 'border-green-500/50 text-green-400 bg-green-500/10';
+                        if (time <= 20) return 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10';
+                        return 'border-red-500/50 text-red-400 bg-red-500/10';
+                      };
+                      
                       return (
-                        <Badge 
-                          key={poi.id} 
-                          variant="outline"
-                          className="text-xs bg-slate-700/30 border-slate-600/50"
-                        >
-                          <Car className="w-3 h-3 mr-1" />
-                          {poi.name}: {distance.driveTime}min
-                        </Badge>
+                        <div key={poi.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-700/30 border border-slate-600/30">
+                          <span className="text-sm text-muted-foreground truncate mr-2">{poi.name}</span>
+                          <Badge 
+                            variant="outline" 
+                            className={getTimeColor(distance.driveTime)}
+                          >
+                            {distance.driveTime}min
+                          </Badge>
+                        </div>
                       );
                     })}
                   </div>
-                )}
-
-                {/* Amenities */}
-                <div className="flex flex-wrap gap-1">
-                  {apartment.amenities.slice(0, 4).map((amenity) => (
-                    <Badge 
-                      key={amenity}
-                      variant="outline"
-                      className="text-xs bg-blue-500/10 border-blue-500/30 text-blue-400"
-                    >
-                      {getAmenityIcon(amenity)} {amenity}
-                    </Badge>
-                  ))}
-                  {apartment.amenities.length > 4 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{apartment.amenities.length - 4} more
-                    </Badge>
-                  )}
                 </div>
+              )}
 
-                {/* Action Buttons */}
-                <div className="flex gap-2 pt-2">
-                  <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
-                    <Eye className="w-4 h-4 mr-1" />
-                    View Details
-                  </Button>
-                  <Button size="sm" variant="outline" className="flex-1">
-                    <MessageCircle className="w-4 h-4 mr-1" />
-                    Contact
-                  </Button>
+              {/* Score Breakdown on Hover */}
+              {hoveredProperty === apartment.id && (
+                <div className="mt-6 p-4 rounded-lg bg-slate-700/30 border border-slate-600/30">
+                  <h4 className="text-sm font-semibold text-foreground mb-4">Detailed Score Breakdown</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Budget Match (25%)</span>
+                      <div className="flex items-center gap-3">
+                        <Progress value={apartment.budgetMatch ? 85 : 60} className="w-20 h-2" />
+                        <span className="text-sm font-medium w-10 text-right">{apartment.budgetMatch ? '85' : '60'}%</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Location/Commute (35%)</span>
+                      <div className="flex items-center gap-3">
+                        <Progress value={apartment.locationScore || 75} className="w-20 h-2" />
+                        <span className="text-sm font-medium w-10 text-right">{apartment.locationScore || 75}%</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Lifestyle (20%)</span>
+                      <div className="flex items-center gap-3">
+                        <Progress value={apartment.lifestyleMatch ? 80 : 65} className="w-20 h-2" />
+                        <span className="text-sm font-medium w-10 text-right">{apartment.lifestyleMatch ? '80' : '65'}%</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Amenities (20%)</span>
+                      <div className="flex items-center gap-3">
+                        <Progress value={apartment.amenityMatch ? 90 : 70} className="w-20 h-2" />
+                        <span className="text-sm font-medium w-10 text-right">{apartment.amenityMatch ? '90' : '70'}%</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         ))}
