@@ -36,6 +36,18 @@ interface Apartment {
   parking?: string;
   utilities?: string[];
   marketAverage?: number; // market average rent for comparison
+  // Enhanced ApartmentIQ Integration
+  apartmentIQScore: number; // Overall ApartmentIQ score /100
+  baseRent: number; // Original rent before concessions
+  effectiveRent: number; // Actual monthly cost after concessions
+  concessionType: string; // e.g., "2 months free on 12-month lease"
+  totalLeaseSavings: number; // Total savings over lease term
+  savingsRatio: number; // Percentage savings vs market (100%, 200%, 300%)
+  daysOnMarket: number; // Market timing intelligence
+  negotiationPotential: number; // Score /10
+  leaseTermMonths: number; // Lease duration
+  marketPosition: 'undervalued' | 'fair' | 'overpriced';
+  velocity: 'hot' | 'normal' | 'stale';
 }
 
 interface ApartmentResultsProps {
@@ -56,7 +68,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
   const mockApartments: Apartment[] = [
     {
       id: '1',
-      name: 'Austin Skyline Apartments',
+      name: 'Portiva Unit A218',
       address: '123 Downtown Ave, Austin, TX 78701',
       price: 2200,
       aiMatchScore: 95,
@@ -86,11 +98,23 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       yearBuilt: 2019,
       petPolicy: 'Dogs & Cats Welcome',
       parking: 'Covered Garage',
-      utilities: ['Water', 'Trash', 'Internet']
+      utilities: ['Water', 'Trash', 'Internet'],
+      // Enhanced ApartmentIQ Integration
+      apartmentIQScore: 89,
+      baseRent: 1200,
+      effectiveRent: 1000,
+      concessionType: '2 months free on 12-month lease',
+      totalLeaseSavings: 2400,
+      savingsRatio: 200,
+      daysOnMarket: 21,
+      negotiationPotential: 9,
+      leaseTermMonths: 12,
+      marketPosition: 'undervalued',
+      velocity: 'stale'
     },
     {
       id: '2',
-      name: 'Riverside Modern Living',
+      name: 'Riverside Unit C105',
       address: '456 River Road, Austin, TX 78704',
       price: 2350,
       aiMatchScore: 89,
@@ -106,7 +130,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       available: true,
       listingAge: 5,
       saved: false,
-      isTopPick: false,
+      isTopPick: true,
       budgetMatch: true,
       amenityMatch: false,
       lifestyleMatch: true,
@@ -120,11 +144,23 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       yearBuilt: 2021,
       petPolicy: 'Cats Only',
       parking: 'Assigned Spot',
-      utilities: ['Water', 'Trash']
+      utilities: ['Water', 'Trash'],
+      // Enhanced ApartmentIQ Integration
+      apartmentIQScore: 92,
+      baseRent: 1500,
+      effectiveRent: 1200,
+      concessionType: '3 months free on 15-month lease',
+      totalLeaseSavings: 4500,
+      savingsRatio: 300,
+      daysOnMarket: 14,
+      negotiationPotential: 8,
+      leaseTermMonths: 15,
+      marketPosition: 'undervalued',
+      velocity: 'hot'
     },
     {
       id: '3',
-      name: 'Tech District Studios',
+      name: 'Tech District Unit 2314',
       address: '789 Innovation Blvd, Austin, TX 78702',
       price: 1950,
       aiMatchScore: 87,
@@ -140,7 +176,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       available: true,
       listingAge: 1,
       saved: false,
-      isTopPick: true,
+      isTopPick: false,
       budgetMatch: true,
       amenityMatch: true,
       lifestyleMatch: false,
@@ -154,11 +190,23 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       yearBuilt: 2020,
       petPolicy: 'No Pets',
       parking: 'Street Parking',
-      utilities: ['Internet']
+      utilities: ['Internet'],
+      // Enhanced ApartmentIQ Integration
+      apartmentIQScore: 81,
+      baseRent: 1800,
+      effectiveRent: 1650,
+      concessionType: '1 month free on 12-month lease',
+      totalLeaseSavings: 1800,
+      savingsRatio: 100,
+      daysOnMarket: 3,
+      negotiationPotential: 7,
+      leaseTermMonths: 12,
+      marketPosition: 'fair',
+      velocity: 'hot'
     },
     {
       id: '4',
-      name: 'Garden Heights Complex',
+      name: 'Garden Heights Unit B304',
       address: '321 Garden St, Austin, TX 78703',
       price: 2450,
       aiMatchScore: 82,
@@ -188,7 +236,19 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       yearBuilt: 2018,
       petPolicy: 'Dogs Welcome',
       parking: 'Valet Parking',
-      utilities: ['Water', 'Trash', 'Internet', 'Cable']
+      utilities: ['Water', 'Trash', 'Internet', 'Cable'],
+      // Enhanced ApartmentIQ Integration
+      apartmentIQScore: 75,
+      baseRent: 2450,
+      effectiveRent: 2350,
+      concessionType: '$100/month off for 12 months',
+      totalLeaseSavings: 1200,
+      savingsRatio: 50,
+      daysOnMarket: 45,
+      negotiationPotential: 6,
+      leaseTermMonths: 12,
+      marketPosition: 'overpriced',
+      velocity: 'stale'
     }
   ];
 
@@ -297,61 +357,104 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                   </div>
                   
                   <div className="flex-1">
-                    <div className="flex items-start gap-3 mb-2">
+                    <div className="flex items-start justify-between gap-3 mb-2">
                       <div>
                         <h3 className="text-xl font-bold text-foreground mb-1">{apartment.name}</h3>
                         <p className="text-muted-foreground mb-3 flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
                           {apartment.address}
                         </p>
-                        <div className="text-2xl font-bold text-green-400 mb-2">${apartment.price.toLocaleString()}/mo</div>
-                        {apartment.savings && apartment.savings > 0 && (
-                          <div className="space-y-1 mb-2">
-                            <div className="text-sm font-semibold text-green-400">
-                              Save ${apartment.savings}/mo vs market avg
-                            </div>
-                            {apartment.marketAverage && (
-                              <div className="text-xs text-muted-foreground bg-slate-700/30 rounded p-2">
-                                <div className="flex justify-between">
-                                  <span>Market Average:</span>
-                                  <span>${apartment.marketAverage.toLocaleString()}/mo</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span>This Property:</span>
-                                  <span>${apartment.price.toLocaleString()}/mo</span>
-                                </div>
-                                <div className="flex justify-between border-t border-slate-600/30 pt-1 mt-1 font-semibold text-green-400">
-                                  <span>Your Savings:</span>
-                                  <span>${apartment.savings}/mo</span>
-                                </div>
-                              </div>
-                            )}
+                        
+                        {/* Enhanced ApartmentIQ Pricing */}
+                        <div className="mb-4">
+                          <div className="flex items-baseline gap-3 mb-2">
+                            <div className="text-lg line-through text-slate-400">${apartment.baseRent.toLocaleString()}/mo</div>
+                            <div className="text-2xl font-bold text-green-400">${apartment.effectiveRent.toLocaleString()}/mo</div>
                           </div>
-                        )}
+                          <div className="text-sm font-semibold text-green-400 mb-2">
+                            {apartment.concessionType}
+                          </div>
+                          
+                          {/* Enhanced Math Breakdown */}
+                          <div className="text-xs text-muted-foreground bg-slate-700/30 rounded p-3 space-y-1">
+                            <div className="flex justify-between font-semibold text-green-400 border-b border-slate-600/30 pb-1 mb-2">
+                              <span>🎯 ApartmentIQ Analysis:</span>
+                              <span>{apartment.savingsRatio}% Savings Ratio</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Base Rent:</span>
+                              <span>${apartment.baseRent.toLocaleString()}/mo</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Effective Rent:</span>
+                              <span>${apartment.effectiveRent.toLocaleString()}/mo</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Total Lease Savings:</span>
+                              <span className="text-green-400 font-semibold">${apartment.totalLeaseSavings.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Monthly Budget Impact:</span>
+                              <span className="text-green-400 font-semibold">${apartment.baseRent - apartment.effectiveRent}/mo</span>
+                            </div>
+                          </div>
+                        </div>
+                        
                         <div className="text-sm text-muted-foreground flex items-center gap-4">
                           <span>{apartment.bedrooms}bd</span>
                           <span>{apartment.bathrooms}ba</span>
                           <span>{apartment.sqft} sqft</span>
                         </div>
                       </div>
-                      {apartment.isTopPick && (
-                        <Badge className="bg-gradient-to-r from-green-500/20 to-green-600/20 text-green-400 border-green-500/30 px-3 py-1">
-                          <Star className="w-4 h-4 mr-1" />
-                          AI TOP PICK
+                      <div className="flex flex-col gap-2">
+                        {apartment.isTopPick && (
+                          <Badge className="bg-gradient-to-r from-green-500/20 to-green-600/20 text-green-400 border-green-500/30 px-3 py-1">
+                            <Star className="w-4 h-4 mr-1" />
+                            AI TOP PICK
+                          </Badge>
+                        )}
+                        {/* Market Velocity Badge */}
+                        <Badge className={`px-3 py-1 text-xs ${
+                          apartment.velocity === 'hot' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                          apartment.velocity === 'normal' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                          'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                        }`}>
+                          {apartment.velocity.toUpperCase()} • {apartment.daysOnMarket}d
                         </Badge>
-                      )}
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Scores and Actions */}
+                {/* Enhanced ApartmentIQ Scores */}
                 <div className="text-right space-y-3">
-                  <div className={`inline-flex items-center gap-3 px-4 py-3 rounded-xl border ${getScoreBg(apartment.combinedScore || apartment.aiMatchScore)}`}>
+                  <div className={`inline-flex items-center gap-3 px-4 py-3 rounded-xl border ${getScoreBg(apartment.apartmentIQScore)}`}>
                     <div className="text-right">
-                      <div className="text-xs text-muted-foreground mb-1">AI Match Score</div>
-                      <div className={`text-3xl font-bold ${getScoreColor(apartment.combinedScore || apartment.aiMatchScore)}`}>
-                        {apartment.combinedScore || apartment.aiMatchScore}
+                      <div className="text-xs text-muted-foreground mb-1">🧠 ApartmentIQ Score</div>
+                      <div className={`text-3xl font-bold ${getScoreColor(apartment.apartmentIQScore)}`}>
+                        {apartment.apartmentIQScore}
                       </div>
+                      <div className="text-xs text-muted-foreground">/100</div>
+                    </div>
+                  </div>
+                  
+                  {/* Market Intelligence */}
+                  <div className="text-xs space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Negotiation Potential:</span>
+                      <span className={`font-semibold ${getScoreColor(apartment.negotiationPotential * 10)}`}>
+                        {apartment.negotiationPotential}/10
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Market Position:</span>
+                      <span className={`font-semibold capitalize ${
+                        apartment.marketPosition === 'undervalued' ? 'text-green-400' :
+                        apartment.marketPosition === 'fair' ? 'text-yellow-400' :
+                        'text-red-400'
+                      }`}>
+                        {apartment.marketPosition}
+                      </span>
                     </div>
                   </div>
                   
