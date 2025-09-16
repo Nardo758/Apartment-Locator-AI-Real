@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { Star, MapPin, Clock, Check, TrendingUp, Filter, ArrowUpDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { TrendingUp, Filter, ArrowUpDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Progress } from '@/components/ui/progress';
 import { PointOfInterest, SmartProperty } from '@/hooks/useLocationIntelligence';
+import CompactApartmentCard from '../CompactApartmentCard';
 
 interface SmartResultsProps {
   smartResults: SmartProperty[];
@@ -118,164 +116,36 @@ const SmartResults: React.FC<SmartResultsProps> = ({
 
       {/* Property Results */}
       <div className="space-y-4">
-        {filteredResults.map((property) => (
-          <Card 
-            key={property.id}
-            className={`bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/40 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
-              property.isTopPick ? 'ring-1 ring-green-500/30 bg-gradient-to-r from-green-500/5 to-transparent' : ''
-            }`}
-            onMouseEnter={() => setHoveredProperty(property.id)}
-            onMouseLeave={() => setHoveredProperty(null)}
-          >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-start gap-6">
-                  {/* Property Image */}
-                  <div className="w-32 h-32 rounded-xl bg-gradient-to-br from-slate-700/50 to-slate-800/50 flex items-center justify-center border border-slate-600/50">
-                    <div className="text-center">
-                      <MapPin className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                      <div className="text-xs text-muted-foreground">Property</div>
-                      <div className="text-xs text-muted-foreground">Image</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-start gap-3 mb-2">
-                      <div>
-                        <h3 className="text-xl font-bold text-foreground mb-1">{property.name}</h3>
-                        <p className="text-muted-foreground mb-3">{property.address}</p>
-                        <div className="text-2xl font-bold text-green-400 mb-2">${property.price.toLocaleString()}/mo</div>
-                        <div className="text-sm text-muted-foreground flex items-center gap-4">
-                          <span>{property.bedrooms}bd</span>
-                          <span>{property.bathrooms}ba</span>
-                          <span>{property.sqft} sqft</span>
-                        </div>
-                      </div>
-                      {property.isTopPick && (
-                        <Badge className="bg-gradient-to-r from-green-500/20 to-green-600/20 text-green-400 border-green-500/30 px-3 py-1">
-                          <Star className="w-4 h-4 mr-1" />
-                          AI TOP PICK
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                </div>
+        {filteredResults.map((property) => {
+          // Convert SmartProperty to CompactApartmentCard format
+          const apartmentData = {
+            id: property.id,
+            name: property.name,
+            address: property.address,
+            price: property.price,
+            bedrooms: property.bedrooms,
+            bathrooms: property.bathrooms,
+            sqft: property.sqft,
+            aiMatchScore: property.aiMatchScore,
+            combinedScore: property.combinedScore,
+            locationScore: property.locationScore,
+            budgetMatch: property.budgetMatch,
+            amenityMatch: property.amenityMatch,
+            lifestyleMatch: property.lifestyleMatch,
+            isTopPick: property.isTopPick
+          };
 
-                {/* Scores */}
-                <div className="text-right space-y-3">
-                  <div className={`inline-flex items-center gap-3 px-4 py-3 rounded-xl border ${getScoreBg(property.combinedScore)}`}>
-                    <div className="text-right">
-                      <div className="text-xs text-muted-foreground mb-1">Combined Score</div>
-                      <div className={`text-3xl font-bold ${getScoreColor(property.combinedScore)}`}>
-                        {property.combinedScore}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between gap-6">
-                      <span className="text-muted-foreground">AI Match:</span>
-                      <span className={`font-semibold ${getScoreColor(property.aiMatchScore)}`}>
-                        {property.aiMatchScore}%
-                      </span>
-                    </div>
-                    <div className="flex justify-between gap-6">
-                      <span className="text-muted-foreground">Location:</span>
-                      <span className={`font-semibold ${getScoreColor(property.locationScore)}`}>
-                        {property.locationScore}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Preference Matches */}
-              <div className="flex items-center gap-6 mb-6">
-                <div className="flex items-center gap-2">
-                  <Check className={`w-5 h-5 ${property.budgetMatch ? 'text-green-400' : 'text-slate-500'}`} />
-                  <span className={`text-sm font-medium ${property.budgetMatch ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    Budget Match
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className={`w-5 h-5 ${property.amenityMatch ? 'text-green-400' : 'text-slate-500'}`} />
-                  <span className={`text-sm font-medium ${property.amenityMatch ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    Amenities Match
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className={`w-5 h-5 ${property.lifestyleMatch ? 'text-green-400' : 'text-slate-500'}`} />
-                  <span className={`text-sm font-medium ${property.lifestyleMatch ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    Lifestyle Match
-                  </span>
-                </div>
-              </div>
-
-              {/* POI Commute Times */}
-              {property.poiTimes.length > 0 && (
-                <div className="mb-6">
-                  <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Commute Times
-                  </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {property.poiTimes.map((poiTime) => (
-                      <div key={poiTime.poiId} className="flex items-center justify-between p-3 rounded-lg bg-slate-700/30 border border-slate-600/30">
-                        <span className="text-sm text-muted-foreground truncate mr-2">{poiTime.poiName}</span>
-                        <Badge 
-                          variant="outline" 
-                          className={`${
-                            poiTime.color === 'green' ? 'border-green-500/50 text-green-400 bg-green-500/10' :
-                            poiTime.color === 'yellow' ? 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10' :
-                            'border-red-500/50 text-red-400 bg-red-500/10'
-                          }`}
-                        >
-                          {poiTime.time}min
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Score Breakdown on Hover */}
-              {hoveredProperty === property.id && (
-                <div className="mt-6 p-4 rounded-lg bg-slate-700/30 border border-slate-600/30">
-                  <h4 className="text-sm font-semibold text-foreground mb-4">Detailed Score Breakdown</h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Budget Match (25%)</span>
-                      <div className="flex items-center gap-3">
-                        <Progress value={property.budgetMatch ? 85 : 60} className="w-20 h-2" />
-                        <span className="text-sm font-medium w-10 text-right">{property.budgetMatch ? '85' : '60'}%</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Location/Commute (35%)</span>
-                      <div className="flex items-center gap-3">
-                        <Progress value={property.locationScore} className="w-20 h-2" />
-                        <span className="text-sm font-medium w-10 text-right">{property.locationScore}%</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Lifestyle (20%)</span>
-                      <div className="flex items-center gap-3">
-                        <Progress value={property.lifestyleMatch ? 80 : 65} className="w-20 h-2" />
-                        <span className="text-sm font-medium w-10 text-right">{property.lifestyleMatch ? '80' : '65'}%</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Amenities (20%)</span>
-                      <div className="flex items-center gap-3">
-                        <Progress value={property.amenityMatch ? 90 : 70} className="w-20 h-2" />
-                        <span className="text-sm font-medium w-10 text-right">{property.amenityMatch ? '90' : '70'}%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+          return (
+            <CompactApartmentCard
+              key={property.id}
+              apartment={apartmentData}
+              onFavorite={(id) => console.log('Favorite:', id)}
+              onViewDetails={() => console.log('View details:', property.id)}
+              onShare={(id) => console.log('Share:', id)}
+              isFavorited={false}
+            />
+          );
+        })}
       </div>
     </div>
   );

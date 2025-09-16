@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Heart, MessageCircle, Eye, Star, MapPin, Car, Clock, Check, TrendingUp, Filter, ArrowUpDown } from 'lucide-react';
+import { Filter, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Progress } from '@/components/ui/progress';
+import CompactApartmentCard from '../CompactApartmentCard';
 
 interface Apartment {
   id: string;
@@ -223,138 +222,36 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
             </CardContent>
           </Card>
         ) : (
-          filteredApartments.map((apartment) => (
-            <Card 
-              key={apartment.id}
-              className="bg-slate-800/50 border border-slate-700/50 hover:bg-slate-800/60 transition-all duration-200"
-            >
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  {/* Left Section */}
-                  <div className="flex items-start gap-4 flex-1">
-                    {/* Property Image */}
-                    <div className="w-16 h-16 rounded-lg bg-slate-700/50 border border-slate-600/50 flex items-center justify-center flex-shrink-0">
-                      <div className="text-center">
-                        <div className="text-xs text-muted-foreground">Property</div>
-                        <div className="text-xs text-muted-foreground">Image</div>
-                      </div>
-                    </div>
-                    
-                    {/* Property Details */}
-                    <div className="flex-1 min-w-0">
-                      {/* Property Name and Address */}
-                      <div className="mb-3">
-                        <h3 className="text-lg font-bold text-foreground mb-1">{apartment.name}</h3>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1 mb-2">
-                          <MapPin className="w-3 h-3" />
-                          {apartment.address}
-                        </p>
-                        <div className="text-xl font-bold text-green-400 mb-2">${apartment.price.toLocaleString()}/mo</div>
-                        <div className="text-sm text-muted-foreground flex items-center gap-4">
-                          <span>{apartment.bedrooms}bd</span>
-                          <span>{apartment.bathrooms}ba</span>
-                          <span>{apartment.sqft} sqft</span>
-                        </div>
-                      </div>
+          filteredApartments.map((apartment) => {
+            // Convert apartment data to CompactApartmentCard format
+            const apartmentData = {
+              id: apartment.id,
+              name: apartment.name,
+              address: apartment.address,
+              price: apartment.price,
+              bedrooms: apartment.bedrooms,
+              bathrooms: apartment.bathrooms,
+              sqft: apartment.sqft,
+              aiMatchScore: apartment.aiMatchScore,
+              combinedScore: apartment.combinedScore || apartment.aiMatchScore,
+              locationScore: apartment.locationScore,
+              budgetMatch: apartment.budgetMatch,
+              amenityMatch: apartment.amenityMatch,
+              lifestyleMatch: apartment.lifestyleMatch,
+              isTopPick: apartment.isTopPick
+            };
 
-                      {/* Preference Matches */}
-                      <div className="flex items-center gap-6 mb-4">
-                        <div className="flex items-center gap-2">
-                          <Check className={`w-4 h-4 ${apartment.budgetMatch ? 'text-green-400' : 'text-slate-500'}`} />
-                          <span className={`text-sm ${apartment.budgetMatch ? 'text-foreground' : 'text-muted-foreground'}`}>
-                            Budget Match
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Check className={`w-4 h-4 ${apartment.amenityMatch ? 'text-green-400' : 'text-slate-500'}`} />
-                          <span className={`text-sm ${apartment.amenityMatch ? 'text-foreground' : 'text-muted-foreground'}`}>
-                            Amenities Match
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Check className={`w-4 h-4 ${apartment.lifestyleMatch ? 'text-green-400' : 'text-slate-500'}`} />
-                          <span className={`text-sm ${apartment.lifestyleMatch ? 'text-foreground' : 'text-muted-foreground'}`}>
-                            Lifestyle Match
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Commute Times */}
-                      <div>
-                        <h4 className="text-sm text-muted-foreground mb-2 flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
-                          Commute Times
-                        </h4>
-                        <div className="flex gap-2">
-                          {pointsOfInterest.slice(0, 2).map((poi) => {
-                            const distance = apartment.poiDistances[poi.category];
-                            if (!distance) return null;
-                            
-                            const getTimeColor = (time: number) => {
-                              if (time <= 10) return 'bg-green-500/20 text-green-400';
-                              if (time <= 20) return 'bg-yellow-500/20 text-yellow-400';
-                              return 'bg-red-500/20 text-red-400';
-                            };
-                            
-                            return (
-                              <div key={poi.id} className={`px-3 py-1 rounded-lg text-sm ${getTimeColor(distance.driveTime)}`}>
-                                {poi.name} {distance.driveTime}min
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Section - Scores and Actions */}
-                  <div className="flex flex-col items-end gap-3 ml-6">
-                    {/* Combined Score */}
-                    <div className={`px-4 py-3 rounded-lg text-center ${getScoreBg(apartment.combinedScore || apartment.aiMatchScore)}`}>
-                      <div className="text-xs text-muted-foreground mb-1">Combined Score</div>
-                      <div className={`text-3xl font-bold ${getScoreColor(apartment.combinedScore || apartment.aiMatchScore)}`}>
-                        {apartment.combinedScore || apartment.aiMatchScore}
-                      </div>
-                    </div>
-
-                    {/* Individual Scores */}
-                    <div className="space-y-1 text-right">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">AI Match:</span>
-                        <span className="text-sm font-medium text-orange-400">{apartment.aiMatchScore}%</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">Location:</span>
-                        <span className="text-sm font-medium text-green-400">{apartment.locationScore || 92}%</span>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => toggleSaved(apartment.id)}
-                        className={`w-8 h-8 p-0 transition-all duration-200 ${
-                          savedApartments.has(apartment.id)
-                            ? 'bg-red-500/20 border-red-500/30 text-red-400'
-                            : 'bg-slate-700/30 border-slate-600/50 text-slate-400 hover:text-red-400'
-                        }`}
-                      >
-                        <Heart className={`w-4 h-4 ${savedApartments.has(apartment.id) ? 'fill-current' : ''}`} />
-                      </Button>
-                      <Button size="sm" variant="outline" className="w-8 h-8 p-0 bg-slate-700/30 border-slate-600/50">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="outline" className="w-8 h-8 p-0 bg-slate-700/30 border-slate-600/50">
-                        <MessageCircle className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+            return (
+              <CompactApartmentCard
+                key={apartment.id}
+                apartment={apartmentData}
+                onFavorite={toggleSaved}
+                onViewDetails={() => console.log('View details:', apartment.id)}
+                onShare={() => console.log('Share:', apartment.id)}
+                isFavorited={savedApartments.has(apartment.id)}
+              />
+            );
+          })
         )}
       </div>
     </div>
