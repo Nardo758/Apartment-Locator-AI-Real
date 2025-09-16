@@ -177,37 +177,6 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
           </div>
         </div>
 
-        {/* Move-in Date */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-yellow-400" />
-            <label className="text-sm font-medium text-foreground">Move-in Date</label>
-          </div>
-          <Popover open={showCalendar} onOpenChange={setShowCalendar}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-start text-left font-normal bg-slate-700/50 border-slate-600"
-              >
-                <Calendar className="mr-2 h-4 w-4" />
-                {settings.moveInDate ? format(settings.moveInDate, 'PPP') : 'Select date'}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-slate-800 border-slate-600" align="start">
-              <CalendarComponent
-                mode="single"
-                selected={settings.moveInDate || undefined}
-                onSelect={(date) => {
-                  updateSettings({ moveInDate: date || null });
-                  setShowCalendar(false);
-                }}
-                disabled={(date) => date < new Date()}
-                initialFocus
-                className="pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
       </CardContent>
     </Card>
   );
