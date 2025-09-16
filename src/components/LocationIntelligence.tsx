@@ -118,37 +118,6 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
 
         {/* Sidebar */}
         <div className="xl:col-span-1 space-y-6">
-          {/* AI Insights Panel */}
-          {hasAIPreferences && (
-            <Card className="bg-gradient-to-br from-blue-500/5 to-purple-500/5 border border-blue-500/20">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Brain className="w-5 h-5 text-blue-400" />
-                  AI Insights
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Budget Priority</div>
-                  <div className="text-foreground font-medium">
-                    Properties under ${userProfile?.budget?.toLocaleString() || '2,500'}/month prioritized
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Location Focus</div>
-                  <div className="text-foreground font-medium">
-                    {pointsOfInterest.length} POIs with commute optimization
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Lifestyle Match</div>
-                  <div className="text-foreground font-medium">
-                    {userProfile?.amenities?.length || 0} preferred amenities tracked
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Scoring Legend */}
           <Card className="bg-slate-800/30 border border-slate-700/30">
