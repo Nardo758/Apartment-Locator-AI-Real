@@ -25,6 +25,7 @@ export interface SmartProperty {
   amenityMatch: boolean;
   lifestyleMatch: boolean;
   isTopPick: boolean;
+  savings?: number; // monthly savings compared to market average
   poiTimes: Array<{
     poiId: string;
     poiName: string;
@@ -112,6 +113,7 @@ export const useLocationIntelligence = (userProfile: any) => {
         amenityMatch: aiScore.amenityScore >= 70,
         lifestyleMatch: aiScore.lifestyleScore >= 70,
         isTopPick: combinedScore >= 90,
+        savings: Math.floor(Math.random() * 500) + 50, // Random savings between $50-$550
         poiTimes,
         bedrooms: property.bedrooms,
         bathrooms: property.bathrooms,

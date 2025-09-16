@@ -27,6 +27,7 @@ interface Apartment {
   lifestyleMatch?: boolean;
   locationScore?: number;
   combinedScore?: number;
+  savings?: number; // monthly savings compared to market average
 }
 
 interface ApartmentResultsProps {
@@ -68,7 +69,8 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       amenityMatch: true,
       lifestyleMatch: true,
       locationScore: 92,
-      combinedScore: 95
+      combinedScore: 95,
+      savings: 284
     },
     {
       id: '2',
@@ -93,7 +95,8 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       amenityMatch: false,
       lifestyleMatch: true,
       locationScore: 85,
-      combinedScore: 89
+      combinedScore: 89,
+      savings: 134
     },
     {
       id: '3',
@@ -118,7 +121,8 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       amenityMatch: true,
       lifestyleMatch: false,
       locationScore: 88,
-      combinedScore: 87
+      combinedScore: 87,
+      savings: 534
     },
     {
       id: '4',
@@ -143,7 +147,8 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       amenityMatch: true,
       lifestyleMatch: true,
       locationScore: 78,
-      combinedScore: 82
+      combinedScore: 82,
+      savings: 34
     }
   ];
 
@@ -260,6 +265,11 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                           {apartment.address}
                         </p>
                         <div className="text-2xl font-bold text-green-400 mb-2">${apartment.price.toLocaleString()}/mo</div>
+                        {apartment.savings && apartment.savings > 0 && (
+                          <div className="text-sm font-semibold text-green-400 mb-2">
+                            Save ${apartment.savings}/mo vs market avg
+                          </div>
+                        )}
                         <div className="text-sm text-muted-foreground flex items-center gap-4">
                           <span>{apartment.bedrooms}bd</span>
                           <span>{apartment.bathrooms}ba</span>
