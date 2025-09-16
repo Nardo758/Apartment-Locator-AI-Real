@@ -119,75 +119,110 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         {/* Sidebar */}
         <div className="xl:col-span-1 space-y-6">
 
-          {/* Combined AI Score */}
+          {/* Search Settings */}
           <Card className="bg-slate-800/30 border border-slate-700/30">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                Combined AI Score
+                <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                Search Settings
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Average Match</span>
+                <span className="text-sm text-muted-foreground">Budget Range</span>
                 <div className="text-right">
-                  <div className="text-xl font-semibold text-foreground">87%</div>
-                  <div className="text-xs text-green-400">+3.2% vs last search</div>
+                  <div className="text-sm font-medium text-foreground">$2,000 - $2,500</div>
                 </div>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Top Properties</span>
+                <span className="text-sm text-muted-foreground">Search Radius</span>
                 <div className="text-right">
-                  <div className="text-xl font-semibold text-foreground">12</div>
-                  <div className="text-xs text-green-400">+2 properties</div>
+                  <div className="text-sm font-medium text-foreground">25 miles</div>
                 </div>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Location Score</span>
+                <span className="text-sm text-muted-foreground">Max Drive Time</span>
                 <div className="text-right">
-                  <div className="text-xl font-semibold text-foreground">92.1%</div>
-                  <div className="text-xs text-green-400">+1.8% vs last search</div>
+                  <div className="text-sm font-medium text-foreground">30 minutes</div>
                 </div>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">AI Confidence</span>
+                <span className="text-sm text-muted-foreground">Bedrooms</span>
                 <div className="text-right">
-                  <div className="text-xl font-semibold text-foreground">95</div>
-                  <div className="text-xs text-green-400">+5 vs last week</div>
+                  <div className="text-sm font-medium text-foreground">1 bedroom</div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Scoring Legend */}
+          {/* Live Market Intel */}
           <Card className="bg-slate-800/30 border border-slate-700/30">
-            <CardHeader>
-              <CardTitle className="text-lg">Scoring Legend</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                Live Market Intel
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Avg Rent</span>
+                <div className="text-right">
+                  <div className="text-xl font-semibold text-foreground">$2,284</div>
+                  <div className="text-xs text-green-400">+2.3% vs last month</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">New Listings</span>
+                <div className="text-right">
+                  <div className="text-xl font-semibold text-foreground">47</div>
+                  <div className="text-xs text-green-400">+8 this week</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Days on Market</span>
+                <div className="text-right">
+                  <div className="text-xl font-semibold text-foreground">12</div>
+                  <div className="text-xs text-red-400">+2 vs last month</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Competition</span>
+                <div className="text-right">
+                  <div className="text-xl font-semibold text-foreground">High</div>
+                  <div className="text-xs text-orange-400">85% occupancy</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Smart Insights */}
+          <Card className="bg-slate-800/30 border border-slate-700/30">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <div className="w-2 h-2 rounded-full bg-purple-400"></div>
+                Smart Insights
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                <span className="text-sm text-muted-foreground">90%+ (AI Top Picks)</span>
+              <div className="p-3 bg-slate-700/30 rounded-lg">
+                <div className="text-sm font-medium text-foreground mb-1">Best Time to Apply</div>
+                <div className="text-xs text-muted-foreground">Weekday mornings have 23% higher response rates</div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-                <span className="text-sm text-muted-foreground">80-89% (Good Match)</span>
+              
+              <div className="p-3 bg-slate-700/30 rounded-lg">
+                <div className="text-sm font-medium text-foreground mb-1">Negotiation Potential</div>
+                <div className="text-xs text-muted-foreground">Medium - 47% of similar properties negotiated</div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 rounded-full bg-orange-500"></div>
-                <span className="text-sm text-muted-foreground">70-79% (Fair Match)</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                <span className="text-sm text-muted-foreground">Below 70%</span>
-              </div>
-              <div className="mt-4 pt-3 border-t border-slate-600/30">
-                <div className="text-xs text-muted-foreground">
-                  Scores combine location (35%), budget (25%), lifestyle (20%), and amenities (20%)
-                </div>
+              
+              <div className="p-3 bg-slate-700/30 rounded-lg">
+                <div className="text-sm font-medium text-foreground mb-1">Market Trend</div>
+                <div className="text-xs text-muted-foreground">Prices rising 2.3% monthly - act quickly</div>
               </div>
             </CardContent>
           </Card>
