@@ -49,8 +49,7 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
     { value: 'studio', label: 'Studio', icon: '🏠' },
     { value: '1', label: '1 BR', icon: '🛏️' },
     { value: '2', label: '2 BR', icon: '🛏️🛏️' },
-    { value: '3', label: '3 BR', icon: '🛏️🛏️🛏️' },
-    { value: '4+', label: '4+ BR', icon: '🏘️' }
+    { value: '3', label: '3 BR', icon: '🛏️🛏️🛏️' }
   ];
 
   const amenityOptions = [
@@ -129,27 +128,6 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
           </div>
         </div>
 
-        {/* Search Radius */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-red-400" />
-            <label className="text-sm font-medium text-foreground">Search Radius</label>
-          </div>
-          <div className="px-3">
-            <Slider
-              value={[settings.searchRadius]}
-              onValueChange={(value) => updateSettings({ searchRadius: value[0] })}
-              min={5}
-              max={50}
-              step={5}
-              className="w-full"
-            />
-            <div className="text-center mt-2 text-xs text-muted-foreground">
-              {settings.searchRadius} miles
-            </div>
-          </div>
-        </div>
-
         {/* Max Drive Time */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
@@ -195,61 +173,6 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
                 <span className="text-sm">{option.icon}</span>
                 <span className="text-xs">{option.label}</span>
               </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Pet Policy */}
-        <div className="space-y-3">
-          <label className="text-sm font-medium text-foreground">Pet Policy</label>
-          <Select 
-            value={settings.petPolicy} 
-            onValueChange={(value) => updateSettings({ petPolicy: value })}
-          >
-            <SelectTrigger className="bg-slate-700/50 border-slate-600">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-600">
-              <SelectItem value="any">🐾 Any</SelectItem>
-              <SelectItem value="dogs">🐕 Dogs Allowed</SelectItem>
-              <SelectItem value="cats">🐱 Cats Allowed</SelectItem>
-              <SelectItem value="none">🚫 No Pets</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Parking Required */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Car className="w-4 h-4 text-blue-400" />
-            <label className="text-sm font-medium text-foreground">Parking Required</label>
-          </div>
-          <Switch
-            checked={settings.parkingRequired}
-            onCheckedChange={(checked) => updateSettings({ parkingRequired: checked })}
-          />
-        </div>
-
-        {/* Amenities */}
-        <div className="space-y-3">
-          <label className="text-sm font-medium text-foreground">Preferred Amenities</label>
-          <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
-            {amenityOptions.map((amenity) => (
-              <Badge
-                key={amenity}
-                variant={settings.amenities.includes(amenity) ? "default" : "outline"}
-                className={`cursor-pointer transition-all duration-200 ${
-                  settings.amenities.includes(amenity)
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                    : 'bg-slate-700/30 hover:bg-slate-600/50 border-slate-600/50'
-                }`}
-                onClick={() => toggleAmenity(amenity)}
-              >
-                {amenity}
-                {settings.amenities.includes(amenity) && (
-                  <X className="w-3 h-3 ml-1" />
-                )}
-              </Badge>
             ))}
           </div>
         </div>
