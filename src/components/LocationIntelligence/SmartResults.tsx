@@ -151,8 +151,24 @@ const SmartResults: React.FC<SmartResultsProps> = ({
                         <p className="text-muted-foreground mb-3">{property.address}</p>
                         <div className="text-2xl font-bold text-green-400 mb-2">${property.price.toLocaleString()}/mo</div>
                         {property.savings && property.savings > 0 && (
-                          <div className="text-sm font-semibold text-green-400 mb-2">
-                            Save ${property.savings}/mo vs market avg
+                          <div className="space-y-1 mb-2">
+                            <div className="text-sm font-semibold text-green-400">
+                              Save ${property.savings}/mo vs market avg
+                            </div>
+                            <div className="text-xs text-muted-foreground bg-slate-700/30 rounded p-2">
+                              <div className="flex justify-between">
+                                <span>Market Average:</span>
+                                <span>$2,484/mo</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>This Property:</span>
+                                <span>${property.price.toLocaleString()}/mo</span>
+                              </div>
+                              <div className="flex justify-between border-t border-slate-600/30 pt-1 mt-1 font-semibold text-green-400">
+                                <span>Your Savings:</span>
+                                <span>${property.savings}/mo</span>
+                              </div>
+                            </div>
                           </div>
                         )}
                         <div className="text-sm text-muted-foreground flex items-center gap-4">

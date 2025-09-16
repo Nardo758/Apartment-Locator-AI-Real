@@ -35,6 +35,7 @@ interface Apartment {
   petPolicy?: string;
   parking?: string;
   utilities?: string[];
+  marketAverage?: number; // market average rent for comparison
 }
 
 interface ApartmentResultsProps {
@@ -78,6 +79,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       locationScore: 92,
       combinedScore: 95,
       savings: 284,
+      marketAverage: 2484,
       walkScore: 95,
       transitScore: 88,
       bikeScore: 92,
@@ -111,6 +113,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       locationScore: 85,
       combinedScore: 89,
       savings: 134,
+      marketAverage: 2484,
       walkScore: 89,
       transitScore: 82,
       bikeScore: 85,
@@ -144,6 +147,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       locationScore: 88,
       combinedScore: 87,
       savings: 534,
+      marketAverage: 2484,
       walkScore: 92,
       transitScore: 95,
       bikeScore: 88,
@@ -177,6 +181,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       locationScore: 78,
       combinedScore: 82,
       savings: 34,
+      marketAverage: 2484,
       walkScore: 76,
       transitScore: 71,
       bikeScore: 80,
@@ -301,8 +306,26 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                         </p>
                         <div className="text-2xl font-bold text-green-400 mb-2">${apartment.price.toLocaleString()}/mo</div>
                         {apartment.savings && apartment.savings > 0 && (
-                          <div className="text-sm font-semibold text-green-400 mb-2">
-                            Save ${apartment.savings}/mo vs market avg
+                          <div className="space-y-1 mb-2">
+                            <div className="text-sm font-semibold text-green-400">
+                              Save ${apartment.savings}/mo vs market avg
+                            </div>
+                            {apartment.marketAverage && (
+                              <div className="text-xs text-muted-foreground bg-slate-700/30 rounded p-2">
+                                <div className="flex justify-between">
+                                  <span>Market Average:</span>
+                                  <span>${apartment.marketAverage.toLocaleString()}/mo</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>This Property:</span>
+                                  <span>${apartment.price.toLocaleString()}/mo</span>
+                                </div>
+                                <div className="flex justify-between border-t border-slate-600/30 pt-1 mt-1 font-semibold text-green-400">
+                                  <span>Your Savings:</span>
+                                  <span>${apartment.savings}/mo</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                         <div className="text-sm text-muted-foreground flex items-center gap-4">
