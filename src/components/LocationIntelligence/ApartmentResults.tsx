@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Eye, Star, MapPin, Car, Clock, Check, TrendingUp, Filter, ArrowUpDown, AlertTriangle, Target, DollarSign, Calendar } from 'lucide-react';
+import { Heart, MessageCircle, Eye, Star, MapPin, Car, Clock, Check, TrendingUp, Filter, ArrowUpDown, AlertTriangle, Target, DollarSign, Calendar, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -377,459 +377,228 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
           filteredApartments.map((apartment) => (
           <Card 
             key={apartment.id}
-            className={`w-full max-w-none bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/40 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
+            className={`w-full max-w-none bg-slate-900/95 backdrop-blur-sm border border-slate-600/50 hover:bg-slate-800/80 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/10 rounded-xl ${
               apartment.isTopPick ? 'ring-1 ring-green-500/30 bg-gradient-to-r from-green-500/5 to-transparent' : ''
             }`}
             onMouseEnter={() => setHoveredProperty(apartment.id)}
             onMouseLeave={() => setHoveredProperty(null)}
           >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-start gap-6">
-                  {/* Property Images Section */}
-                  <div className="space-y-3">
-                    <div className="w-32 h-32 rounded-xl bg-gradient-to-br from-slate-700/50 to-slate-800/50 flex items-center justify-center border border-slate-600/50">
-                      <div className="text-center">
-                        <div className="text-4xl mb-2">🏢</div>
-                        <div className="text-xs text-muted-foreground">Property</div>
-                        <div className="text-xs text-muted-foreground">Image</div>
-                      </div>
-                    </div>
-                    
-                    {/* Pictures Section */}
-                    <div className="w-32">
-                      <h4 className="text-xs font-semibold text-muted-foreground mb-2">📸 Pictures</h4>
-                      <div className="grid grid-cols-3 gap-1">
-                        {[1, 2, 3, 4, 5, 6].map((i) => (
-                          <div 
-                            key={i}
-                            className="w-9 h-9 rounded bg-slate-600/30 border border-slate-500/30 flex items-center justify-center cursor-pointer hover:bg-slate-600/50 transition-colors"
-                          >
-                            <div className="text-xs">📷</div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1 text-center">6 photos</div>
+            <CardContent className="p-5">
+              <div className="flex items-start gap-6">
+                {/* Property Images Section */}
+                <div className="space-y-3">
+                  <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-slate-700/50 to-slate-800/50 flex items-center justify-center border border-slate-600/50">
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">🏢</div>
+                      <div className="text-xs text-muted-foreground">Property</div>
                     </div>
                   </div>
                   
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <div>
-                        <h3 className="text-xl font-bold text-foreground mb-1">{apartment.name}</h3>
-                        <p className="text-muted-foreground mb-3 flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {apartment.address}
-                        </p>
-                        
-                        {/* Enhanced ApartmentIQ Pricing with Recommendations */}
-                        <div className="mb-4">
-                          <div className="flex items-baseline gap-3 mb-2">
-                            <div className="text-lg line-through text-slate-400">${apartment.apartmentIQData.originalRent.toLocaleString()}/mo</div>
-                            <div className="text-2xl font-bold text-green-400">${apartment.apartmentIQData.effectiveRent.toLocaleString()}/mo</div>
-                            {recommendations[apartment.id] && (
-                              <div className="text-sm">
-                                <span className="text-muted-foreground">→ Rec: </span>
-                                <span className={`font-bold ${getStrategyColor(recommendations[apartment.id].strategy)}`}>
-                                  ${recommendations[apartment.id].suggestedRent.toLocaleString()}/mo
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="text-sm font-semibold text-green-400 mb-2">
-                            {apartment.apartmentIQData.concessionType}
-                          </div>
-                          
-                          {/* Combined AI Pricing & Concession Analysis */}
-                          {recommendations[apartment.id] && (
-                            <div className="text-xs text-muted-foreground bg-slate-700/30 rounded p-3 space-y-2 mb-3">
-                              <div className="flex justify-between font-semibold text-green-400 border-b border-slate-600/30 pb-1 mb-2">
-                                <span>💰 Monthly Savings Analysis</span>
-                                <span className={`${getUrgencyColor(recommendations[apartment.id].urgencyLevel)} px-2 py-1 rounded text-xs border`}>
-                                  {recommendations[apartment.id].urgencyLevel.toUpperCase()}
-                                </span>
-                              </div>
-                              <div className="grid grid-cols-2 gap-3">
-                                <div className="space-y-1">
-                                  <div className="flex justify-between">
-                                    <span>AI Rent Reduction:</span>
-                                    <span className="font-semibold text-green-400">
-                                      ${Math.abs(recommendations[apartment.id].adjustmentAmount).toLocaleString()}/mo
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>Concession Value:</span>
-                                    <span className="font-semibold text-green-400">
-                                      ${Math.round(apartment.apartmentIQData.concessionValue / 12).toLocaleString()}/mo
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between border-t border-slate-600/30 pt-1 font-bold text-green-300">
-                                    <span>Total Monthly Savings:</span>
-                                    <span>
-                                      ${(Math.abs(recommendations[apartment.id].adjustmentAmount) + Math.round(apartment.apartmentIQData.concessionValue / 12)).toLocaleString()}/mo
-                                    </span>
-                                  </div>
-                                </div>
-                                <div className="space-y-1">
-                                  <div className="flex justify-between">
-                                    <span>Strategy:</span>
-                                    <span className={`font-semibold capitalize ${getStrategyColor(recommendations[apartment.id].strategy)}`}>
-                                      {recommendations[apartment.id].strategy.replace('_', ' ')}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>Days on Market:</span>
-                                    <span className="font-semibold text-orange-400">
-                                      {apartment.apartmentIQData.daysOnMarket} days
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between border-t border-slate-600/30 pt-1 font-bold text-green-300">
-                                    <span>Annual Savings:</span>
-                                    <span>
-                                      ${((Math.abs(recommendations[apartment.id].adjustmentAmount) + Math.round(apartment.apartmentIQData.concessionValue / 12)) * 12).toLocaleString()}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              {/* AI Reasoning */}
-                              {recommendations[apartment.id].reasoning.length > 0 && (
-                                <div className="border-t border-slate-600/30 pt-2 mt-2">
-                                  <div className="text-xs font-semibold text-purple-400 mb-1">🧠 AI Reasoning</div>
-                                  <div className="text-xs text-slate-300">
-                                    {recommendations[apartment.id].reasoning.slice(0, 2).join(' • ')}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Landlord Revenue Impact Analysis */}
-                          {recommendations[apartment.id] && (
-                            <div className="text-xs text-muted-foreground bg-red-900/20 border border-red-500/30 rounded p-3 space-y-2 mb-3">
-                              <div className="flex justify-between font-semibold text-red-400 border-b border-red-500/30 pb-1 mb-2">
-                                <span>📉 Landlord Loss Analysis</span>
-                                <span className="text-xs text-red-300">If unit stays empty</span>
-                              </div>
-                              <div className="grid grid-cols-3 gap-3 text-center">
-                                <div className="space-y-1 bg-red-900/30 rounded p-2">
-                                  <div className="text-red-300 font-semibold">30 Days</div>
-                                  <div className="text-red-400 font-bold">
-                                    ${apartment.apartmentIQData.currentRent.toLocaleString()}
-                                  </div>
-                                  <div className="text-xs text-red-300">Lost Revenue</div>
-                                </div>
-                                <div className="space-y-1 bg-red-900/30 rounded p-2">
-                                  <div className="text-red-300 font-semibold">60 Days</div>
-                                  <div className="text-red-400 font-bold">
-                                    ${(apartment.apartmentIQData.currentRent * 2).toLocaleString()}
-                                  </div>
-                                  <div className="text-xs text-red-300">Lost Revenue</div>
-                                </div>
-                                <div className="space-y-1 bg-red-900/30 rounded p-2">
-                                  <div className="text-red-300 font-semibold">90 Days</div>
-                                  <div className="text-red-400 font-bold">
-                                    ${(apartment.apartmentIQData.currentRent * 3).toLocaleString()}
-                                  </div>
-                                  <div className="text-xs text-red-300">Lost Revenue</div>
-                                </div>
-                              </div>
-                              <div className="pt-2 border-t border-red-500/30 text-center">
-                                <div className="text-red-300 text-xs">
-                                  Total Impact: ${recommendations[apartment.id].revenueImpact.totalImpact.toLocaleString()} annual loss potential
-                                </div>
-                              </div>
-                            </div>
-                          )}
+                  {/* Pictures Section */}
+                  <div className="w-24">
+                    <h4 className="text-xs font-semibold text-muted-foreground mb-2">📸 Pictures</h4>
+                    <div className="grid grid-cols-3 gap-1">
+                      {[1, 2, 3, 4, 5, 6].map((i) => (
+                        <div 
+                          key={i}
+                          className="w-6 h-6 rounded bg-slate-600/30 border border-slate-500/30 flex items-center justify-center cursor-pointer hover:bg-slate-600/50 transition-colors"
+                        >
+                          <div className="text-xs">📷</div>
                         </div>
-                        
-                        <div className="text-sm text-muted-foreground flex items-center gap-4">
-                          <span>{apartment.bedrooms}bd</span>
-                          <span>{apartment.bathrooms}ba</span>
-                          <span>{apartment.sqft} sqft</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        {apartment.isTopPick && (
-                          <Badge className="bg-gradient-to-r from-green-500/20 to-green-600/20 text-green-400 border-green-500/30 px-3 py-1">
-                            <Star className="w-4 h-4 mr-1" />
-                            AI TOP PICK
-                          </Badge>
-                        )}
-                        {/* Market Velocity and Urgency Badges */}
-                        <Badge className={`px-3 py-1 text-xs ${
-                          apartment.apartmentIQData.marketVelocity === 'hot' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                          apartment.apartmentIQData.marketVelocity === 'normal' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                          'bg-blue-500/20 text-blue-400 border-blue-500/30'
-                        }`}>
-                          {apartment.apartmentIQData.marketVelocity.toUpperCase()} • Days on Market {apartment.apartmentIQData.daysOnMarket}D
-                        </Badge>
-                        
-                        {/* Pricing Strategy Badge */}
-                        {recommendations[apartment.id] && (
-                          <Badge className={`px-3 py-1 text-xs border ${getUrgencyColor(recommendations[apartment.id].urgencyLevel)}`}>
-                            <Target className="w-3 h-3 mr-1" />
-                            {recommendations[apartment.id].strategy.replace('_', ' ').toUpperCase()}
-                          </Badge>
-                        )}
-                      </div>
+                      ))}
                     </div>
+                    <div className="text-xs text-muted-foreground mt-1 text-center">6 photos</div>
                   </div>
                 </div>
+                
+                {/* Property Details */}
+                <div className="flex-1">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-foreground mb-1">{apartment.name}</h3>
+                      <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
+                        {apartment.address}
+                      </p>
+                    </div>
+                    
+                    {/* Top Pick Badge */}
+                    {apartment.isTopPick && (
+                      <Badge className="bg-gradient-to-r from-green-500/20 to-green-600/20 border-green-500/50 text-green-400 text-sm font-semibold">
+                        ⭐ AI TOP PICK
+                      </Badge>
+                    )}
+                  </div>
 
-                {/* Enhanced ApartmentIQ Scores & Pricing Intelligence */}
-                <div className="text-right space-y-3">
-                  <div className={`inline-flex items-center gap-3 px-4 py-3 rounded-xl border ${getScoreBg(apartment.apartmentIQData.amenityScore)}`}>
-                    <div className="text-right">
-                      <div className="text-xs text-muted-foreground mb-1">🧠 ApartmentIQ Score</div>
-                      <div className={`text-3xl font-bold ${getScoreColor(apartment.apartmentIQData.amenityScore)}`}>
-                        {apartment.apartmentIQData.amenityScore}
+                  {/* Price and Score Row */}
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <div className="flex items-baseline gap-2 mb-1">
+                        <div className="text-sm line-through text-slate-400">${apartment.apartmentIQData.originalRent.toLocaleString()}</div>
+                        <div className="text-xl font-bold text-green-400">${apartment.apartmentIQData.effectiveRent.toLocaleString()}/mo</div>
                       </div>
-                      <div className="text-xs text-muted-foreground">/100</div>
+                      <div className="text-xs font-medium text-green-400 mb-1">
+                        {apartment.apartmentIQData.concessionType}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Badge variant="outline" className={`text-sm font-semibold mb-2 ${
+                        apartment.combinedScore >= 90 ? 'border-green-500/50 text-green-400 bg-green-500/10' :
+                        apartment.combinedScore >= 80 ? 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10' :
+                        apartment.combinedScore >= 70 ? 'border-orange-500/50 text-orange-400 bg-orange-500/10' :
+                        'border-red-500/50 text-red-400 bg-red-500/10'
+                      }`}>
+                        {apartment.combinedScore}% Match
+                      </Badge>
                     </div>
                   </div>
-                  
-                  {/* Pricing Intelligence Summary */}
+
+                  {/* Property Stats Grid */}
+                  <div className="grid grid-cols-4 gap-3 mb-4 text-center">
+                    <div>
+                      <div className="text-lg font-semibold text-foreground">{apartment.aiMatchScore}%</div>
+                      <div className="text-xs text-muted-foreground">AI Score</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-semibold text-foreground">{apartment.locationScore}%</div>
+                      <div className="text-xs text-muted-foreground">Location</div>
+                    </div>
+                    <div>
+                      <div className="text-lg font-semibold text-blue-400">{apartment.bedrooms}bd/{apartment.bathrooms}ba</div>
+                      <div className="text-xs text-muted-foreground">{apartment.sqft} sqft</div>
+                    </div>
+                    <div>
+                      <Badge variant="outline" className={`text-xs font-semibold ${
+                        apartment.apartmentIQData.marketVelocity === 'hot' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                        apartment.apartmentIQData.marketVelocity === 'normal' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                        'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                      }`}>
+                        Days on Market {apartment.apartmentIQData.daysOnMarket}D
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Combined AI Pricing & Concession Analysis */}
                   {recommendations[apartment.id] && (
-                    <div className="bg-slate-700/30 rounded-lg p-3 space-y-2">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">💡 AI Strategy:</span>
-                        <span className={`font-bold capitalize ${getStrategyColor(recommendations[apartment.id].strategy)}`}>
-                          {recommendations[apartment.id].strategy.replace('_', ' ')}
-                        </span>
+                    <div className="bg-slate-800/50 rounded-lg p-3 mb-4 border border-slate-600/30">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-semibold text-green-400">💰 Monthly Savings Analysis</span>
+                        <Badge variant="outline" className={`text-xs ${getUrgencyColor(recommendations[apartment.id].urgencyLevel)} border`}>
+                          {recommendations[apartment.id].urgencyLevel.toUpperCase()}
+                        </Badge>
                       </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">🎯 Price Target:</span>
-                        <span className={`font-bold ${getStrategyColor(recommendations[apartment.id].strategy)}`}>
-                          ${recommendations[apartment.id].suggestedRent.toLocaleString()}/mo
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">⏱️ Expected Lease:</span>
-                        <span className="text-blue-400 font-bold">
-                          {recommendations[apartment.id].expectedLeaseDays} days
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">📈 Revenue Impact:</span>
-                        <span className={`font-bold ${recommendations[apartment.id].revenueImpact.totalImpact >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                          {recommendations[apartment.id].revenueImpact.totalImpact >= 0 ? '+' : ''}${recommendations[apartment.id].revenueImpact.totalImpact.toLocaleString()}
-                        </span>
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <span>AI Rent Reduction:</span>
+                            <span className="font-semibold text-green-400">
+                              ${Math.abs(recommendations[apartment.id].adjustmentAmount).toLocaleString()}/mo
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Concession Value:</span>
+                            <span className="font-semibold text-green-400">
+                              ${Math.round(apartment.apartmentIQData.concessionValue / 12).toLocaleString()}/mo
+                            </span>
+                          </div>
+                          <div className="flex justify-between border-t border-slate-600/30 pt-1 font-bold text-green-300">
+                            <span>Total Monthly Savings:</span>
+                            <span>
+                              ${(Math.abs(recommendations[apartment.id].adjustmentAmount) + Math.round(apartment.apartmentIQData.concessionValue / 12)).toLocaleString()}/mo
+                            </span>
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex justify-between">
+                            <span>Strategy:</span>
+                            <span className={`font-semibold ${getStrategyColor(recommendations[apartment.id].strategy)}`}>
+                              {recommendations[apartment.id].strategy.replace('_', ' ')}
+                            </span>
+                          </div>
+                          <div className="flex justify-between border-t border-slate-600/30 pt-1 font-bold text-green-300">
+                            <span>Annual Savings:</span>
+                            <span>
+                              ${((Math.abs(recommendations[apartment.id].adjustmentAmount) + Math.round(apartment.apartmentIQData.concessionValue / 12)) * 12).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
-                  
-                  {/* Market Intelligence */}
-                  <div className="text-xs space-y-1">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Negotiation Potential:</span>
-                      <span className={`font-semibold ${getScoreColor(apartment.apartmentIQData.negotiationPotential * 10)}`}>
-                        {apartment.apartmentIQData.negotiationPotential}/10
-                      </span>
+
+                  {/* Landlord Loss Analysis */}
+                  {recommendations[apartment.id] && (
+                    <div className="bg-slate-800/50 rounded-lg p-3 mb-4 border border-slate-600/30">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-semibold text-orange-400">📉 Landlord Loss Indicator</span>
+                        <span className="text-xs text-muted-foreground">If unit stays vacant</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 text-xs">
+                        <div className="text-center bg-slate-700/30 rounded p-2">
+                          <div className="font-semibold text-red-400">
+                            ${Math.round(apartment.apartmentIQData.originalRent * 1.1).toLocaleString()}
+                          </div>
+                          <div className="text-muted-foreground">30 Days</div>
+                        </div>
+                        <div className="text-center bg-slate-700/30 rounded p-2">
+                          <div className="font-semibold text-red-400">
+                            ${Math.round(apartment.apartmentIQData.originalRent * 2.2).toLocaleString()}
+                          </div>
+                          <div className="text-muted-foreground">60 Days</div>
+                        </div>
+                        <div className="text-center bg-slate-700/30 rounded p-2">
+                          <div className="font-semibold text-red-400">
+                            ${Math.round(apartment.apartmentIQData.originalRent * 3.3).toLocaleString()}
+                          </div>
+                          <div className="text-muted-foreground">90 Days</div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Market Position:</span>
-                      <span className={`font-semibold capitalize ${
-                        apartment.apartmentIQData.marketPosition === 'below_market' ? 'text-green-400' :
-                        apartment.apartmentIQData.marketPosition === 'at_market' ? 'text-yellow-400' :
-                        'text-red-400'
-                      }`}>
-                        {apartment.apartmentIQData.marketPosition.replace('_', ' ')}
-                      </span>
+                  )}
+
+                  {/* POI Distance Times */}
+                  {Object.keys(apartment.poiDistances).length > 0 && (
+                    <div className="bg-slate-800/50 rounded-lg p-3 mb-4 border border-slate-600/30">
+                      <div className="text-xs text-muted-foreground mb-2 font-medium">Commute Times:</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {Object.entries(apartment.poiDistances).slice(0, 4).map(([key, poi]) => (
+                          <div key={key} className="flex justify-between text-xs bg-slate-700/50 rounded p-2">
+                            <span className="text-muted-foreground truncate flex-1 capitalize">{key}:</span>
+                            <Badge variant="outline" className={`ml-2 text-xs ${
+                              poi.driveTime <= 10 ? 'border-green-500/50 text-green-400' :
+                              poi.driveTime <= 20 ? 'border-yellow-500/50 text-yellow-400' : 
+                              'border-red-500/50 text-red-400'
+                            }`}>
+                              {poi.driveTime}min
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Lease Probability:</span>
-                      <span className={`font-semibold ${getScoreColor(apartment.apartmentIQData.leaseProbability * 100)}`}>
-                        {Math.round(apartment.apartmentIQData.leaseProbability * 100)}%
-                      </span>
-                    </div>
-                  </div>
-                  
+                  )}
+
                   {/* Action Buttons */}
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
+                    <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
+                      <Eye className="w-4 h-4 mr-2" />
+                      View Details
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
                       onClick={() => toggleSaved(apartment.id)}
-                      className={`w-8 h-8 p-0 transition-all duration-200 ${
-                        savedApartments.has(apartment.id)
-                          ? 'bg-red-500/20 border-red-500/30 text-red-400'
-                          : 'bg-slate-700/30 border-slate-600/50 text-slate-400 hover:text-red-400'
-                      }`}
                     >
-                      <Heart className={`w-4 h-4 ${savedApartments.has(apartment.id) ? 'fill-current' : ''}`} />
-                    </Button>
-                    <Button size="sm" variant="outline" className="w-8 h-8 p-0">
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button size="sm" variant="outline" className="w-8 h-8 p-0">
-                      <MessageCircle className="w-4 h-4" />
+                      <Heart className={`w-4 h-4 mr-2 ${savedApartments.has(apartment.id) ? 'fill-current text-red-400' : ''}`} />
+                      {savedApartments.has(apartment.id) ? 'Saved' : 'Save'}
                     </Button>
                   </div>
                 </div>
               </div>
-
-              {/* Preference Matches */}
-              <div className="flex items-center gap-6 mb-6">
-                <div className="flex items-center gap-2">
-                  <Check className={`w-5 h-5 ${apartment.budgetMatch ? 'text-green-400' : 'text-slate-500'}`} />
-                  <span className={`text-sm font-medium ${apartment.budgetMatch ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    Budget Match
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className={`w-5 h-5 ${apartment.amenityMatch ? 'text-green-400' : 'text-slate-500'}`} />
-                  <span className={`text-sm font-medium ${apartment.amenityMatch ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    Amenities Match
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check className={`w-5 h-5 ${apartment.lifestyleMatch ? 'text-green-400' : 'text-slate-500'}`} />
-                  <span className={`text-sm font-medium ${apartment.lifestyleMatch ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    Lifestyle Match
-                  </span>
-                </div>
-              </div>
-
-              {/* POI Commute Times */}
-              {pointsOfInterest.length > 0 && (
-                <div className="mb-6">
-                  <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Commute Times
-                  </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {pointsOfInterest.slice(0, 2).map((poi) => {
-                      const distance = apartment.poiDistances[poi.category];
-                      if (!distance) return null;
-                      
-                      const getTimeColor = (time: number) => {
-                        if (time <= 10) return 'border-green-500/50 text-green-400 bg-green-500/10';
-                        if (time <= 20) return 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10';
-                        return 'border-red-500/50 text-red-400 bg-red-500/10';
-                      };
-                      
-                      return (
-                        <div key={poi.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-700/30 border border-slate-600/30">
-                          <span className="text-sm text-muted-foreground truncate mr-2">{poi.name}</span>
-                          <Badge 
-                            variant="outline" 
-                            className={getTimeColor(distance.driveTime)}
-                          >
-                            {distance.driveTime}min
-                          </Badge>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Additional Property Details */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                {/* Walkability Scores */}
-                <div className="p-3 rounded-lg bg-slate-700/30 border border-slate-600/30">
-                  <h5 className="text-sm font-semibold text-foreground mb-2">Walkability</h5>
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Walk Score:</span>
-                      <span className="font-medium text-foreground">{apartment.walkScore || 85}/100</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Transit:</span>
-                      <span className="font-medium text-foreground">{apartment.transitScore || 78}/100</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Bike Score:</span>
-                      <span className="font-medium text-foreground">{apartment.bikeScore || 82}/100</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Property Info */}
-                <div className="p-3 rounded-lg bg-slate-700/30 border border-slate-600/30">
-                  <h5 className="text-sm font-semibold text-foreground mb-2">Property Info</h5>
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Year Built:</span>
-                      <span className="font-medium text-foreground">{apartment.yearBuilt || 2020}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Pet Policy:</span>
-                      <span className="font-medium text-foreground">{apartment.petPolicy || 'Contact for details'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Parking:</span>
-                      <span className="font-medium text-foreground">{apartment.parking || 'Available'}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Utilities & Features */}
-                <div className="p-3 rounded-lg bg-slate-700/30 border border-slate-600/30">
-                  <h5 className="text-sm font-semibold text-foreground mb-2">Included</h5>
-                  <div className="space-y-1">
-                    {apartment.utilities && apartment.utilities.length > 0 ? (
-                      apartment.utilities.map((utility, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <div className="w-1 h-1 bg-green-400 rounded-full"></div>
-                          <span className="text-xs text-muted-foreground">{utility}</span>
-                        </div>
-                      ))
-                    ) : (
-                      <span className="text-xs text-muted-foreground">Contact for details</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Score Breakdown on Hover */}
-              {hoveredProperty === apartment.id && (
-                <div className="mt-6 p-4 rounded-lg bg-slate-700/30 border border-slate-600/30">
-                  <h4 className="text-sm font-semibold text-foreground mb-4">Detailed Score Breakdown</h4>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Budget Match (25%)</span>
-                      <div className="flex items-center gap-3">
-                        <Progress value={apartment.budgetMatch ? 85 : 60} className="w-20 h-2" />
-                        <span className="text-sm font-medium w-10 text-right">{apartment.budgetMatch ? '85' : '60'}%</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Location/Commute (35%)</span>
-                      <div className="flex items-center gap-3">
-                        <Progress value={apartment.locationScore || 75} className="w-20 h-2" />
-                        <span className="text-sm font-medium w-10 text-right">{apartment.locationScore || 75}%</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Lifestyle (20%)</span>
-                      <div className="flex items-center gap-3">
-                        <Progress value={apartment.lifestyleMatch ? 80 : 65} className="w-20 h-2" />
-                        <span className="text-sm font-medium w-10 text-right">{apartment.lifestyleMatch ? '80' : '65'}%</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Amenities (20%)</span>
-                      <div className="flex items-center gap-3">
-                        <Progress value={apartment.amenityMatch ? 90 : 70} className="w-20 h-2" />
-                        <span className="text-sm font-medium w-10 text-right">{apartment.amenityMatch ? '90' : '70'}%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
-          ))
+        ))
         )}
-      </div>
-
-      {/* Load More */}
-      <div className="text-center">
-        <Button variant="outline" className="bg-slate-800/30 border-slate-700/30">
-          Load More Results
-        </Button>
       </div>
     </div>
   );
