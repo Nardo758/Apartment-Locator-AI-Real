@@ -194,8 +194,8 @@ const SmartMap: React.FC<SmartMapProps> = ({
             </Button>
           </div>
 
-          {/* Map Container */}
-          <div className="relative h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-lg touch-pan-y">
+          {/* Map Container with overflow visible for popups */}
+          <div className="relative h-[400px] md:h-[500px] lg:h-[600px] rounded-lg touch-pan-y overflow-visible">
             {/* Enhanced Map Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950">
               {/* Sophisticated Grid Pattern */}
@@ -375,9 +375,18 @@ const SmartMap: React.FC<SmartMapProps> = ({
                     ))}
                   </div>
                   
-                  {/* Property Popup */}
+                  {/* Property Popup - Smart positioning */}
                   {isSelected && (
-                    <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 bg-slate-900/98 backdrop-blur-sm rounded-xl p-5 w-80 border border-slate-600/50 shadow-2xl z-40 animate-in slide-in-from-bottom-4 duration-300">
+                    <div className="fixed bg-slate-900/98 backdrop-blur-sm rounded-xl p-5 border border-slate-600/50 shadow-2xl z-50 animate-in slide-in-from-bottom-4 duration-300"
+                         style={{
+                           top: '50%',
+                           left: '50%',
+                           transform: 'translate(-50%, -50%)',
+                           width: '320px',
+                           maxHeight: '80vh',
+                           overflowY: 'auto'
+                         }}>
+                      {/* Close button */}
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
                           <div className="text-base font-semibold text-foreground mb-1">{property.name}</div>
