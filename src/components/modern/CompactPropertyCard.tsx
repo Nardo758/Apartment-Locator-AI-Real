@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Heart, Eye, Star, MapPin, Car, Clock, Check, TrendingUp, AlertTriangle, Target, DollarSign, Calendar, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,6 +34,8 @@ const CompactPropertyCard: React.FC<CompactPropertyCardProps> = ({
   isSelected = false,
   onClick
 }) => {
+  const navigate = useNavigate();
+
   const getScoreGradient = (score: number) => {
     if (score >= 90) return 'from-emerald-400 to-green-500';
     if (score >= 80) return 'from-yellow-400 to-amber-500';
@@ -124,6 +127,34 @@ const CompactPropertyCard: React.FC<CompactPropertyCardProps> = ({
                   ))}
                 </div>
               )}
+
+              {/* Quick Action Buttons */}
+              <div className="flex gap-2 mt-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/property/${property.id}`);
+                  }}
+                  className="text-xs px-2 py-1 h-6 text-blue-400 hover:bg-blue-500/10 rounded-lg"
+                >
+                  <Eye className="w-3 h-3 mr-1" />
+                  Details
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/generate-offer?property=${property.id}`);
+                  }}
+                  className="text-xs px-2 py-1 h-6 text-emerald-400 hover:bg-emerald-500/10 rounded-lg"
+                >
+                  <DollarSign className="w-3 h-3 mr-1" />
+                  Offer
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Star, MapPin, Clock, Check, TrendingUp, Filter, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,7 @@ const SmartResults: React.FC<SmartResultsProps> = ({
   onPropertySelect,
   selectedPropertyId
 }) => {
+  const navigate = useNavigate();
   const [sortBy, setSortBy] = useState<'combinedScore' | 'locationScore' | 'price'>('combinedScore');
   const [filterBy, setFilterBy] = useState<'all' | 'topPicks' | 'budgetMatch'>('all');
   const [hoveredProperty, setHoveredProperty] = useState<string | null>(null);
@@ -185,8 +187,14 @@ const SmartResults: React.FC<SmartResultsProps> = ({
             }}
             pointsOfInterest={pointsOfInterest}
             onSave={(id) => console.log('Save:', id)}
-            onViewDetails={(id) => console.log('View Details:', id)}
-            onMakeOffer={(id) => console.log('Make Offer:', id)}
+            onViewDetails={(id) => {
+              console.log('Navigating to property details:', id);
+              navigate(`/property/${id}`);
+            }}
+            onMakeOffer={(id) => {
+              console.log('Navigating to make offer:', id);
+              navigate(`/generate-offer?property=${id}`);
+            }}
             saved={false}
           />
         ))}
