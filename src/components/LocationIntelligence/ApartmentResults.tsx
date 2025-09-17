@@ -273,40 +273,6 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
 
   const displayApartments = apartments.length > 0 ? apartments : mockApartments;
 
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-400';
-    if (score >= 80) return 'text-yellow-400';
-    if (score >= 70) return 'text-orange-400';
-    return 'text-red-400';
-  };
-
-  const getScoreBg = (score: number) => {
-    if (score >= 90) return 'bg-green-500/20 border-green-500/30';
-    if (score >= 80) return 'bg-yellow-500/20 border-yellow-500/30';
-    if (score >= 70) return 'bg-orange-500/20 border-orange-500/30';
-    return 'bg-red-500/20 border-red-500/30';
-  };
-
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case 'immediate': return 'text-red-400 bg-red-500/20 border-red-500/30';
-      case 'soon': return 'text-orange-400 bg-orange-500/20 border-orange-500/30';
-      case 'moderate': return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
-      case 'low': return 'text-green-400 bg-green-500/20 border-green-500/30';
-      default: return 'text-slate-400 bg-slate-500/20 border-slate-500/30';
-    }
-  };
-
-  const getStrategyColor = (strategy: string) => {
-    switch (strategy) {
-      case 'aggressive_reduction': return 'text-red-400';
-      case 'moderate_reduction': return 'text-orange-400';
-      case 'hold': return 'text-blue-400';
-      case 'increase': return 'text-green-400';
-      default: return 'text-slate-400';
-    }
-  };
-
   const toggleSaved = (apartmentId: string) => {
     const newSaved = new Set(savedApartments);
     if (newSaved.has(apartmentId)) {
@@ -348,6 +314,35 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Header with Filters */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-xl font-bold text-foreground">Apartment Results</h2>
+          <p className="text-sm text-muted-foreground">{filteredApartments.length} properties found</p>
+        </div>
+        <div className="flex gap-3">
+          <Select value={filterBy} onValueChange={setFilterBy}>
+            <SelectTrigger className="w-40 bg-slate-800/50 border-slate-700/50">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-slate-700">
+              <SelectItem value="all">All Properties</SelectItem>
+              <SelectItem value="topPicks">AI Top Picks</SelectItem>
+              <SelectItem value="budgetMatch">Budget Match</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-40 bg-slate-800/50 border-slate-700/50">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-slate-700">
+              <SelectItem value="aiScore">AI Score</SelectItem>
+              <SelectItem value="price">Price</SelectItem>
+              <SelectItem value="newest">Newest</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       {/* Property Results */}
       <div className="space-y-4 w-full">
@@ -377,220 +372,224 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
           filteredApartments.map((apartment) => (
           <Card 
             key={apartment.id}
-            className={`w-full max-w-none bg-slate-900/95 backdrop-blur-sm border border-slate-600/50 hover:bg-slate-800/80 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/10 rounded-lg ${
-              apartment.isTopPick ? 'ring-1 ring-green-500/30 bg-gradient-to-r from-green-500/5 to-transparent' : ''
+            className={`w-full max-w-none bg-slate-900/40 backdrop-blur-md border-0 hover:bg-slate-800/50 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/20 rounded-3xl overflow-hidden group ${
+              apartment.isTopPick ? 'bg-gradient-to-br from-green-500/10 via-slate-900/40 to-purple-500/10' : ''
             }`}
             onMouseEnter={() => setHoveredProperty(apartment.id)}
             onMouseLeave={() => setHoveredProperty(null)}
           >
-            <CardContent className="p-4">
-              <div className="flex items-start gap-4">
-                {/* Property Images Section - Scaled Down */}
-                <div className="space-y-2">
-                  <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-slate-700/50 to-slate-800/50 flex items-center justify-center border border-slate-600/50">
-                    <div className="text-center">
-                      <div className="text-lg mb-0.5">🏢</div>
-                      <div className="text-xs text-muted-foreground">Property</div>
-                    </div>
-                  </div>
-                  
-                  {/* Pictures Section - Compact */}
-                  <div className="w-16">
-                    <h4 className="text-xs font-semibold text-muted-foreground mb-1">📸</h4>
-                    <div className="grid grid-cols-3 gap-0.5">
-                      {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div 
-                          key={i}
-                          className="w-4 h-4 rounded bg-slate-600/30 border border-slate-500/30 flex items-center justify-center cursor-pointer hover:bg-slate-600/50 transition-colors"
-                        >
-                          <div className="text-xs">📷</div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-0.5 text-center">6 photos</div>
+            <CardContent className="p-0 relative">
+              {/* Floating AI TOP PICK Badge */}
+              {apartment.isTopPick && (
+                <div className="absolute top-4 right-4 z-20">
+                  <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg shadow-green-500/30 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    AI TOP PICK
                   </div>
                 </div>
-                
-                {/* Property Details */}
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-foreground mb-1">{apartment.name}</h3>
-                      <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {apartment.address}
-                      </p>
+              )}
+
+              <div className="flex">
+                {/* Left: Hero Image Section */}
+                <div className="w-80 relative">
+                  <div className="h-64 bg-gradient-to-br from-slate-600/50 via-slate-700/50 to-slate-800/50 relative overflow-hidden">
+                    {/* Property Image Placeholder with Soft Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-slate-900/20"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center text-white/80">
+                        <div className="text-4xl mb-2">🏢</div>
+                        <div className="text-sm font-medium">Property View</div>
+                      </div>
                     </div>
                     
-                    {/* Top Pick Badge */}
-                    {apartment.isTopPick && (
-                      <Badge className="bg-gradient-to-r from-green-500/20 to-green-600/20 border-green-500/50 text-green-400 text-sm font-semibold">
-                        ⭐ AI TOP PICK
-                      </Badge>
-                    )}
-                  </div>
-
-                  {/* Price and Score Row - Compact */}
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <div>
-                      <div className="flex items-baseline gap-2 mb-0.5">
-                        <div className="text-xs line-through text-slate-400">${apartment.apartmentIQData.originalRent.toLocaleString()}</div>
-                        <div className="text-lg font-bold text-green-400">${apartment.apartmentIQData.effectiveRent.toLocaleString()}/mo</div>
-                      </div>
-                      <div className="text-xs font-medium text-green-400">
-                        {apartment.apartmentIQData.concessionType}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <Badge variant="outline" className={`text-xs font-semibold ${
-                        apartment.combinedScore >= 90 ? 'border-green-500/50 text-green-400 bg-green-500/10' :
-                        apartment.combinedScore >= 80 ? 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10' :
-                        apartment.combinedScore >= 70 ? 'border-orange-500/50 text-orange-400 bg-orange-500/10' :
-                        'border-red-500/50 text-red-400 bg-red-500/10'
-                      }`}>
-                        {apartment.combinedScore}% Match
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* Property Stats Grid - Compact */}
-                  <div className="grid grid-cols-4 gap-2 mb-3 text-center">
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">{apartment.aiMatchScore}%</div>
-                      <div className="text-xs text-muted-foreground">AI Score</div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">{apartment.locationScore}%</div>
-                      <div className="text-xs text-muted-foreground">Location</div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-blue-400">{apartment.bedrooms}bd/{apartment.bathrooms}ba</div>
-                      <div className="text-xs text-muted-foreground">{apartment.sqft} sqft</div>
-                    </div>
-                    <div>
-                      <Badge variant="outline" className={`text-xs font-semibold ${
-                        apartment.apartmentIQData.marketVelocity === 'hot' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                        apartment.apartmentIQData.marketVelocity === 'normal' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                        'bg-blue-500/20 text-blue-400 border-blue-500/30'
-                      }`}>
-                        Days on Market {apartment.apartmentIQData.daysOnMarket}D
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* Combined AI Pricing & Concession Analysis */}
-                  {recommendations[apartment.id] && (
-                    <div className="bg-slate-800/50 rounded-lg p-3 mb-4 border border-slate-600/30">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-semibold text-green-400">💰 Monthly Savings Analysis</span>
-                        <Badge variant="outline" className={`text-xs ${getUrgencyColor(recommendations[apartment.id].urgencyLevel)} border`}>
-                          {recommendations[apartment.id].urgencyLevel.toUpperCase()}
-                        </Badge>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3 text-xs">
-                        <div className="space-y-1">
-                          <div className="flex justify-between">
-                            <span>AI Rent Reduction:</span>
-                            <span className="font-semibold text-green-400">
-                              ${Math.abs(recommendations[apartment.id].adjustmentAmount).toLocaleString()}/mo
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Concession Value:</span>
-                            <span className="font-semibold text-green-400">
-                              ${Math.round(apartment.apartmentIQData.concessionValue / 12).toLocaleString()}/mo
-                            </span>
-                          </div>
-                          <div className="flex justify-between border-t border-slate-600/30 pt-1 font-bold text-green-300">
-                            <span>Total Monthly Savings:</span>
-                            <span>
-                              ${(Math.abs(recommendations[apartment.id].adjustmentAmount) + Math.round(apartment.apartmentIQData.concessionValue / 12)).toLocaleString()}/mo
-                            </span>
-                          </div>
-                        </div>
-                        <div className="space-y-1">
-                          <div className="flex justify-between">
-                            <span>Strategy:</span>
-                            <span className={`font-semibold ${getStrategyColor(recommendations[apartment.id].strategy)}`}>
-                              {recommendations[apartment.id].strategy.replace('_', ' ')}
-                            </span>
-                          </div>
-                          <div className="flex justify-between border-t border-slate-600/30 pt-1 font-bold text-green-300">
-                            <span>Annual Savings:</span>
-                            <span>
-                              ${((Math.abs(recommendations[apartment.id].adjustmentAmount) + Math.round(apartment.apartmentIQData.concessionValue / 12)) * 12).toLocaleString()}
-                            </span>
+                    {/* Floating Match Score Circle */}
+                    <div className="absolute top-4 left-4">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 p-0.5 shadow-xl shadow-blue-500/30">
+                        <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="text-xl font-bold text-white">{apartment.combinedScore}</div>
+                            <div className="text-xs text-blue-300">MATCH</div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  )}
 
-                  {/* Landlord Loss Analysis */}
-                  {recommendations[apartment.id] && (
-                    <div className="bg-slate-800/50 rounded-lg p-3 mb-4 border border-slate-600/30">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-semibold text-orange-400">📉 Landlord Loss Indicator</span>
-                        <span className="text-xs text-muted-foreground">If unit stays vacant</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 text-xs">
-                        <div className="text-center bg-slate-700/30 rounded p-2">
-                          <div className="font-semibold text-red-400">
-                            ${Math.round(apartment.apartmentIQData.originalRent * 1.1).toLocaleString()}
-                          </div>
-                          <div className="text-muted-foreground">30 Days</div>
-                        </div>
-                        <div className="text-center bg-slate-700/30 rounded p-2">
-                          <div className="font-semibold text-red-400">
-                            ${Math.round(apartment.apartmentIQData.originalRent * 2.2).toLocaleString()}
-                          </div>
-                          <div className="text-muted-foreground">60 Days</div>
-                        </div>
-                        <div className="text-center bg-slate-700/30 rounded p-2">
-                          <div className="font-semibold text-red-400">
-                            ${Math.round(apartment.apartmentIQData.originalRent * 3.3).toLocaleString()}
-                          </div>
-                          <div className="text-muted-foreground">90 Days</div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* POI Distance Times */}
-                  {Object.keys(apartment.poiDistances).length > 0 && (
-                    <div className="bg-slate-800/50 rounded-lg p-3 mb-4 border border-slate-600/30">
-                      <div className="text-xs text-muted-foreground mb-2 font-medium">Commute Times:</div>
-                      <div className="grid grid-cols-2 gap-2">
-                        {Object.entries(apartment.poiDistances).slice(0, 4).map(([key, poi]) => (
-                          <div key={key} className="flex justify-between text-xs bg-slate-700/50 rounded p-2">
-                            <span className="text-muted-foreground truncate flex-1 capitalize">{key}:</span>
-                            <Badge variant="outline" className={`ml-2 text-xs ${
-                              poi.driveTime <= 10 ? 'border-green-500/50 text-green-400' :
-                              poi.driveTime <= 20 ? 'border-yellow-500/50 text-yellow-400' : 
-                              'border-red-500/50 text-red-400'
-                            }`}>
-                              {poi.driveTime}min
-                            </Badge>
-                          </div>
+                    {/* Photo Gallery Dots */}
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5, 6].map((i) => (
+                          <div 
+                            key={i}
+                            className="w-2 h-2 rounded-full bg-white/40 hover:bg-white/80 cursor-pointer transition-all duration-200"
+                          ></div>
                         ))}
                       </div>
                     </div>
-                  )}
+                  </div>
+                </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
-                      <Eye className="w-4 h-4 mr-2" />
-                      View Details
+                {/* Right: Content Flow */}
+                <div className="flex-1 p-6 relative">
+                  {/* Header Flow */}
+                  <div className="mb-6">
+                    <h3 className="text-2xl font-bold text-white mb-1 leading-tight">{apartment.name}</h3>
+                    <p className="text-slate-300 text-sm flex items-center gap-1">
+                      <MapPin className="w-4 h-4 text-blue-400" />
+                      {apartment.address}
+                    </p>
+                  </div>
+
+                  {/* Hero Pricing Section with Gradient */}
+                  <div className="mb-6 relative">
+                    <div className="bg-gradient-to-r from-green-500/20 via-emerald-500/15 to-teal-500/20 rounded-2xl p-5 border border-green-500/30 backdrop-blur-sm">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <div className="flex items-center gap-3 mb-1">
+                            <span className="text-lg line-through text-slate-400">${apartment.apartmentIQData.originalRent.toLocaleString()}</span>
+                            <span className="text-3xl font-bold text-white">${apartment.apartmentIQData.effectiveRent.toLocaleString()}</span>
+                            <span className="text-slate-300">/mo</span>
+                          </div>
+                          <div className="text-green-400 font-medium text-sm">
+                            {apartment.apartmentIQData.concessionType}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-green-400">${apartment.apartmentIQData.originalRent - apartment.apartmentIQData.effectiveRent}</div>
+                          <div className="text-xs text-green-300">monthly savings</div>
+                        </div>
+                      </div>
+                      
+                      {/* Savings Visualization */}
+                      <div className="relative h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-green-400 to-emerald-400 rounded-full transition-all duration-1000"
+                          style={{ width: `${Math.min((apartment.apartmentIQData.originalRent - apartment.apartmentIQData.effectiveRent) / apartment.apartmentIQData.originalRent * 100, 100)}%` }}
+                        ></div>
+                      </div>
+                      <div className="flex justify-between text-xs text-slate-400 mt-1">
+                        <span>Market Rate</span>
+                        <span>{Math.round((apartment.apartmentIQData.originalRent - apartment.apartmentIQData.effectiveRent) / apartment.apartmentIQData.originalRent * 100)}% Savings</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Flowing Stats Dashboard */}
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="bg-slate-800/30 rounded-xl p-4 border border-slate-700/30 backdrop-blur-sm">
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-blue-400">{apartment.bedrooms}bd/{apartment.bathrooms}ba</div>
+                        <div className="text-xs text-slate-400">{apartment.sqft} sqft</div>
+                      </div>
+                    </div>
+                    <div className="bg-slate-800/30 rounded-xl p-4 border border-slate-700/30 backdrop-blur-sm">
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-yellow-400">{apartment.locationScore}%</div>
+                        <div className="text-xs text-slate-400">Location</div>
+                      </div>
+                    </div>
+                    <div className="bg-slate-800/30 rounded-xl p-4 border border-slate-700/30 backdrop-blur-sm">
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-purple-400">{apartment.apartmentIQData.daysOnMarket}d</div>
+                        <div className="text-xs text-slate-400">On Market</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Modern Landlord Timeline */}
+                  <div className="mb-6">
+                    <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-orange-400" />
+                      Landlord Loss Timeline
+                    </h4>
+                    <div className="relative">
+                      {/* Timeline Line */}
+                      <div className="absolute left-4 top-6 w-0.5 h-16 bg-gradient-to-b from-orange-400 via-red-400 to-red-600"></div>
+                      
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-4">
+                          <div className="w-8 h-8 rounded-full bg-orange-500/20 border-2 border-orange-400 flex items-center justify-center">
+                            <div className="w-2 h-2 rounded-full bg-orange-400"></div>
+                          </div>
+                          <div className="flex-1 bg-slate-800/20 rounded-lg p-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-slate-300">30 days</span>
+                              <span className="text-sm font-medium text-orange-400">-$2,350</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-4">
+                          <div className="w-8 h-8 rounded-full bg-red-500/20 border-2 border-red-400 flex items-center justify-center">
+                            <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                          </div>
+                          <div className="flex-1 bg-slate-800/20 rounded-lg p-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-slate-300">90 days</span>
+                              <span className="text-sm font-medium text-red-400">-$7,050</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Flowing Commute Badges */}
+                  <div className="mb-6">
+                    <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                      <Car className="w-4 h-4 text-blue-400" />
+                      Commute Times
+                    </h4>
+                    <div className="flex flex-wrap gap-3">
+                      <div className="bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-full px-4 py-2 border border-blue-500/30">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                          <span className="text-sm text-blue-300">Work • 18 min</span>
+                        </div>
+                      </div>
+                      <div className="bg-gradient-to-r from-purple-500/20 to-purple-600/20 rounded-full px-4 py-2 border border-purple-500/30">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-purple-400"></div>
+                          <span className="text-sm text-purple-300">Gym • 12 min</span>
+                        </div>
+                      </div>
+                      <div className="bg-gradient-to-r from-green-500/20 to-green-600/20 rounded-full px-4 py-2 border border-green-500/30">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                          <span className="text-sm text-green-300">Airport • 35 min</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Modern Action Flow */}
+                  <div className="flex gap-3">
+                    <Button 
+                      className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-blue-500/30 group"
+                      onClick={() => {
+                        // Navigate to make offer page
+                        console.log('Make offer for:', apartment.id);
+                      }}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <DollarSign className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        Make Offer
+                      </div>
                     </Button>
                     <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="flex-1"
+                      variant="outline"
+                      className="flex-1 bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 font-medium py-3 rounded-xl transition-all duration-300"
                       onClick={() => toggleSaved(apartment.id)}
                     >
-                      <Heart className={`w-4 h-4 mr-2 ${savedApartments.has(apartment.id) ? 'fill-current text-red-400' : ''}`} />
-                      {savedApartments.has(apartment.id) ? 'Saved' : 'Save'}
+                      <div className="flex items-center justify-center gap-2">
+                        <Heart className={`w-5 h-5 ${savedApartments.has(apartment.id) ? 'fill-red-500 text-red-500' : ''}`} />
+                        {savedApartments.has(apartment.id) ? 'Saved' : 'Save'}
+                      </div>
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 px-4 py-3 rounded-xl transition-all duration-300"
+                    >
+                      <Eye className="w-5 h-5" />
                     </Button>
                   </div>
                 </div>
