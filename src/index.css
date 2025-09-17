@@ -126,7 +126,7 @@
   /* Button gradients */
   .btn-primary {
     background: var(--gradient-primary);
-    @apply text-primary-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200;
+    @apply text-white font-medium px-4 py-2 rounded-lg transition-all duration-200;
   }
 
   .btn-primary:hover {
@@ -136,46 +136,12 @@
 
   .btn-secondary {
     background: var(--gradient-secondary);
-    @apply text-secondary-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200;
+    @apply text-white font-medium px-4 py-2 rounded-lg transition-all duration-200;
   }
 
   .btn-secondary:hover {
     transform: translateY(-1px);
     box-shadow: 0 10px 20px rgba(78, 205, 196, 0.3);
-  }
-
-  /* Status indicators */
-  .status-success {
-    @apply text-emerald-400 bg-emerald-500/10 border-emerald-500/30;
-  }
-
-  .status-warning {
-    @apply text-amber-400 bg-amber-500/10 border-amber-500/30;
-  }
-
-  .status-error {
-    @apply text-red-400 bg-red-500/10 border-red-500/30;
-  }
-
-  .status-info {
-    @apply text-blue-400 bg-blue-500/10 border-blue-500/30;
-  }
-
-  /* Progress colors */
-  .progress-excellent {
-    @apply bg-emerald-500;
-  }
-
-  .progress-good {
-    @apply bg-blue-500;
-  }
-
-  .progress-warning {
-    @apply bg-amber-500;
-  }
-
-  .progress-poor {
-    @apply bg-red-500;
   }
 }
 

@@ -37,13 +37,8 @@ const SavedProperties: React.FC = () => {
                 </h1>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-sm text-muted-foreground">
-                {favoriteProperties.length} saved {favoriteProperties.length === 1 ? 'property' : 'properties'}
-              </div>
-              <Button variant="outline" size="sm" asChild>
-                <a href="/help">Need Help?</a>
-              </Button>
+            <div className="text-sm text-muted-foreground">
+              {favoriteProperties.length} saved {favoriteProperties.length === 1 ? 'property' : 'properties'}
             </div>
           </div>
         </div>

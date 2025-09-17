@@ -78,7 +78,7 @@ const UsageTracker: React.FC = () => {
         </div>
       </div>
 
-      <button className="w-full mt-6 bg-gradient-primary text-primary-foreground py-2 px-4 rounded-lg font-medium hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5">
+      <button className="w-full mt-6 bg-gradient-primary text-white py-2 px-4 rounded-lg font-medium hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5">
         <Zap size={16} className="inline mr-2" />
         🚀 Unlock More AI Power
       </button>

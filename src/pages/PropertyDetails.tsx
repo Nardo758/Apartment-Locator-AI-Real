@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
   MapPin, 
@@ -504,17 +504,9 @@ const PropertyDetails: React.FC = () => {
                     <Calendar size={16} className="mr-2" />
                     Schedule Tour
                   </Button>
-                  <Button variant="outline" className="w-full" asChild>
-                    <Link to="/saved-properties">
-                      <Star size={16} className="mr-2" />
-                      View Saved Properties
-                    </Link>
-                  </Button>
-                  <Button variant="outline" className="w-full" asChild>
-                    <Link to="/help">
-                      <Star size={16} className="mr-2" />
-                      Need Help?
-                    </Link>
+                  <Button variant="outline" className="w-full">
+                    <Star size={16} className="mr-2" />
+                    Compare Properties
                   </Button>
                 </CardContent>
               </Card>

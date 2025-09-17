@@ -23,17 +23,18 @@ export const LeverageScoreCard: React.FC<LeverageScoreCardProps> = ({
   recommendation,
   dataStatus
 }) => {
-  const getLeverageVariant = (score: number) => {
-    if (score >= 80) return 'leverage-excellent';
-    if (score >= 60) return 'leverage-good';
-    return 'leverage-poor';
+  const getLeverageColor = (score: number) => {
+    if (score >= 80) return 'bg-green-500/20 text-green-600 border-green-500/30';
+    if (score >= 60) return 'bg-blue-500/20 text-blue-600 border-blue-500/30';
+    if (score >= 40) return 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30';
+    return 'bg-red-500/20 text-red-600 border-red-500/30';
   };
 
-  const getRecommendationClass = (action: string) => {
+  const getRecommendationColor = (action: string) => {
     switch (action) {
-      case 'buy_immediately': return 'bg-primary/10 text-primary border-primary/30';
-      case 'negotiate_aggressively': return 'status-success border';
-      case 'rent_and_negotiate': return 'status-info border';
+      case 'buy_immediately': return 'bg-purple-500/20 text-purple-600 border-purple-500/30';
+      case 'negotiate_aggressively': return 'bg-green-500/20 text-green-600 border-green-500/30';
+      case 'rent_and_negotiate': return 'bg-blue-500/20 text-blue-600 border-blue-500/30';
       default: return 'bg-muted/50 text-muted-foreground border-border';
     }
   };
@@ -59,7 +60,7 @@ export const LeverageScoreCard: React.FC<LeverageScoreCardProps> = ({
             <Target className="w-5 h-5 text-blue-500" />
             Negotiation Intelligence
           </CardTitle>
-          <Badge variant={getLeverageVariant(leverageScore) as any} className="text-sm font-semibold border">
+          <Badge className={`text-sm font-semibold border ${getLeverageColor(leverageScore)}`}>
             {leverageScore}/100 Leverage
           </Badge>
         </div>
@@ -75,7 +76,7 @@ export const LeverageScoreCard: React.FC<LeverageScoreCardProps> = ({
         </div>
 
         {/* Main Recommendation */}
-        <div className={`border rounded-lg p-4 ${getRecommendationClass(recommendation.action)}`}>
+        <div className={`border rounded-lg p-4 ${getRecommendationColor(recommendation.action)}`}>
           <div className="flex items-center gap-2 mb-2">
             {getActionIcon(recommendation.action)}
             <h3 className="font-semibold text-lg">

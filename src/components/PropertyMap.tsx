@@ -20,7 +20,7 @@ const PropertyMap: React.FC = () => {
         <h3 className="text-lg font-semibold text-foreground">Property Map</h3>
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center space-x-2 px-3 py-1 rounded-lg bg-background/10 hover:bg-background/20 transition-colors"
+          className="flex items-center space-x-2 px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
         >
           <Filter size={16} />
           <span className="text-sm">Filters</span>
@@ -83,8 +83,8 @@ const PropertyMap: React.FC = () => {
             }}
             onClick={() => setSelectedProperty(property.id === selectedProperty ? null : property.id)}
           >
-            <div className={`w-6 h-6 rounded-full ${getMatchScoreColor(property.matchScore)} border-2 border-background hover:scale-110 transition-transform flex items-center justify-center`}>
-              <MapPin size={12} className="text-primary-foreground" />
+            <div className={`w-6 h-6 rounded-full ${getMatchScoreColor(property.matchScore)} border-2 border-white hover:scale-110 transition-transform flex items-center justify-center`}>
+              <MapPin size={12} className="text-white" />
             </div>
             
             {/* Property Tooltip */}

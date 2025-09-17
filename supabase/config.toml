@@ -1,16 +1,4 @@
 project_id = "xtaqdaamzqzqvhqeijjh"
 
-[functions.create-payment]
-verify_jwt = false
-
-[functions.payment-diagnostic]
-verify_jwt = false
-
 [functions.send-offer-email]
-verify_jwt = false
-
-[functions.stripe-webhook]
-verify_jwt = false
-
-[functions.create-checkout-session]
 verify_jwt = false

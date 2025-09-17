@@ -225,14 +225,14 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       {/* Action Buttons - Modern Design */}
       <div className="flex gap-3">
         <button 
-          className="flex-1 bg-gradient-primary hover:opacity-90 text-primary-foreground font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+          className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
           onClick={handleGenerateOffer}
         >
           <Zap size={16} />
           Generate AI Offer
         </button>
         <button 
-          className="flex-1 bg-muted hover:bg-muted/80 text-muted-foreground font-medium py-3 px-4 rounded-lg transition-all duration-200 border border-border"
+          className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 border border-slate-600"
           onClick={handleViewDetails}
         >
           View Details

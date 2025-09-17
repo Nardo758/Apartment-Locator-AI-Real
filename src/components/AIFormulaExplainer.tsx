@@ -61,7 +61,7 @@ const AIFormulaExplainer: React.FC = () => {
           <Brain className="w-5 h-5 text-purple-400" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-foreground">Apartment Locator AI Formula</h3>
+          <h3 className="text-lg font-bold text-foreground">ApartmentIQ AI Formula</h3>
           <p className="text-sm text-muted-foreground">6 ML models • 50+ variables • 87% accuracy</p>
         </div>
       </div>

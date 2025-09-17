@@ -15,15 +15,6 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
-        "opportunity-high": "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
-        "opportunity-medium": "border-amber-500/30 bg-amber-500/10 text-amber-400", 
-        "opportunity-low": "border-slate-500/30 bg-slate-500/10 text-slate-400",
-        "leverage-excellent": "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
-        "leverage-good": "border-blue-500/30 bg-blue-500/10 text-blue-400",
-        "leverage-poor": "border-red-500/30 bg-red-500/10 text-red-400",
-        "severity-critical": "border-red-500/30 bg-red-500/10 text-red-400",
-        "severity-warning": "border-amber-500/30 bg-amber-500/10 text-amber-400",
-        "severity-info": "border-blue-500/30 bg-blue-500/10 text-blue-400",
       },
     },
     defaultVariants: {

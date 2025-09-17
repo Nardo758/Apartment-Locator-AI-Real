@@ -14,78 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      access_tokens: {
-        Row: {
-          created_at: string
-          email: string
-          expires_at: string
-          id: string
-          plan_type: string
-          token: string
-          used: boolean | null
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          expires_at: string
-          id?: string
-          plan_type: string
-          token: string
-          used?: boolean | null
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          expires_at?: string
-          id?: string
-          plan_type?: string
-          token?: string
-          used?: boolean | null
-        }
-        Relationships: []
-      }
-      orders: {
-        Row: {
-          amount: number
-          created_at: string
-          currency: string | null
-          id: string
-          plan_type: string
-          status: string | null
-          stripe_payment_intent_id: string | null
-          stripe_session_id: string | null
-          updated_at: string
-          user_email: string
-          user_id: string | null
-        }
-        Insert: {
-          amount: number
-          created_at?: string
-          currency?: string | null
-          id?: string
-          plan_type: string
-          status?: string | null
-          stripe_payment_intent_id?: string | null
-          stripe_session_id?: string | null
-          updated_at?: string
-          user_email: string
-          user_id?: string | null
-        }
-        Update: {
-          amount?: number
-          created_at?: string
-          currency?: string | null
-          id?: string
-          plan_type?: string
-          status?: string | null
-          stripe_payment_intent_id?: string | null
-          stripe_session_id?: string | null
-          updated_at?: string
-          user_email?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       rental_offers: {
         Row: {
           ai_suggestions: Json | null
@@ -128,68 +56,11 @@ export type Database = {
         }
         Relationships: []
       }
-      subscribers: {
-        Row: {
-          access_token: string | null
-          amount: number
-          created_at: string
-          currency: string | null
-          email: string
-          id: string
-          name: string | null
-          plan_end: string
-          plan_start: string | null
-          plan_type: string
-          status: string | null
-          stripe_customer_id: string | null
-          stripe_session_id: string | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          access_token?: string | null
-          amount: number
-          created_at?: string
-          currency?: string | null
-          email: string
-          id?: string
-          name?: string | null
-          plan_end: string
-          plan_start?: string | null
-          plan_type: string
-          status?: string | null
-          stripe_customer_id?: string | null
-          stripe_session_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          access_token?: string | null
-          amount?: number
-          created_at?: string
-          currency?: string | null
-          email?: string
-          id?: string
-          name?: string | null
-          plan_end?: string
-          plan_start?: string | null
-          plan_type?: string
-          status?: string | null
-          stripe_customer_id?: string | null
-          stripe_session_id?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       user_profiles: {
         Row: {
           additional_notes: string | null
           ai_preferences: Json | null
           amenities: string[] | null
-          bedrooms: string | null
-          bio: string | null
-          budget: number | null
           communication: string[] | null
           created_at: string
           credit_score: string | null
@@ -199,45 +70,31 @@ export type Database = {
           email: string
           employment_type: string | null
           gross_income: number | null
-          has_completed_ai_programming: boolean | null
-          has_completed_social_signup: boolean | null
           household_size: string | null
           id: string
           income_verified: boolean | null
           lease_duration: string | null
           lease_expiration: string | null
-          lifestyle: string | null
-          location: string | null
           max_budget: number | null
           max_commute: number | null
-          max_drive_time: number | null
           min_bedrooms: string | null
           move_timeline: string | null
           negotiation_comfort: string | null
           neighborhoods: string | null
           other_locations: Json | null
           pet_info: string | null
-          points_of_interest: Json | null
-          priorities: string[] | null
-          program_ai_prompt_dismissed: boolean | null
           rental_history: string | null
           search_criteria: Json | null
-          search_radius: number | null
           transportation: string | null
           updated_at: string
-          use_case: string | null
           user_id: string | null
           work_address: string | null
           work_frequency: string | null
-          work_schedule: string | null
         }
         Insert: {
           additional_notes?: string | null
           ai_preferences?: Json | null
           amenities?: string[] | null
-          bedrooms?: string | null
-          bio?: string | null
-          budget?: number | null
           communication?: string[] | null
           created_at?: string
           credit_score?: string | null
@@ -247,45 +104,31 @@ export type Database = {
           email: string
           employment_type?: string | null
           gross_income?: number | null
-          has_completed_ai_programming?: boolean | null
-          has_completed_social_signup?: boolean | null
           household_size?: string | null
           id?: string
           income_verified?: boolean | null
           lease_duration?: string | null
           lease_expiration?: string | null
-          lifestyle?: string | null
-          location?: string | null
           max_budget?: number | null
           max_commute?: number | null
-          max_drive_time?: number | null
           min_bedrooms?: string | null
           move_timeline?: string | null
           negotiation_comfort?: string | null
           neighborhoods?: string | null
           other_locations?: Json | null
           pet_info?: string | null
-          points_of_interest?: Json | null
-          priorities?: string[] | null
-          program_ai_prompt_dismissed?: boolean | null
           rental_history?: string | null
           search_criteria?: Json | null
-          search_radius?: number | null
           transportation?: string | null
           updated_at?: string
-          use_case?: string | null
           user_id?: string | null
           work_address?: string | null
           work_frequency?: string | null
-          work_schedule?: string | null
         }
         Update: {
           additional_notes?: string | null
           ai_preferences?: Json | null
           amenities?: string[] | null
-          bedrooms?: string | null
-          bio?: string | null
-          budget?: number | null
           communication?: string[] | null
           created_at?: string
           credit_score?: string | null
@@ -295,37 +138,26 @@ export type Database = {
           email?: string
           employment_type?: string | null
           gross_income?: number | null
-          has_completed_ai_programming?: boolean | null
-          has_completed_social_signup?: boolean | null
           household_size?: string | null
           id?: string
           income_verified?: boolean | null
           lease_duration?: string | null
           lease_expiration?: string | null
-          lifestyle?: string | null
-          location?: string | null
           max_budget?: number | null
           max_commute?: number | null
-          max_drive_time?: number | null
           min_bedrooms?: string | null
           move_timeline?: string | null
           negotiation_comfort?: string | null
           neighborhoods?: string | null
           other_locations?: Json | null
           pet_info?: string | null
-          points_of_interest?: Json | null
-          priorities?: string[] | null
-          program_ai_prompt_dismissed?: boolean | null
           rental_history?: string | null
           search_criteria?: Json | null
-          search_radius?: number | null
           transportation?: string | null
           updated_at?: string
-          use_case?: string | null
           user_id?: string | null
           work_address?: string | null
           work_frequency?: string | null
-          work_schedule?: string | null
         }
         Relationships: []
       }

@@ -55,7 +55,7 @@ const ProgramAI = () => {
   
   const [preferences, setPreferences] = useState<AIPreferences>({
     location: searchFilters.location || 'Austin, TX',
-    searchRadius: 25,
+    searchRadius: searchFilters.priceRange ? 25 : 25,
     maxDriveTime: 30,
     pointsOfInterest: [],
     budget: userPreferences.budget || 2500,
@@ -69,51 +69,6 @@ const ProgramAI = () => {
     useCase: '',
     additionalNotes: ''
   });
-
-  // Load user profile data on component mount
-  useEffect(() => {
-    const loadUserProfile = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data: profile, error } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error loading profile:', error);
-          return;
-        }
-
-        if (profile) {
-          setPreferences(prev => ({
-            ...prev,
-            location: profile.location || 'Austin, TX',
-            searchRadius: profile.search_radius || 25,
-            maxDriveTime: profile.max_drive_time || 30,
-            pointsOfInterest: (profile.points_of_interest as any) || [],
-            budget: profile.budget || 2500,
-            bedrooms: profile.bedrooms || '1',
-            amenities: profile.amenities || [],
-            dealBreakers: profile.deal_breakers || [],
-            lifestyle: profile.lifestyle || '',
-            workSchedule: profile.work_schedule || '',
-            priorities: profile.priorities || [],
-            bio: profile.bio || '',
-            useCase: profile.use_case || '',
-            additionalNotes: profile.additional_notes || ''
-          }));
-        }
-      } catch (error) {
-        console.error('Error loading user profile:', error);
-      }
-    };
-
-    loadUserProfile();
-  }, []);
 
   const commonAmenities = [
     'Pool', 'Gym/Fitness Center', 'Parking', 'Laundry', 'Pet-Friendly',
@@ -160,7 +115,7 @@ const ProgramAI = () => {
   };
 
   const syncWithGlobalState = () => {
-    // Sync search filters with global state
+    // Sync search filters
     setSearchFilters({
       location: preferences.location,
       priceRange: [0, preferences.budget] as [number, number],
@@ -168,18 +123,13 @@ const ProgramAI = () => {
       amenities: preferences.amenities
     });
 
-    // Sync user preferences with global state
+    // Sync user preferences  
     setUserPreferences({
       budget: preferences.budget,
       location: preferences.location,
       moveInDate: userPreferences.moveInDate
     });
   };
-
-  // Auto-sync when key preferences change
-  useEffect(() => {
-    syncWithGlobalState();
-  }, [preferences.location, preferences.budget, preferences.amenities, preferences.bedrooms]);
 
   const handleSave = async () => {
     try {
@@ -192,46 +142,44 @@ const ProgramAI = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error('Please sign in to save preferences');
-        navigate('/auth');
         return;
       }
 
-        const { error } = await supabase
-          .from('user_profiles')
-          .upsert({
-            user_id: user.id,
-            email: user.email,
-            location: preferences.location,
-            search_radius: preferences.searchRadius,
-            max_drive_time: preferences.maxDriveTime,
-            points_of_interest: preferences.pointsOfInterest as any,
-            budget: preferences.budget,
-            bedrooms: preferences.bedrooms,
-            amenities: preferences.amenities,
-            deal_breakers: preferences.dealBreakers,
+      const { error } = await supabase
+        .from('user_profiles')
+        .upsert({
+          user_id: user.id,
+          email: user.email,
+          location: preferences.location,
+          search_radius: preferences.searchRadius,
+          max_drive_time: preferences.maxDriveTime,
+          points_of_interest: preferences.pointsOfInterest,
+          budget: preferences.budget,
+          bedrooms: preferences.bedrooms,
+          amenities: preferences.amenities,
+          deal_breakers: preferences.dealBreakers,
+          lifestyle: preferences.lifestyle,
+          work_schedule: preferences.workSchedule,
+          priorities: preferences.priorities,
+          bio: preferences.bio,
+          use_case: preferences.useCase,
+          additional_notes: preferences.additionalNotes,
+          ai_preferences: {
+            prioritizeCommute: preferences.maxDriveTime <= 20,
+            budgetFocused: preferences.budget > 0,
+            amenityImportant: preferences.amenities.length > 3,
             lifestyle: preferences.lifestyle,
-            work_schedule: preferences.workSchedule,
-            priorities: preferences.priorities,
-            bio: preferences.bio,
-            use_case: preferences.useCase,
-            additional_notes: preferences.additionalNotes,
-            has_completed_ai_programming: true,
-            ai_preferences: {
-              prioritizeCommute: preferences.maxDriveTime <= 20,
-              budgetFocused: preferences.budget > 0,
-              amenityImportant: preferences.amenities.length > 3,
-              lifestyle: preferences.lifestyle,
-              priorities: preferences.priorities
-            },
-            search_criteria: {
-              maxBudget: preferences.budget,
-              preferredAmenities: preferences.amenities,
-              dealBreakers: preferences.dealBreakers,
-              commutePriority: preferences.maxDriveTime,
-              location: preferences.location,
-              radius: preferences.searchRadius
-            }
-          });
+            priorities: preferences.priorities
+          },
+          search_criteria: {
+            maxBudget: preferences.budget,
+            preferredAmenities: preferences.amenities,
+            dealBreakers: preferences.dealBreakers,
+            commutePriority: preferences.maxDriveTime,
+            location: preferences.location,
+            radius: preferences.searchRadius
+          }
+        });
 
       if (error) throw error;
 
@@ -265,15 +213,15 @@ const ProgramAI = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-blue-400" />
-                Search Area Profile
+                Location & Search
               </CardTitle>
-              <CardDescription>Configure your search area and preferences (syncs with dashboard)</CardDescription>
+              <CardDescription>Configure your search area and preferences</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <Label className="text-sm font-medium">Preferred Location</Label>
                 <Input
-                  placeholder="City, State (e.g., Austin, TX)"
+                  placeholder="City, State"
                   value={preferences.location}
                   onChange={(e) => updatePreference('location', e.target.value)}
                   className="mt-1 bg-slate-800/50 border-slate-600/50"
@@ -304,24 +252,75 @@ const ProgramAI = () => {
                 />
               </div>
 
-              {/* Link to Location Intelligence */}
-              <div className="bg-blue-500/5 border border-blue-500/20 rounded-lg p-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <Target className="w-5 h-5 text-blue-400" />
-                  <h4 className="font-medium text-foreground">Location Intelligence</h4>
+              {/* Points of Interest */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <Label className="text-sm font-medium">Points of Interest</Label>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setIsNewPOI(true)}
+                    className="text-xs"
+                  >
+                    <Plus className="w-3 h-3 mr-1" />
+                    Add POI
+                  </Button>
                 </div>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Manage your points of interest and get location-optimized apartment recommendations in the Location Intelligence section.
-                </p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => window.location.href = '/dashboard#location-intelligence'}
-                  className="w-full"
-                >
-                  <MapPin className="w-4 h-4 mr-1" />
-                  Go to Location Intelligence
-                </Button>
+
+                {isNewPOI && (
+                  <div className="bg-slate-800/30 rounded-lg p-3 mb-3 space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        placeholder="Name (e.g., Work)"
+                        value={newPOI.name}
+                        onChange={(e) => setNewPOI({...newPOI, name: e.target.value})}
+                        className="bg-slate-700/50 border-slate-600/50"
+                      />
+                      <Input
+                        placeholder="Address"
+                        value={newPOI.address}
+                        onChange={(e) => setNewPOI({...newPOI, address: e.target.value})}
+                        className="bg-slate-700/50 border-slate-600/50"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        type="number"
+                        placeholder="Max time (min)"
+                        value={newPOI.maxTime}
+                        onChange={(e) => setNewPOI({...newPOI, maxTime: Number(e.target.value)})}
+                        className="bg-slate-700/50 border-slate-600/50"
+                      />
+                      <Select value={newPOI.transportMode} onValueChange={(value: any) => setNewPOI({...newPOI, transportMode: value})}>
+                        <SelectTrigger className="bg-slate-700/50 border-slate-600/50">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="driving">🚗 Driving</SelectItem>
+                          <SelectItem value="transit">🚌 Transit</SelectItem>
+                          <SelectItem value="walking">🚶 Walking</SelectItem>
+                          <SelectItem value="biking">🚴 Biking</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={addPOI}>Add</Button>
+                      <Button size="sm" variant="outline" onClick={() => setIsNewPOI(false)}>Cancel</Button>
+                    </div>
+                  </div>
+                )}
+
+                {preferences.pointsOfInterest.map((poi) => (
+                  <div key={poi.id} className="flex items-center justify-between p-2 rounded-lg bg-slate-800/30 border border-slate-700/30 mb-2">
+                    <div>
+                      <div className="text-sm font-medium">{poi.name}</div>
+                      <div className="text-xs text-muted-foreground">{poi.address} • {poi.maxTime}min</div>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => removePOI(poi.id)} className="w-6 h-6 p-0">
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -489,7 +488,7 @@ const ProgramAI = () => {
               <div>
                 <Label className="text-sm font-medium">Use Case</Label>
                 <Textarea
-                  placeholder="How do you plan to use Apartment Locator AI?"
+                  placeholder="How do you plan to use ApartmentIQ?"
                   value={preferences.useCase}
                   onChange={(e) => updatePreference('useCase', e.target.value)}
                   className="mt-1 bg-slate-800/50 border-slate-600/50"

@@ -72,7 +72,7 @@ const PricingBreakdown: React.FC<PricingBreakdownProps> = ({
 
       {/* Price Breakdown */}
       <div className="bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 backdrop-blur-sm">
-        <h3 className="text-lg font-bold text-foreground mb-4 text-center">
+        <h3 className="text-lg font-bold text-white mb-4 text-center">
           Price Breakdown
         </h3>
         
@@ -106,7 +106,7 @@ const PricingBreakdown: React.FC<PricingBreakdownProps> = ({
           
           {/* Your Effective Cost */}
           <div className="flex justify-between items-center py-2 bg-teal-500/5 rounded-lg px-3 border border-teal-500/20">
-            <span className="text-base font-medium text-foreground">Your Effective Cost</span>
+            <span className="text-base font-medium text-white">Your Effective Cost</span>
             <span className="text-xl font-bold text-teal-400">
               ${effectivePrice.toLocaleString()}/mo
             </span>

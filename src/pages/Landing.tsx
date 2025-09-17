@@ -1,28 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, CheckCircle, TrendingUp, Users, DollarSign, Clock, Zap, Target, BarChart, Brain, Search, Mail, Star, Building, MapPin, Calendar } from 'lucide-react';
-// Placeholder for hero images - using placeholder URLs for now
-const heroImage = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80';
-const successStory1 = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80';
-const successStory2 = 'https://images.unsplash.com/photo-1494790108755-2616b612b77c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80';
-
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
-import { PaymentButton } from '@/components/PaymentButton';
 
 const Landing = () => {
-  const navigate = useNavigate();
-
-  // Check if user is already authenticated
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        navigate('/dashboard');
-      }
-    };
-    checkAuth();
-  }, [navigate]);
   const [currentDemo, setCurrentDemo] = useState(0);
 
   useEffect(() => {
@@ -57,11 +37,8 @@ const Landing = () => {
       {/* Header */}
       <header className="fixed top-0 w-full z-[1000] py-4" style={{ background: 'rgba(10, 10, 10, 0.95)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
         <nav className="max-w-[1200px] mx-auto px-5 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <img src="/lovable-uploads/10c9e4a0-b0e6-4896-884c-68dde07278eb.png" alt="Apartment Locator AI Logo" className="h-8 w-auto" />
-            <div className="text-2xl font-extrabold" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Apartment Locator AI
-            </div>
+          <div className="text-2xl font-extrabold" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            🏠 Apartment Locator AI
           </div>
           <ul className="hidden md:flex gap-8 list-none">
             <li>
@@ -117,25 +94,8 @@ const Landing = () => {
                 About
               </a>
             </li>
-            <li>
-              <a 
-                href="/contact" 
-                className="text-white font-medium relative transition-all duration-300"
-                style={{ textDecoration: 'none' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#667eea';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
-              >
-                Contact
-              </a>
-            </li>
           </ul>
-          <Link to="/trial">
+          <Link to="/signup">
             <button 
               className="text-white px-6 py-3 border-0 rounded-[25px] font-semibold transition-all duration-300"
               style={{ 
@@ -236,12 +196,52 @@ const Landing = () => {
               </div>
               
               <div className="flex gap-5" style={{ animation: 'slideInUp 1s ease-out 0.6s backwards' }}>
-                <Button size="lg" className="gradient-primary text-white font-semibold" asChild>
-                  <Link to="/auth">Get Started Free</Link>
-                </Button>
-                <Button size="lg" variant="outline" className="border-white/20 text-foreground hover:bg-white/10" asChild>
-                  <Link to="/demo">View Demo</Link>
-                </Button>
+                <Link to="/signup">
+                  <button 
+                    className="text-white px-8 py-4 border-0 rounded-[30px] text-lg font-semibold transition-all duration-300"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
+                      textDecoration: 'none'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-3px)';
+                      e.currentTarget.style.boxShadow = '0 10px 30px rgba(102, 126, 234, 0.6)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.4)';
+                    }}
+                  >
+                    Start Saving Today
+                  </button>
+                </Link>
+                <button 
+                  className="text-white px-8 py-4 rounded-[30px] text-lg font-semibold transition-all duration-300"
+                  style={{ 
+                    background: 'transparent',
+                    border: '2px solid rgba(255, 255, 255, 0.3)'
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const target = document.querySelector('#features');
+                    if (target) {
+                      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                    e.currentTarget.style.borderColor = '#667eea';
+                    e.currentTarget.style.transform = 'translateY(-3px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  See How It Works
+                </button>
               </div>
             </div>
             
@@ -470,19 +470,22 @@ const Landing = () => {
                   7-day access
                 </li>
               </ul>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <PaymentButton 
-                  plan="basic"
-                  variant="default"
-                  size="default"
-                  className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
-                  style={{ 
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  }}
-                >
-                  Get Basic Plan
-                </PaymentButton>
-              </div>
+              <button 
+                className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
+                style={{ 
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                Get Started
+              </button>
             </div>
 
             {/* Pro Plan - Featured */}
@@ -533,18 +536,24 @@ const Landing = () => {
                   Priority email support
                 </li>
               </ul>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <PaymentButton 
-                  variant="default"
-                  size="default"
+              <Link to="/signup">
+                <button 
                   className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
                   style={{ 
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                   }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                 >
-                  Get Pro Plan - $29.99
-                </PaymentButton>
-              </div>
+                  Start Pro Analysis
+                </button>
+              </Link>
             </div>
 
             {/* Premium Plan */}
@@ -594,80 +603,26 @@ const Landing = () => {
                   Direct phone support
                 </li>
               </ul>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <PaymentButton 
-                  plan="premium"
-                  variant="default"
-                  size="default"
-                  className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
-                  style={{ 
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  }}
-                >
-                  Get Premium Plan
-                </PaymentButton>
-              </div>
+              <button 
+                className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
+                style={{ 
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 10px 25px rgba(102, 126, 234, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                Go Premium
+              </button>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="py-16 border-t border-white/10" style={{ background: 'rgba(102, 126, 234, 0.02)' }}>
-        <div className="max-w-6xl mx-auto px-5">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <img src="/lovable-uploads/10c9e4a0-b0e6-4896-884c-68dde07278eb.png" alt="Apartment Locator AI Logo" className="h-6 w-auto" />
-                <div className="text-2xl font-extrabold" style={{ 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-                  WebkitBackgroundClip: 'text', 
-                  backgroundClip: 'text', 
-                  WebkitTextFillColor: 'transparent' 
-                }}>
-                  Apartment Locator AI
-                </div>
-              </div>
-              <p className="text-muted-foreground mb-4">
-                AI-powered apartment hunting that saves you time and money.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
-              <ul className="space-y-2">
-                <li><Link to="/how-it-works" className="text-muted-foreground hover:text-primary transition-colors">How It Works</Link></li>
-                <li><Link to="/trial" className="text-muted-foreground hover:text-primary transition-colors">Start Free Trial</Link></li>
-                <li><Link to="/auth" className="text-muted-foreground hover:text-primary transition-colors">Sign In</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
-              <ul className="space-y-2">
-                <li><Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
-                <li><Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact</Link></li>
-                <li><Link to="/help" className="text-muted-foreground hover:text-primary transition-colors">Help Center</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-white font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2">
-                <li><Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link></li>
-                <li><Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-white/10 mt-8 pt-8 text-center">
-            <p className="text-muted-foreground">
-              © 2024 Apartment Locator AI. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
-
     </div>
   );
 };
