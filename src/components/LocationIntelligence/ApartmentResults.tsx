@@ -540,6 +540,15 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                   View Details
                 </Button>
                 <Button 
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-lg transition-all duration-300"
+                  onClick={() => {
+                    console.log('Make offer for:', apartment.id);
+                  }}
+                >
+                  <DollarSign className="w-4 h-4 mr-2" />
+                  Make an Offer
+                </Button>
+                <Button 
                   variant="outline"
                   className="bg-slate-800/50 border-slate-600 hover:bg-slate-700/50 text-slate-200 px-4 py-3 rounded-lg transition-all duration-300"
                   onClick={() => toggleSaved(apartment.id)}
