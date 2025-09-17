@@ -377,37 +377,37 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
           filteredApartments.map((apartment) => (
           <Card 
             key={apartment.id}
-            className={`w-full max-w-none bg-slate-900/95 backdrop-blur-sm border border-slate-600/50 hover:bg-slate-800/80 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/10 rounded-xl ${
+            className={`w-full max-w-none bg-slate-900/95 backdrop-blur-sm border border-slate-600/50 hover:bg-slate-800/80 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/10 rounded-lg ${
               apartment.isTopPick ? 'ring-1 ring-green-500/30 bg-gradient-to-r from-green-500/5 to-transparent' : ''
             }`}
             onMouseEnter={() => setHoveredProperty(apartment.id)}
             onMouseLeave={() => setHoveredProperty(null)}
           >
-            <CardContent className="p-5">
-              <div className="flex items-start gap-6">
-                {/* Property Images Section */}
-                <div className="space-y-3">
-                  <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-slate-700/50 to-slate-800/50 flex items-center justify-center border border-slate-600/50">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-4">
+                {/* Property Images Section - Scaled Down */}
+                <div className="space-y-2">
+                  <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-slate-700/50 to-slate-800/50 flex items-center justify-center border border-slate-600/50">
                     <div className="text-center">
-                      <div className="text-2xl mb-1">🏢</div>
+                      <div className="text-lg mb-0.5">🏢</div>
                       <div className="text-xs text-muted-foreground">Property</div>
                     </div>
                   </div>
                   
-                  {/* Pictures Section */}
-                  <div className="w-24">
-                    <h4 className="text-xs font-semibold text-muted-foreground mb-2">📸 Pictures</h4>
-                    <div className="grid grid-cols-3 gap-1">
+                  {/* Pictures Section - Compact */}
+                  <div className="w-16">
+                    <h4 className="text-xs font-semibold text-muted-foreground mb-1">📸</h4>
+                    <div className="grid grid-cols-3 gap-0.5">
                       {[1, 2, 3, 4, 5, 6].map((i) => (
                         <div 
                           key={i}
-                          className="w-6 h-6 rounded bg-slate-600/30 border border-slate-500/30 flex items-center justify-center cursor-pointer hover:bg-slate-600/50 transition-colors"
+                          className="w-4 h-4 rounded bg-slate-600/30 border border-slate-500/30 flex items-center justify-center cursor-pointer hover:bg-slate-600/50 transition-colors"
                         >
                           <div className="text-xs">📷</div>
                         </div>
                       ))}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1 text-center">6 photos</div>
+                    <div className="text-xs text-muted-foreground mt-0.5 text-center">6 photos</div>
                   </div>
                 </div>
                 
@@ -430,19 +430,19 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                     )}
                   </div>
 
-                  {/* Price and Score Row */}
-                  <div className="grid grid-cols-2 gap-4 mb-4">
+                  {/* Price and Score Row - Compact */}
+                  <div className="grid grid-cols-2 gap-3 mb-3">
                     <div>
-                      <div className="flex items-baseline gap-2 mb-1">
-                        <div className="text-sm line-through text-slate-400">${apartment.apartmentIQData.originalRent.toLocaleString()}</div>
-                        <div className="text-xl font-bold text-green-400">${apartment.apartmentIQData.effectiveRent.toLocaleString()}/mo</div>
+                      <div className="flex items-baseline gap-2 mb-0.5">
+                        <div className="text-xs line-through text-slate-400">${apartment.apartmentIQData.originalRent.toLocaleString()}</div>
+                        <div className="text-lg font-bold text-green-400">${apartment.apartmentIQData.effectiveRent.toLocaleString()}/mo</div>
                       </div>
-                      <div className="text-xs font-medium text-green-400 mb-1">
+                      <div className="text-xs font-medium text-green-400">
                         {apartment.apartmentIQData.concessionType}
                       </div>
                     </div>
                     <div className="text-right">
-                      <Badge variant="outline" className={`text-sm font-semibold mb-2 ${
+                      <Badge variant="outline" className={`text-xs font-semibold ${
                         apartment.combinedScore >= 90 ? 'border-green-500/50 text-green-400 bg-green-500/10' :
                         apartment.combinedScore >= 80 ? 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10' :
                         apartment.combinedScore >= 70 ? 'border-orange-500/50 text-orange-400 bg-orange-500/10' :
@@ -453,18 +453,18 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
                     </div>
                   </div>
 
-                  {/* Property Stats Grid */}
-                  <div className="grid grid-cols-4 gap-3 mb-4 text-center">
+                  {/* Property Stats Grid - Compact */}
+                  <div className="grid grid-cols-4 gap-2 mb-3 text-center">
                     <div>
-                      <div className="text-lg font-semibold text-foreground">{apartment.aiMatchScore}%</div>
+                      <div className="text-sm font-semibold text-foreground">{apartment.aiMatchScore}%</div>
                       <div className="text-xs text-muted-foreground">AI Score</div>
                     </div>
                     <div>
-                      <div className="text-lg font-semibold text-foreground">{apartment.locationScore}%</div>
+                      <div className="text-sm font-semibold text-foreground">{apartment.locationScore}%</div>
                       <div className="text-xs text-muted-foreground">Location</div>
                     </div>
                     <div>
-                      <div className="text-lg font-semibold text-blue-400">{apartment.bedrooms}bd/{apartment.bathrooms}ba</div>
+                      <div className="text-sm font-semibold text-blue-400">{apartment.bedrooms}bd/{apartment.bathrooms}ba</div>
                       <div className="text-xs text-muted-foreground">{apartment.sqft} sqft</div>
                     </div>
                     <div>
