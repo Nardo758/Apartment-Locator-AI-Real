@@ -95,9 +95,9 @@ const PricingBreakdown: React.FC<PricingBreakdownProps> = ({
           
           {/* Concessions Value */}
           <div className="flex justify-between items-center py-2">
-            <span className="text-sm text-slate-300">Concessions Value</span>
+            <span className="text-sm text-slate-300">Monthly Concessions</span>
             <span className="text-lg font-bold text-teal-400">
-              -${Math.round(concessions / 12).toLocaleString()}/mo
+              ${concessions}/mo
             </span>
           </div>
           
@@ -115,7 +115,7 @@ const PricingBreakdown: React.FC<PricingBreakdownProps> = ({
         
         {/* Summary note */}
         <div className="text-xs text-slate-400 text-center mt-4">
-          Total savings: ${monthlySavings.toLocaleString()}/mo compared to listed price
+          Total monthly savings: ${monthlySavings.toLocaleString()}/mo • Annual savings: ${(monthlySavings * 12).toLocaleString()}/yr
         </div>
       </div>
     </div>

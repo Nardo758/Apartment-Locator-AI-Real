@@ -124,9 +124,9 @@ export const mockProperties: Property[] = [
     state: 'TX',
     zip: '78704',
     originalPrice: 2350,
-    aiPrice: 2200,
+    aiPrice: 2005,
     effectivePrice: 2005,
-    savings: 345,
+    savings: 345, // AI savings only
     matchScore: 88,
     successRate: 72,
     daysVacant: 21,
@@ -140,7 +140,7 @@ export const mockProperties: Property[] = [
       { location: 'Whole Foods', time: '3 min', method: 'walk' }
     ],
     concessions: [
-      { type: '6 Weeks Free', value: '$2,300', probability: 65, color: 'yellow' },
+      { type: 'Move-in Special', value: '$200/mo', probability: 85, color: 'green' },
       { type: 'Waived App Fee', value: '$150', probability: 90, color: 'green' }
     ],
     coordinates: { lat: 30.2580, lng: -97.7642 },

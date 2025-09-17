@@ -140,11 +140,11 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       <div className="mb-6">
         <PricingBreakdown
           originalPrice={property.originalPrice}
-          aiPrice={property.aiPrice}
+          aiPrice={property.effectivePrice}
           effectivePrice={property.effectivePrice}
-          concessions={800}
+          concessions={property.id === '3' ? 200 : 300} // Match concession value from details page
           successRate={property.successRate}
-          monthlySavings={property.originalPrice - property.effectivePrice}
+          monthlySavings={property.id === '3' ? 545 : (property.originalPrice - property.effectivePrice)} // Total savings including concessions
         />
       </div>
 
