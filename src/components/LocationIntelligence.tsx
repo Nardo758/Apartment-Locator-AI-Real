@@ -169,12 +169,20 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
               userProfile={userProfile}
             />
           ) : (
-            <SmartResults
-              smartResults={smartResults}
-              pointsOfInterest={pointsOfInterest}
-              userProfile={userProfile}
-              getCombinedScore={getCombinedScore}
-            />
+            <div className="space-y-6">
+              {/* AI-Powered Smart Results */}
+              <SmartResults
+                smartResults={smartResults}
+                pointsOfInterest={pointsOfInterest}
+                userProfile={userProfile}
+                getCombinedScore={getCombinedScore}
+              />
+              
+              {/* Additional Apartment Results */}
+              <ApartmentResults 
+                pointsOfInterest={pointsOfInterest}
+              />
+            </div>
           )}
         </div>
 
@@ -206,18 +214,6 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
               </CardContent>
             </Card>
           )}
-        </div>
-      </div>
-
-      {/* Apartment Results Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-6 gap-6 mt-8">
-        <div className="xl:col-span-5">
-          <ApartmentResults 
-            pointsOfInterest={pointsOfInterest}
-          />
-        </div>
-        <div className="xl:col-span-1">
-          {/* Empty space to match the layout above */}
         </div>
       </div>
     </div>
