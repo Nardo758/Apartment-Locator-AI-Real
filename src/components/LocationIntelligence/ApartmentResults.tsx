@@ -213,7 +213,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
       available: true,
       listingAge: 1,
       saved: false,
-      isTopPick: false,
+      isTopPick: true,
       budgetMatch: true,
       amenityMatch: true,
       lifestyleMatch: false,
