@@ -16,8 +16,7 @@ import { toast } from 'sonner';
 import Header from '@/components/Header';
 
 interface AIPreferences {
-  // Budget & Housing
-  budget: number;
+  // Housing
   bedrooms: string;
   amenities: string[];
   dealBreakers: string[];
@@ -39,7 +38,6 @@ const ProgramAI = () => {
   const [saving, setSaving] = useState(false);
   
   const [preferences, setPreferences] = useState<AIPreferences>({
-    budget: userPreferences.budget || 2500,
     bedrooms: '1',
     amenities: searchFilters.amenities || [],
     dealBreakers: [],
@@ -72,7 +70,6 @@ const ProgramAI = () => {
         if (profile) {
           setPreferences(prev => ({
             ...prev,
-            budget: profile.budget || 2500,
             bedrooms: profile.bedrooms || '1',
             amenities: profile.amenities || [],
             dealBreakers: profile.deal_breakers || [],
@@ -125,14 +122,14 @@ const ProgramAI = () => {
     // Sync search filters with global state
     setSearchFilters({
       location: searchFilters.location || 'Austin, TX',
-      priceRange: [0, preferences.budget] as [number, number],
+      priceRange: [0, userPreferences.budget || 2500] as [number, number],
       bedrooms: parseInt(preferences.bedrooms) || 1,
       amenities: preferences.amenities
     });
 
     // Sync user preferences with global state
     setUserPreferences({
-      budget: preferences.budget,
+      budget: userPreferences.budget || 2500,
       location: userPreferences.location || 'Austin, TX',
       moveInDate: userPreferences.moveInDate
     });
@@ -141,7 +138,7 @@ const ProgramAI = () => {
   // Auto-sync when key preferences change
   useEffect(() => {
     syncWithGlobalState();
-  }, [preferences.budget, preferences.amenities, preferences.bedrooms]);
+  }, [preferences.amenities, preferences.bedrooms]);
 
   const handleSave = async () => {
     try {
@@ -163,7 +160,6 @@ const ProgramAI = () => {
           .upsert({
             user_id: user.id,
             email: user.email,
-            budget: preferences.budget,
             bedrooms: preferences.bedrooms,
             amenities: preferences.amenities,
             deal_breakers: preferences.dealBreakers,
@@ -175,13 +171,11 @@ const ProgramAI = () => {
             additional_notes: preferences.additionalNotes,
             has_completed_ai_programming: true,
             ai_preferences: {
-              budgetFocused: preferences.budget > 0,
               amenityImportant: preferences.amenities.length > 3,
               lifestyle: preferences.lifestyle,
               priorities: preferences.priorities
             },
             search_criteria: {
-              maxBudget: preferences.budget,
               preferredAmenities: preferences.amenities,
               dealBreakers: preferences.dealBreakers
             }
@@ -216,29 +210,16 @@ const ProgramAI = () => {
           </div>
 
         <div className="grid grid-cols-1 gap-6">
-          {/* Budget & Housing */}
+          {/* Housing */}
           <Card className="glass-dark border-border/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Home className="w-5 h-5 text-green-400" />
-                Budget & Housing
+                Housing
               </CardTitle>
-              <CardDescription>Define your housing needs and budget</CardDescription>
+              <CardDescription>Define your housing needs</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label className="text-sm font-medium">Max Budget: ${preferences.budget}/month</Label>
-                <Slider
-                  value={[preferences.budget]}
-                  onValueChange={(value) => updatePreference('budget', value[0])}
-                  max={10000}
-                  min={500}
-                  step={100}
-                  className="mt-2"
-                />
-              </div>
-
-
               <div>
                 <Label className="text-sm font-medium">Must-Have Amenities</Label>
                 <div className="grid grid-cols-2 gap-2 mt-2">
