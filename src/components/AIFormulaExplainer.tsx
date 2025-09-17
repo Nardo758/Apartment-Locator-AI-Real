@@ -26,10 +26,10 @@ const AIFormulaExplainer: React.FC = () => {
     {
       id: 'savings',
       icon: <Calculator className="w-5 h-5" />,
-      title: 'Savings Calculator',
+      title: 'Total Savings Calculator',
       accuracy: '94%',
-      description: 'Calculates exact monthly and annual savings including time-value adjustments and opportunity costs.',
-      formula: '(Original_Rent - Negotiated_Rent) + (Concessions ÷ Lease_Term)',
+      description: 'Calculates comprehensive savings including AI pricing advantage plus available concessions for maximum monthly and annual savings.',
+      formula: 'AI_Savings + Concession_Value = Total_Monthly × 12 = Annual_Savings',
       color: 'green'
     },
     {
@@ -117,6 +117,57 @@ const AIFormulaExplainer: React.FC = () => {
               )}
             </div>
           ))}
+        </div>
+
+        {/* Pricing Breakdown Formula */}
+        <div className="space-y-3">
+          <h4 className="text-sm font-semibold text-foreground">3-Line Pricing Analysis</h4>
+          <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/30">
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Line 1: AI Price Advantage</span>
+                <span className="text-purple-400 font-mono">Original - AI_Price = AI_Savings</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Line 2: Concession Value</span>
+                <span className="text-blue-400 font-mono">Concession_Amount = Additional_Savings</span>
+              </div>
+              <div className="flex items-center justify-between border-t border-slate-600/30 pt-2">
+                <span className="text-foreground font-medium">Line 3: Total Savings</span>
+                <span className="text-green-400 font-mono">(AI + Concessions) × 12 = Annual</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-green-500/5 rounded-lg p-4 border border-green-500/20">
+            <h5 className="text-sm font-semibold text-green-400 mb-2">Example: South Lamar Residences</h5>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Original Price:</span>
+                <span className="text-foreground">$2,350/mo</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">AI Predicted Price:</span>
+                <span className="text-purple-400">$2,005/mo</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">AI Savings:</span>
+                <span className="text-green-400">$345/mo</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Concession Value:</span>
+                <span className="text-blue-400">$200/mo</span>
+              </div>
+              <div className="flex justify-between border-t border-slate-600/30 pt-2 font-semibold">
+                <span className="text-foreground">Total Monthly Savings:</span>
+                <span className="text-green-400">$545/mo</span>
+              </div>
+              <div className="flex justify-between font-semibold">
+                <span className="text-foreground">Total Annual Savings:</span>
+                <span className="text-green-400">$6,540/yr</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Opportunity Tiers */}
