@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Plus, Eye, List, Brain, Target, Settings, Navigation, Clock, Zap } from 'lucide-react';
+import { MapPin, Plus, Eye, Brain, Target, Settings, Navigation, Clock, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +16,6 @@ interface LocationIntelligenceProps {
 }
 
 const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile }) => {
-  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [showPOIModal, setShowPOIModal] = useState(false);
   const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
   
@@ -64,27 +63,6 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
               </Badge>
             </div>
 
-            {/* View Toggle */}
-            <div className="flex rounded-lg bg-slate-800/50 border border-slate-700/50 p-1">
-              <Button
-                size="sm"
-                variant={viewMode === 'map' ? "default" : "ghost"}
-                onClick={() => setViewMode('map')}
-                className={`h-9 px-4 ${viewMode === 'map' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'hover:bg-slate-700/50'}`}
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                Map View
-              </Button>
-              <Button
-                size="sm"
-                variant={viewMode === 'list' ? "default" : "ghost"}
-                onClick={() => setViewMode('list')}
-                className={`h-9 px-4 ${viewMode === 'list' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'hover:bg-slate-700/50'}`}
-              >
-                <List className="w-4 h-4 mr-2" />
-                List View
-              </Button>
-            </div>
           </div>
         </div>
       </div>
@@ -160,30 +138,13 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
 
       {/* Main Content Area */}
       <div className="grid grid-cols-1 xl:grid-cols-6 gap-6 mb-8">
-        {/* Map or List View */}
+        {/* Map View */}
         <div className="xl:col-span-5">
-          {viewMode === 'map' ? (
-            <SmartMap
-              pointsOfInterest={pointsOfInterest}
-              smartResults={smartResults}
-              userProfile={userProfile}
-            />
-          ) : (
-            <div className="space-y-6">
-              {/* AI-Powered Smart Results */}
-              <SmartResults
-                smartResults={smartResults}
-                pointsOfInterest={pointsOfInterest}
-                userProfile={userProfile}
-                getCombinedScore={getCombinedScore}
-              />
-              
-              {/* Additional Apartment Results */}
-              <ApartmentResults 
-                pointsOfInterest={pointsOfInterest}
-              />
-            </div>
-          )}
+          <SmartMap
+            pointsOfInterest={pointsOfInterest}
+            smartResults={smartResults}
+            userProfile={userProfile}
+          />
         </div>
 
         {/* Sidebar */}
