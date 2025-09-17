@@ -12,13 +12,17 @@ interface SmartResultsProps {
   pointsOfInterest: PointOfInterest[];
   userProfile: any;
   getCombinedScore: (propertyId: string) => number;
+  onPropertySelect?: (id: string) => void;
+  selectedPropertyId?: string | null;
 }
 
 const SmartResults: React.FC<SmartResultsProps> = ({
   smartResults,
   pointsOfInterest,
   userProfile,
-  getCombinedScore
+  getCombinedScore,
+  onPropertySelect,
+  selectedPropertyId
 }) => {
   const [sortBy, setSortBy] = useState<'combinedScore' | 'locationScore' | 'price'>('combinedScore');
   const [filterBy, setFilterBy] = useState<'all' | 'topPicks' | 'budgetMatch'>('all');
@@ -126,9 +130,14 @@ const SmartResults: React.FC<SmartResultsProps> = ({
         {filteredResults.map((property) => (
           <Card 
             key={property.id}
-            className={`w-full max-w-none bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/40 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
+            className={`w-full max-w-none cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
+              selectedPropertyId === property.id 
+                ? 'ring-2 ring-blue-500/50 bg-blue-500/5 bg-slate-800/40' 
+                : 'bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/40'
+            } ${
               property.isTopPick ? 'ring-1 ring-green-500/30 bg-gradient-to-r from-green-500/5 to-transparent' : ''
             }`}
+            onClick={() => onPropertySelect?.(property.id)}
             onMouseEnter={() => setHoveredProperty(property.id)}
             onMouseLeave={() => setHoveredProperty(null)}
           >
@@ -326,6 +335,19 @@ const SmartResults: React.FC<SmartResultsProps> = ({
                   </div>
                 </div>
               )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 mt-6">
+                <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
+                  View Details
+                </Button>
+                <Button size="sm" variant="outline" className="flex-1 border-slate-600/50 hover:bg-slate-700/50">
+                  Save Property
+                </Button>
+                <Button size="sm" variant="outline" className="px-4 border-green-600/50 text-green-400 hover:bg-green-600/10">
+                  💰 Make Offer
+                </Button>
+              </div>
 
               {/* Score Breakdown on Hover */}
               {hoveredProperty === property.id && (

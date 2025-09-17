@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Plus, Eye, Brain, Target, Settings, Navigation, Clock, Zap } from 'lucide-react';
+import { MapPin, Plus, Eye, List, Brain, Target, Settings, Navigation, Clock, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +16,9 @@ interface LocationIntelligenceProps {
 }
 
 const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile }) => {
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [showPOIModal, setShowPOIModal] = useState(false);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
   const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
   
   const {
@@ -138,16 +140,90 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
 
       {/* Main Content Area */}
       <div className="grid grid-cols-1 xl:grid-cols-6 gap-6 mb-8">
-        {/* Map View */}
-        <div className="xl:col-span-5">
-          <SmartMap
-            pointsOfInterest={pointsOfInterest}
-            smartResults={smartResults}
-            userProfile={userProfile}
-          />
+        {/* Dynamic View Content */}
+        <div className={`transition-all duration-300 ${viewMode === 'map' ? 'xl:col-span-4' : 'xl:col-span-6'}`}>
+          {viewMode === 'map' ? (
+            <SmartMap
+              pointsOfInterest={pointsOfInterest}
+              smartResults={smartResults}
+              userProfile={userProfile}
+              selectedPropertyId={selectedPropertyId}
+              onPropertySelect={setSelectedPropertyId}
+            />
+          ) : (
+            <div className="space-y-6 animate-fade-in">
+              <SmartResults
+                smartResults={smartResults}
+                pointsOfInterest={pointsOfInterest}
+                userProfile={userProfile}
+                getCombinedScore={getCombinedScore}
+                onPropertySelect={setSelectedPropertyId}
+                selectedPropertyId={selectedPropertyId}
+              />
+            </div>
+          )}
         </div>
 
-        {/* Sidebar */}
+        {/* Map View Sidebar */}
+        {viewMode === 'map' && (
+          <div className="xl:col-span-2 space-y-6 animate-slide-in-right">
+            <Card className="bg-slate-800/30 border border-slate-700/30 max-h-[600px] overflow-hidden">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <MapPin className="w-5 h-5 text-blue-400" />
+                  Property Cards
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  {smartResults.length} properties • Click to highlight on map
+                </p>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-y-auto max-h-[500px] space-y-3 px-6 pb-6">
+                  {smartResults.slice(0, 6).map((property) => (
+                    <Card 
+                      key={property.id}
+                      className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
+                        selectedPropertyId === property.id 
+                          ? 'ring-2 ring-blue-500/50 bg-blue-500/5' 
+                          : 'bg-slate-800/20 border-slate-700/40 hover:bg-slate-800/30'
+                      }`}
+                      onClick={() => setSelectedPropertyId(property.id)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-slate-700/50 to-slate-800/50 flex items-center justify-center border border-slate-600/50 flex-shrink-0">
+                            <MapPin className="w-6 h-6 text-slate-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold text-foreground text-sm truncate">{property.name}</h4>
+                              {property.isTopPick && (
+                                <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs px-2 py-0">
+                                  TOP PICK
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-2 truncate">{property.address}</p>
+                            <div className="flex items-center justify-between">
+                              <div className="text-lg font-bold text-green-400">${property.price.toLocaleString()}/mo</div>
+                              <div className="text-xs text-muted-foreground">Score: {property.combinedScore}</div>
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {property.bedrooms}bd • {property.bathrooms}ba • {property.sqft} sqft
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* List View Sidebar */}
+        {viewMode === 'list' && (
         <div className="xl:col-span-1 space-y-6">
 
           {/* No AI Preferences Call-to-Action */}
@@ -176,6 +252,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
             </Card>
           )}
         </div>
+        )}
       </div>
     </div>
   );

@@ -10,14 +10,18 @@ interface SmartMapProps {
   pointsOfInterest: PointOfInterest[];
   smartResults: SmartProperty[];
   userProfile: any;
+  selectedPropertyId?: string | null;
+  onPropertySelect?: (id: string) => void;
 }
 
 const SmartMap: React.FC<SmartMapProps> = ({
   pointsOfInterest,
   smartResults,
-  userProfile
+  userProfile,
+  selectedPropertyId,
+  onPropertySelect
 }) => {
-  const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState<string | null>(selectedPropertyId);
   const [selectedPOI, setSelectedPOI] = useState<string | null>(null);
   const [showIsochrones, setShowIsochrones] = useState(true);
   const [showLayers, setShowLayers] = useState(true);
@@ -25,6 +29,11 @@ const SmartMap: React.FC<SmartMapProps> = ({
   const [showPOIModal, setShowPOIModal] = useState(false);
   const [mapCenter, setMapCenter] = useState({ lat: 30.2672, lng: -97.7431 });
   const [mapZoom, setMapZoom] = useState(12);
+
+  // Sync with parent selection
+  useEffect(() => {
+    setSelectedProperty(selectedPropertyId);
+  }, [selectedPropertyId]);
 
   // Check if AI preferences are active
   const hasAIPreferences = userProfile?.has_completed_ai_programming || 
@@ -314,7 +323,11 @@ const SmartMap: React.FC<SmartMapProps> = ({
                   key={property.id}
                   className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
                   style={position}
-                  onClick={() => setSelectedProperty(isSelected ? null : property.id)}
+                  onClick={() => {
+                    const newSelected = isSelected ? null : property.id;
+                    setSelectedProperty(newSelected);
+                    onPropertySelect?.(newSelected || '');
+                  }}
                 >
                   <div className={`relative w-12 h-12 rounded-full ${scoreColorClass} border-3 hover:scale-125 transition-all duration-300 flex items-center justify-center shadow-xl cursor-pointer group ${isSelected ? 'scale-130 z-30' : ''}`}>
                     <span className="text-sm font-bold">{property.combinedScore}</span>
