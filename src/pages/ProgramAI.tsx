@@ -23,25 +23,26 @@ interface AIPreferences {
   
   // Transportation & Mobility
   publicTransitAccess: string[];
-  walkabilityImportance: string;
+  walkabilityScoreRequirement: string;
   bikeFriendly: boolean;
   evChargingStations: boolean;
+  rideShareAvailability: string;
   airportProximity: string;
   highwayAccess: boolean;
   
   // Neighborhood & Community
   schoolDistrictQuality: string;
   crimeRatePreference: string;
-  noiseToleranceLevel: string;
+  noiseLevelTolerance: string;
   populationDensity: string;
   ageDemographics: string;
-  diversityImportance: string;
+  diversityIndex: string;
   localCultureArts: boolean;
   
   // Safety & Security
   securitySystemRequired: boolean;
   gatedCommunityPreference: string;
-  emergencyServicesResponse: string;
+  emergencyServicesResponseTime: string;
   floodZoneAvoidance: boolean;
   fireSafetyFeatures: string[];
   
@@ -55,9 +56,9 @@ interface AIPreferences {
   
   // Technology & Connectivity
   internetSpeedRequirement: string;
-  cellCoverage: string;
+  cellTowerCoverage: string;
   smartHomeCompatibility: boolean;
-  streamingOptions: string[];
+  cableStreamingOptions: string[];
   
   // Lifestyle & Preferences
   lifestyle: string;
@@ -82,25 +83,26 @@ const ProgramAI = () => {
     
     // Transportation & Mobility
     publicTransitAccess: [],
-    walkabilityImportance: 'moderate',
+    walkabilityScoreRequirement: 'moderate',
     bikeFriendly: false,
     evChargingStations: false,
+    rideShareAvailability: 'standard',
     airportProximity: 'moderate',
     highwayAccess: false,
     
     // Neighborhood & Community
     schoolDistrictQuality: 'no-preference',
     crimeRatePreference: 'low',
-    noiseToleranceLevel: 'moderate',
+    noiseLevelTolerance: 'moderate',
     populationDensity: 'moderate',
     ageDemographics: 'mixed',
-    diversityImportance: 'moderate',
+    diversityIndex: 'moderate',
     localCultureArts: false,
     
     // Safety & Security
     securitySystemRequired: false,
     gatedCommunityPreference: 'no-preference',
-    emergencyServicesResponse: 'standard',
+    emergencyServicesResponseTime: 'standard',
     floodZoneAvoidance: false,
     fireSafetyFeatures: [],
     
@@ -114,9 +116,9 @@ const ProgramAI = () => {
     
     // Technology & Connectivity
     internetSpeedRequirement: 'standard',
-    cellCoverage: 'good',
+    cellTowerCoverage: 'good',
     smartHomeCompatibility: false,
-    streamingOptions: [],
+    cableStreamingOptions: [],
     
     lifestyle: '',
     workSchedule: '',
@@ -154,23 +156,24 @@ const ProgramAI = () => {
             
             // Load additional preferences from profile if they exist
             publicTransitAccess: profileAny.public_transit_access || [],
-            walkabilityImportance: profileAny.walkability_importance || 'moderate',
+            walkabilityScoreRequirement: profileAny.walkability_score_requirement || 'moderate',
             bikeFriendly: profileAny.bike_friendly || false,
             evChargingStations: profileAny.ev_charging_stations || false,
+            rideShareAvailability: profileAny.ride_share_availability || 'standard',
             airportProximity: profileAny.airport_proximity || 'moderate',
             highwayAccess: profileAny.highway_access || false,
             
             schoolDistrictQuality: profileAny.school_district_quality || 'no-preference',
             crimeRatePreference: profileAny.crime_rate_preference || 'low',
-            noiseToleranceLevel: profileAny.noise_tolerance_level || 'moderate',
+            noiseLevelTolerance: profileAny.noise_level_tolerance || 'moderate',
             populationDensity: profileAny.population_density || 'moderate',
             ageDemographics: profileAny.age_demographics || 'mixed',
-            diversityImportance: profileAny.diversity_importance || 'moderate',
+            diversityIndex: profileAny.diversity_index || 'moderate',
             localCultureArts: profileAny.local_culture_arts || false,
             
             securitySystemRequired: profileAny.security_system_required || false,
             gatedCommunityPreference: profileAny.gated_community_preference || 'no-preference',
-            emergencyServicesResponse: profileAny.emergency_services_response || 'standard',
+            emergencyServicesResponseTime: profileAny.emergency_services_response_time || 'standard',
             floodZoneAvoidance: profileAny.flood_zone_avoidance || false,
             fireSafetyFeatures: profileAny.fire_safety_features || [],
             
@@ -182,9 +185,9 @@ const ProgramAI = () => {
             dryCleaningServices: profileAny.dry_cleaning_services || false,
             
             internetSpeedRequirement: profileAny.internet_speed_requirement || 'standard',
-            cellCoverage: profileAny.cell_coverage || 'good',
+            cellTowerCoverage: profileAny.cell_tower_coverage || 'good',
             smartHomeCompatibility: profileAny.smart_home_compatibility || false,
-            streamingOptions: profileAny.streaming_options || [],
+            cableStreamingOptions: profileAny.cable_streaming_options || [],
             
             lifestyle: profileAny.lifestyle || '',
             workSchedule: profileAny.work_schedule || '',
@@ -279,25 +282,26 @@ const ProgramAI = () => {
             
             // Transportation & Mobility
             public_transit_access: preferences.publicTransitAccess,
-            walkability_importance: preferences.walkabilityImportance,
+            walkability_score_requirement: preferences.walkabilityScoreRequirement,
             bike_friendly: preferences.bikeFriendly,
             ev_charging_stations: preferences.evChargingStations,
+            ride_share_availability: preferences.rideShareAvailability,
             airport_proximity: preferences.airportProximity,
             highway_access: preferences.highwayAccess,
             
             // Neighborhood & Community
             school_district_quality: preferences.schoolDistrictQuality,
             crime_rate_preference: preferences.crimeRatePreference,
-            noise_tolerance_level: preferences.noiseToleranceLevel,
+            noise_level_tolerance: preferences.noiseLevelTolerance,
             population_density: preferences.populationDensity,
             age_demographics: preferences.ageDemographics,
-            diversity_importance: preferences.diversityImportance,
+            diversity_index: preferences.diversityIndex,
             local_culture_arts: preferences.localCultureArts,
             
             // Safety & Security
             security_system_required: preferences.securitySystemRequired,
             gated_community_preference: preferences.gatedCommunityPreference,
-            emergency_services_response: preferences.emergencyServicesResponse,
+            emergency_services_response_time: preferences.emergencyServicesResponseTime,
             flood_zone_avoidance: preferences.floodZoneAvoidance,
             fire_safety_features: preferences.fireSafetyFeatures,
             
@@ -311,9 +315,9 @@ const ProgramAI = () => {
             
             // Technology & Connectivity
             internet_speed_requirement: preferences.internetSpeedRequirement,
-            cell_coverage: preferences.cellCoverage,
+            cell_tower_coverage: preferences.cellTowerCoverage,
             smart_home_compatibility: preferences.smartHomeCompatibility,
-            streaming_options: preferences.streamingOptions,
+            cable_streaming_options: preferences.cableStreamingOptions,
             
             lifestyle: preferences.lifestyle,
             work_schedule: preferences.workSchedule,
@@ -449,15 +453,30 @@ const ProgramAI = () => {
               </div>
 
               <div>
-                <Label className="text-sm font-medium">Walkability Importance</Label>
-                <Select value={preferences.walkabilityImportance} onValueChange={(value) => updatePreference('walkabilityImportance', value)}>
+                <Label className="text-sm font-medium">Walkability Score Requirements</Label>
+                <Select value={preferences.walkabilityScoreRequirement} onValueChange={(value) => updatePreference('walkabilityScoreRequirement', value)}>
                   <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Low Priority</SelectItem>
-                    <SelectItem value="moderate">Moderate Priority</SelectItem>
-                    <SelectItem value="high">High Priority</SelectItem>
+                    <SelectItem value="low">Low Priority (Any Score)</SelectItem>
+                    <SelectItem value="moderate">Moderate (50+ Score)</SelectItem>
+                    <SelectItem value="high">High Priority (70+ Score)</SelectItem>
+                    <SelectItem value="essential">Essential (90+ Score)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Ride-Share Availability</Label>
+                <Select value={preferences.rideShareAvailability} onValueChange={(value) => updatePreference('rideShareAvailability', value)}>
+                  <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="not-important">Not Important</SelectItem>
+                    <SelectItem value="standard">Standard Availability</SelectItem>
+                    <SelectItem value="high">High Availability</SelectItem>
                     <SelectItem value="essential">Essential</SelectItem>
                   </SelectContent>
                 </Select>
@@ -470,7 +489,7 @@ const ProgramAI = () => {
                     checked={preferences.bikeFriendly}
                     onCheckedChange={(checked) => updatePreference('bikeFriendly', checked)}
                   />
-                  <Label htmlFor="bike-friendly" className="text-sm">Bike-Friendly Area</Label>
+                  <Label htmlFor="bike-friendly" className="text-sm">Bike-Friendly Infrastructure</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -478,10 +497,17 @@ const ProgramAI = () => {
                     checked={preferences.evChargingStations}
                     onCheckedChange={(checked) => updatePreference('evChargingStations', checked)}
                   />
-                  <Label htmlFor="ev-charging" className="text-sm">EV Charging Stations</Label>
+                  <Label htmlFor="ev-charging" className="text-sm">Car Charging Stations (EV)</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="highway-access"
+                    checked={preferences.highwayAccess}
+                    onCheckedChange={(checked) => updatePreference('highwayAccess', checked)}
+                  />
+                  <Label htmlFor="highway-access" className="text-sm">Highway Access</Label>
                 </div>
               </div>
-
               <div>
                 <Label className="text-sm font-medium">Airport Proximity</Label>
                 <Select value={preferences.airportProximity} onValueChange={(value) => updatePreference('airportProximity', value)}>
@@ -509,7 +535,22 @@ const ProgramAI = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label className="text-sm font-medium">Crime Rate Preference</Label>
+                <Label className="text-sm font-medium">School District Quality</Label>
+                <Select value={preferences.schoolDistrictQuality} onValueChange={(value) => updatePreference('schoolDistrictQuality', value)}>
+                  <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="no-preference">No Preference</SelectItem>
+                    <SelectItem value="average">Average Schools OK</SelectItem>
+                    <SelectItem value="good">Good Schools</SelectItem>
+                    <SelectItem value="excellent">Excellent Schools Only</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Crime Rate Preferences</Label>
                 <Select value={preferences.crimeRatePreference} onValueChange={(value) => updatePreference('crimeRatePreference', value)}>
                   <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
                     <SelectValue />
@@ -523,13 +564,14 @@ const ProgramAI = () => {
               </div>
 
               <div>
-                <Label className="text-sm font-medium">Noise Tolerance Level</Label>
-                <Select value={preferences.noiseToleranceLevel} onValueChange={(value) => updatePreference('noiseToleranceLevel', value)}>
+                <Label className="text-sm font-medium">Noise Level Tolerance</Label>
+                <Select value={preferences.noiseLevelTolerance} onValueChange={(value) => updatePreference('noiseLevelTolerance', value)}>
                   <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="quiet">Very Quiet</SelectItem>
+                    <SelectItem value="very-quiet">Very Quiet</SelectItem>
+                    <SelectItem value="quiet">Quiet</SelectItem>
                     <SelectItem value="moderate">Moderate Noise OK</SelectItem>
                     <SelectItem value="busy">Busy Area OK</SelectItem>
                     <SelectItem value="urban">Urban/City Noise OK</SelectItem>
@@ -566,6 +608,21 @@ const ProgramAI = () => {
                 </Select>
               </div>
 
+              <div>
+                <Label className="text-sm font-medium">Diversity Index</Label>
+                <Select value={preferences.diversityIndex} onValueChange={(value) => updatePreference('diversityIndex', value)}>
+                  <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="not-important">Not Important</SelectItem>
+                    <SelectItem value="moderate">Moderate Diversity</SelectItem>
+                    <SelectItem value="high">High Diversity Preferred</SelectItem>
+                    <SelectItem value="essential">Essential</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="culture-arts"
@@ -587,6 +644,19 @@ const ProgramAI = () => {
               <CardDescription>Security features and safety requirements</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div>
+                <Label className="text-sm font-medium">Emergency Services Response Time</Label>
+                <Select value={preferences.emergencyServicesResponseTime} onValueChange={(value) => updatePreference('emergencyServicesResponseTime', value)}>
+                  <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fast">Fast (Under 5 min)</SelectItem>
+                    <SelectItem value="standard">Standard (5-10 min)</SelectItem>
+                    <SelectItem value="acceptable">Acceptable (10+ min)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div>
                 <Label className="text-sm font-medium">Gated Community Preference</Label>
                 <Select value={preferences.gatedCommunityPreference} onValueChange={(value) => updatePreference('gatedCommunityPreference', value)}>
@@ -717,7 +787,7 @@ const ProgramAI = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label className="text-sm font-medium">Internet Speed Requirement</Label>
+                <Label className="text-sm font-medium">High-Speed Internet Availability</Label>
                 <Select value={preferences.internetSpeedRequirement} onValueChange={(value) => updatePreference('internetSpeedRequirement', value)}>
                   <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
                     <SelectValue />
@@ -732,15 +802,67 @@ const ProgramAI = () => {
               </div>
 
               <div>
-                <Label className="text-sm font-medium">Streaming Services</Label>
+                <Label className="text-sm font-medium">Cell Tower Coverage</Label>
+                <Select value={preferences.cellTowerCoverage} onValueChange={(value) => updatePreference('cellTowerCoverage', value)}>
+                  <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="basic">Basic Coverage</SelectItem>
+                    <SelectItem value="good">Good Coverage</SelectItem>
+                    <SelectItem value="excellent">Excellent Coverage</SelectItem>
+                    <SelectItem value="5g-required">5G Required</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Cable/Streaming Options</Label>
+                <Select value={preferences.internetSpeedRequirement} onValueChange={(value) => updatePreference('internetSpeedRequirement', value)}>
+                  <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="basic">Basic (25+ Mbps)</SelectItem>
+                    <SelectItem value="standard">Standard (100+ Mbps)</SelectItem>
+                    <SelectItem value="high-speed">High-Speed (500+ Mbps)</SelectItem>
+                    <SelectItem value="gigabit">Gigabit (1000+ Mbps)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
                 <div className="grid grid-cols-2 gap-2 mt-2">
-                  {['Netflix', 'Hulu', 'Amazon Prime', 'Disney+', 'HBO Max', 'Apple TV+'].map((service) => (
+                  {['Netflix', 'Hulu', 'Amazon Prime', 'Disney+', 'HBO Max', 'Apple TV+', 'Cable TV', 'Local Channels'].map((service) => (
                     <div key={service} className="flex items-center space-x-2">
                       <Checkbox
                         id={`streaming-${service}`}
-                        checked={preferences.streamingOptions.includes(service)}
+                        checked={preferences.cableStreamingOptions.includes(service)}
                         onCheckedChange={() => 
-                          updatePreference('streamingOptions', toggleArrayItem(preferences.streamingOptions, service))
+                          updatePreference('cableStreamingOptions', toggleArrayItem(preferences.cableStreamingOptions, service))
+                        }
+                      />
+                      <Label htmlFor={`streaming-${service}`} className="text-xs">{service}</Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="smart-home"
+                  checked={preferences.smartHomeCompatibility}
+                  onCheckedChange={(checked) => updatePreference('smartHomeCompatibility', checked)}
+                />
+                <Label htmlFor="smart-home" className="text-sm">Smart Home Compatibility</Label>
+              </div>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {['Netflix', 'Hulu', 'Amazon Prime', 'Disney+', 'HBO Max', 'Apple TV+', 'Cable TV', 'Local Channels'].map((service) => (
+                    <div key={service} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`streaming-${service}`}
+                        checked={preferences.cableStreamingOptions.includes(service)}
+                        onCheckedChange={() => 
+                          updatePreference('cableStreamingOptions', toggleArrayItem(preferences.cableStreamingOptions, service))
                         }
                       />
                       <Label htmlFor={`streaming-${service}`} className="text-xs">{service}</Label>
@@ -759,6 +881,8 @@ const ProgramAI = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Lifestyle & Priorities */}
 
           {/* Lifestyle & Priorities */}
           <Card className="glass-dark border-border/20">
