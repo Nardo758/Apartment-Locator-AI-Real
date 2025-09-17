@@ -236,7 +236,7 @@ const ProgramAI = () => {
       if (error) throw error;
 
       toast.success('AI preferences saved successfully!');
-      navigate('/dashboard-new');
+      navigate('/dashboard');
     } catch (error: any) {
       console.error('Error saving preferences:', error);
       toast.error('Failed to save preferences: ' + error.message);
@@ -316,7 +316,7 @@ const ProgramAI = () => {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  onClick={() => window.location.href = '/dashboard#location-intelligence'}
+                  onClick={() => navigate('/dashboard')}
                   className="w-full"
                 >
                   <MapPin className="w-4 h-4 mr-1" />

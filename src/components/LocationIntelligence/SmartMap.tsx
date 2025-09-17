@@ -174,8 +174,28 @@ const SmartMap: React.FC<SmartMapProps> = ({
             </div>
           </div>
 
+          {/* Mobile zoom controls */}
+          <div className="absolute bottom-6 right-6 z-30 flex flex-col gap-2 lg:hidden">
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-10 h-10 p-0 bg-slate-900/95 backdrop-blur-sm border-slate-600/50"
+              onClick={() => setMapZoom(prev => Math.min(prev + 2, 18))}
+            >
+              <span className="text-lg font-bold">+</span>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-10 h-10 p-0 bg-slate-900/95 backdrop-blur-sm border-slate-600/50"
+              onClick={() => setMapZoom(prev => Math.max(prev - 2, 8))}
+            >
+              <span className="text-lg font-bold">−</span>
+            </Button>
+          </div>
+
           {/* Map Container */}
-          <div className="relative h-[500px] lg:h-[600px] overflow-hidden rounded-lg">
+          <div className="relative h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-lg touch-pan-y">
             {/* Enhanced Map Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950">
               {/* Sophisticated Grid Pattern */}
@@ -321,9 +341,15 @@ const SmartMap: React.FC<SmartMapProps> = ({
               return (
                 <div
                   key={property.id}
-                  className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20"
+                  className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20 touch-manipulation"
                   style={position}
                   onClick={() => {
+                    const newSelected = isSelected ? null : property.id;
+                    setSelectedProperty(newSelected);
+                    onPropertySelect?.(newSelected || '');
+                  }}
+                  onTouchStart={(e) => {
+                    e.preventDefault();
                     const newSelected = isSelected ? null : property.id;
                     setSelectedProperty(newSelected);
                     onPropertySelect?.(newSelected || '');

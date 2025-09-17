@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MapPin, Plus, Eye, List, Brain, Target, Settings, Navigation, Clock, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +18,7 @@ interface LocationIntelligenceProps {
 }
 
 const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile }) => {
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [showPOIModal, setShowPOIModal] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
@@ -71,9 +73,9 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* POI Management, Search Settings, and Live Market Intel */}
-      <div className="flex gap-6 mb-6 items-stretch">
-        {/* POI Management Panel - 45% width */}
-        <div className="w-[45%] flex flex-col h-full">
+      <div className="flex flex-col lg:flex-row gap-6 mb-6 items-stretch">
+        {/* POI Management Panel - Responsive width */}
+        <div className="w-full lg:w-[45%] flex flex-col h-full">
           <div className="w-full flex flex-col h-full">
             <POIManager
               pointsOfInterest={pointsOfInterest}
@@ -86,15 +88,15 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
           </div>
         </div>
 
-        {/* Enhanced Search Settings - 35% width */}
-        <div className="w-[35%] flex flex-col h-full">
+        {/* Enhanced Search Settings - Responsive width */}
+        <div className="w-full lg:w-[35%] flex flex-col h-full">
           <EnhancedSearchSettings
             onSettingsChange={setSearchSettings}
           />
         </div>
 
-        {/* Live Market Intel - 20% width */}
-        <div className="w-[20%] flex flex-col h-full">
+        {/* Live Market Intel - Responsive width */}
+        <div className="w-full lg:w-[20%] flex flex-col h-full">
           <Card className="bg-slate-800/30 border border-slate-700/30 w-full h-full flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -136,6 +138,30 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
               </div>
             </CardContent>
           </Card>
+        </div>
+      </div>
+
+      {/* View Mode Toggle for Mobile */}
+      <div className="flex justify-center mb-4 lg:hidden">
+        <div className="bg-slate-800/30 border border-slate-700/30 rounded-lg p-1 flex">
+          <Button
+            variant={viewMode === 'map' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('map')}
+            className="rounded-md"
+          >
+            <MapPin className="w-4 h-4 mr-2" />
+            Map
+          </Button>
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('list')}
+            className="rounded-md"
+          >
+            <List className="w-4 h-4 mr-2" />
+            List
+          </Button>
         </div>
       </div>
 
@@ -226,7 +252,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
                     </p>
                   </div>
                   <Button 
-                    onClick={() => window.location.href = '/program-ai'}
+                    onClick={() => navigate('/program-ai')}
                     className="bg-yellow-600 hover:bg-yellow-700"
                   >
                     <Settings className="w-4 h-4 mr-1" />

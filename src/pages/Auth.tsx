@@ -117,8 +117,8 @@ const Auth = () => {
 
       if (data.user) {
         toast.success('Welcome back!');
-        // Force page reload for clean state
-        window.location.href = '/dashboard';
+        // Navigate to dashboard using react-router
+        navigate('/dashboard');
       }
     } catch (error: any) {
       console.error('Sign in error:', error);
