@@ -238,23 +238,6 @@ const GenerateOffer = () => {
         <div className="max-w-4xl mx-auto">
           <Breadcrumb />
           
-          {/* Header */}
-          <div className="flex items-center space-x-4 mb-8">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-2 rounded-lg glass-dark hover:bg-white/10 transition-colors"
-            >
-              <ArrowLeft size={20} className="text-foreground" />
-            </button>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                <span className="gradient-text">AI Rental Offer</span>
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                AI-powered market intelligence for the perfect rental offer
-              </p>
-            </div>
-          </div>
 
           {offerSubmitted ? (
             <div className="glass-dark rounded-xl p-8 text-center space-y-6">
