@@ -15,21 +15,7 @@ import { Brain, MapPin, Target, Clock, Home, DollarSign, Heart, X, Plus } from '
 import { toast } from 'sonner';
 import Header from '@/components/Header';
 
-interface PointOfInterest {
-  id: string;
-  name: string;
-  address: string;
-  maxTime: number;
-  transportMode: 'driving' | 'transit' | 'walking' | 'biking';
-}
-
 interface AIPreferences {
-  // Location & Search
-  location: string;
-  searchRadius: number;
-  maxDriveTime: number;
-  pointsOfInterest: PointOfInterest[];
-  
   // Budget & Housing
   budget: number;
   bedrooms: string;
@@ -51,14 +37,8 @@ const ProgramAI = () => {
   const navigate = useNavigate();
   const { searchFilters, setSearchFilters, userPreferences, setUserPreferences } = usePropertyState();
   const [saving, setSaving] = useState(false);
-  const [isNewPOI, setIsNewPOI] = useState(false);
-  const [newPOI, setNewPOI] = useState({ name: '', address: '', maxTime: 30, transportMode: 'driving' as const });
   
   const [preferences, setPreferences] = useState<AIPreferences>({
-    location: searchFilters.location || 'Austin, TX',
-    searchRadius: 25,
-    maxDriveTime: 30,
-    pointsOfInterest: [],
     budget: userPreferences.budget || 2500,
     bedrooms: '1',
     amenities: searchFilters.amenities || [],
@@ -92,10 +72,6 @@ const ProgramAI = () => {
         if (profile) {
           setPreferences(prev => ({
             ...prev,
-            location: profile.location || 'Austin, TX',
-            searchRadius: profile.search_radius || 25,
-            maxDriveTime: profile.max_drive_time || 30,
-            pointsOfInterest: (profile.points_of_interest as any) || [],
             budget: profile.budget || 2500,
             bedrooms: profile.bedrooms || '1',
             amenities: profile.amenities || [],
@@ -144,26 +120,11 @@ const ProgramAI = () => {
       : [...array, item];
   };
 
-  const addPOI = () => {
-    if (newPOI.name && newPOI.address) {
-      const poi: PointOfInterest = {
-        id: Date.now().toString(),
-        ...newPOI
-      };
-      updatePreference('pointsOfInterest', [...preferences.pointsOfInterest, poi]);
-      setNewPOI({ name: '', address: '', maxTime: 30, transportMode: 'driving' });
-      setIsNewPOI(false);
-    }
-  };
-
-  const removePOI = (id: string) => {
-    updatePreference('pointsOfInterest', preferences.pointsOfInterest.filter(poi => poi.id !== id));
-  };
 
   const syncWithGlobalState = () => {
     // Sync search filters with global state
     setSearchFilters({
-      location: preferences.location,
+      location: searchFilters.location || 'Austin, TX',
       priceRange: [0, preferences.budget] as [number, number],
       bedrooms: parseInt(preferences.bedrooms) || 1,
       amenities: preferences.amenities
@@ -172,7 +133,7 @@ const ProgramAI = () => {
     // Sync user preferences with global state
     setUserPreferences({
       budget: preferences.budget,
-      location: preferences.location,
+      location: userPreferences.location || 'Austin, TX',
       moveInDate: userPreferences.moveInDate
     });
   };
@@ -180,7 +141,7 @@ const ProgramAI = () => {
   // Auto-sync when key preferences change
   useEffect(() => {
     syncWithGlobalState();
-  }, [preferences.location, preferences.budget, preferences.amenities, preferences.bedrooms]);
+  }, [preferences.budget, preferences.amenities, preferences.bedrooms]);
 
   const handleSave = async () => {
     try {
@@ -202,10 +163,6 @@ const ProgramAI = () => {
           .upsert({
             user_id: user.id,
             email: user.email,
-            location: preferences.location,
-            search_radius: preferences.searchRadius,
-            max_drive_time: preferences.maxDriveTime,
-            points_of_interest: preferences.pointsOfInterest as any,
             budget: preferences.budget,
             bedrooms: preferences.bedrooms,
             amenities: preferences.amenities,
@@ -218,7 +175,6 @@ const ProgramAI = () => {
             additional_notes: preferences.additionalNotes,
             has_completed_ai_programming: true,
             ai_preferences: {
-              prioritizeCommute: preferences.maxDriveTime <= 20,
               budgetFocused: preferences.budget > 0,
               amenityImportant: preferences.amenities.length > 3,
               lifestyle: preferences.lifestyle,
@@ -227,10 +183,7 @@ const ProgramAI = () => {
             search_criteria: {
               maxBudget: preferences.budget,
               preferredAmenities: preferences.amenities,
-              dealBreakers: preferences.dealBreakers,
-              commutePriority: preferences.maxDriveTime,
-              location: preferences.location,
-              radius: preferences.searchRadius
+              dealBreakers: preferences.dealBreakers
             }
           });
 
@@ -262,195 +215,7 @@ const ProgramAI = () => {
             </p>
           </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Combined Location & Search Settings */}
-          <Card className="glass-dark border-border/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-blue-400" />
-                Location & Search Settings
-              </CardTitle>
-              <CardDescription>Configure your preferred location or points of interest</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Preferred Location Search */}
-              <div className="space-y-3">
-                <Label className="text-sm font-medium">Preferred Location</Label>
-                <Input
-                  placeholder="City, State (e.g., Austin, TX)"
-                  value={preferences.location}
-                  onChange={(e) => updatePreference('location', e.target.value)}
-                  className="bg-slate-800/50 border-slate-600/50"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Use this OR add points of interest below
-                </p>
-              </div>
-
-              {/* Points of Interest */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium flex items-center gap-2">
-                    <Target className="w-4 h-4 text-blue-400" />
-                    Your Points of Interest
-                  </Label>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setIsNewPOI(true)}
-                    className="text-xs"
-                  >
-                    <Plus className="w-3 h-3 mr-1" />
-                    Add POI
-                  </Button>
-                </div>
-
-                {/* POI List */}
-                <div className="grid grid-cols-1 gap-2">
-                  {preferences.pointsOfInterest.map((poi) => (
-                    <div key={poi.id} className="bg-slate-800/30 border border-slate-600/30 rounded-lg p-3">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="text-xs">
-                              {poi.transportMode === 'driving' ? '🚗' : 
-                               poi.transportMode === 'transit' ? '🚌' : 
-                               poi.transportMode === 'walking' ? '🚶' : '🚴'}
-                            </Badge>
-                            <span className="font-medium text-sm">{poi.name}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground">{poi.address}</p>
-                          <p className="text-xs text-blue-400">Max {poi.maxTime} min</p>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => removePOI(poi.id)}
-                          className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
-                        >
-                          <X className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Add POI Form */}
-                {isNewPOI && (
-                  <div className="bg-slate-800/50 border border-slate-600/50 rounded-lg p-4 space-y-3">
-                    <div className="grid grid-cols-2 gap-2">
-                      <Input
-                        placeholder="Name (e.g., My Office)"
-                        value={newPOI.name}
-                        onChange={(e) => setNewPOI(prev => ({ ...prev, name: e.target.value }))}
-                        className="text-sm"
-                      />
-                      <Input
-                        placeholder="Address"
-                        value={newPOI.address}
-                        onChange={(e) => setNewPOI(prev => ({ ...prev, address: e.target.value }))}
-                        className="text-sm"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <Label className="text-xs">Max Time (min)</Label>
-                        <Input
-                          type="number"
-                          value={newPOI.maxTime}
-                          onChange={(e) => setNewPOI(prev => ({ ...prev, maxTime: parseInt(e.target.value) || 30 }))}
-                          className="text-sm"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Transport</Label>
-                        <Select
-                          value={newPOI.transportMode}
-                          onValueChange={(value: any) => setNewPOI(prev => ({ ...prev, transportMode: value }))}
-                        >
-                          <SelectTrigger className="text-sm">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="driving">🚗 Driving</SelectItem>
-                            <SelectItem value="transit">🚌 Transit</SelectItem>
-                            <SelectItem value="walking">🚶 Walking</SelectItem>
-                            <SelectItem value="biking">🚴 Biking</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={addPOI} className="flex-1">
-                        Add POI
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => setIsNewPOI(false)}>
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Search Settings */}
-              <div className="space-y-4 pt-4 border-t border-slate-600/30">
-                <Label className="text-sm font-medium">Search Settings</Label>
-                
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <Label className="text-sm">Budget Range</Label>
-                    <span className="text-sm text-blue-400">${preferences.budget}/month</span>
-                  </div>
-                  <Slider
-                    value={[preferences.budget]}
-                    onValueChange={(value) => updatePreference('budget', value[0])}
-                    max={5000}
-                    min={500}
-                    step={100}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>$500</span>
-                    <span>$5,000</span>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <Label className="text-sm">Max Drive Time</Label>
-                    <span className="text-sm text-blue-400">{preferences.maxDriveTime} minutes</span>
-                  </div>
-                  <Slider
-                    value={[preferences.maxDriveTime]}
-                    onValueChange={(value) => updatePreference('maxDriveTime', value[0])}
-                    max={120}
-                    min={10}
-                    step={10}
-                    className="w-full"
-                  />
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">Bedrooms</Label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {['studio', '1', '2', '3+'].map((bedroom) => (
-                      <Button
-                        key={bedroom}
-                        size="sm"
-                        variant={preferences.bedrooms === bedroom ? "default" : "outline"}
-                        onClick={() => updatePreference('bedrooms', bedroom)}
-                        className="text-xs"
-                      >
-                        {bedroom === 'studio' ? 'Studio' : 
-                         bedroom === '3+' ? '3+ BR' : `${bedroom} BR`}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
+        <div className="grid grid-cols-1 gap-6">
           {/* Budget & Housing */}
           <Card className="glass-dark border-border/20">
             <CardHeader>
