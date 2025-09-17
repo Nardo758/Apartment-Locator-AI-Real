@@ -54,29 +54,23 @@ const LocationIntelligenceDemo = () => {
       <header className="bg-slate-900/50 border-b border-slate-700/50 p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-            </Link>
             <div>
-              <h1 className="text-xl font-bold text-foreground">Interactive Demo</h1>
-              <p className="text-sm text-muted-foreground">Experience AI-powered location intelligence</p>
+              <h1 className="text-xl font-bold text-foreground">Location Intelligence Dashboard</h1>
+              <p className="text-sm text-muted-foreground">AI-powered apartment recommendations based on your preferences</p>
             </div>
           </div>
-            <div className="flex gap-2">
-              <Link to="/renter-intelligence">
-                <Button variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
-                  Try RenterIQ
-                </Button>
-              </Link>
-              <Link to="/auth">
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  Get Full Access
-                </Button>
-              </Link>
-            </div>
+          <div className="flex gap-2">
+            <Link to="/renter-intelligence">
+              <Button variant="outline" className="border-green-500 text-green-600 hover:bg-green-50 dark:hover:bg-green-950">
+                Try RenterIQ
+              </Button>
+            </Link>
+            <Link to="/program-ai">
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                Setup AI Preferences
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 
