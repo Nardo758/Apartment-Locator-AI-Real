@@ -23,9 +23,9 @@ const Header: React.FC<HeaderProps> = ({ onSignOut }) => {
     { path: '/dashboard', label: 'Dashboard', active: true },
     { path: '/ai-formula', label: 'AI Formula' },
     { path: '/program-ai', label: 'Program AI' },
-    { path: '/offers-made', label: 'Offers Made' },
     { path: '/saved-properties', label: 'Saved Properties' },
     { path: '/market-intel', label: 'Market Intel' },
+    { path: '/offers-made', label: 'Offers Made' },
     { path: '/profile', label: 'Profile' }
   ];
 
