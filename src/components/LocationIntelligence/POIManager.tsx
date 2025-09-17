@@ -25,6 +25,7 @@ const POIManager: React.FC<POIManagerProps> = ({
   showModal,
   setShowModal
 }) => {
+  const [searchLocation, setSearchLocation] = useState('');
   const [newPOI, setNewPOI] = useState<{
     name: string;
     address: string;
@@ -200,6 +201,23 @@ const POIManager: React.FC<POIManagerProps> = ({
               </div>
             </DialogContent>
           </Dialog>
+        </div>
+        
+        {/* Location Search Section */}
+        <div className="mb-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-blue-400" />
+            <label className="text-sm font-medium text-foreground">Search by Location or Area</label>
+          </div>
+          <Input
+            placeholder="Enter city, neighborhood, or address to search around..."
+            value={searchLocation}
+            onChange={(e) => setSearchLocation(e.target.value)}
+            className="bg-slate-700/50 border-slate-600 text-foreground placeholder:text-muted-foreground"
+          />
+          <p className="text-xs text-muted-foreground">
+            Find apartments near specific areas or combine with your POIs below
+          </p>
         </div>
       </CardHeader>
       
