@@ -283,37 +283,66 @@ const PropertyDetails: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Pricing */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">Original Price</div>
-                    <div className="text-xl font-bold text-muted-foreground line-through">
-                      ${property.originalPrice.toLocaleString()}/mo
+                {/* Pricing Breakdown */}
+                <div className="pricing-breakdown flex flex-col gap-4 p-4 bg-muted/30 rounded-lg">
+                  {/* Line 1 - Original pricing comparison */}
+                  <div className="pricing-line grid grid-cols-3 items-center gap-5">
+                    <div className="price-item text-center">
+                      <div className="price-label text-xs text-muted-foreground mb-1">Original Price</div>
+                      <div className="price-value original text-base font-semibold text-muted-foreground line-through">
+                        ${property.originalPrice.toLocaleString()}/mo
+                      </div>
+                    </div>
+                    <div className="price-item text-center">
+                      <div className="price-label text-xs text-muted-foreground mb-1">AI Predicted Price</div>
+                      <div className="price-value predicted text-base font-semibold text-purple-500">
+                        ${property.effectivePrice.toLocaleString()}/mo
+                      </div>
+                    </div>
+                    <div className="price-item text-center">
+                      <div className="price-label text-xs text-muted-foreground mb-1">Potential Savings</div>
+                      <div className="price-value savings text-base font-semibold text-emerald-500">
+                        ${property.savings.toLocaleString()}/mo
+                      </div>
                     </div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">AI Predicted Price</div>
-                    <div className="text-2xl font-bold text-primary">
-                      ${property.effectivePrice.toLocaleString()}/mo
+
+                  {/* Line 2 - Concessions breakdown */}
+                  <div className="pricing-line grid grid-cols-3 items-center gap-5">
+                    <div className="price-item text-center">
+                      <div className="price-label text-xs text-muted-foreground mb-1">Concessions Available</div>
+                      <div className="price-value text-base font-semibold text-muted-foreground">
+                        Yes
+                      </div>
+                    </div>
+                    <div className="price-item text-center">
+                      <div className="price-label text-xs text-muted-foreground mb-1">Concession Value</div>
+                      <div className="price-value predicted text-base font-semibold text-purple-500">
+                        $200/mo
+                      </div>
+                    </div>
+                    <div className="price-item text-center">
+                      <div className="price-label text-xs text-muted-foreground mb-1">Additional Savings</div>
+                      <div className="price-value savings text-base font-semibold text-emerald-500">
+                        $200/mo
+                      </div>
                     </div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">Potential Savings</div>
-                    <div className="text-xl font-bold text-green-500">
-                      ${property.savings.toLocaleString()}/mo
+
+                  {/* Line 3 - Total calculations */}
+                  <div className="pricing-line total grid grid-cols-2 items-center gap-5 border-t border-border pt-4 mt-2">
+                    <div className="total-item text-center">
+                      <div className="price-label text-xs text-muted-foreground mb-1">Total Monthly Savings</div>
+                      <div className="price-value text-xl font-bold text-emerald-500">
+                        $545/mo
+                      </div>
                     </div>
-                  </div>
-                </div>
-                
-                {/* Additional pricing lines */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-muted/20">
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">Concessions</div>
-                    <div className="text-lg font-bold text-emerald-500">$200/mo</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">Total Savings</div>
-                    <div className="text-lg font-bold text-emerald-500">$404/mo</div>
+                    <div className="total-item text-center">
+                      <div className="price-label text-xs text-muted-foreground mb-1">Total Annual Savings</div>
+                      <div className="price-value text-xl font-bold text-emerald-500">
+                        $6,540/yr
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
