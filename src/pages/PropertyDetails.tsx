@@ -306,6 +306,77 @@ const PropertyDetails: React.FC = () => {
                 </div>
               </div>
 
+              {/* Monthly Savings Analysis */}
+              <Card className="glass bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/20">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-emerald-400">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                        <DollarSign size={16} className="text-emerald-400" />
+                      </div>
+                      Monthly Savings Analysis
+                    </CardTitle>
+                    <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-xs font-medium">
+                      AGGRESSIVE REDUCTION
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Savings breakdown */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-emerald-400">${property.savings?.toLocaleString() || '204'}/mo</div>
+                      <div className="text-xs text-muted-foreground mt-1">AI Rent Reduction</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-emerald-400">$200/mo</div>
+                      <div className="text-xs text-muted-foreground mt-1">Concession Value</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-emerald-400">$404/mo</div>
+                      <div className="text-xs text-muted-foreground mt-1">Total Monthly Savings</div>
+                    </div>
+                  </div>
+                  
+                  {/* Annual savings */}
+                  <div className="text-center pt-4 border-t border-emerald-500/20">
+                    <div className="text-3xl font-bold text-emerald-400">$4,848</div>
+                    <div className="text-sm text-muted-foreground">Annual Savings</div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Landlord Loss Indicator */}
+              <Card className="glass bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-amber-400">
+                      <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+                        <AlertTriangle size={16} className="text-amber-400" />
+                      </div>
+                      Landlord Loss Indicator
+                    </CardTitle>
+                    <div className="text-xs text-muted-foreground">If unit stays vacant</div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                      <div className="text-xl font-bold text-amber-400">$1,320</div>
+                      <div className="text-xs text-muted-foreground mt-1">30 Days</div>
+                    </div>
+                    <div className="text-center p-4 bg-orange-500/10 rounded-lg border border-orange-500/20">
+                      <div className="text-xl font-bold text-orange-400">$2,640</div>
+                      <div className="text-xs text-muted-foreground mt-1">60 Days</div>
+                    </div>
+                    <div className="text-center p-4 bg-red-500/10 rounded-lg border border-red-500/20">
+                      <div className="text-xl font-bold text-red-400">$3,960</div>
+                      <div className="text-xs text-muted-foreground mt-1">90 Days</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Image Gallery */}
               <div className="glass rounded-xl p-6">
                 <h3 className="text-lg font-semibold mb-4">Photos</h3>
@@ -437,77 +508,6 @@ const PropertyDetails: React.FC = () => {
                   </CardContent>
                 </Card>
                 )}
-
-                {/* Monthly Savings Analysis */}
-                <Card className="glass bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/20">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2 text-emerald-400">
-                        <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                          <DollarSign size={16} className="text-emerald-400" />
-                        </div>
-                        Monthly Savings Analysis
-                      </CardTitle>
-                      <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-xs font-medium">
-                        AGGRESSIVE REDUCTION
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Savings breakdown */}
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-emerald-400">${property.savings?.toLocaleString() || '204'}/mo</div>
-                        <div className="text-xs text-muted-foreground mt-1">AI Rent Reduction</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-emerald-400">$200/mo</div>
-                        <div className="text-xs text-muted-foreground mt-1">Concession Value</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-emerald-400">$404/mo</div>
-                        <div className="text-xs text-muted-foreground mt-1">Total Monthly Savings</div>
-                      </div>
-                    </div>
-                    
-                    {/* Annual savings */}
-                    <div className="text-center pt-4 border-t border-emerald-500/20">
-                      <div className="text-3xl font-bold text-emerald-400">$4,848</div>
-                      <div className="text-sm text-muted-foreground">Annual Savings</div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Landlord Loss Indicator */}
-                <Card className="glass bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2 text-amber-400">
-                        <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-                          <AlertTriangle size={16} className="text-amber-400" />
-                        </div>
-                        Landlord Loss Indicator
-                      </CardTitle>
-                      <div className="text-xs text-muted-foreground">If unit stays vacant</div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="text-center p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
-                        <div className="text-xl font-bold text-amber-400">$1,320</div>
-                        <div className="text-xs text-muted-foreground mt-1">30 Days</div>
-                      </div>
-                      <div className="text-center p-4 bg-orange-500/10 rounded-lg border border-orange-500/20">
-                        <div className="text-xl font-bold text-orange-400">$2,640</div>
-                        <div className="text-xs text-muted-foreground mt-1">60 Days</div>
-                      </div>
-                      <div className="text-center p-4 bg-red-500/10 rounded-lg border border-red-500/20">
-                        <div className="text-xl font-bold text-red-400">$3,960</div>
-                        <div className="text-xs text-muted-foreground mt-1">90 Days</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
 
               {/* Concessions */}
               <Card className="glass">
