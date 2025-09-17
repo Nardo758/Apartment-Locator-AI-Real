@@ -75,169 +75,86 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   };
 
   return (
-    <div className="glass-dark rounded-xl p-6 card-lift animate-slide-up border border-slate-700/50">
-      {/* Property Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-xl font-semibold text-foreground">
-              {property.name}
-            </h3>
-            <button
-              onClick={handleFavorite}
-              className={`p-1.5 rounded-lg transition-all duration-200 ${
-                isFavorited 
-                  ? 'text-red-500 bg-red-500/10 border border-red-500/20' 
-                  : 'text-muted-foreground hover:text-red-500 hover:bg-red-500/5'
-              }`}
-            >
-              <Heart size={16} className={isFavorited ? 'fill-current' : ''} />
-            </button>
-          </div>
-          <div className="flex items-center text-sm text-muted-foreground mb-3">
-            <MapPin size={14} className="mr-1" />
-            {property.address}, {property.city}, {property.state}
-          </div>
-          
-          {/* Priority Commute Times - Moved Up */}
-          <div className="grid grid-cols-3 gap-3 mb-4">
-            <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700/30">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                <span className="text-xs text-blue-400 font-medium">Work</span>
-              </div>
-              <span className="text-sm font-semibold text-foreground">18 min</span>
-            </div>
-            <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700/30">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-2 h-2 rounded-full bg-purple-400"></div>
-                <span className="text-xs text-purple-400 font-medium">UT Campus</span>
-              </div>
-              <span className="text-sm font-semibold text-foreground">15 min</span>
-            </div>
-            <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700/30">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                <span className="text-xs text-green-400 font-medium">Airport</span>
-              </div>
-              <span className="text-sm font-semibold text-foreground">35 min</span>
-            </div>
-          </div>
+    <div className="bg-slate-800/90 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/30 shadow-xl">
+      {/* Header with AI Badge */}
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-blue-400 text-sm font-medium">AI-Powered Property Analysis</h3>
+        <div className="bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1 rounded-full text-xs font-medium">
+          LIVE AI
         </div>
-        
-        {/* Status Badges - Redesigned */}
-        <div className="flex flex-col items-end gap-2">
-          <div className="bg-red-500/10 text-red-400 px-3 py-1.5 rounded-lg text-xs font-medium border border-red-500/20 backdrop-blur">
-            72 days vacant
+      </div>
+
+      {/* Property Info */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="text-foreground text-lg font-semibold">{property.address}</h4>
+          <button
+            onClick={handleFavorite}
+            className={`p-1.5 rounded-lg transition-all duration-200 ${
+              isFavorited 
+                ? 'text-red-500 bg-red-500/10 border border-red-500/20' 
+                : 'text-muted-foreground hover:text-red-500 hover:bg-red-500/5'
+            }`}
+          >
+            <Heart size={16} className={isFavorited ? 'fill-current' : ''} />
+          </button>
+        </div>
+        <div className="text-red-400 text-sm font-medium">
+          {property.id === '3' ? '67 days vacant' : '72 days vacant'}
+        </div>
+      </div>
+
+      {/* Pricing - Clean Layout */}
+      <div className="mb-4">
+        <div className="flex items-baseline gap-3 mb-2">
+          <span className="text-muted-foreground text-lg line-through">
+            ${property.originalPrice.toLocaleString()}/mo
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="text-green-400 text-2xl font-bold">
+            ${property.effectivePrice.toLocaleString()}/mo
           </div>
-          <div className="bg-green-500/10 text-green-400 px-3 py-1.5 rounded-lg text-xs font-medium border border-green-500/20 backdrop-blur">
-            {property.matchScore}% Match
+          <div className="bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1.5 rounded-full text-sm font-medium">
+            Save ${(property.id === '3' ? 545 : (property.originalPrice - property.effectivePrice)).toLocaleString()}/mo
           </div>
         </div>
       </div>
 
-      {/* Pricing Section - New Vertical Layout */}
-      <div className="mb-6">
-        <PricingBreakdown
-          originalPrice={property.originalPrice}
-          aiPrice={property.effectivePrice}
-          effectivePrice={property.effectivePrice}
-          concessions={property.id === '3' ? 200 : 300} // Match concession value from details page
-          successRate={property.successRate}
-          monthlySavings={property.id === '3' ? 545 : (property.originalPrice - property.effectivePrice)} // Total savings including concessions
-        />
-      </div>
-
-      {/* AI Concession Strategy - Enhanced */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <span className="text-pink-400">🧠</span>
-            <span className="text-sm font-semibold text-foreground">AI Concession Strategy</span>
-          </div>
-          <span className="text-sm text-cyan-400 font-semibold">{property.successRate}% Success Rate</span>
-        </div>
-        
-        <div className="space-y-3">
-          <div className="bg-gradient-to-r from-green-500/5 to-transparent rounded-lg p-4 border border-green-500/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 rounded-full bg-green-400 shadow-lg shadow-green-400/50"></div>
-                <span className="text-sm text-foreground font-medium">First Month Free</span>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="text-sm font-bold text-green-400">78%</div>
-                <div className="text-sm font-semibold text-cyan-300">$2,350</div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-gradient-to-r from-yellow-500/5 to-transparent rounded-lg p-4 border border-yellow-500/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 rounded-full bg-yellow-400 shadow-lg shadow-yellow-400/50"></div>
-                <span className="text-sm text-foreground font-medium">Reduced Deposit</span>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="text-sm font-bold text-yellow-400">65%</div>
-                <div className="text-sm font-semibold text-cyan-300">$350</div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-gradient-to-r from-green-500/5 to-transparent rounded-lg p-4 border border-green-500/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 rounded-full bg-green-400 shadow-lg shadow-green-400/50"></div>
-                <span className="text-sm text-foreground font-medium">Waived Fees</span>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="text-sm font-bold text-green-400">82%</div>
-                <div className="text-sm font-semibold text-cyan-300">$190</div>
-              </div>
-            </div>
-          </div>
+      {/* Progress Bar */}
+      <div className="mb-3">
+        <div className="w-full bg-slate-700 rounded-full h-2">
+          <div 
+            className="bg-gradient-to-r from-green-400 to-green-500 h-2 rounded-full transition-all duration-1000"
+            style={{ width: `${property.successRate}%` }}
+          ></div>
         </div>
       </div>
 
-      {/* Property Details - Compact */}
-      <div className="mb-6">
-        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-          <span>2 bed • 2 bath • 1,150 sqft</span>
-          <span>• Pool • Gym • Pet OK</span>
-        </div>
-
-        {/* Success Rate Progress Bar - Refined */}
-        <div className="relative">
-          <div className="w-full bg-slate-700 rounded-full h-1.5">
-            <div 
-              className="bg-gradient-to-r from-cyan-400 to-green-400 h-1.5 rounded-full transition-all duration-1000 shadow-lg shadow-cyan-400/30"
-              style={{ width: `${property.successRate}%` }}
-            ></div>
-          </div>
-          <div className="flex justify-between text-xs text-cyan-400 font-medium mt-2">
-            <span>Success Rate</span>
-            <span>{property.successRate}%</span>
-          </div>
-        </div>
+      {/* Success Rate */}
+      <div className="text-right mb-6">
+        <span className="text-muted-foreground text-sm font-medium">
+          {property.successRate}% Success
+        </span>
       </div>
 
-      {/* Action Buttons - Modern Design */}
+      {/* Action Buttons - Clean Design */}
       <div className="flex gap-3">
         <button 
-          className="flex-1 bg-gradient-primary hover:opacity-90 text-primary-foreground font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+          className="flex-1 bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 text-primary-foreground font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
           onClick={handleGenerateOffer}
         >
           <Zap size={16} />
           Generate AI Offer
         </button>
         <button 
-          className="flex-1 bg-muted hover:bg-muted/80 text-muted-foreground font-medium py-3 px-4 rounded-lg transition-all duration-200 border border-border"
+          className="flex-1 bg-slate-700/50 hover:bg-slate-700/70 text-foreground font-medium py-3 px-4 rounded-lg transition-all duration-200 border border-slate-600/30"
           onClick={handleViewDetails}
         >
           View Details
         </button>
       </div>
+
     </div>
   );
 };
