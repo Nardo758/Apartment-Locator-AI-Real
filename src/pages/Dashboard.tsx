@@ -22,7 +22,7 @@ interface PointOfInterest {
   isWorkLocation?: boolean;
 }
 const Index = () => {
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('map');
   const [filterMode, setFilterMode] = useState('Best Matches');
   const [isLeaseExpiring, setIsLeaseExpiring] = useState(true);
   const [daysUntilExpiration, setDaysUntilExpiration] = useState(47);
