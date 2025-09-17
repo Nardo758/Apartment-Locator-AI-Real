@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PropertyStateProvider } from "./contexts/PropertyStateContext";
 import Landing from "./pages/Landing";
 import About from "./pages/About";
-import DashboardNew from "./pages/DashboardNew";
+
 import AIFormula from "./pages/AIFormula";
 import PropertyDetails from "./pages/PropertyDetails";
 import GenerateOffer from "./pages/GenerateOffer";
@@ -46,7 +46,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/signup" element={<Trial />} />
             <Route path="/program-ai" element={<ProgramAI />} />
-            <Route path="/dashboard" element={<DashboardNew />} />
+            <Route path="/dashboard" element={<LocationIntelligenceDemo />} />
             <Route path="/ai-formula" element={<AIFormula />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
             <Route path="/generate-offer" element={<GenerateOffer />} />
