@@ -10,6 +10,7 @@ import SmartResults from './LocationIntelligence/SmartResults';
 import EnhancedSearchSettings, { SearchSettings } from './LocationIntelligence/EnhancedSearchSettings';
 import ApartmentResults from './LocationIntelligence/ApartmentResults';
 import { useLocationIntelligence } from '@/hooks/useLocationIntelligence';
+import CompactPropertyCard from '@/components/modern/CompactPropertyCard';
 
 interface LocationIntelligenceProps {
   userProfile: any;
@@ -180,41 +181,25 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
               <CardContent className="p-0">
                 <div className="overflow-y-auto max-h-[500px] space-y-3 px-6 pb-6">
                   {smartResults.slice(0, 6).map((property) => (
-                    <Card 
+                    <CompactPropertyCard
                       key={property.id}
-                      className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 ${
-                        selectedPropertyId === property.id 
-                          ? 'ring-2 ring-blue-500/50 bg-blue-500/5' 
-                          : 'bg-slate-800/20 border-slate-700/40 hover:bg-slate-800/30'
-                      }`}
+                      property={{
+                        id: property.id,
+                        name: property.name,
+                        address: property.address,
+                        price: property.price,
+                        aiMatchScore: property.aiMatchScore,
+                        bedrooms: property.bedrooms,
+                        bathrooms: property.bathrooms,
+                        sqft: property.sqft,
+                        isTopPick: property.isTopPick,
+                        combinedScore: property.combinedScore,
+                        savings: property.savings,
+                        poiTimes: property.poiTimes
+                      }}
+                      isSelected={selectedPropertyId === property.id}
                       onClick={() => setSelectedPropertyId(property.id)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-start gap-3">
-                          <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-slate-700/50 to-slate-800/50 flex items-center justify-center border border-slate-600/50 flex-shrink-0">
-                            <MapPin className="w-6 h-6 text-slate-400" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-semibold text-foreground text-sm truncate">{property.name}</h4>
-                              {property.isTopPick && (
-                                <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs px-2 py-0">
-                                  TOP PICK
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-xs text-muted-foreground mb-2 truncate">{property.address}</p>
-                            <div className="flex items-center justify-between">
-                              <div className="text-lg font-bold text-green-400">${property.price.toLocaleString()}/mo</div>
-                              <div className="text-xs text-muted-foreground">Score: {property.combinedScore}</div>
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-1">
-                              {property.bedrooms}bd • {property.bathrooms}ba • {property.sqft} sqft
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    />
                   ))}
                 </div>
               </CardContent>
