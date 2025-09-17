@@ -74,10 +74,10 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* POI Management, Search Settings, and Live Market Intel */}
-      <div className="flex flex-col lg:flex-row gap-6 mb-6 items-stretch">
-        {/* POI Management Panel - Responsive width */}
-        <div className="w-full lg:w-[45%] flex flex-col h-full">
-          <div className="w-full flex flex-col h-full">
+      <div className="flex flex-col lg:flex-row gap-6 mb-6 items-stretch min-h-[600px]">
+        {/* POI Management Panel - Equal width and height */}
+        <div className="w-full lg:w-1/3 flex flex-col">
+          <div className="w-full flex flex-col h-full min-h-[600px]">
             <POIManager
               pointsOfInterest={pointsOfInterest}
               onAddPOI={addPOI}
@@ -89,23 +89,25 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
           </div>
         </div>
 
-        {/* Enhanced Search Settings - Responsive width */}
-        <div className="w-full lg:w-[35%] flex flex-col h-full">
-          <EnhancedSearchSettings
-            onSettingsChange={setSearchSettings}
-          />
+        {/* Enhanced Search Settings - Equal width and height */}
+        <div className="w-full lg:w-1/3 flex flex-col">
+          <div className="min-h-[600px]">
+            <EnhancedSearchSettings
+              onSettingsChange={setSearchSettings}
+            />
+          </div>
         </div>
 
-        {/* Live Market Intel - Responsive width */}
-        <div className="w-full lg:w-[20%] flex flex-col h-full">
-          <Card className="bg-slate-800/30 border border-slate-700/30 w-full h-full flex flex-col">
+        {/* Live Market Intel - Equal width and height */}
+        <div className="w-full lg:w-1/3 flex flex-col">
+          <Card className="bg-slate-800/30 border border-slate-700/30 w-full h-full flex flex-col min-h-[600px]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <div className="w-2 h-2 rounded-full bg-green-400"></div>
                 Live Market Intel
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-1 overflow-y-auto">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Avg Rent</span>
                 <div className="text-right">
