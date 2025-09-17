@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeft, 
   BarChart3,
@@ -120,6 +120,10 @@ const MarketIntel: React.FC = () => {
               >
                 <Calculator size={16} />
                 Refresh
+              </Button>
+              
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/help">Help</Link>
               </Button>
             </div>
           </div>

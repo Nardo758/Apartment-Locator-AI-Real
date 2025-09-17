@@ -35,33 +35,33 @@ export const InsightsList: React.FC<InsightsListProps> = ({ insights, className 
     }
   };
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityVariant = (severity: string) => {
     switch (severity) {
       case 'high':
-        return 'bg-red-500/20 text-red-600 border-red-500/30';
+        return 'severity-critical';
       case 'medium':
-        return 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30';
+        return 'severity-warning';
       case 'low':
-        return 'bg-green-500/20 text-green-600 border-green-500/30';
+        return 'severity-info';
       default:
-        return 'bg-muted/50 text-muted-foreground border-border';
+        return 'outline';
     }
   };
 
-  const getInsightTypeColor = (type: string) => {
+  const getInsightTypeVariant = (type: string) => {
     switch (type) {
       case 'leverage':
-        return 'bg-green-500/10 text-green-600';
+        return 'opportunity-high';
       case 'timing':
-        return 'bg-blue-500/10 text-blue-600';
+        return 'severity-info';
       case 'seasonal':
-        return 'bg-purple-500/10 text-purple-600';
+        return 'secondary';
       case 'ownership':
-        return 'bg-orange-500/10 text-orange-600';
+        return 'opportunity-medium';
       case 'geographic':
-        return 'bg-indigo-500/10 text-indigo-600';
+        return 'default';
       default:
-        return 'bg-yellow-500/10 text-yellow-600';
+        return 'opportunity-low';
     }
   };
 
@@ -102,16 +102,16 @@ export const InsightsList: React.FC<InsightsListProps> = ({ insights, className 
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="font-medium text-foreground text-sm">{insight.title}</h4>
                   <Badge 
-                    variant="outline" 
-                    className={`text-xs ${getSeverityColor(insight.severity)}`}
+                    variant={getSeverityVariant(insight.severity) as any}
+                    className="text-xs"
                   >
                     {insight.severity} impact
                   </Badge>
                 </div>
                 <div className="flex items-center gap-2 mb-2">
                   <Badge 
-                    variant="secondary" 
-                    className={`text-xs ${getInsightTypeColor(insight.insightType)}`}
+                    variant={getInsightTypeVariant(insight.insightType) as any}
+                    className="text-xs"
                   >
                     {formatInsightType(insight.insightType)}
                   </Badge>

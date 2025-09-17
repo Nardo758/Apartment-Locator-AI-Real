@@ -4,38 +4,23 @@ import { Button } from '@/components/ui/button';
 
 const About = () => {
   return (
-    <div className="min-h-screen text-white overflow-x-hidden" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", lineHeight: 1.6, color: '#ffffff', background: '#0a0a0a' }}>
+    <div className="min-h-screen text-foreground overflow-x-hidden bg-background font-sans leading-relaxed">
       {/* Animated Background */}
-      <div className="fixed top-0 left-0 w-full h-full z-[-1]" style={{ background: 'linear-gradient(45deg, #667eea 0%, #764ba2 100%)', opacity: 0.1 }}>
-        <div 
-          className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%]" 
-          style={{
-            background: 'repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(255, 255, 255, 0.03) 50px, rgba(255, 255, 255, 0.03) 51px)',
-            animation: 'drift 20s linear infinite'
-          }}
-        />
+      <div className="fixed top-0 left-0 w-full h-full z-[-1] bg-gradient-primary opacity-10">
+        <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] animate-gradient-shift bg-gradient-animated" />
       </div>
 
       {/* Header */}
-      <header className="fixed top-0 w-full z-[1000] py-4" style={{ background: 'rgba(10, 10, 10, 0.95)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+      <header className="fixed top-0 w-full z-[1000] py-4 glass border-b border-border">
         <nav className="max-w-[1200px] mx-auto px-5 flex justify-between items-center">
-          <Link to="/" className="text-2xl font-extrabold" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', textDecoration: 'none' }}>
+          <Link to="/" className="text-2xl font-extrabold gradient-text no-underline">
             🏠 Apartment Locator AI
           </Link>
           <ul className="hidden md:flex gap-8 list-none">
             <li>
               <Link 
                 to="/" 
-                className="text-white font-medium relative transition-all duration-300"
-                style={{ textDecoration: 'none' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#667eea';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+                className="text-foreground font-medium relative transition-all duration-300 hover:text-primary hover:-translate-y-0.5 no-underline"
               >
                 Home
               </Link>
@@ -43,16 +28,7 @@ const About = () => {
             <li>
               <Link 
                 to="/#features" 
-                className="text-white font-medium relative transition-all duration-300"
-                style={{ textDecoration: 'none' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#667eea';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+                className="text-foreground font-medium relative transition-all duration-300 hover:text-primary hover:-translate-y-0.5 no-underline"
               >
                 Features
               </Link>
@@ -60,16 +36,7 @@ const About = () => {
             <li>
               <Link 
                 to="/#pricing" 
-                className="text-white font-medium relative transition-all duration-300"
-                style={{ textDecoration: 'none' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#667eea';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+                className="text-foreground font-medium relative transition-all duration-300 hover:text-primary hover:-translate-y-0.5 no-underline"
               >
                 Pricing
               </Link>
@@ -91,24 +58,9 @@ const About = () => {
             </li>
           </ul>
           <Link to="/signup">
-            <button 
-              className="text-white px-6 py-3 border-0 rounded-[25px] font-semibold transition-all duration-300"
-              style={{ 
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
-                textDecoration: 'none'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-3px)';
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.6)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
-              }}
-            >
+            <Button variant="gradient-primary" className="px-6 py-3 rounded-[25px] font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
               Start Free Trial
-            </button>
+            </Button>
           </Link>
         </nav>
       </header>
@@ -118,21 +70,13 @@ const About = () => {
         <div className="max-w-4xl mx-auto">
           {/* Hero Section */}
           <section className="text-center mb-16">
-            <h1 
-              className="text-5xl font-black leading-tight mb-6"
-              style={{ 
-                background: 'linear-gradient(135deg, #ffffff 0%, #667eea 50%, #764ba2 100%)',
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}
-            >
+            <h1 className="text-5xl font-black leading-tight mb-6 gradient-text">
               About Apartment Locator AI
             </h1>
-            <h2 className="text-3xl font-bold mb-8 text-white">
+            <h2 className="text-3xl font-bold mb-8 text-foreground">
               Revolutionizing Apartment Hunting with AI Intelligence
             </h2>
-            <p className="text-xl leading-relaxed" style={{ color: '#b0b0b0' }}>
+            <p className="text-xl leading-relaxed text-muted-foreground">
               Apartment Locator AI is the world's first AI-powered apartment hunting platform that doesn't just help you find a place to live—it helps you win the negotiation game. We combine cutting-edge artificial intelligence with real-time market data to give renters the upper hand in today's competitive rental market.
             </p>
           </section>
@@ -371,23 +315,9 @@ const About = () => {
               Start your free analysis today and discover what you could be saving
             </p>
             <Link to="/signup">
-              <button 
-                className="text-white px-8 py-4 border-0 rounded-[30px] text-lg font-semibold transition-all duration-300"
-                style={{ 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-3px)';
-                  e.currentTarget.style.boxShadow = '0 10px 30px rgba(102, 126, 234, 0.6)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.4)';
-                }}
-              >
+              <Button variant="gradient-primary" size="lg" className="px-8 py-4 rounded-[30px] text-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                 Start Free Analysis Today
-              </button>
+              </Button>
             </Link>
           </section>
         </div>
