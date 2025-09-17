@@ -73,11 +73,35 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         </div>
       </div>
 
-      {/* POI Management, Search Settings, and Live Market Intel */}
-      <div className="flex flex-col lg:flex-row gap-6 mb-6 items-stretch">
-        {/* POI Management Panel - Responsive width */}
-        <div className="w-full lg:w-[45%] flex flex-col h-full">
-          <div className="w-full flex flex-col h-full">
+      {/* Preferred Location Search Bar */}
+      <div className="w-full mb-6">
+        <Card className="bg-slate-800/30 border border-slate-700/30">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Navigation className="w-5 h-5 text-blue-400" />
+              Preferred Location
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-3">
+              <Input 
+                placeholder="Enter city, neighborhood, or address..." 
+                className="flex-1 bg-slate-900/50 border-slate-600/50"
+              />
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <MapPin className="w-4 h-4 mr-2" />
+                Search
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* POI Management, Search Settings, and Live Market Intel - Vertical Stack */}
+      <div className="flex flex-col gap-6 mb-6">
+        {/* POI Management Panel - Reduced by 20% */}
+        <div className="w-full">
+          <div className="scale-90 origin-top">
             <POIManager
               pointsOfInterest={pointsOfInterest}
               onAddPOI={addPOI}
@@ -89,15 +113,17 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
           </div>
         </div>
 
-        {/* Enhanced Search Settings - Responsive width */}
-        <div className="w-full lg:w-[35%] flex flex-col h-full">
-          <EnhancedSearchSettings
-            onSettingsChange={setSearchSettings}
-          />
+        {/* Enhanced Search Settings - 20% Bigger */}
+        <div className="w-full">
+          <div className="scale-110 origin-top">
+            <EnhancedSearchSettings
+              onSettingsChange={setSearchSettings}
+            />
+          </div>
         </div>
 
-        {/* Live Market Intel - Responsive width */}
-        <div className="w-full lg:w-[20%] flex flex-col h-full">
+        {/* Live Market Intel */}
+        <div className="w-full max-w-md">
           <Card className="bg-slate-800/30 border border-slate-700/30 w-full h-full flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
