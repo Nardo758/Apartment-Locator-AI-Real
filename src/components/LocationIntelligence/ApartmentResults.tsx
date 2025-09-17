@@ -372,7 +372,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
           filteredApartments.map((apartment) => (
           <Card 
             key={apartment.id}
-            className={`w-full max-w-2xl bg-slate-900/95 backdrop-blur-sm border border-slate-700/50 hover:bg-slate-800/80 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 rounded-2xl overflow-hidden group ${
+            className={`w-full max-w-[806px] bg-slate-900/95 backdrop-blur-sm border border-slate-700/50 hover:bg-slate-800/80 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 rounded-2xl overflow-hidden group ${
               apartment.isTopPick ? 'border-green-500/30' : ''
             }`}
             onMouseEnter={() => setHoveredProperty(apartment.id)}
