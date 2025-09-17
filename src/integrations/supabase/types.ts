@@ -185,28 +185,46 @@ export type Database = {
       user_profiles: {
         Row: {
           additional_notes: string | null
+          age_demographics: string | null
           ai_preferences: Json | null
+          airport_proximity: string | null
           amenities: string[] | null
+          banking_access: boolean | null
           bedrooms: string | null
+          bike_friendly: boolean | null
           bio: string | null
           budget: number | null
+          cell_coverage: string | null
           communication: string[] | null
           created_at: string
           credit_score: string | null
+          crime_rate_preference: string | null
           current_address: string | null
           current_rent: number | null
           deal_breakers: string[] | null
+          diversity_importance: string | null
+          dry_cleaning_services: boolean | null
           email: string
+          emergency_services_response: string | null
           employment_type: string | null
+          ev_charging_stations: boolean | null
+          farmers_markets: boolean | null
+          fire_safety_features: string[] | null
+          flood_zone_avoidance: boolean | null
+          gated_community_preference: string | null
+          grocery_store_types: string[] | null
           gross_income: number | null
           has_completed_ai_programming: boolean | null
           has_completed_social_signup: boolean | null
+          highway_access: boolean | null
           household_size: string | null
           id: string
           income_verified: boolean | null
+          internet_speed_requirement: string | null
           lease_duration: string | null
           lease_expiration: string | null
           lifestyle: string | null
+          local_culture_arts: boolean | null
           location: string | null
           max_budget: number | null
           max_commute: number | null
@@ -215,46 +233,74 @@ export type Database = {
           move_timeline: string | null
           negotiation_comfort: string | null
           neighborhoods: string | null
+          noise_tolerance_level: string | null
           other_locations: Json | null
           pet_info: string | null
           points_of_interest: Json | null
+          population_density: string | null
+          post_office_proximity: boolean | null
           priorities: string[] | null
           program_ai_prompt_dismissed: boolean | null
+          public_transit_access: string[] | null
           rental_history: string | null
+          school_district_quality: string | null
           search_criteria: Json | null
           search_radius: number | null
+          security_system_required: boolean | null
+          shopping_mall_access: boolean | null
+          smart_home_compatibility: boolean | null
+          streaming_options: string[] | null
           transportation: string | null
           updated_at: string
           use_case: string | null
           user_id: string | null
+          walkability_importance: string | null
           work_address: string | null
           work_frequency: string | null
           work_schedule: string | null
         }
         Insert: {
           additional_notes?: string | null
+          age_demographics?: string | null
           ai_preferences?: Json | null
+          airport_proximity?: string | null
           amenities?: string[] | null
+          banking_access?: boolean | null
           bedrooms?: string | null
+          bike_friendly?: boolean | null
           bio?: string | null
           budget?: number | null
+          cell_coverage?: string | null
           communication?: string[] | null
           created_at?: string
           credit_score?: string | null
+          crime_rate_preference?: string | null
           current_address?: string | null
           current_rent?: number | null
           deal_breakers?: string[] | null
+          diversity_importance?: string | null
+          dry_cleaning_services?: boolean | null
           email: string
+          emergency_services_response?: string | null
           employment_type?: string | null
+          ev_charging_stations?: boolean | null
+          farmers_markets?: boolean | null
+          fire_safety_features?: string[] | null
+          flood_zone_avoidance?: boolean | null
+          gated_community_preference?: string | null
+          grocery_store_types?: string[] | null
           gross_income?: number | null
           has_completed_ai_programming?: boolean | null
           has_completed_social_signup?: boolean | null
+          highway_access?: boolean | null
           household_size?: string | null
           id?: string
           income_verified?: boolean | null
+          internet_speed_requirement?: string | null
           lease_duration?: string | null
           lease_expiration?: string | null
           lifestyle?: string | null
+          local_culture_arts?: boolean | null
           location?: string | null
           max_budget?: number | null
           max_commute?: number | null
@@ -263,46 +309,74 @@ export type Database = {
           move_timeline?: string | null
           negotiation_comfort?: string | null
           neighborhoods?: string | null
+          noise_tolerance_level?: string | null
           other_locations?: Json | null
           pet_info?: string | null
           points_of_interest?: Json | null
+          population_density?: string | null
+          post_office_proximity?: boolean | null
           priorities?: string[] | null
           program_ai_prompt_dismissed?: boolean | null
+          public_transit_access?: string[] | null
           rental_history?: string | null
+          school_district_quality?: string | null
           search_criteria?: Json | null
           search_radius?: number | null
+          security_system_required?: boolean | null
+          shopping_mall_access?: boolean | null
+          smart_home_compatibility?: boolean | null
+          streaming_options?: string[] | null
           transportation?: string | null
           updated_at?: string
           use_case?: string | null
           user_id?: string | null
+          walkability_importance?: string | null
           work_address?: string | null
           work_frequency?: string | null
           work_schedule?: string | null
         }
         Update: {
           additional_notes?: string | null
+          age_demographics?: string | null
           ai_preferences?: Json | null
+          airport_proximity?: string | null
           amenities?: string[] | null
+          banking_access?: boolean | null
           bedrooms?: string | null
+          bike_friendly?: boolean | null
           bio?: string | null
           budget?: number | null
+          cell_coverage?: string | null
           communication?: string[] | null
           created_at?: string
           credit_score?: string | null
+          crime_rate_preference?: string | null
           current_address?: string | null
           current_rent?: number | null
           deal_breakers?: string[] | null
+          diversity_importance?: string | null
+          dry_cleaning_services?: boolean | null
           email?: string
+          emergency_services_response?: string | null
           employment_type?: string | null
+          ev_charging_stations?: boolean | null
+          farmers_markets?: boolean | null
+          fire_safety_features?: string[] | null
+          flood_zone_avoidance?: boolean | null
+          gated_community_preference?: string | null
+          grocery_store_types?: string[] | null
           gross_income?: number | null
           has_completed_ai_programming?: boolean | null
           has_completed_social_signup?: boolean | null
+          highway_access?: boolean | null
           household_size?: string | null
           id?: string
           income_verified?: boolean | null
+          internet_speed_requirement?: string | null
           lease_duration?: string | null
           lease_expiration?: string | null
           lifestyle?: string | null
+          local_culture_arts?: boolean | null
           location?: string | null
           max_budget?: number | null
           max_commute?: number | null
@@ -311,18 +385,28 @@ export type Database = {
           move_timeline?: string | null
           negotiation_comfort?: string | null
           neighborhoods?: string | null
+          noise_tolerance_level?: string | null
           other_locations?: Json | null
           pet_info?: string | null
           points_of_interest?: Json | null
+          population_density?: string | null
+          post_office_proximity?: boolean | null
           priorities?: string[] | null
           program_ai_prompt_dismissed?: boolean | null
+          public_transit_access?: string[] | null
           rental_history?: string | null
+          school_district_quality?: string | null
           search_criteria?: Json | null
           search_radius?: number | null
+          security_system_required?: boolean | null
+          shopping_mall_access?: boolean | null
+          smart_home_compatibility?: boolean | null
+          streaming_options?: string[] | null
           transportation?: string | null
           updated_at?: string
           use_case?: string | null
           user_id?: string | null
+          walkability_importance?: string | null
           work_address?: string | null
           work_frequency?: string | null
           work_schedule?: string | null

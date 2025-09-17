@@ -145,52 +145,53 @@ const ProgramAI = () => {
         }
 
         if (profile) {
+          const profileAny = profile as any; // Type assertion for new columns
           setPreferences(prev => ({
             ...prev,
-            bedrooms: profile.bedrooms || '1',
-            amenities: profile.amenities || [],
-            dealBreakers: profile.deal_breakers || [],
+            bedrooms: profileAny.bedrooms || '1',
+            amenities: profileAny.amenities || [],
+            dealBreakers: profileAny.deal_breakers || [],
             
             // Load additional preferences from profile if they exist
-            publicTransitAccess: profile.public_transit_access || [],
-            walkabilityImportance: profile.walkability_importance || 'moderate',
-            bikeFriendly: profile.bike_friendly || false,
-            evChargingStations: profile.ev_charging_stations || false,
-            airportProximity: profile.airport_proximity || 'moderate',
-            highwayAccess: profile.highway_access || false,
+            publicTransitAccess: profileAny.public_transit_access || [],
+            walkabilityImportance: profileAny.walkability_importance || 'moderate',
+            bikeFriendly: profileAny.bike_friendly || false,
+            evChargingStations: profileAny.ev_charging_stations || false,
+            airportProximity: profileAny.airport_proximity || 'moderate',
+            highwayAccess: profileAny.highway_access || false,
             
-            schoolDistrictQuality: profile.school_district_quality || 'no-preference',
-            crimeRatePreference: profile.crime_rate_preference || 'low',
-            noiseToleranceLevel: profile.noise_tolerance_level || 'moderate',
-            populationDensity: profile.population_density || 'moderate',
-            ageDemographics: profile.age_demographics || 'mixed',
-            diversityImportance: profile.diversity_importance || 'moderate',
-            localCultureArts: profile.local_culture_arts || false,
+            schoolDistrictQuality: profileAny.school_district_quality || 'no-preference',
+            crimeRatePreference: profileAny.crime_rate_preference || 'low',
+            noiseToleranceLevel: profileAny.noise_tolerance_level || 'moderate',
+            populationDensity: profileAny.population_density || 'moderate',
+            ageDemographics: profileAny.age_demographics || 'mixed',
+            diversityImportance: profileAny.diversity_importance || 'moderate',
+            localCultureArts: profileAny.local_culture_arts || false,
             
-            securitySystemRequired: profile.security_system_required || false,
-            gatedCommunityPreference: profile.gated_community_preference || 'no-preference',
-            emergencyServicesResponse: profile.emergency_services_response || 'standard',
-            floodZoneAvoidance: profile.flood_zone_avoidance || false,
-            fireSafetyFeatures: profile.fire_safety_features || [],
+            securitySystemRequired: profileAny.security_system_required || false,
+            gatedCommunityPreference: profileAny.gated_community_preference || 'no-preference',
+            emergencyServicesResponse: profileAny.emergency_services_response || 'standard',
+            floodZoneAvoidance: profileAny.flood_zone_avoidance || false,
+            fireSafetyFeatures: profileAny.fire_safety_features || [],
             
-            groceryStoreTypes: profile.grocery_store_types || [],
-            shoppingMallAccess: profile.shopping_mall_access || false,
-            farmersMarkets: profile.farmers_markets || false,
-            bankingAccess: profile.banking_access || false,
-            postOfficeProximity: profile.post_office_proximity || false,
-            dryCleaningServices: profile.dry_cleaning_services || false,
+            groceryStoreTypes: profileAny.grocery_store_types || [],
+            shoppingMallAccess: profileAny.shopping_mall_access || false,
+            farmersMarkets: profileAny.farmers_markets || false,
+            bankingAccess: profileAny.banking_access || false,
+            postOfficeProximity: profileAny.post_office_proximity || false,
+            dryCleaningServices: profileAny.dry_cleaning_services || false,
             
-            internetSpeedRequirement: profile.internet_speed_requirement || 'standard',
-            cellCoverage: profile.cell_coverage || 'good',
-            smartHomeCompatibility: profile.smart_home_compatibility || false,
-            streamingOptions: profile.streaming_options || [],
+            internetSpeedRequirement: profileAny.internet_speed_requirement || 'standard',
+            cellCoverage: profileAny.cell_coverage || 'good',
+            smartHomeCompatibility: profileAny.smart_home_compatibility || false,
+            streamingOptions: profileAny.streaming_options || [],
             
-            lifestyle: profile.lifestyle || '',
-            workSchedule: profile.work_schedule || '',
-            priorities: profile.priorities || [],
-            bio: profile.bio || '',
-            useCase: profile.use_case || '',
-            additionalNotes: profile.additional_notes || ''
+            lifestyle: profileAny.lifestyle || '',
+            workSchedule: profileAny.work_schedule || '',
+            priorities: profileAny.priorities || [],
+            bio: profileAny.bio || '',
+            useCase: profileAny.use_case || '',
+            additionalNotes: profileAny.additional_notes || ''
           }));
         }
       } catch (error) {
