@@ -140,12 +140,6 @@ const Header: React.FC<HeaderProps> = ({ onSignOut }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem asChild>
-                <Link to="/profile" className="flex items-center gap-2">
-                  <Settings size={16} />
-                  Profile & Settings
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
                 <Link to="/billing" className="flex items-center gap-2">
                   <CreditCard size={16} />
                   Billing & Plans
