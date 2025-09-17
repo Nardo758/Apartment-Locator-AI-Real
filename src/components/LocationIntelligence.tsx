@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Plus, Eye, List, Brain, Target, Settings, Navigation, Clock, Zap } from 'lucide-react';
+import { MapPin, Plus, Eye, List, Brain, Target, Settings, Navigation, Clock, Zap, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -72,27 +73,156 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         </div>
       </div>
 
-      {/* POI Management, Search Settings, and Live Market Intel */}
+      {/* Combined Location & Search Settings Panel */}
       <div className="flex flex-col lg:flex-row gap-6 mb-6 items-stretch">
-        {/* POI Management Panel - Responsive width */}
-        <div className="w-full lg:w-[45%] flex flex-col h-full">
-          <div className="w-full flex flex-col h-full">
-            <POIManager
-              pointsOfInterest={pointsOfInterest}
-              onAddPOI={addPOI}
-              onRemovePOI={removePOI}
-              onUpdatePriority={updatePOIPriority}
-              showModal={showPOIModal}
-              setShowModal={setShowPOIModal}
-            />
-          </div>
-        </div>
+        {/* Combined Location & Search Settings */}
+        <div className="w-full lg:w-[60%] flex flex-col h-full">
+          <Card className="bg-slate-800/30 border border-slate-700/30 h-full flex flex-col">
+            <CardHeader className="flex-shrink-0">
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-blue-400" />
+                Location & Search Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 flex flex-col space-y-6">
+              {/* Preferred Location Search */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-medium">Preferred Location</h4>
+                  <Button variant="outline" size="sm">
+                    <Target className="w-3 h-3 mr-1" />
+                    Reset
+                  </Button>
+                </div>
+                <div className="relative">
+                  <Input 
+                    placeholder="City, State (e.g., Austin, TX)"
+                    className="bg-slate-800/50 border-slate-600/50 pr-10"
+                    defaultValue={userProfile?.location || "Austin, TX"}
+                  />
+                  <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Use this OR add points of interest below
+                </p>
+              </div>
 
-        {/* Enhanced Search Settings - Responsive width */}
-        <div className="w-full lg:w-[35%] flex flex-col h-full">
-          <EnhancedSearchSettings
-            onSettingsChange={setSearchSettings}
-          />
+              {/* Points of Interest */}
+              <div className="space-y-3 flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-medium flex items-center gap-2">
+                    <Target className="w-4 h-4 text-blue-400" />
+                    Your Points of Interest
+                  </h4>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowPOIModal(true)}
+                    className="text-xs"
+                  >
+                    <Plus className="w-3 h-3 mr-1" />
+                    Add POI
+                  </Button>
+                </div>
+
+                {/* POI List */}
+                <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto">
+                  {pointsOfInterest.length === 0 ? (
+                    <div className="text-center py-6">
+                      <MapPin className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">No points of interest added</p>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowPOIModal(true)}
+                        className="mt-2 text-xs"
+                      >
+                        Add your first POI
+                      </Button>
+                    </div>
+                  ) : (
+                    pointsOfInterest.map((poi) => (
+                      <div key={poi.id} className="bg-slate-800/30 border border-slate-600/30 rounded-lg p-3">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="secondary" className="text-xs">
+                                {poi.transportMode === 'driving' ? '🚗' : 
+                                 poi.transportMode === 'transit' ? '🚌' : 
+                                 poi.transportMode === 'walking' ? '🚶' : '🚴'}
+                              </Badge>
+                              <span className="font-medium text-sm">{poi.name}</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">{poi.address}</p>
+                            <p className="text-xs text-blue-400">Max {poi.maxTime} min</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => removePOI(poi.id)}
+                            className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Search Settings */}
+              <div className="space-y-4 pt-4 border-t border-slate-600/30">
+                <h4 className="text-sm font-medium">Search Settings</h4>
+                
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm">Budget Range</span>
+                    <span className="text-sm text-blue-400">${userProfile?.budget || 2500}/month</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-700 rounded-full">
+                    <div 
+                      className="h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                      style={{ width: `${((userProfile?.budget || 2500) / 5000) * 100}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>$500</span>
+                    <span>$5,000</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm">Max Drive Time</span>
+                    <span className="text-sm text-blue-400">{userProfile?.max_drive_time || 30} minutes</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-700 rounded-full">
+                    <div 
+                      className="h-2 bg-gradient-to-r from-green-500 to-blue-500 rounded-full"
+                      style={{ width: `${((userProfile?.max_drive_time || 30) / 60) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-sm font-medium mb-2 block">Bedrooms</span>
+                  <div className="grid grid-cols-4 gap-2">
+                    {['Studio', '1 BR', '2 BR', '3+ BR'].map((bedroom, index) => (
+                      <Button
+                        key={bedroom}
+                        size="sm"
+                        variant={userProfile?.bedrooms === (index === 0 ? 'studio' : index.toString()) ? "default" : "outline"}
+                        className="text-xs"
+                      >
+                        {bedroom}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Live Market Intel - Responsive width */}
