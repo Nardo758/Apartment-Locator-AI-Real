@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Settings, MapPin, DollarSign, Save } from 'lucide-react';
+import { User, Save, Settings, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import Header from '@/components/Header';
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
@@ -161,37 +162,10 @@ const Profile: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/dashboard')}
-                className="gap-2"
-              >
-                <ArrowLeft size={16} />
-                Back to Dashboard
-              </Button>
-              <div className="flex items-center gap-2">
-                <User className="text-primary" size={20} />
-                <h1 className="text-xl font-semibold text-foreground">
-                  Profile Settings
-                </h1>
-              </div>
-            </div>
-            <Button onClick={handleSave} disabled={loading} className="gap-2">
-              <Save size={16} />
-              {loading ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </div>
-        </div>
-      </header>
-
+      <Header />
+      
       {/* Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         <div className="space-y-6">
           {/* Basic Information */}
           <Card>

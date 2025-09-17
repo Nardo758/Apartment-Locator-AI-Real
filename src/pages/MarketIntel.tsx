@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-  ArrowLeft, 
-  BarChart3,
   Loader2,
   Settings,
   Calculator
@@ -16,6 +14,7 @@ import { useUnifiedRentalIntelligence } from '@/hooks/useUnifiedRentalIntelligen
 import { LeverageScoreCard } from '@/components/intelligence/LeverageScoreCard';
 import { InsightsList } from '@/components/intelligence/InsightsList';
 import { OwnershipAnalysisCard } from '@/components/intelligence/OwnershipAnalysisCard';
+import Header from '@/components/Header';
 
 const MarketIntel: React.FC = () => {
   const navigate = useNavigate();
@@ -67,71 +66,10 @@ const MarketIntel: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/dashboard')}
-                className="gap-2"
-              >
-                <ArrowLeft size={16} />
-                Back to Dashboard
-              </Button>
-              <div className="flex items-center gap-2">
-                <BarChart3 className="text-blue-500" size={20} />
-                <h1 className="text-xl font-semibold text-foreground">
-                  Market Intelligence
-                </h1>
-              </div>
-            </div>
-            
-            {/* Controls */}
-            <div className="flex items-center gap-3">
-              <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="austin">Austin, TX</SelectItem>
-                  <SelectItem value="dallas">Dallas, TX</SelectItem>
-                  <SelectItem value="houston">Houston, TX</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSettings(!showSettings)}
-                className="gap-2"
-              >
-                <Settings size={16} />
-                Settings
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={refresh}
-                className="gap-2"
-              >
-                <Calculator size={16} />
-                Refresh
-              </Button>
-              
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/help">Help</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+      <Header />
+      
       {/* Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         {/* Settings Panel */}
         {showSettings && (
           <Card className="mb-8 bg-card border-border">
@@ -167,8 +105,75 @@ const MarketIntel: React.FC = () => {
               <p className="text-sm text-muted-foreground">
                 Adjust these values to get personalized negotiation intelligence and rent vs buy analysis.
               </p>
+              <div className="flex gap-3">
+                <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="austin">Austin, TX</SelectItem>
+                    <SelectItem value="dallas">Dallas, TX</SelectItem>
+                    <SelectItem value="houston">Houston, TX</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSettings(!showSettings)}
+                  className="gap-2"
+                >
+                  <Settings size={16} />
+                  Settings
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={refresh}
+                  className="gap-2"
+                >
+                  <Calculator size={16} />
+                  Refresh
+                </Button>
+              </div>
             </CardContent>
           </Card>
+        )}
+
+        {!showSettings && (
+          <div className="mb-6 flex justify-end gap-3">
+            <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="austin">Austin, TX</SelectItem>
+                <SelectItem value="dallas">Dallas, TX</SelectItem>
+                <SelectItem value="houston">Houston, TX</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowSettings(!showSettings)}
+              className="gap-2"
+            >
+              <Settings size={16} />
+              Settings
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refresh}
+              className="gap-2"
+            >
+              <Calculator size={16} />
+              Refresh
+            </Button>
+          </div>
         )}
 
         {loading ? (

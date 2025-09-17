@@ -1,10 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, MapPin } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { usePropertyState } from '@/contexts/PropertyStateContext';
 import { mockProperties } from '@/data/mockData';
 import PropertyCard from '@/components/PropertyCard';
 import { Button } from '@/components/ui/button';
+import Header from '@/components/Header';
 
 const SavedProperties: React.FC = () => {
   const navigate = useNavigate();
@@ -16,41 +17,10 @@ const SavedProperties: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/dashboard')}
-                className="gap-2"
-              >
-                <ArrowLeft size={16} />
-                Back to Dashboard
-              </Button>
-              <div className="flex items-center gap-2">
-                <Heart className="text-red-500" size={20} />
-                <h1 className="text-xl font-semibold text-foreground">
-                  Saved Properties
-                </h1>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-sm text-muted-foreground">
-                {favoriteProperties.length} saved {favoriteProperties.length === 1 ? 'property' : 'properties'}
-              </div>
-              <Button variant="outline" size="sm" asChild>
-                <a href="/help">Need Help?</a>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+      <Header />
+      
       {/* Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         {savedPropertiesList.length === 0 ? (
           // Empty State
           <div className="text-center py-16">

@@ -43,7 +43,7 @@ const OffersMade: React.FC = () => {
       // Mock status for demo purposes since we don't have a status column
       const offersWithStatus = data?.map((offer, index) => ({
         ...offer,
-        status: index === 0 ? 'pending' : index === 1 ? 'accepted' : 'pending'
+        status: (index === 0 ? 'pending' : index === 1 ? 'accepted' : 'pending') as 'pending' | 'accepted' | 'rejected' | 'expired'
       })) || [];
 
       setOffers(offersWithStatus);

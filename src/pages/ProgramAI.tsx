@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { usePropertyState } from '@/contexts/PropertyStateContext';
 import { Brain, MapPin, Target, Clock, Home, DollarSign, Heart, X, Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import Header from '@/components/Header';
 
 interface PointOfInterest {
   id: string;
@@ -246,18 +247,20 @@ const ProgramAI = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
-            <Brain className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="pt-20 p-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
+              <Brain className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Program Your AI</h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Customize your AI assistant to find the perfect rental. These settings sync with your dashboard Quick Actions.
+            </p>
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Program Your AI</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Customize your AI assistant to find the perfect rental. These settings sync with your dashboard Quick Actions.
-          </p>
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Location & Search Preferences */}
@@ -520,6 +523,7 @@ const ProgramAI = () => {
           >
             {saving ? 'Saving...' : 'Save AI Preferences'}
           </Button>
+          </div>
         </div>
       </div>
     </div>
