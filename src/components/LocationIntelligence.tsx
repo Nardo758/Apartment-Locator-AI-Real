@@ -137,6 +137,40 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
                   <div className="text-xs text-orange-400">85% occupancy</div>
                 </div>
               </div>
+
+              {/* Negotiation Intelligence Section */}
+              <div className="border-t border-slate-600/30 pt-4 mt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                  <span className="text-sm font-medium text-blue-400">Negotiation Intel</span>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Concessions</span>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-foreground">73%</div>
+                      <div className="text-xs text-green-400">offering incentives</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Landlord Urgency</span>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-foreground">Moderate</div>
+                      <div className="text-xs text-yellow-400">15% price drops</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Best Window</span>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-foreground">Next 2wks</div>
+                      <div className="text-xs text-blue-400">optimal timing</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
