@@ -52,33 +52,9 @@ const LocationIntelligenceDemo = () => {
     <div className="min-h-screen bg-background">
       {/* Use the main Header component */}
       <Header />
-      
-      {/* Dashboard intro section */}
-      <div className="pt-20 pb-6 bg-slate-900/30 border-b border-slate-700/50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">Location Intelligence Dashboard</h1>
-              <p className="text-muted-foreground">AI-powered apartment recommendations based on your lifestyle and location preferences</p>
-            </div>
-            <div className="flex gap-3">
-              <Link to="/renter-intelligence">
-                <Button variant="outline" className="border-green-500/30 text-green-400 hover:bg-green-500/10">
-                  Try RenterIQ
-                </Button>
-              </Link>
-              <Link to="/program-ai">
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                  Setup AI Preferences
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Content */}
-      <main className="p-6">
+      <main className="pt-20 p-6">
         <div className="max-w-7xl mx-auto">
           <LocationIntelligence userProfile={mockUserProfile} />
         </div>
