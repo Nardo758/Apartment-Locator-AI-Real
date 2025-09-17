@@ -113,7 +113,10 @@ export const useLocationIntelligence = (userProfile: any) => {
         amenityMatch: aiScore.amenityScore >= 70,
         lifestyleMatch: aiScore.lifestyleScore >= 70,
         isTopPick: combinedScore >= 90,
-        savings: Math.floor(Math.random() * 500) + 50, // Random savings between $50-$550
+        savings: property.id === '3' ? 545 : // South Lamar Residences: $345 AI + $200 concessions
+                 property.id === '1' ? 883 : // Mosaic Lake: $683 AI + $200 concessions  
+                 property.id === '2' ? 400 : // East Austin Lofts: $200 AI + $200 concessions
+                 property.savings + 200, // Default: AI savings + estimated concessions
         poiTimes,
         bedrooms: property.bedrooms,
         bathrooms: property.bathrooms,
