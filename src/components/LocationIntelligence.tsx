@@ -74,10 +74,10 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* POI Management, Search Settings, and Live Market Intel */}
-      <div className="flex flex-col lg:flex-row gap-6 mb-6 items-stretch min-h-[600px]">
+      <div className="flex flex-col lg:flex-row gap-6 mb-6 items-stretch min-h-[540px]">
         {/* POI Management Panel - Equal width and height */}
         <div className="w-full lg:w-1/3 flex flex-col">
-          <div className="w-full flex flex-col h-full min-h-[600px]">
+          <div className="w-full flex flex-col h-full min-h-[540px]">
             <POIManager
               pointsOfInterest={pointsOfInterest}
               onAddPOI={addPOI}
@@ -91,7 +91,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
 
         {/* Enhanced Search Settings - Equal width and height */}
         <div className="w-full lg:w-1/3 flex flex-col">
-          <div className="min-h-[600px]">
+          <div className="min-h-[540px]">
             <EnhancedSearchSettings
               onSettingsChange={setSearchSettings}
             />
@@ -100,7 +100,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
 
         {/* Live Market Intel - Equal width and height */}
         <div className="w-full lg:w-1/3 flex flex-col">
-          <Card className="bg-slate-800/30 border border-slate-700/30 w-full h-full flex flex-col min-h-[600px]">
+          <Card className="bg-slate-800/30 border border-slate-700/30 w-full h-full flex flex-col min-h-[540px]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <div className="w-2 h-2 rounded-full bg-green-400"></div>
