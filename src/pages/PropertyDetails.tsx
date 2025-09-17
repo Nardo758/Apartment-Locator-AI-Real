@@ -304,6 +304,18 @@ const PropertyDetails: React.FC = () => {
                     </div>
                   </div>
                 </div>
+                
+                {/* Additional pricing lines */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-muted/20">
+                  <div className="text-center">
+                    <div className="text-sm text-muted-foreground">Concessions</div>
+                    <div className="text-lg font-bold text-emerald-500">$200/mo</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm text-muted-foreground">Total Savings</div>
+                    <div className="text-lg font-bold text-emerald-500">$404/mo</div>
+                  </div>
+                </div>
               </div>
 
               {/* Monthly Savings Analysis */}
