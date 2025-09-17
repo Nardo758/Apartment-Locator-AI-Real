@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 
 interface SearchSettingsProps {
@@ -15,6 +16,7 @@ interface SearchSettingsProps {
 }
 
 export interface SearchSettings {
+  location: string;
   budgetRange: [number, number];
   searchRadius: number;
   maxDriveTime: number;
@@ -27,6 +29,7 @@ export interface SearchSettings {
 
 const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChange }) => {
   const [settings, setSettings] = useState<SearchSettings>({
+    location: '',
     budgetRange: [2000, 2500],
     searchRadius: 25,
     maxDriveTime: 30,
@@ -73,6 +76,7 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
 
   const resetFilters = () => {
     const defaultSettings: SearchSettings = {
+      location: '',
       budgetRange: [1500, 3000],
       searchRadius: 25,
       maxDriveTime: 30,
@@ -106,6 +110,20 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
       </CardHeader>
       
       <CardContent className="flex-1 space-y-6 overflow-y-auto">
+        {/* Location Search */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-blue-400" />
+            <label className="text-sm font-medium text-foreground">Location</label>
+          </div>
+          <Input
+            placeholder="Enter city, neighborhood, or address..."
+            value={settings.location}
+            onChange={(e) => updateSettings({ location: e.target.value })}
+            className="bg-slate-700/50 border-slate-600 text-foreground placeholder:text-muted-foreground"
+          />
+        </div>
+
         {/* Budget Range */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
