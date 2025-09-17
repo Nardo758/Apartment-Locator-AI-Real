@@ -233,7 +233,6 @@ const ProgramAI = () => {
       : [...array, item];
   };
 
-
   const syncWithGlobalState = () => {
     // Sync search filters with global state
     setSearchFilters({
@@ -341,7 +340,7 @@ const ProgramAI = () => {
               safetyRequirements: preferences.fireSafetyFeatures,
               communityPreferences: {
                 crimeRate: preferences.crimeRatePreference,
-                noiseLevel: preferences.noiseToleranceLevel,
+                noiseLevel: preferences.noiseLevelTolerance,
                 demographics: preferences.ageDemographics
               }
             }
@@ -508,6 +507,7 @@ const ProgramAI = () => {
                   <Label htmlFor="highway-access" className="text-sm">Highway Access</Label>
                 </div>
               </div>
+
               <div>
                 <Label className="text-sm font-medium">Airport Proximity</Label>
                 <Select value={preferences.airportProximity} onValueChange={(value) => updatePreference('airportProximity', value)}>
@@ -657,6 +657,7 @@ const ProgramAI = () => {
                   </SelectContent>
                 </Select>
               </div>
+
               <div>
                 <Label className="text-sm font-medium">Gated Community Preference</Label>
                 <Select value={preferences.gatedCommunityPreference} onValueChange={(value) => updatePreference('gatedCommunityPreference', value)}>
@@ -724,7 +725,7 @@ const ProgramAI = () => {
               <div>
                 <Label className="text-sm font-medium">Preferred Grocery Stores</Label>
                 <div className="grid grid-cols-2 gap-2 mt-2">
-                  {['Whole Foods', 'Trader Joe\'s', 'Kroger', 'Safeway', 'Local Markets', 'Costco/Sam\'s'].map((store) => (
+                  {['Whole Foods', "Trader Joe's", 'Kroger', 'Safeway', 'Local Markets', "Costco/Sam's"].map((store) => (
                     <div key={store} className="flex items-center space-x-2">
                       <Checkbox
                         id={`grocery-${store}`}
@@ -754,7 +755,7 @@ const ProgramAI = () => {
                     checked={preferences.farmersMarkets}
                     onCheckedChange={(checked) => updatePreference('farmersMarkets', checked)}
                   />
-                  <Label htmlFor="farmers-markets" className="text-sm">Farmers Markets</Label>
+                  <Label htmlFor="farmers-markets" className="text-sm">Farmer's Markets</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -763,6 +764,14 @@ const ProgramAI = () => {
                     onCheckedChange={(checked) => updatePreference('bankingAccess', checked)}
                   />
                   <Label htmlFor="banking-access" className="text-sm">Banking/ATM Access</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="post-office"
+                    checked={preferences.postOfficeProximity}
+                    onCheckedChange={(checked) => updatePreference('postOfficeProximity', checked)}
+                  />
+                  <Label htmlFor="post-office" className="text-sm">Post Office Proximity</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -818,43 +827,6 @@ const ProgramAI = () => {
 
               <div>
                 <Label className="text-sm font-medium">Cable/Streaming Options</Label>
-                <Select value={preferences.internetSpeedRequirement} onValueChange={(value) => updatePreference('internetSpeedRequirement', value)}>
-                  <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="basic">Basic (25+ Mbps)</SelectItem>
-                    <SelectItem value="standard">Standard (100+ Mbps)</SelectItem>
-                    <SelectItem value="high-speed">High-Speed (500+ Mbps)</SelectItem>
-                    <SelectItem value="gigabit">Gigabit (1000+ Mbps)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {['Netflix', 'Hulu', 'Amazon Prime', 'Disney+', 'HBO Max', 'Apple TV+', 'Cable TV', 'Local Channels'].map((service) => (
-                    <div key={service} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`streaming-${service}`}
-                        checked={preferences.cableStreamingOptions.includes(service)}
-                        onCheckedChange={() => 
-                          updatePreference('cableStreamingOptions', toggleArrayItem(preferences.cableStreamingOptions, service))
-                        }
-                      />
-                      <Label htmlFor={`streaming-${service}`} className="text-xs">{service}</Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="smart-home"
-                  checked={preferences.smartHomeCompatibility}
-                  onCheckedChange={(checked) => updatePreference('smartHomeCompatibility', checked)}
-                />
-                <Label htmlFor="smart-home" className="text-sm">Smart Home Compatibility</Label>
-              </div>
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {['Netflix', 'Hulu', 'Amazon Prime', 'Disney+', 'HBO Max', 'Apple TV+', 'Cable TV', 'Local Channels'].map((service) => (
                     <div key={service} className="flex items-center space-x-2">
@@ -883,8 +855,6 @@ const ProgramAI = () => {
           </Card>
 
           {/* Lifestyle & Priorities */}
-
-          {/* Lifestyle & Priorities */}
           <Card className="glass-dark border-border/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -904,7 +874,7 @@ const ProgramAI = () => {
                     <SelectItem value="active">Active & Outdoorsy</SelectItem>
                     <SelectItem value="social">Social & Nightlife</SelectItem>
                     <SelectItem value="homebody">Homebody & Quiet</SelectItem>
-                    <SelectItem value="professional">Professional & Focused</SelectItem>
+                    <SelectItem value="professional">Career-Focused</SelectItem>
                     <SelectItem value="family">Family-Oriented</SelectItem>
                     <SelectItem value="creative">Creative & Artistic</SelectItem>
                   </SelectContent>
@@ -915,21 +885,21 @@ const ProgramAI = () => {
                 <Label className="text-sm font-medium">Work Schedule</Label>
                 <Select value={preferences.workSchedule} onValueChange={(value) => updatePreference('workSchedule', value)}>
                   <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
-                    <SelectValue placeholder="Select work schedule" />
+                    <SelectValue placeholder="Select your work schedule" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="9-5">Traditional 9-5</SelectItem>
+                    <SelectItem value="traditional">Traditional 9-5</SelectItem>
                     <SelectItem value="flexible">Flexible Hours</SelectItem>
-                    <SelectItem value="remote">Fully Remote</SelectItem>
-                    <SelectItem value="hybrid">Hybrid</SelectItem>
+                    <SelectItem value="remote">Remote Work</SelectItem>
+                    <SelectItem value="hybrid">Hybrid Work</SelectItem>
                     <SelectItem value="shift">Shift Work</SelectItem>
-                    <SelectItem value="freelance">Freelance</SelectItem>
+                    <SelectItem value="freelance">Freelance/Gig</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label className="text-sm font-medium">Top Priorities</Label>
+                <Label className="text-sm font-medium">Your Priorities</Label>
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {priorityOptions.map((priority) => (
                     <div key={priority} className="flex items-center space-x-2">
@@ -970,14 +940,20 @@ const ProgramAI = () => {
               </div>
 
               <div>
-                <Label className="text-sm font-medium">Use Case</Label>
-                <Textarea
-                  placeholder="How do you plan to use Apartment Locator AI?"
-                  value={preferences.useCase}
-                  onChange={(e) => updatePreference('useCase', e.target.value)}
-                  className="mt-1 bg-slate-800/50 border-slate-600/50"
-                  rows={2}
-                />
+                <Label className="text-sm font-medium">Primary Use Case</Label>
+                <Select value={preferences.useCase} onValueChange={(value) => updatePreference('useCase', value)}>
+                  <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
+                    <SelectValue placeholder="What's your main reason for renting?" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="first-time">First-time Renter</SelectItem>
+                    <SelectItem value="relocating">Relocating for Work</SelectItem>
+                    <SelectItem value="downsizing">Downsizing</SelectItem>
+                    <SelectItem value="upgrading">Upgrading Current Living</SelectItem>
+                    <SelectItem value="temporary">Temporary Housing</SelectItem>
+                    <SelectItem value="investment">Investment/Secondary</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
@@ -987,7 +963,7 @@ const ProgramAI = () => {
                   value={preferences.additionalNotes}
                   onChange={(e) => updatePreference('additionalNotes', e.target.value)}
                   className="mt-1 bg-slate-800/50 border-slate-600/50"
-                  rows={2}
+                  rows={3}
                 />
               </div>
             </CardContent>
@@ -1003,7 +979,7 @@ const ProgramAI = () => {
           >
             {saving ? 'Saving...' : 'Save AI Preferences'}
           </Button>
-          </div>
+        </div>
         </div>
       </div>
     </div>

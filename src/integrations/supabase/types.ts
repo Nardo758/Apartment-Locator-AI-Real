@@ -194,7 +194,9 @@ export type Database = {
           bike_friendly: boolean | null
           bio: string | null
           budget: number | null
+          cable_streaming_options: string[] | null
           cell_coverage: string | null
+          cell_tower_coverage: string | null
           communication: string[] | null
           created_at: string
           credit_score: string | null
@@ -203,9 +205,11 @@ export type Database = {
           current_rent: number | null
           deal_breakers: string[] | null
           diversity_importance: string | null
+          diversity_index: string | null
           dry_cleaning_services: boolean | null
           email: string
           emergency_services_response: string | null
+          emergency_services_response_time: string | null
           employment_type: string | null
           ev_charging_stations: boolean | null
           farmers_markets: boolean | null
@@ -233,6 +237,7 @@ export type Database = {
           move_timeline: string | null
           negotiation_comfort: string | null
           neighborhoods: string | null
+          noise_level_tolerance: string | null
           noise_tolerance_level: string | null
           other_locations: Json | null
           pet_info: string | null
@@ -243,6 +248,7 @@ export type Database = {
           program_ai_prompt_dismissed: boolean | null
           public_transit_access: string[] | null
           rental_history: string | null
+          ride_share_availability: string | null
           school_district_quality: string | null
           search_criteria: Json | null
           search_radius: number | null
@@ -255,6 +261,7 @@ export type Database = {
           use_case: string | null
           user_id: string | null
           walkability_importance: string | null
+          walkability_score_requirement: string | null
           work_address: string | null
           work_frequency: string | null
           work_schedule: string | null
@@ -270,7 +277,9 @@ export type Database = {
           bike_friendly?: boolean | null
           bio?: string | null
           budget?: number | null
+          cable_streaming_options?: string[] | null
           cell_coverage?: string | null
+          cell_tower_coverage?: string | null
           communication?: string[] | null
           created_at?: string
           credit_score?: string | null
@@ -279,9 +288,11 @@ export type Database = {
           current_rent?: number | null
           deal_breakers?: string[] | null
           diversity_importance?: string | null
+          diversity_index?: string | null
           dry_cleaning_services?: boolean | null
           email: string
           emergency_services_response?: string | null
+          emergency_services_response_time?: string | null
           employment_type?: string | null
           ev_charging_stations?: boolean | null
           farmers_markets?: boolean | null
@@ -309,6 +320,7 @@ export type Database = {
           move_timeline?: string | null
           negotiation_comfort?: string | null
           neighborhoods?: string | null
+          noise_level_tolerance?: string | null
           noise_tolerance_level?: string | null
           other_locations?: Json | null
           pet_info?: string | null
@@ -319,6 +331,7 @@ export type Database = {
           program_ai_prompt_dismissed?: boolean | null
           public_transit_access?: string[] | null
           rental_history?: string | null
+          ride_share_availability?: string | null
           school_district_quality?: string | null
           search_criteria?: Json | null
           search_radius?: number | null
@@ -331,6 +344,7 @@ export type Database = {
           use_case?: string | null
           user_id?: string | null
           walkability_importance?: string | null
+          walkability_score_requirement?: string | null
           work_address?: string | null
           work_frequency?: string | null
           work_schedule?: string | null
@@ -346,7 +360,9 @@ export type Database = {
           bike_friendly?: boolean | null
           bio?: string | null
           budget?: number | null
+          cable_streaming_options?: string[] | null
           cell_coverage?: string | null
+          cell_tower_coverage?: string | null
           communication?: string[] | null
           created_at?: string
           credit_score?: string | null
@@ -355,9 +371,11 @@ export type Database = {
           current_rent?: number | null
           deal_breakers?: string[] | null
           diversity_importance?: string | null
+          diversity_index?: string | null
           dry_cleaning_services?: boolean | null
           email?: string
           emergency_services_response?: string | null
+          emergency_services_response_time?: string | null
           employment_type?: string | null
           ev_charging_stations?: boolean | null
           farmers_markets?: boolean | null
@@ -385,6 +403,7 @@ export type Database = {
           move_timeline?: string | null
           negotiation_comfort?: string | null
           neighborhoods?: string | null
+          noise_level_tolerance?: string | null
           noise_tolerance_level?: string | null
           other_locations?: Json | null
           pet_info?: string | null
@@ -395,6 +414,7 @@ export type Database = {
           program_ai_prompt_dismissed?: boolean | null
           public_transit_access?: string[] | null
           rental_history?: string | null
+          ride_share_availability?: string | null
           school_district_quality?: string | null
           search_criteria?: Json | null
           search_radius?: number | null
@@ -407,6 +427,7 @@ export type Database = {
           use_case?: string | null
           user_id?: string | null
           walkability_importance?: string | null
+          walkability_score_requirement?: string | null
           work_address?: string | null
           work_frequency?: string | null
           work_schedule?: string | null
