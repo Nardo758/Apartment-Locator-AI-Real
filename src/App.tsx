@@ -28,6 +28,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Pricing from "./pages/Pricing";
 import Success from "./pages/Success";
+import OffersMade from "./pages/OffersMade";
 
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/ai-formula" element={<AIFormula />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
             <Route path="/generate-offer" element={<GenerateOffer />} />
+            <Route path="/offers-made" element={<OffersMade />} />
             <Route path="/saved-properties" element={<SavedProperties />} />
             <Route path="/market-intel" element={<MarketIntel />} />
             <Route path="/trial" element={<Trial />} />
