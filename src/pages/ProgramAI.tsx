@@ -294,8 +294,6 @@ const ProgramAI = () => {
             // Safety & Security
             security_system_required: preferences.securitySystemRequired,
             gated_community_preference: preferences.gatedCommunityPreference,
-            emergency_services_response_time: preferences.emergencyServicesResponseTime,
-            flood_zone_avoidance: preferences.floodZoneAvoidance,
             fire_safety_features: preferences.fireSafetyFeatures,
             
             // Shopping & Services
@@ -310,7 +308,6 @@ const ProgramAI = () => {
             internet_speed_requirement: preferences.internetSpeedRequirement,
             cell_tower_coverage: preferences.cellTowerCoverage,
             smart_home_compatibility: preferences.smartHomeCompatibility,
-            cable_streaming_options: preferences.cableStreamingOptions,
             
             lifestyle: preferences.lifestyle,
             work_schedule: preferences.workSchedule,
@@ -638,19 +635,6 @@ const ProgramAI = () => {
               <CardDescription>Security features and safety requirements</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label className="text-sm font-medium">Emergency Services Response Time</Label>
-                <Select value={preferences.emergencyServicesResponseTime} onValueChange={(value) => updatePreference('emergencyServicesResponseTime', value)}>
-                  <SelectTrigger className="mt-1 bg-slate-800/50 border-slate-600/50">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="fast">Fast (Under 5 min)</SelectItem>
-                    <SelectItem value="standard">Standard (5-10 min)</SelectItem>
-                    <SelectItem value="acceptable">Acceptable (10+ min)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
 
               <div>
                 <Label className="text-sm font-medium">Gated Community Preference</Label>
@@ -693,14 +677,6 @@ const ProgramAI = () => {
                     onCheckedChange={(checked) => updatePreference('securitySystemRequired', checked)}
                   />
                   <Label htmlFor="security-system" className="text-sm">Security System Required</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="flood-zone"
-                    checked={preferences.floodZoneAvoidance}
-                    onCheckedChange={(checked) => updatePreference('floodZoneAvoidance', checked)}
-                  />
-                  <Label htmlFor="flood-zone" className="text-sm">Avoid Flood Zones</Label>
                 </div>
               </div>
             </CardContent>
@@ -819,23 +795,6 @@ const ProgramAI = () => {
                 </Select>
               </div>
 
-              <div>
-                <Label className="text-sm font-medium">Cable/Streaming Options</Label>
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {['Netflix', 'Hulu', 'Amazon Prime', 'Disney+', 'HBO Max', 'Apple TV+', 'Cable TV', 'Local Channels'].map((service) => (
-                    <div key={service} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`streaming-${service}`}
-                        checked={preferences.cableStreamingOptions.includes(service)}
-                        onCheckedChange={() => 
-                          updatePreference('cableStreamingOptions', toggleArrayItem(preferences.cableStreamingOptions, service))
-                        }
-                      />
-                      <Label htmlFor={`streaming-${service}`} className="text-xs">{service}</Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
               <div className="flex items-center space-x-2">
                 <Checkbox
