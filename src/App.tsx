@@ -31,6 +31,8 @@ import Success from "./pages/Success";
 import OffersMade from "./pages/OffersMade";
 import AdvancedPricingDemo from "./pages/AdvancedPricingDemo";
 import EnhancedPricingDashboard from "./components/EnhancedPricingDashboard";
+import ModernPricingDashboard from "./components/design/ModernPricingDashboard";
+import MobileOptimizedDashboard from "./components/design/MobileOptimizedDashboard";
 
 
 const queryClient = new QueryClient();
@@ -63,6 +65,8 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/pricing-demo" element={<AdvancedPricingDemo />} />
             <Route path="/enhanced-pricing" element={<EnhancedPricingDashboard />} />
+            <Route path="/modern-pricing" element={<ModernPricingDashboard />} />
+            <Route path="/mobile-pricing" element={<MobileOptimizedDashboard />} />
             <Route path="/success" element={<Success />} />
             
             <Route path="/profile" element={<Profile />} />
