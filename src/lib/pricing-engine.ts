@@ -92,6 +92,65 @@ export interface ApartmentIQData {
   confidenceScore: number; // 0-1 reliability of data
 }
 
+export interface MLPricingModel {
+  confidence: number;
+  features: {
+    marketTrend: number;
+    seasonality: number;
+    competitorActivity: number;
+    demandSignal: number;
+    supplyConstraint: number;
+  };
+  prediction: {
+    optimalPrice: number;
+    priceRange: { min: number; max: number };
+    leaseTimeEstimate: number;
+    riskScore: number;
+  };
+}
+
+export interface CompetitorData {
+  propertyId: string;
+  distance: number;
+  similarityScore: number;
+  currentRent: number;
+  daysOnMarket: number;
+  concessions: string[];
+  amenityScore: number;
+  lastUpdated: string;
+}
+
+export interface RiskAssessment {
+  overallRisk: 'low' | 'medium' | 'high' | 'critical';
+  riskFactors: {
+    marketVolatility: number;
+    competitorPressure: number;
+    seasonalRisk: number;
+    economicIndicators: number;
+  };
+  mitigationStrategies: string[];
+  recommendedActions: string[];
+}
+
+export interface AutomationRule {
+  id: string;
+  name: string;
+  conditions: {
+    daysOnMarket?: number;
+    marketVelocity?: string[];
+    concessionLevel?: string[];
+    competitorActivity?: boolean;
+  };
+  actions: {
+    priceAdjustment?: number;
+    addConcessions?: string[];
+    alertManagement?: boolean;
+    autoApply?: boolean;
+  };
+  enabled: boolean;
+  priority: number;
+}
+
 export class PricingEngine {
   private velocityMultipliers = {
     hot: 1.05,     // Can price 5% higher in hot market
@@ -657,5 +716,376 @@ export class PortfolioAnalyzer {
     }
     
     return insights;
+  }
+}
+
+// Advanced ML-Based Pricing Intelligence
+export class MLPricingIntelligence {
+  private static instance: MLPricingIntelligence;
+  private competitorCache: Map<string, CompetitorData[]> = new Map();
+  private automationRules: AutomationRule[] = [];
+
+  static getInstance(): MLPricingIntelligence {
+    if (!MLPricingIntelligence.instance) {
+      MLPricingIntelligence.instance = new MLPricingIntelligence();
+    }
+    return MLPricingIntelligence.instance;
+  }
+
+  // ML-Based Price Prediction
+  async generateMLPricingModel(unitData: ApartmentIQData, marketContext?: any): Promise<MLPricingModel> {
+    const features = this.extractMLFeatures(unitData, marketContext);
+    const prediction = await this.runMLPrediction(features, unitData);
+    
+    return {
+      confidence: this.calculateMLConfidence(features, unitData),
+      features,
+      prediction
+    };
+  }
+
+  private extractMLFeatures(unitData: ApartmentIQData, marketContext?: any) {
+    const currentMonth = new Date().getMonth();
+    const seasonalityScore = this.calculateSeasonality(currentMonth);
+    
+    return {
+      marketTrend: this.calculateMarketTrend(unitData, marketContext),
+      seasonality: seasonalityScore,
+      competitorActivity: this.calculateCompetitorActivity(unitData),
+      demandSignal: this.calculateDemandSignal(unitData),
+      supplyConstraint: this.calculateSupplyConstraint(unitData, marketContext)
+    };
+  }
+
+  private async runMLPrediction(features: any, unitData: ApartmentIQData) {
+    // Simulated ML model prediction (in production, this would call actual ML service)
+    const basePrice = unitData.currentRent;
+    const marketMultiplier = 1 + (features.marketTrend * 0.1);
+    const seasonalMultiplier = 1 + (features.seasonality * 0.05);
+    const demandMultiplier = 1 + (features.demandSignal * 0.08);
+    const supplyMultiplier = 1 - (features.supplyConstraint * 0.06);
+    
+    const optimalPrice = basePrice * marketMultiplier * seasonalMultiplier * demandMultiplier * supplyMultiplier;
+    const variance = basePrice * 0.15; // 15% variance
+    
+    return {
+      optimalPrice: Math.round(optimalPrice),
+      priceRange: {
+        min: Math.round(optimalPrice - variance),
+        max: Math.round(optimalPrice + variance)
+      },
+      leaseTimeEstimate: this.estimateLeaseTime(features, unitData),
+      riskScore: this.calculateRiskScore(features, unitData)
+    };
+  }
+
+  // Risk Assessment Engine
+  generateRiskAssessment(unitData: ApartmentIQData, competitors: CompetitorData[], marketContext?: any): RiskAssessment {
+    const riskFactors = {
+      marketVolatility: this.assessMarketVolatility(unitData, marketContext),
+      competitorPressure: this.assessCompetitorPressure(unitData, competitors),
+      seasonalRisk: this.assessSeasonalRisk(),
+      economicIndicators: this.assessEconomicRisk(marketContext)
+    };
+
+    const overallRiskScore = (riskFactors.marketVolatility + riskFactors.competitorPressure + 
+                             riskFactors.seasonalRisk + riskFactors.economicIndicators) / 4;
+
+    const overallRisk = this.categorizeRisk(overallRiskScore);
+    const mitigationStrategies = this.generateMitigationStrategies(riskFactors, overallRisk);
+    const recommendedActions = this.generateRiskActions(riskFactors, unitData);
+
+    return {
+      overallRisk,
+      riskFactors,
+      mitigationStrategies,
+      recommendedActions
+    };
+  }
+
+  // Competitor Monitoring System
+  async fetchCompetitorData(unitData: ApartmentIQData, radius: number = 2): Promise<CompetitorData[]> {
+    const cacheKey = `${unitData.zipCode}-${radius}`;
+    
+    if (this.competitorCache.has(cacheKey)) {
+      const cached = this.competitorCache.get(cacheKey)!;
+      const cacheAge = Date.now() - new Date(cached[0]?.lastUpdated || 0).getTime();
+      if (cacheAge < 3600000) { // 1 hour cache
+        return cached;
+      }
+    }
+
+    const competitors = await this.scrapeCompetitorData(unitData, radius);
+    this.competitorCache.set(cacheKey, competitors);
+    return competitors;
+  }
+
+  private async scrapeCompetitorData(unitData: ApartmentIQData, radius: number): Promise<CompetitorData[]> {
+    // Simulated competitor data (in production, this would scrape real data)
+    const mockCompetitors: CompetitorData[] = [
+      {
+        propertyId: 'comp-1',
+        distance: 0.3,
+        similarityScore: 0.85,
+        currentRent: unitData.currentRent * 0.95,
+        daysOnMarket: 12,
+        concessions: ['1 month free'],
+        amenityScore: unitData.amenityScore - 5,
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        propertyId: 'comp-2',
+        distance: 0.8,
+        similarityScore: 0.78,
+        currentRent: unitData.currentRent * 1.08,
+        daysOnMarket: 25,
+        concessions: ['$500 deposit', '2 weeks free'],
+        amenityScore: unitData.amenityScore + 10,
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        propertyId: 'comp-3',
+        distance: 1.2,
+        similarityScore: 0.72,
+        currentRent: unitData.currentRent * 0.92,
+        daysOnMarket: 8,
+        concessions: [],
+        amenityScore: unitData.amenityScore - 15,
+        lastUpdated: new Date().toISOString()
+      }
+    ];
+
+    return mockCompetitors.sort((a, b) => b.similarityScore - a.similarityScore);
+  }
+
+  // Automation Engine
+  addAutomationRule(rule: AutomationRule): void {
+    this.automationRules.push(rule);
+    this.automationRules.sort((a, b) => b.priority - a.priority);
+  }
+
+  evaluateAutomationRules(unitData: ApartmentIQData, competitors: CompetitorData[]): AutomationRule[] {
+    return this.automationRules
+      .filter(rule => rule.enabled)
+      .filter(rule => this.ruleMatches(rule, unitData, competitors));
+  }
+
+  private ruleMatches(rule: AutomationRule, unitData: ApartmentIQData, competitors: CompetitorData[]): boolean {
+    const { conditions } = rule;
+
+    if (conditions.daysOnMarket && unitData.daysOnMarket < conditions.daysOnMarket) {
+      return false;
+    }
+
+    if (conditions.marketVelocity && !conditions.marketVelocity.includes(unitData.marketVelocity)) {
+      return false;
+    }
+
+    if (conditions.concessionLevel && !conditions.concessionLevel.includes(unitData.concessionUrgency)) {
+      return false;
+    }
+
+    if (conditions.competitorActivity) {
+      const hasActiveCompetitors = competitors.some(comp => comp.daysOnMarket < 14);
+      if (!hasActiveCompetitors) return false;
+    }
+
+    return true;
+  }
+
+  // Helper methods for calculations
+  private calculateMarketTrend(unitData: ApartmentIQData, marketContext?: any): number {
+    let trend = 0;
+    
+    if (unitData.rentTrend === 'increasing') trend += 0.5;
+    else if (unitData.rentTrend === 'decreasing') trend -= 0.5;
+    
+    if (marketContext?.marketGrowth > 0.03) trend += 0.3;
+    else if (marketContext?.marketGrowth < -0.02) trend -= 0.3;
+    
+    return Math.max(-1, Math.min(1, trend));
+  }
+
+  private calculateSeasonality(month: number): number {
+    // Peak season: May-September, Slow season: November-February
+    const seasonalityMap = [
+      -0.3, -0.2, 0.1, 0.3, 0.5, 0.6, 0.4, 0.3, 0.2, 0.0, -0.2, -0.3
+    ];
+    return seasonalityMap[month] || 0;
+  }
+
+  private calculateCompetitorActivity(unitData: ApartmentIQData): number {
+    // Based on concession trends and market velocity
+    let activity = 0;
+    
+    if (unitData.concessionTrend === 'increasing') activity += 0.4;
+    if (unitData.marketVelocity === 'stale') activity += 0.3;
+    else if (unitData.marketVelocity === 'hot') activity -= 0.2;
+    
+    return Math.max(0, Math.min(1, activity));
+  }
+
+  private calculateDemandSignal(unitData: ApartmentIQData): number {
+    let demand = 0.5; // Base demand
+    
+    if (unitData.leaseProbability > 0.7) demand += 0.3;
+    else if (unitData.leaseProbability < 0.3) demand -= 0.3;
+    
+    if (unitData.daysOnMarket < 7) demand += 0.2;
+    else if (unitData.daysOnMarket > 30) demand -= 0.4;
+    
+    return Math.max(0, Math.min(1, demand));
+  }
+
+  private calculateSupplyConstraint(unitData: ApartmentIQData, marketContext?: any): number {
+    let constraint = 0.5; // Base constraint
+    
+    if (marketContext?.inventoryLevels < 0.05) constraint += 0.3; // Low inventory
+    else if (marketContext?.inventoryLevels > 0.15) constraint -= 0.3; // High inventory
+    
+    return Math.max(0, Math.min(1, constraint));
+  }
+
+  private calculateMLConfidence(features: any, unitData: ApartmentIQData): number {
+    let confidence = 0.7; // Base confidence
+    
+    // Increase confidence with better data quality
+    if (unitData.confidenceScore > 0.8) confidence += 0.15;
+    if (unitData.daysOnMarket > 14) confidence += 0.1; // More market data
+    
+    // Feature quality adjustments
+    const featureQuality = (Math.abs(features.marketTrend) + Math.abs(features.demandSignal)) / 2;
+    confidence += featureQuality * 0.1;
+    
+    return Math.max(0.3, Math.min(0.95, confidence));
+  }
+
+  private estimateLeaseTime(features: any, unitData: ApartmentIQData): number {
+    const baseDays = {
+      'hot': 7,
+      'normal': 14,
+      'slow': 28,
+      'stale': 45
+    }[unitData.marketVelocity] || 21;
+
+    // Adjust based on ML features
+    let adjustment = 1.0;
+    adjustment *= (1 - features.demandSignal * 0.3); // Higher demand = faster lease
+    adjustment *= (1 + features.supplyConstraint * 0.2); // More supply = slower lease
+    
+    return Math.max(3, Math.round(baseDays * adjustment));
+  }
+
+  private calculateRiskScore(features: any, unitData: ApartmentIQData): number {
+    let risk = 0.5; // Base risk
+    
+    risk += features.competitorActivity * 0.3;
+    risk += (1 - features.demandSignal) * 0.2;
+    risk -= features.seasonality * 0.1;
+    
+    if (unitData.daysOnMarket > 30) risk += 0.2;
+    
+    return Math.max(0, Math.min(1, risk));
+  }
+
+  private assessMarketVolatility(unitData: ApartmentIQData, marketContext?: any): number {
+    let volatility = 0.5;
+    
+    if (unitData.rentChangePercent && Math.abs(unitData.rentChangePercent) > 10) {
+      volatility += 0.3;
+    }
+    
+    if (marketContext?.priceVolatility > 0.15) {
+      volatility += 0.2;
+    }
+    
+    return Math.max(0, Math.min(1, volatility));
+  }
+
+  private assessCompetitorPressure(unitData: ApartmentIQData, competitors: CompetitorData[]): number {
+    if (!competitors.length) return 0.3;
+    
+    const avgCompetitorRent = competitors.reduce((sum, comp) => sum + comp.currentRent, 0) / competitors.length;
+    const rentDifference = (unitData.currentRent - avgCompetitorRent) / avgCompetitorRent;
+    
+    let pressure = 0.5;
+    if (rentDifference > 0.1) pressure += 0.3; // 10% above market
+    else if (rentDifference < -0.05) pressure -= 0.2; // 5% below market
+    
+    // Factor in competitor concessions
+    const competitorConcessions = competitors.reduce((sum, comp) => sum + comp.concessions.length, 0);
+    pressure += (competitorConcessions / competitors.length) * 0.1;
+    
+    return Math.max(0, Math.min(1, pressure));
+  }
+
+  private assessSeasonalRisk(): number {
+    const month = new Date().getMonth();
+    const seasonalRisk = [0.6, 0.5, 0.3, 0.2, 0.1, 0.1, 0.2, 0.2, 0.3, 0.4, 0.5, 0.6];
+    return seasonalRisk[month] || 0.5;
+  }
+
+  private assessEconomicRisk(marketContext?: any): number {
+    let risk = 0.4; // Base economic risk
+    
+    if (marketContext?.unemploymentRate > 0.06) risk += 0.2;
+    if (marketContext?.interestRates > 0.07) risk += 0.1;
+    if (marketContext?.inflationRate > 0.05) risk += 0.1;
+    
+    return Math.max(0, Math.min(1, risk));
+  }
+
+  private categorizeRisk(score: number): 'low' | 'medium' | 'high' | 'critical' {
+    if (score < 0.3) return 'low';
+    if (score < 0.5) return 'medium';
+    if (score < 0.7) return 'high';
+    return 'critical';
+  }
+
+  private generateMitigationStrategies(riskFactors: any, overallRisk: string): string[] {
+    const strategies: string[] = [];
+    
+    if (riskFactors.marketVolatility > 0.6) {
+      strategies.push('Consider shorter lease terms to maintain pricing flexibility');
+      strategies.push('Implement dynamic pricing adjustments based on market conditions');
+    }
+    
+    if (riskFactors.competitorPressure > 0.6) {
+      strategies.push('Enhance unit amenities or services to differentiate from competitors');
+      strategies.push('Consider strategic concessions rather than direct rent reductions');
+    }
+    
+    if (riskFactors.seasonalRisk > 0.5) {
+      strategies.push('Adjust marketing strategy for seasonal demand patterns');
+      strategies.push('Plan maintenance and improvements during low-demand periods');
+    }
+    
+    if (overallRisk === 'critical') {
+      strategies.push('Implement immediate pricing review and adjustment protocol');
+      strategies.push('Consider professional property management consultation');
+    }
+    
+    return strategies;
+  }
+
+  private generateRiskActions(riskFactors: any, unitData: ApartmentIQData): string[] {
+    const actions: string[] = [];
+    
+    if (unitData.daysOnMarket > 45) {
+      actions.push('Immediate price reduction of 8-12% recommended');
+      actions.push('Review and enhance property marketing materials');
+    }
+    
+    if (riskFactors.competitorPressure > 0.7) {
+      actions.push('Conduct competitive analysis within 0.5 mile radius');
+      actions.push('Consider offering move-in incentives');
+    }
+    
+    if (riskFactors.marketVolatility > 0.6) {
+      actions.push('Increase market monitoring frequency to weekly');
+      actions.push('Prepare contingency pricing scenarios');
+    }
+    
+    return actions;
   }
 }
