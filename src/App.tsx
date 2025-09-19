@@ -29,6 +29,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import Pricing from "./pages/Pricing";
 import Success from "./pages/Success";
 import OffersMade from "./pages/OffersMade";
+import AdvancedPricingDemo from "./pages/AdvancedPricingDemo";
 
 
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="/trial" element={<Trial />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/pricing-demo" element={<AdvancedPricingDemo />} />
             <Route path="/success" element={<Success />} />
             
             <Route path="/profile" element={<Profile />} />

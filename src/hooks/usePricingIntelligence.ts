@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { PricingEngine, type PricingRecommendation, type ApartmentIQData } from '@/lib/pricing-engine';
+import { 
+  PricingEngine, 
+  PortfolioAnalyzer,
+  type PricingRecommendation, 
+  type ApartmentIQData,
+  type PortfolioImpactSummary 
+} from '@/lib/pricing-engine';
 
 interface Property {
   id: string;
@@ -13,6 +19,7 @@ interface Property {
 
 export const usePricingIntelligence = (properties: Property[]) => {
   const [recommendations, setRecommendations] = useState<Record<string, PricingRecommendation>>({});
+  const [portfolioSummary, setPortfolioSummary] = useState<PortfolioImpactSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,6 +83,13 @@ export const usePricingIntelligence = (properties: Property[]) => {
       }
       
       setRecommendations(newRecommendations);
+      
+      // Generate portfolio analysis
+      const recommendationsList = Object.values(newRecommendations);
+      if (recommendationsList.length > 0) {
+        const summary = PortfolioAnalyzer.analyzePortfolio(recommendationsList);
+        setPortfolioSummary(summary);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate pricing recommendations';
       setError(errorMessage);
@@ -90,27 +104,30 @@ export const usePricingIntelligence = (properties: Property[]) => {
 
   return {
     recommendations,
+    portfolioSummary,
     loading,
     error,
     refresh: generateRecommendations,
     getRecommendation: (propertyId: string) => recommendations[propertyId],
-    getTotalImpact: () => Object.values(recommendations).reduce(
-      (sum, rec) => sum + rec.revenueImpact.totalImpact, 0
-    ),
+    getTotalImpact: () => portfolioSummary?.totalImpact || 0,
     getUrgentProperties: () => Object.entries(recommendations)
-      .filter(([, rec]) => rec.urgencyLevel === 'immediate')
+      .filter(([, rec]) => (rec as PricingRecommendation).urgencyLevel === 'immediate')
       .map(([id]) => id),
-    getStrategyDistribution: () => {
-      const distribution: Record<string, number> = {};
-      Object.values(recommendations).forEach(rec => {
-        distribution[rec.strategy] = (distribution[rec.strategy] || 0) + 1;
-      });
-      return distribution;
-    },
-    getAverageConfidence: () => {
-      const recommendations_array = Object.values(recommendations);
-      if (recommendations_array.length === 0) return 0;
-      return recommendations_array.reduce((sum, rec) => sum + rec.confidenceScore, 0) / recommendations_array.length;
-    }
+    getStrategyDistribution: () => portfolioSummary?.strategyDistribution || {},
+    getUrgencyDistribution: () => portfolioSummary?.urgencyDistribution || {},
+    getAverageConfidence: () => portfolioSummary?.averageConfidenceScore || 0,
+    getPortfolioInsights: () => portfolioSummary 
+      ? PortfolioAnalyzer.generatePortfolioInsights(portfolioSummary) 
+      : [],
+    getRecommendationsByUrgency: (urgency: 'immediate' | 'soon' | 'moderate' | 'low') => 
+      Object.entries(recommendations)
+        .filter(([, rec]) => (rec as PricingRecommendation).urgencyLevel === urgency)
+        .map(([id, rec]) => ({ id, ...(rec as PricingRecommendation) })),
+    getRecommendationsByStrategy: (strategy: 'aggressive_reduction' | 'moderate_reduction' | 'hold' | 'increase') => 
+      Object.entries(recommendations)
+        .filter(([, rec]) => (rec as PricingRecommendation).strategy === strategy)
+        .map(([id, rec]) => ({ id, ...(rec as PricingRecommendation) })),
+    getTotalVacancySavings: () => portfolioSummary?.totalVacancySavings || 0,
+    getTotalNetBenefit: () => portfolioSummary?.totalNetBenefit || 0
   };
 };

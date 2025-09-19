@@ -16,8 +16,22 @@ export interface PricingRecommendation {
     monthsVacantCurrent: number;
     monthsVacantSuggested: number;
     breakEvenDays: number;
+    vacancyCostCurrent: number;
+    vacancyCostSuggested: number;
+    netBenefit: number;
   };
   marketTiming: 'optimal' | 'good' | 'fair' | 'poor';
+  leaseTimeline: {
+    currentTrajectoryDays: number;
+    suggestedTrajectoryDays: number;
+    accelerationFactor: number;
+    probabilityByWeek: {
+      week1: number;
+      week2: number;
+      week4: number;
+      week8: number;
+    };
+  };
 }
 
 export interface ApartmentIQData {
@@ -109,48 +123,85 @@ export class PricingEngine {
     above_market: 0.05    // 5% reduction if above market
   };
 
+  // New advanced velocity adjustments based on market conditions
+  private marketVelocityPremiums = {
+    hot: 0.05,     // 5% premium for hot markets
+    normal: 0.0,   // No adjustment for normal markets
+    slow: -0.03,   // 3% discount for slow markets
+    stale: -0.08   // 8% discount for stale markets
+  };
+
+  // Progressive days-on-market penalties
+  private progressiveDOMPenalties = [
+    { minDays: 0, maxDays: 7, penalty: 0.0 },
+    { minDays: 8, maxDays: 14, penalty: 0.02 },
+    { minDays: 15, maxDays: 21, penalty: 0.04 },
+    { minDays: 22, maxDays: 30, penalty: 0.07 },
+    { minDays: 31, maxDays: 45, penalty: 0.10 },
+    { minDays: 46, maxDays: 60, penalty: 0.15 },
+    { minDays: 61, maxDays: 999, penalty: 0.20 }
+  ];
+
+  // Enhanced concession analysis with urgency levels
+  private urgencyAdjustments = {
+    immediate: 0.12,   // 12% adjustment for immediate urgency
+    soon: 0.06,        // 6% adjustment for soon urgency
+    moderate: 0.03,    // 3% adjustment for moderate urgency
+    low: 0.0           // No adjustment for low urgency
+  };
+
   generateRecommendation(unitData: ApartmentIQData, marketContext?: any): PricingRecommendation {
     const baseRent = unitData.currentRent;
     let suggestedRent = baseRent;
     const reasoning: string[] = [];
 
-    // 1. Market velocity adjustment
-    const velocityAdj = this.velocityMultipliers[unitData.marketVelocity];
-    if (velocityAdj !== 1.0) {
-      suggestedRent *= velocityAdj;
-      if (velocityAdj > 1.0) {
-        reasoning.push(`Hot market (+${((velocityAdj - 1) * 100).toFixed(1)}%)`);
+    // 1. Advanced Market Velocity Adjustments (Hot markets get 5% premium, stale markets get 8% discount)
+    const velocityPremium = this.marketVelocityPremiums[unitData.marketVelocity];
+    if (velocityPremium !== 0) {
+      suggestedRent *= (1 + velocityPremium);
+      if (velocityPremium > 0) {
+        reasoning.push(`Hot market premium (+${(velocityPremium * 100).toFixed(1)}%)`);
       } else {
-        reasoning.push(`Slow market (${((velocityAdj - 1) * 100).toFixed(1)}%)`);
+        reasoning.push(`${unitData.marketVelocity} market discount (${(velocityPremium * 100).toFixed(1)}%)`);
       }
     }
 
-    // 2. Days on market penalty
-    const domPenalty = this.calculateDOMPenalty(unitData.daysOnMarket);
+    // 2. Progressive Days-on-Market Penalties (2% at week 2 up to 20% after 2 months)
+    const domPenalty = this.calculateProgressiveDOMPenalty(unitData.daysOnMarket);
     if (domPenalty > 0) {
       suggestedRent *= (1 - domPenalty);
-      reasoning.push(`${unitData.daysOnMarket} days on market (-${(domPenalty * 100).toFixed(1)}%)`);
+      reasoning.push(`${unitData.daysOnMarket} days on market penalty (-${(domPenalty * 100).toFixed(1)}%)`);
     }
 
-    // 3. Market position adjustment
+    // 3. Market Position Logic (Below-market units can increase 2%, above-market get 5% reduction)
     const positionAdj = this.positionAdjustments[unitData.marketPosition];
     if (positionAdj !== 0) {
       suggestedRent *= (1 - positionAdj);
       if (positionAdj > 0) {
-        reasoning.push(`Above market pricing (-${(positionAdj * 100).toFixed(1)}%)`);
+        reasoning.push(`Above market position (-${(positionAdj * 100).toFixed(1)}%)`);
       } else {
         reasoning.push(`Below market opportunity (+${(Math.abs(positionAdj) * 100).toFixed(1)}%)`);
       }
     }
 
-    // 4. Concession urgency adjustment
-    const concessionAdj = this.concessionAdjustments[unitData.concessionUrgency];
-    if (concessionAdj > 0) {
-      suggestedRent *= (1 - concessionAdj);
-      reasoning.push(`High concession urgency (-${(concessionAdj * 100).toFixed(1)}%)`);
+    // 4. Enhanced Concession Analysis with urgency levels (3-12% adjustments)
+    const urgencyLevel = this.determineUrgency(unitData.daysOnMarket, unitData.concessionUrgency);
+    const urgencyAdj = this.urgencyAdjustments[urgencyLevel];
+    if (urgencyAdj > 0) {
+      suggestedRent *= (1 - urgencyAdj);
+      reasoning.push(`${urgencyLevel} urgency level (-${(urgencyAdj * 100).toFixed(1)}%)`);
     }
 
-    // 5. Rent trend consideration
+    // 5. Lease Probability Integration (Units with <30% probability get 5% reduction)
+    if (unitData.leaseProbability < 0.3) {
+      suggestedRent *= 0.95; // 5% reduction for very low probability
+      reasoning.push('Low lease probability (-5%)');
+    } else if (unitData.leaseProbability > 0.8) {
+      suggestedRent *= 1.02; // 2% increase for high probability
+      reasoning.push('High lease probability (+2%)');
+    }
+
+    // 6. Advanced Rent Trend Analysis
     if (unitData.rentTrend === 'decreasing' && unitData.rentChangePercent < -5) {
       suggestedRent *= 0.98; // Additional 2% if strong downward trend
       reasoning.push('Strong downward rent trend (-2%)');
@@ -159,36 +210,33 @@ export class PricingEngine {
       reasoning.push('Upward rent trend with quick movement (+2%)');
     }
 
-    // 6. Lease probability consideration
-    if (unitData.leaseProbability < 0.3) {
-      suggestedRent *= 0.95; // 5% reduction for very low probability
-      reasoning.push('Very low lease probability (-5%)');
-    } else if (unitData.leaseProbability > 0.8) {
-      suggestedRent *= 1.02; // 2% increase for high probability
-      reasoning.push('High lease probability (+2%)');
+    // 7. Amenity and Location Score Adjustments
+    if (unitData.amenityScore > 80 && unitData.locationScore > 80) {
+      suggestedRent *= 1.01; // 1% premium for high-quality units
+      reasoning.push('Premium amenities and location (+1%)');
+    } else if (unitData.amenityScore < 40 || unitData.locationScore < 40) {
+      suggestedRent *= 0.99; // 1% discount for lower-quality units
+      reasoning.push('Below-average amenities or location (-1%)');
     }
 
     // Calculate final metrics
     const adjustmentAmount = suggestedRent - baseRent;
     const adjustmentPercent = (adjustmentAmount / baseRent) * 100;
 
-    // Determine strategy
+    // Determine strategy classification
     const strategy = this.determineStrategy(adjustmentPercent, unitData.daysOnMarket);
     
-    // Calculate confidence score
-    const confidenceScore = this.calculateConfidence(unitData, marketContext);
+    // Calculate enhanced confidence score
+    const confidenceScore = this.calculateEnhancedConfidence(unitData, marketContext);
     
-    // Determine urgency level
-    const urgencyLevel = this.determineUrgency(unitData.daysOnMarket, unitData.concessionUrgency);
-    
-    // Estimate lease timeline
-    const expectedLeaseDays = this.estimateLeaseTimeline(
+    // Calculate smart lease timeline estimates
+    const leaseTimeline = this.calculateSmartLeaseTimeline(
       suggestedRent, baseRent, unitData.marketVelocity, unitData.daysOnMarket
     );
     
-    // Calculate revenue impact
-    const revenueImpact = this.calculateRevenueImpact(
-      baseRent, suggestedRent, unitData.daysOnMarket, expectedLeaseDays
+    // Calculate comprehensive revenue impact analysis
+    const revenueImpact = this.calculateComprehensiveRevenueImpact(
+      baseRent, suggestedRent, unitData.daysOnMarket, leaseTimeline.suggestedTrajectoryDays
     );
     
     // Determine market timing
@@ -204,9 +252,10 @@ export class PricingEngine {
       urgencyLevel,
       strategy,
       reasoning,
-      expectedLeaseDays,
+      expectedLeaseDays: leaseTimeline.suggestedTrajectoryDays,
       revenueImpact,
-      marketTiming
+      marketTiming,
+      leaseTimeline
     };
   }
 
@@ -218,6 +267,15 @@ export class PricingEngine {
     if (daysOnMarket <= 45) return this.domPenalties['31-45'];
     if (daysOnMarket <= 60) return this.domPenalties['46-60'];
     return this.domPenalties['61+'];
+  }
+
+  private calculateProgressiveDOMPenalty(daysOnMarket: number): number {
+    for (const penalty of this.progressiveDOMPenalties) {
+      if (daysOnMarket >= penalty.minDays && daysOnMarket <= penalty.maxDays) {
+        return penalty.penalty;
+      }
+    }
+    return 0.20; // Maximum penalty for very long days on market
   }
 
   private calculateConfidence(unitData: ApartmentIQData, marketContext?: any): number {
@@ -244,6 +302,44 @@ export class PricingEngine {
     }
     
     return Math.min(1.0, Math.max(0.0, confidence));
+  }
+
+  private calculateEnhancedConfidence(unitData: ApartmentIQData, marketContext?: any): number {
+    let confidence = 0.6; // Base confidence
+    
+    // Data quality factors
+    if (unitData.confidenceScore > 0.8) {
+      confidence += 0.15;
+    } else if (unitData.confidenceScore > 0.6) {
+      confidence += 0.1;
+    }
+    
+    // Market data availability
+    if (marketContext && marketContext.marketStats) {
+      confidence += 0.1;
+      if (marketContext.comparableUnits && marketContext.comparableUnits.length > 5) {
+        confidence += 0.05;
+      }
+    }
+    
+    // Market timing factors
+    if (unitData.daysOnMarket > 30) {
+      confidence += 0.1; // More confident about urgent recommendations
+    } else if (unitData.daysOnMarket < 7) {
+      confidence -= 0.05; // Less confident about new listings
+    }
+    
+    // Market position clarity
+    if (unitData.marketPosition !== 'at_market' && unitData.percentileRank !== 50) {
+      confidence += 0.05; // More confident when position is clear
+    }
+    
+    // Historical data
+    if (unitData.rentTrend !== 'stable') {
+      confidence += 0.05; // Trends provide more insight
+    }
+    
+    return Math.min(0.95, Math.max(0.3, confidence));
   }
 
   private determineUrgency(daysOnMarket: number, concessionUrgency: string): 'immediate' | 'soon' | 'moderate' | 'low' {
@@ -349,5 +445,217 @@ export class PricingEngine {
       monthsVacantSuggested: Math.round(monthsVacantSuggested * 10) / 10,
       breakEvenDays: Math.max(0, Math.floor((currentRent - suggestedRent) / suggestedRent * 30))
     };
+  }
+
+  private calculateSmartLeaseTimeline(suggestedRent: number, currentRent: number, marketVelocity: string, currentDom: number) {
+    const baseDays: Record<string, number> = {
+      'hot': 5,
+      'normal': 12,
+      'slow': 25,
+      'stale': 40
+    };
+    
+    let suggestedTrajectoryDays = baseDays[marketVelocity] || 20;
+    let currentTrajectoryDays = Math.floor(suggestedTrajectoryDays * 1.5);
+    
+    // Adjust based on price change (40% faster leasing with 5%+ rent cuts)
+    const priceChangeRatio = suggestedRent / currentRent;
+    if (priceChangeRatio <= 0.95) {  // 5%+ reduction
+      suggestedTrajectoryDays = Math.floor(suggestedTrajectoryDays * 0.6);  // 40% faster
+    } else if (priceChangeRatio <= 0.98) {  // 2-5% reduction
+      suggestedTrajectoryDays = Math.floor(suggestedTrajectoryDays * 0.8);  // 20% faster
+    } else if (priceChangeRatio >= 1.02) {  // 2%+ increase
+      suggestedTrajectoryDays = Math.floor(suggestedTrajectoryDays * 1.3);  // 30% slower
+    }
+    
+    // Account for current days on market
+    if (currentDom > 30) {
+      currentTrajectoryDays += 10;
+    }
+    
+    const accelerationFactor = currentTrajectoryDays / suggestedTrajectoryDays;
+    
+    // Calculate weekly lease probabilities
+    const probabilityByWeek = {
+      week1: Math.min(0.9, 0.3 + (1 / suggestedTrajectoryDays) * 7 * 2),
+      week2: Math.min(0.9, 0.5 + (1 / suggestedTrajectoryDays) * 14 * 1.5),
+      week4: Math.min(0.95, 0.7 + (1 / suggestedTrajectoryDays) * 28),
+      week8: Math.min(0.98, 0.85 + (1 / suggestedTrajectoryDays) * 56 * 0.5)
+    };
+    
+    return {
+      currentTrajectoryDays,
+      suggestedTrajectoryDays: Math.max(1, suggestedTrajectoryDays),
+      accelerationFactor: Math.round(accelerationFactor * 100) / 100,
+      probabilityByWeek
+    };
+  }
+
+  private calculateComprehensiveRevenueImpact(currentRent: number, suggestedRent: number, currentDom: number, expectedLeaseDays: number) {
+    // Enhanced revenue calculation with vacancy costs
+    const currentTrajectoryDays = Math.floor(expectedLeaseDays * 1.5);
+    
+    // Calculate monthly vacancy periods
+    const monthsVacantCurrent = Math.min(currentTrajectoryDays / 30, 3);  // Max 3 months
+    const monthsVacantSuggested = Math.min(expectedLeaseDays / 30, 3);    // Max 3 months
+    
+    // Annual revenue calculations
+    const currentRevenue = currentRent * (12 - monthsVacantCurrent);
+    const suggestedRevenue = suggestedRent * (12 - monthsVacantSuggested);
+    
+    // Vacancy cost calculations (opportunity cost + carrying costs)
+    const monthlyCarryingCost = currentRent * 0.15; // Assume 15% of rent in carrying costs
+    const vacancyCostCurrent = monthsVacantCurrent * (currentRent + monthlyCarryingCost);
+    const vacancyCostSuggested = monthsVacantSuggested * (suggestedRent + monthlyCarryingCost);
+    
+    // Net benefit calculation
+    const totalImpact = suggestedRevenue - currentRevenue;
+    const vacancySavings = vacancyCostCurrent - vacancyCostSuggested;
+    const netBenefit = totalImpact + vacancySavings;
+    
+    // Break-even analysis
+    const rentDifference = currentRent - suggestedRent;
+    const breakEvenDays = rentDifference > 0 
+      ? Math.floor((rentDifference * 30) / (suggestedRent + monthlyCarryingCost))
+      : 0;
+    
+    return {
+      currentAnnualRevenue: Math.round(currentRevenue),
+      suggestedAnnualRevenue: Math.round(suggestedRevenue),
+      totalImpact: Math.round(totalImpact),
+      monthsVacantCurrent: Math.round(monthsVacantCurrent * 10) / 10,
+      monthsVacantSuggested: Math.round(monthsVacantSuggested * 10) / 10,
+      breakEvenDays,
+      vacancyCostCurrent: Math.round(vacancyCostCurrent),
+      vacancyCostSuggested: Math.round(vacancyCostSuggested),
+      netBenefit: Math.round(netBenefit)
+    };
+  }
+}
+
+export interface PortfolioImpactSummary {
+  totalUnits: number;
+  totalCurrentRevenue: number;
+  totalSuggestedRevenue: number;
+  totalImpact: number;
+  totalVacancySavings: number;
+  totalNetBenefit: number;
+  averageConfidenceScore: number;
+  strategyDistribution: Record<string, number>;
+  urgencyDistribution: Record<string, number>;
+  recommendedActions: {
+    immediate: string[];
+    soon: string[];
+    moderate: string[];
+  };
+}
+
+export class PortfolioAnalyzer {
+  static analyzePortfolio(recommendations: PricingRecommendation[]): PortfolioImpactSummary {
+    const totalUnits = recommendations.length;
+    
+    // Calculate totals
+    const totalCurrentRevenue = recommendations.reduce((sum, rec) => 
+      sum + rec.revenueImpact.currentAnnualRevenue, 0);
+    const totalSuggestedRevenue = recommendations.reduce((sum, rec) => 
+      sum + rec.revenueImpact.suggestedAnnualRevenue, 0);
+    const totalImpact = recommendations.reduce((sum, rec) => 
+      sum + rec.revenueImpact.totalImpact, 0);
+    const totalVacancySavings = recommendations.reduce((sum, rec) => 
+      sum + (rec.revenueImpact.vacancyCostCurrent - rec.revenueImpact.vacancyCostSuggested), 0);
+    const totalNetBenefit = recommendations.reduce((sum, rec) => 
+      sum + rec.revenueImpact.netBenefit, 0);
+    
+    // Calculate averages
+    const averageConfidenceScore = totalUnits > 0 
+      ? recommendations.reduce((sum, rec) => sum + rec.confidenceScore, 0) / totalUnits
+      : 0;
+    
+    // Strategy distribution
+    const strategyDistribution: Record<string, number> = {};
+    recommendations.forEach(rec => {
+      strategyDistribution[rec.strategy] = (strategyDistribution[rec.strategy] || 0) + 1;
+    });
+    
+    // Urgency distribution
+    const urgencyDistribution: Record<string, number> = {};
+    recommendations.forEach(rec => {
+      urgencyDistribution[rec.urgencyLevel] = (urgencyDistribution[rec.urgencyLevel] || 0) + 1;
+    });
+    
+    // Generate recommended actions
+    const immediateActions: string[] = [];
+    const soonActions: string[] = [];
+    const moderateActions: string[] = [];
+    
+    recommendations.forEach(rec => {
+      const action = `${rec.unitId}: ${rec.strategy} (${rec.adjustmentPercent > 0 ? '+' : ''}${rec.adjustmentPercent}%)`;
+      
+      switch (rec.urgencyLevel) {
+        case 'immediate':
+          immediateActions.push(action);
+          break;
+        case 'soon':
+          soonActions.push(action);
+          break;
+        case 'moderate':
+          moderateActions.push(action);
+          break;
+      }
+    });
+    
+    return {
+      totalUnits,
+      totalCurrentRevenue: Math.round(totalCurrentRevenue),
+      totalSuggestedRevenue: Math.round(totalSuggestedRevenue),
+      totalImpact: Math.round(totalImpact),
+      totalVacancySavings: Math.round(totalVacancySavings),
+      totalNetBenefit: Math.round(totalNetBenefit),
+      averageConfidenceScore: Math.round(averageConfidenceScore * 100) / 100,
+      strategyDistribution,
+      urgencyDistribution,
+      recommendedActions: {
+        immediate: immediateActions.slice(0, 10), // Limit to top 10
+        soon: soonActions.slice(0, 10),
+        moderate: moderateActions.slice(0, 10)
+      }
+    };
+  }
+
+  static generatePortfolioInsights(summary: PortfolioImpactSummary): string[] {
+    const insights: string[] = [];
+    
+    // Revenue impact insights
+    if (summary.totalImpact > 0) {
+      insights.push(`Portfolio could generate $${summary.totalImpact.toLocaleString()} additional annual revenue`);
+    } else {
+      insights.push(`Portfolio optimization could reduce vacancy losses by $${Math.abs(summary.totalVacancySavings).toLocaleString()}`);
+    }
+    
+    // Strategy insights
+    const aggressiveCount = summary.strategyDistribution['aggressive_reduction'] || 0;
+    if (aggressiveCount > summary.totalUnits * 0.3) {
+      insights.push(`${aggressiveCount} units need aggressive pricing adjustments - market conditions are challenging`);
+    }
+    
+    const increaseCount = summary.strategyDistribution['increase'] || 0;
+    if (increaseCount > 0) {
+      insights.push(`${increaseCount} units have pricing upside potential`);
+    }
+    
+    // Urgency insights
+    const immediateCount = summary.urgencyDistribution['immediate'] || 0;
+    if (immediateCount > 0) {
+      insights.push(`${immediateCount} units require immediate action (30+ days on market)`);
+    }
+    
+    // Confidence insights
+    if (summary.averageConfidenceScore > 0.8) {
+      insights.push('High confidence in recommendations - strong data quality');
+    } else if (summary.averageConfidenceScore < 0.6) {
+      insights.push('Moderate confidence - consider gathering more market data');
+    }
+    
+    return insights;
   }
 }
