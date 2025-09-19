@@ -22,6 +22,7 @@ import { SeasonalPricingEngine } from '@/lib/seasonal-pricing';
 import { MLPricingEngine } from '@/lib/ml-pricing-engine';
 import { RiskManagementSystem } from '@/lib/risk-management';
 import { useUnifiedRentalIntelligence } from '@/hooks/useUnifiedRentalIntelligence';
+import RentVsBuyAnalysis from '@/components/RentVsBuyAnalysis';
 
 // Enhanced metric card with animations
 const MetricCard = ({ 
@@ -509,8 +510,12 @@ const RevampedMarketIntel: React.FC = () => {
 
         {/* Enhanced tabbed interface */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-white/50 backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-6 bg-white/50 backdrop-blur-sm">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="rentbuy">
+              <Home className="h-4 w-4 mr-1" />
+              Rent vs Buy
+            </TabsTrigger>
             <TabsTrigger value="competitors">Competitors</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="insights">AI Insights</TabsTrigger>
@@ -526,6 +531,10 @@ const RevampedMarketIntel: React.FC = () => {
                 <MarketAlerts alerts={enhancedData.marketAlerts} />
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="rentbuy" className="space-y-6">
+            <RentVsBuyAnalysis />
           </TabsContent>
 
           <TabsContent value="competitors" className="space-y-6">

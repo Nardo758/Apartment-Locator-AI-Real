@@ -33,6 +33,7 @@ import AdvancedPricingDemo from "./pages/AdvancedPricingDemo";
 import EnhancedPricingDashboard from "./components/EnhancedPricingDashboard";
 import ModernPricingDashboard from "./components/design/ModernPricingDashboard";
 import MobileOptimizedDashboard from "./components/design/MobileOptimizedDashboard";
+import RevampedMarketIntel from "./pages/RevampedMarketIntel";
 
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/offers-made" element={<OffersMade />} />
             <Route path="/saved-properties" element={<SavedProperties />} />
             <Route path="/market-intel" element={<MarketIntel />} />
+            <Route path="/market-intel-revamped" element={<RevampedMarketIntel />} />
             <Route path="/trial" element={<Trial />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/pricing" element={<Pricing />} />
