@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ModernDashboard } from './ModernDashboard';
 import { MobileDashboard } from './MobileDashboard';
-import { useMediaQuery } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ResponsiveDashboardProps {
   className?: string;
@@ -14,7 +14,7 @@ export const ResponsiveDashboard: React.FC<ResponsiveDashboardProps> = ({
   userRole = 'manager',
   forceView = 'auto'
 }) => {
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useIsMobile();
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
 
   useEffect(() => {
