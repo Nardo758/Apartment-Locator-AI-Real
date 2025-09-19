@@ -30,6 +30,9 @@ import Pricing from "./pages/Pricing";
 import Success from "./pages/Success";
 import OffersMade from "./pages/OffersMade";
 import AdvancedPricingDemo from "./pages/AdvancedPricingDemo";
+import ResponsiveDashboard from "./components/design/ResponsiveDashboard";
+import { RentVsBuyAnalysis } from "./components/RentVsBuyAnalysis";
+import { EnhancedPricingDashboard } from "./components/EnhancedPricingDashboard";
 
 
 const queryClient = new QueryClient();
@@ -61,6 +64,9 @@ const App = () => (
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/pricing-demo" element={<AdvancedPricingDemo />} />
+            <Route path="/revenue-hub" element={<ResponsiveDashboard />} />
+            <Route path="/rent-vs-buy" element={<RentVsBuyAnalysis propertyValue={450000} currentRent={2800} location="San Francisco, CA" />} />
+            <Route path="/enhanced-pricing" element={<EnhancedPricingDashboard properties={[]} enableMLFeatures={true} enableAutomation={true} />} />
             <Route path="/success" element={<Success />} />
             
             <Route path="/profile" element={<Profile />} />
