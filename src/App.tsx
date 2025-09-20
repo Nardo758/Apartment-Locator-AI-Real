@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PropertyStateProvider } from "./contexts/PropertyStateContext";
 import { OnboardingFlowProvider } from "./contexts/OnboardingFlowContext";
 import Landing from "./pages/Landing";
+import TestLanding from "./pages/TestLanding";
 import About from "./pages/About";
 
 import AIFormula from "./pages/AIFormula";
@@ -47,7 +48,8 @@ const App = () => (
         <BrowserRouter>
           <OnboardingFlowProvider>
             <Routes>
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<TestLanding />} />
+            <Route path="/original" element={<Landing />} />
             <Route path="/about" element={<About />} />
             <Route path="/demo" element={<LocationIntelligenceDemo />} />
             <Route path="/renter-intelligence" element={<RenterIntelligence />} />
