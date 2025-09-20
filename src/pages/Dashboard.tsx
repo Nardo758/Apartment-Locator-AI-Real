@@ -59,22 +59,6 @@ const Dashboard = () => {
         title="Your Apartment Intelligence Dashboard"
         subtitle="AI-powered location analysis and personalized recommendations"
         showHeader={false}
-        headerContent={
-          <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapMedium}`}>
-            <Link to="/">
-              <Button variant="outline" size="sm" className={`${designSystem.spacing.gapSmall} ${designSystem.buttons.outline}`}>
-                <ArrowLeft className={designSystem.icons.small} />
-                Back to Home
-              </Button>
-            </Link>
-            <Link to="/demo">
-              <Button variant="outline" size="sm" className={`${designSystem.spacing.gapSmall} ${designSystem.buttons.outline}`}>
-                <Zap className={designSystem.icons.small} />
-                View Demo
-              </Button>
-            </Link>
-          </div>
-        }
       >
         {/* Location Intelligence Component - No Demo Cards */}
         <div className={designSystem.animations.entrance}>
