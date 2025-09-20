@@ -55,16 +55,12 @@ const Dashboard = () => {
     <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
       <Header />
 
-      <ModernPageLayout
-        title="Your Apartment Intelligence Dashboard"
-        subtitle="AI-powered location analysis and personalized recommendations"
-        showHeader={false}
-      >
-        {/* Location Intelligence Component - No Demo Cards */}
+      <div className="container mx-auto px-4 py-8">
+        {/* Location Intelligence Component */}
         <div className={designSystem.animations.entrance}>
           <LocationIntelligence userProfile={mockUserProfile} />
         </div>
-      </ModernPageLayout>
+      </div>
     </div>
   );
 };
