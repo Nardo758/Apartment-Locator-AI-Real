@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import UnifiedApartmentSearch from './LocationIntelligence/UnifiedApartmentSearch';
+import ModernPOIManager from './LocationIntelligence/ModernPOIManager';
 import SmartMap from './LocationIntelligence/SmartMap';
 import SmartResults from './LocationIntelligence/SmartResults';
+import EnhancedSearchSettings, { SearchSettings } from './LocationIntelligence/EnhancedSearchSettings';
 import ApartmentResults from './LocationIntelligence/ApartmentResults';
 import { useLocationIntelligence } from '@/hooks/useLocationIntelligence';
 import CompactPropertyCard from '@/components/modern/CompactPropertyCard';
@@ -22,7 +23,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [showPOIModal, setShowPOIModal] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
-  const [searchSettings, setSearchSettings] = useState<any | null>(null);
+  const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
   
   const {
     pointsOfInterest,
@@ -72,21 +73,32 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         </div>
       </div>
 
-      {/* Unified Search Interface and Live Market Intel */}
+      {/* POI Management, Search Settings, and Live Market Intel */}
       <div className="flex flex-col lg:flex-row gap-6 mb-6 items-stretch min-h-[540px]">
-        {/* Unified Apartment Search - Takes up 2/3 of the space */}
-        <div className="w-full lg:w-2/3 flex flex-col">
-          <UnifiedApartmentSearch
-            pointsOfInterest={pointsOfInterest}
-            onAddPOI={addPOI}
-            onRemovePOI={removePOI}
-            onUpdatePriority={updatePOIPriority}
-            onSettingsChange={setSearchSettings}
-            onSearch={(location) => console.log('Searching for:', location)}
-          />
+        {/* POI Management Panel - Equal width and height */}
+        <div className="w-full lg:w-1/3 flex flex-col">
+          <div className="w-full flex flex-col h-full min-h-[540px]">
+            <ModernPOIManager
+              pointsOfInterest={pointsOfInterest}
+              onAddPOI={addPOI}
+              onRemovePOI={removePOI}
+              onUpdatePriority={updatePOIPriority}
+              showModal={showPOIModal}
+              setShowModal={setShowPOIModal}
+            />
+          </div>
         </div>
 
-        {/* Live Market Intel - Takes up 1/3 of the space */}
+        {/* Enhanced Search Settings - Equal width and height */}
+        <div className="w-full lg:w-1/3 flex flex-col">
+          <div className="min-h-[540px]">
+            <EnhancedSearchSettings
+              onSettingsChange={setSearchSettings}
+            />
+          </div>
+        </div>
+
+        {/* Live Market Intel - Equal width and height */}
         <div className="w-full lg:w-1/3 flex flex-col">
           <Card className="bg-slate-800/30 border border-slate-700/30 w-full h-full flex flex-col min-h-[540px]">
             <CardHeader className="pb-3">
