@@ -8,6 +8,7 @@ import { OnboardingFlowProvider } from "./contexts/OnboardingFlowContext";
 import Landing from "./pages/Landing";
 import TestLanding from "./pages/TestLanding";
 import LandingFixed from "./pages/LandingFixed";
+import LandingSSRSafe from "./pages/LandingSSRSafe";
 import About from "./pages/About";
 
 import AIFormula from "./pages/AIFormula";
@@ -49,7 +50,7 @@ const App = () => (
         <BrowserRouter>
           <OnboardingFlowProvider>
             <Routes>
-            <Route path="/" element={<LandingFixed />} />
+            <Route path="/" element={<LandingSSRSafe />} />
             <Route path="/test" element={<TestLanding />} />
             <Route path="/original" element={<Landing />} />
             <Route path="/about" element={<About />} />
