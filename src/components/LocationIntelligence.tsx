@@ -42,7 +42,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   console.log('🎯 Location Intelligence loaded:', { userProfile, preferencesCount, hasAIPreferences });
 
   return (
-    <div id="location-intelligence" className="space-y-8">
+    <div id="location-intelligence" className="space-y-8 w-full overflow-visible">
       {/* Section Header */}
       <div className="glass-dark rounded-xl p-6">
         <div className="flex items-center justify-between">
@@ -74,10 +74,10 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* POI Management, Search Settings, and Live Market Intel */}
-      <div className="flex flex-col lg:flex-row gap-6 mb-6 items-stretch min-h-[540px]">
-        {/* POI Management Panel - Equal width and height */}
+      <div className="flex flex-col lg:flex-row gap-6 mb-6 items-start">
+        {/* POI Management Panel - Equal width and responsive height */}
         <div className="w-full lg:w-1/3 flex flex-col">
-          <div className="w-full flex flex-col h-full min-h-[540px]">
+          <div className="w-full flex flex-col h-full">
             <ModernPOIManager
               pointsOfInterest={pointsOfInterest}
               onAddPOI={addPOI}
@@ -89,18 +89,18 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
           </div>
         </div>
 
-        {/* Enhanced Search Settings - Equal width and height */}
+        {/* Enhanced Search Settings - Equal width and responsive height */}
         <div className="w-full lg:w-1/3 flex flex-col">
-          <div className="min-h-[540px]">
+          <div className="h-full">
             <EnhancedSearchSettings
               onSettingsChange={setSearchSettings}
             />
           </div>
         </div>
 
-        {/* Live Market Intel - Equal width and height */}
+        {/* Live Market Intel - Equal width and responsive height */}
         <div className="w-full lg:w-1/3 flex flex-col">
-          <Card className="bg-slate-800/30 border border-slate-700/30 w-full h-full flex flex-col min-h-[540px]">
+          <Card className="bg-slate-800/30 border border-slate-700/30 w-full h-full flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <div className="w-2 h-2 rounded-full bg-green-400"></div>
@@ -203,9 +203,9 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* Main Content Area */}
-      <div className="grid grid-cols-1 xl:grid-cols-6 gap-6 mb-8">
+      <div className="grid grid-cols-1 xl:grid-cols-6 gap-6 mb-8 overflow-visible">
         {/* Dynamic View Content */}
-        <div className={`transition-all duration-300 ${viewMode === 'map' ? 'xl:col-span-4' : 'xl:col-span-6'}`}>
+        <div className={`transition-all duration-300 ${viewMode === 'map' ? 'xl:col-span-4' : 'xl:col-span-6'} min-h-0`}>
           {viewMode === 'map' ? (
             <SmartMap
               pointsOfInterest={pointsOfInterest}
@@ -231,7 +231,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         {/* Map View Sidebar */}
         {viewMode === 'map' && (
           <div className="xl:col-span-2 space-y-6 animate-slide-in-right">
-            <Card className="bg-slate-800/30 border border-slate-700/30 max-h-[600px] overflow-hidden">
+            <Card className="bg-slate-800/30 border border-slate-700/30 h-fit overflow-hidden">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <MapPin className="w-5 h-5 text-blue-400" />
@@ -242,7 +242,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
                 </p>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="overflow-y-auto max-h-[500px] space-y-3 px-6 pb-6">
+                <div className="overflow-y-auto max-h-[70vh] space-y-3 px-6 pb-6">
                   {smartResults.slice(0, 6).map((property) => (
                     <CompactPropertyCard
                       key={property.id}
