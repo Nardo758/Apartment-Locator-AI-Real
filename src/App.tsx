@@ -18,6 +18,7 @@ import SavedProperties from "./pages/SavedProperties";
 import MarketIntel from "./pages/MarketIntel";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import AuthModern from "./pages/AuthModern";
 import ProgramAI from "./pages/ProgramAI";
 import Trial from "./pages/Trial";
 import LocationIntelligenceDemo from "./pages/LocationIntelligenceDemo";
@@ -56,7 +57,8 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/demo" element={<LocationIntelligenceDemo />} />
             <Route path="/renter-intelligence" element={<RenterIntelligence />} />
-            <Route path="/auth" element={<Auth />} />
+            <Route path="/auth" element={<AuthModern />} />
+            <Route path="/auth-original" element={<Auth />} />
             <Route path="/signup" element={<Trial />} />
             <Route path="/program-ai" element={<ProgramAI />} />
             <Route path="/dashboard" element={<LocationIntelligenceDemo />} />
