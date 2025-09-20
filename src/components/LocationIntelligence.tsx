@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import ModernPOIManager from './LocationIntelligence/ModernPOIManager';
 import SmartMap from './LocationIntelligence/SmartMap';
 import SmartResults from './LocationIntelligence/SmartResults';
-import EnhancedSearchSettings, { SearchSettings } from './LocationIntelligence/EnhancedSearchSettings';
+import EnhancedSearchSettings from './LocationIntelligence/EnhancedSearchSettings';
 import ApartmentResults from './LocationIntelligence/ApartmentResults';
 import { useLocationIntelligence } from '@/hooks/useLocationIntelligence';
 import CompactPropertyCard from '@/components/modern/CompactPropertyCard';
@@ -23,7 +23,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [showPOIModal, setShowPOIModal] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
-  const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
+  const [searchSettings, setSearchSettings] = useState(null);
   
   const {
     pointsOfInterest,
@@ -73,10 +73,10 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         </div>
       </div>
 
-      {/* POI Management, Search Settings, and Live Market Intel */}
+      {/* POI Management and Live Market Intel */}
       <div className="flex flex-col lg:flex-row gap-6 mb-6 items-stretch min-h-[540px]">
         {/* POI Management Panel - Equal width and height */}
-        <div className="w-full lg:w-1/3 flex flex-col">
+        <div className="w-full lg:w-1/2 flex flex-col">
           <div className="w-full flex flex-col h-full min-h-[540px]">
             <ModernPOIManager
               pointsOfInterest={pointsOfInterest}
@@ -89,17 +89,8 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
           </div>
         </div>
 
-        {/* Enhanced Search Settings - Equal width and height */}
-        <div className="w-full lg:w-1/3 flex flex-col">
-          <div className="min-h-[540px]">
-            <EnhancedSearchSettings
-              onSettingsChange={setSearchSettings}
-            />
-          </div>
-        </div>
-
         {/* Live Market Intel - Equal width and height */}
-        <div className="w-full lg:w-1/3 flex flex-col">
+        <div className="w-full lg:w-1/2 flex flex-col">
           <Card className="bg-slate-800/30 border border-slate-700/30 w-full h-full flex flex-col min-h-[540px]">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">

@@ -11,12 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { usePropertyState } from '@/contexts/PropertyStateContext';
-import { Brain, MapPin, Target, Clock, Home, DollarSign, Heart, X, Plus } from 'lucide-react';
+import { Brain, MapPin, Target, Clock, Home, DollarSign, Heart, X, Plus, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import Header from '@/components/Header';
 import { ModernCard } from '@/components/modern/ModernCard';
 import { ModernPageLayout } from '@/components/modern/ModernPageLayout';
 import { designSystem } from '@/lib/design-system';
+import EnhancedSearchSettings, { SearchSettings } from '@/components/LocationIntelligence/EnhancedSearchSettings';
 
 interface AIPreferences {
   // Housing
@@ -75,6 +76,7 @@ const ProgramAI = () => {
   const navigate = useNavigate();
   const { searchFilters, setSearchFilters, userPreferences, setUserPreferences } = usePropertyState();
   const [saving, setSaving] = useState(false);
+  const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
   
   const [preferences, setPreferences] = useState<AIPreferences>({
     bedrooms: '1',
@@ -951,6 +953,24 @@ const ProgramAI = () => {
           </Card>
         </div>
 
+        {/* Search Settings Section */}
+        <div className="mt-8">
+          <div className="mb-6">
+            <h2 className={`${designSystem.typography.heading2} text-slate-900 mb-2`}>
+              Search Settings
+            </h2>
+            <p className={`${designSystem.typography.body} text-slate-600`}>
+              Configure your apartment search criteria and preferences
+            </p>
+          </div>
+          
+          <div className="max-w-2xl">
+            <EnhancedSearchSettings
+              onSettingsChange={setSearchSettings}
+            />
+          </div>
+        </div>
+
         {/* Save Button */}
         <div className="mt-8 flex justify-center">
           <Button
@@ -958,7 +978,7 @@ const ProgramAI = () => {
             disabled={saving}
             className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
           >
-            {saving ? 'Saving...' : 'Save AI Preferences'}
+            {saving ? 'Saving...' : 'Save AI Preferences & Search Settings'}
           </Button>
         </div>
       </ModernPageLayout>
