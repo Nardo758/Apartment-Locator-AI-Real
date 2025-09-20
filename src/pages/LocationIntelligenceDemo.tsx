@@ -1,6 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { ArrowLeft, MapPin, Target, Zap } from 'lucide-react';
+import { designSystem } from '@/lib/design-system';
+import ModernPageLayout from '@/components/modern/ModernPageLayout';
+import ModernCard from '@/components/modern/ModernCard';
 import Header from '@/components/Header';
 import LocationIntelligence from '@/components/LocationIntelligence';
 
@@ -49,16 +53,102 @@ const mockUserProfile = {
 
 const LocationIntelligenceDemo = () => {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Use the main Header component */}
+    <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
       <Header />
 
-      {/* Main Content */}
-      <main className="pt-20 p-6">
-        <div className="max-w-7xl mx-auto">
+      <ModernPageLayout
+        title="Location Intelligence Demo"
+        subtitle="Experience AI-powered location analysis and apartment discovery"
+        showHeader={false}
+        headerContent={
+          <div className="flex gap-3">
+            <Link to="/">
+              <Button variant="outline" size="sm" className="gap-2">
+                <ArrowLeft size={16} />
+                Back to Home
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button className={`${designSystem.buttons.primary} ${designSystem.buttons.small} gap-2`}>
+                <Zap size={16} />
+                Get Full Access
+              </Button>
+            </Link>
+          </div>
+        }
+      >
+        {/* Demo Introduction */}
+        <div className={`${designSystem.animations.entrance} mb-8`}>
+          <div className="grid md:grid-cols-3 gap-6">
+            <ModernCard 
+              animate
+              hover
+              className="text-center"
+            >
+              <div className="flex flex-col items-center space-y-3">
+                <div className="p-3 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                  <MapPin className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className={`${designSystem.typography.subheadingLarge} mb-1`}>
+                    Smart Location Analysis
+                  </h3>
+                  <p className={designSystem.typography.body}>
+                    AI analyzes commute times, amenities, and lifestyle factors
+                  </p>
+                </div>
+              </div>
+            </ModernCard>
+
+            <ModernCard 
+              animate
+              animationDelay={100}
+              hover
+              className="text-center"
+            >
+              <div className="flex flex-col items-center space-y-3">
+                <div className="p-3 rounded-full bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+                  <Target className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className={`${designSystem.typography.subheadingLarge} mb-1`}>
+                    Personalized Matching
+                  </h3>
+                  <p className={designSystem.typography.body}>
+                    Properties ranked based on your unique preferences
+                  </p>
+                </div>
+              </div>
+            </ModernCard>
+
+            <ModernCard 
+              animate
+              animationDelay={200}
+              hover
+              className="text-center"
+            >
+              <div className="flex flex-col items-center space-y-3">
+                <div className="p-3 rounded-full bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+                  <Zap className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className={`${designSystem.typography.subheadingLarge} mb-1`}>
+                    Negotiation Intelligence
+                  </h3>
+                  <p className={designSystem.typography.body}>
+                    Identify properties with the best savings potential
+                  </p>
+                </div>
+              </div>
+            </ModernCard>
+          </div>
+        </div>
+
+        {/* Location Intelligence Component */}
+        <div className={`${designSystem.animations.entrance}`} style={{ animationDelay: '300ms' }}>
           <LocationIntelligence userProfile={mockUserProfile} />
         </div>
-      </main>
+      </ModernPageLayout>
     </div>
   );
 };

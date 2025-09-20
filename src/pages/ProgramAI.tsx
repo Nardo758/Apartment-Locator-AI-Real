@@ -350,31 +350,56 @@ const ProgramAI = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
       <Header />
-      <div className="pt-20 p-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
-              <Brain className="w-8 h-8 text-white" />
+      
+      <ModernPageLayout
+        title="Program Your AI"
+        subtitle="Customize your AI assistant to find the perfect rental with personalized preferences and smart filters"
+        showHeader={false}
+        headerContent={
+          <Button 
+            onClick={handleSave}
+            disabled={saving}
+            className={`${designSystem.buttons.primary} gap-2`}
+          >
+            <Target size={16} />
+            {saving ? 'Saving...' : 'Save Preferences'}
+          </Button>
+        }
+      >
+        {/* AI Customization Overview */}
+        <div className={`${designSystem.animations.entrance} mb-8`}>
+          <ModernCard gradient className="text-center p-8">
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+                <Brain className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-left">
+                <h2 className={`${designSystem.typography.subheadingLarge} mb-1`}>
+                  AI Personalization Engine
+                </h2>
+                <p className={designSystem.typography.body}>
+                  Train your AI to understand your unique preferences and lifestyle needs
+                </p>
+              </div>
             </div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Program Your AI</h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Customize your AI assistant to find the perfect rental. These settings sync with your dashboard Quick Actions.
+            <p className={`${designSystem.typography.bodyLarge} max-w-3xl mx-auto`}>
+              These settings sync with your dashboard and help our AI provide more accurate recommendations, 
+              better negotiation strategies, and personalized market insights.
             </p>
-          </div>
+          </ModernCard>
+        </div>
 
         <div className="grid grid-cols-1 gap-6">
           {/* Housing */}
-          <Card className="glass-dark border-border/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Home className="w-5 h-5 text-green-400" />
-                Housing
-              </CardTitle>
-              <CardDescription>Define your housing needs</CardDescription>
-            </CardHeader>
+          <ModernCard 
+            title="Housing Preferences"
+            subtitle="Define your housing needs and must-have amenities"
+            icon={<Home className="w-6 h-6 text-blue-600" />}
+            animate
+            className="mb-6"
+          >
             <CardContent className="space-y-4">
               <div>
                 <Label className="text-sm font-medium">Must-Have Amenities</Label>

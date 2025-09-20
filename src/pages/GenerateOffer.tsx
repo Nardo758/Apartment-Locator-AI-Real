@@ -234,23 +234,36 @@ const GenerateOffer = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
+    <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
       <Header />
       
-      <main className="pt-20 px-6 pb-8">
-        <div className="max-w-4xl mx-auto">
-          <Breadcrumb />
-          
+      <ModernPageLayout
+        title="Generate AI Offer"
+        subtitle={property ? `Create a compelling offer for ${property.name}` : "Create a data-driven rental offer"}
+        showHeader={false}
+        headerContent={
+          <Link to="/dashboard">
+            <Button variant="outline" size="sm" className="gap-2">
+              <ArrowLeft size={16} />
+              Back to Properties
+            </Button>
+          </Link>
+        }
+      >
+        <Breadcrumb />
 
-          {offerSubmitted ? (
-            <div className="glass-dark rounded-xl p-8 text-center space-y-6">
-              <div className="w-20 h-20 rounded-full bg-gradient-secondary flex items-center justify-center mx-auto mb-6">
-                <Send size={28} className="text-white" />
+        {offerSubmitted ? (
+          <ModernCard className="text-center p-12">
+            <div className="flex flex-col items-center space-y-6">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 flex items-center justify-center">
+                <Send className="w-12 h-12 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold text-foreground">Offer Sent Successfully!</h2>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                Your professional rental offer has been emailed to the leasing office. They will respond directly within 24-48 hours.
-              </p>
+              <div>
+                <h2 className={`${designSystem.typography.subheadingLarge} mb-4`}>Offer Sent Successfully!</h2>
+                <p className={`${designSystem.typography.body} max-w-md mx-auto mb-6`}>
+                  Your professional rental offer has been emailed to the leasing office. They will respond directly within 24-48 hours.
+                </p>
+              </div>
               <div className="glass border border-secondary/20 rounded-lg p-6 mt-6">
                 <h3 className="font-semibold text-foreground mb-3">What's Next?</h3>
                 <ul className="text-sm text-muted-foreground space-y-2 text-left">
