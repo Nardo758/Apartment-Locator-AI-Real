@@ -8,7 +8,53 @@
 
 @layer base {
   :root {
-    /* Apartment Locator AI Dark Theme Colors (HSL) */
+    /* Light Theme - High contrast for readability */
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    /* Brand Colors (HSL) */
+    --primary: 244 60% 52%;
+    --primary-dark: 257 45% 48%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 178 82% 38%;
+    --secondary-dark: 161 63% 35%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 27%;
+
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 244 60% 52%;
+
+    --radius: 0.75rem;
+
+    /* Glassmorphism (light) */
+    --glass-bg: rgba(255, 255, 255, 0.6);
+    --glass-border: rgba(15, 23, 42, 0.08);
+    --glass-blur: blur(20px);
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-dark)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-dark)));
+    --gradient-bg: linear-gradient(45deg, hsl(var(--primary)) 0%, hsl(var(--primary-dark)) 50%, hsl(var(--secondary)) 100%);
+  }
+
+  /* Dark Theme */
+  .dark {
     --background: 0 0% 1%;  /* Much darker background */
     --foreground: 0 0% 96%; /* Light text */
 
@@ -28,7 +74,7 @@
     --secondary-foreground: 0 0% 98%;
 
     --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 65%;
+    --muted-foreground: 0 0% 80%;
 
     --accent: 0 0% 15%;
     --accent-foreground: 0 0% 96%;
@@ -40,17 +86,14 @@
     --input: 0 0% 12%;
     --ring: 244 60% 71%;
 
-    --radius: 0.75rem;
-
-    /* Glassmorphism effects */
     --glass-bg: rgba(255, 255, 255, 0.05);
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-blur: blur(20px);
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(244, 60%, 71%), hsl(257, 45%, 58%));
-    --gradient-secondary: linear-gradient(135deg, hsl(178, 82%, 60%), hsl(161, 63%, 51%));
-    --gradient-bg: linear-gradient(45deg, hsl(244, 60%, 71%) 0%, hsl(257, 45%, 58%) 25%, hsl(178, 82%, 60%) 50%, hsl(161, 63%, 51%) 75%, hsl(244, 60%, 71%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(244 60% 71%), hsl(257 45% 58%));
+    --gradient-secondary: linear-gradient(135deg, hsl(178 82% 60%), hsl(161 63% 51%));
+    --gradient-bg: linear-gradient(45deg, hsl(244 60% 71%) 0%, hsl(257 45% 58%) 25%, hsl(178 82% 60%) 50%, hsl(161 63% 51%) 75%, hsl(244 60% 71%) 100%);
   }
 }
 
@@ -62,7 +105,6 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #0A0A0A;
   }
 
   /* Animated background gradient */
