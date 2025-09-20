@@ -55,9 +55,9 @@ const Dashboard = () => {
     <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
       <Header />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 min-h-screen">
         {/* Location Intelligence Component */}
-        <div className={designSystem.animations.entrance}>
+        <div className={`${designSystem.animations.entrance} w-full`}>
           <LocationIntelligence userProfile={mockUserProfile} />
         </div>
       </div>

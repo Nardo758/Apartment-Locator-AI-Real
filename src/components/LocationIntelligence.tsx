@@ -42,10 +42,10 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   console.log('🎯 Location Intelligence loaded:', { userProfile, preferencesCount, hasAIPreferences });
 
   return (
-    <div id="location-intelligence" className="space-y-8">
+    <div id="location-intelligence" className="w-full space-y-6">
       {/* Section Header */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-        <div className="flex items-center justify-between">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 md:p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
               <Target className="w-6 h-6 text-blue-400" />
@@ -74,7 +74,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* POI Management and Live Market Intel */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* POI Management Panel */}
         <div className="flex flex-col">
           <ModernPOIManager
@@ -192,7 +192,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* Main Content Area */}
-      <div className="grid grid-cols-1 xl:grid-cols-6 gap-6 mb-8">
+      <div className="grid grid-cols-1 xl:grid-cols-6 gap-4 md:gap-6">
         {/* Dynamic View Content */}
         <div className={`transition-all duration-300 ${viewMode === 'map' ? 'xl:col-span-4' : 'xl:col-span-6'}`}>
           {viewMode === 'map' ? (
@@ -220,7 +220,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         {/* Map View Sidebar */}
         {viewMode === 'map' && (
           <div className="xl:col-span-2 space-y-6 animate-slide-in-right">
-            <Card className="bg-slate-800/30 border border-slate-700/30 max-h-[600px] overflow-hidden">
+            <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-fit max-h-[600px] overflow-hidden">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <MapPin className="w-5 h-5 text-blue-400" />
