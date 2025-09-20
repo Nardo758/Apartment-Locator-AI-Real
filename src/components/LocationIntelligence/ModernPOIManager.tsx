@@ -409,16 +409,16 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                     {/* Background gradient accent */}
                     <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${categoryConfig.gradient}`}></div>
                     
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-start gap-4 flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-4 flex-1 min-w-0">
                         <div className={`w-16 h-16 rounded-xl bg-gradient-to-r ${categoryConfig.gradient} flex items-center justify-center shadow-lg flex-shrink-0`}>
                           <span className="text-3xl">{categoryConfig.icon}</span>
                         </div>
-                        <div className="flex-1 min-w-0 pt-1">
-                          <div className={`${designSystem.typography.heading5} text-slate-900 leading-tight mb-2 font-semibold`}>
+                        <div className="flex-1 min-w-0">
+                          <div className={`${designSystem.typography.heading5} text-slate-900 leading-tight mb-1 font-semibold`}>
                             {poi.name}
                           </div>
-                          <div className={`${designSystem.typography.bodySmall} text-slate-600 leading-relaxed mb-3 break-words`}>
+                          <div className={`${designSystem.typography.bodySmall} text-slate-600 leading-tight mb-2 whitespace-nowrap overflow-hidden text-ellipsis`}>
                             {poi.address}
                           </div>
                           <div className={`${designSystem.typography.captionSmall} text-slate-500 font-medium uppercase tracking-wide`}>
