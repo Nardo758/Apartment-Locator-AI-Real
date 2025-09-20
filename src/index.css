@@ -1,56 +1,56 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Apartment Locator AI Design System - Dark theme with glassmorphism */
+/* Enhanced Apartment Locator AI Design System - Optimized for Readability */
 
 @layer base {
   :root {
-    /* Apartment Locator AI Dark Theme Colors (HSL) */
-    --background: 0 0% 1%;  /* Much darker background */
-    --foreground: 0 0% 96%; /* Light text */
+    /* High-contrast color scheme optimized for readability */
+    --background: 210 20% 98%;    /* Clean off-white background */
+    --foreground: 222 84% 4.9%;   /* Deep, readable text */
 
-    --card: 0 0% 8%;       /* Dark glass cards */
-    --card-foreground: 0 0% 96%;
+    --card: 0 0% 100%;            /* Pure white cards */
+    --card-foreground: 222 84% 4.9%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 96%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 4.9%;
 
-    /* Brand Gradients */
-    --primary: 244 60% 71%;    /* #667EEA */
-    --primary-dark: 257 45% 58%; /* #764BA2 */
-    --primary-foreground: 0 0% 98%;
+    /* Enhanced brand colors with better contrast */
+    --primary: 220 91% 64%;        /* Vibrant, accessible blue */
+    --primary-dark: 230 81% 56%;   /* Deeper blue */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 178 82% 60%;  /* #4ECDC4 */
-    --secondary-dark: 161 63% 51%; /* #44A08D */
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 171 77% 64%;      /* Refreshing teal */
+    --secondary-dark: 162 63% 51%; /* Deeper teal */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 210 40% 96%;          /* Light neutral background */
+    --muted-foreground: 215 16% 47%; /* Medium gray text */
 
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 96%;
+    --accent: 210 40% 96%;         /* Light accent */
+    --accent-foreground: 222 84% 4.9%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 12%;
-    --ring: 244 60% 71%;
+    --border: 214 32% 91%;         /* Subtle borders */
+    --input: 214 32% 91%;          /* Input backgrounds */
+    --ring: 220 91% 64%;           /* Focus rings */
 
     --radius: 0.75rem;
 
-    /* Glassmorphism effects */
-    --glass-bg: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-blur: blur(20px);
+    /* Enhanced glassmorphism effects */
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --glass-blur: blur(16px);
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(244, 60%, 71%), hsl(257, 45%, 58%));
-    --gradient-secondary: linear-gradient(135deg, hsl(178, 82%, 60%), hsl(161, 63%, 51%));
-    --gradient-bg: linear-gradient(45deg, hsl(244, 60%, 71%) 0%, hsl(257, 45%, 58%) 25%, hsl(178, 82%, 60%) 50%, hsl(161, 63%, 51%) 75%, hsl(244, 60%, 71%) 100%);
+    /* Readable gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220, 91%, 64%), hsl(230, 81%, 56%));
+    --gradient-secondary: linear-gradient(135deg, hsl(171, 77%, 64%), hsl(162, 63%, 51%));
+    --gradient-bg: linear-gradient(45deg, hsl(220, 91%, 64%) 0%, hsl(230, 81%, 56%) 25%, hsl(171, 77%, 64%) 50%, hsl(162, 63%, 51%) 75%, hsl(220, 91%, 64%) 100%);
   }
 }
 
@@ -60,9 +60,11 @@
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #0A0A0A;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background: hsl(var(--background));
+    line-height: 1.7;
   }
 
   /* Animated background gradient */
@@ -72,7 +74,7 @@
     animation: gradientShift 15s ease-in-out infinite;
   }
 
-  /* Glassmorphism utility classes */
+  /* Enhanced glassmorphism utility classes */
   .glass {
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
@@ -80,9 +82,9 @@
   }
 
   .glass-dark {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.1);
     backdrop-filter: var(--glass-blur);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
   }
 
   /* Gradient text */
@@ -144,24 +146,24 @@
     box-shadow: 0 10px 20px rgba(78, 205, 196, 0.3);
   }
 
-  /* Status indicators */
+  /* Enhanced status indicators with better contrast */
   .status-success {
-    @apply text-emerald-400 bg-emerald-500/10 border-emerald-500/30;
+    @apply text-emerald-600 bg-emerald-50 border-emerald-200;
   }
 
   .status-warning {
-    @apply text-amber-400 bg-amber-500/10 border-amber-500/30;
+    @apply text-amber-700 bg-amber-50 border-amber-200;
   }
 
   .status-error {
-    @apply text-red-400 bg-red-500/10 border-red-500/30;
+    @apply text-red-600 bg-red-50 border-red-200;
   }
 
   .status-info {
-    @apply text-blue-400 bg-blue-500/10 border-blue-500/30;
+    @apply text-blue-600 bg-blue-50 border-blue-200;
   }
 
-  /* Progress colors */
+  /* Enhanced progress colors */
   .progress-excellent {
     @apply bg-emerald-500;
   }
@@ -176,6 +178,13 @@
 
   .progress-poor {
     @apply bg-red-500;
+  }
+
+  /* Typography enhancements */
+  .text-readable {
+    font-size: 1rem;
+    line-height: 1.7;
+    letter-spacing: 0.025em;
   }
 }
 
