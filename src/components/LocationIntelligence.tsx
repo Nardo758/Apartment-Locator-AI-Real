@@ -44,7 +44,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   return (
     <div id="location-intelligence" className="space-y-8">
       {/* Section Header */}
-      <div className="glass-dark rounded-xl p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
@@ -89,7 +89,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
 
         {/* Live Market Intel */}
         <div className="flex flex-col">
-          <Card className="bg-slate-800/30 border border-slate-700/30 h-full flex flex-col">
+          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-full flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <div className="w-2 h-2 rounded-full bg-green-400"></div>
