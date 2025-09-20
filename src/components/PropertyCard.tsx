@@ -75,9 +75,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   };
 
   return (
-    <div className="bg-slate-800/90 backdrop-blur-sm rounded-2xl p-8 border border-slate-700/30 shadow-xl">
+    <div className="bg-slate-800/90 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/30 shadow-xl">
       {/* Header with AI Badge */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <h3 className="text-blue-400 text-sm font-medium">AI-Powered Property Analysis</h3>
         <div className="bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1 rounded-full text-xs font-medium">
           LIVE AI
@@ -85,8 +85,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       </div>
 
       {/* Property Info */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-3">
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-2">
           <h4 className="text-foreground text-lg font-semibold">{property.address}</h4>
           <button
             onClick={handleFavorite}
@@ -105,8 +105,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       </div>
 
       {/* Pricing - Clean Layout */}
-      <div className="mb-6">
-        <div className="flex items-baseline gap-3 mb-3">
+      <div className="mb-4">
+        <div className="flex items-baseline gap-3 mb-2">
           <span className="text-muted-foreground text-lg line-through">
             ${property.originalPrice.toLocaleString()}/mo
           </span>
@@ -122,7 +122,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       </div>
 
       {/* Progress Bar */}
-      <div className="mb-4">
+      <div className="mb-3">
         <div className="w-full bg-slate-700 rounded-full h-2">
           <div 
             className="bg-gradient-to-r from-green-400 to-green-500 h-2 rounded-full transition-all duration-1000"
@@ -132,7 +132,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       </div>
 
       {/* Success Rate */}
-      <div className="text-right mb-8">
+      <div className="text-right mb-6">
         <span className="text-muted-foreground text-sm font-medium">
           {property.successRate}% Success
         </span>

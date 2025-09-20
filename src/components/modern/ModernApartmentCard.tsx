@@ -123,7 +123,7 @@ const ModernApartmentCard: React.FC<ModernApartmentCardProps> = ({
       
       <CardContent className="p-0 relative">
         {/* Header Section with Flowing Design */}
-        <div className="relative p-10 pb-8">
+        <div className="relative p-8 pb-6">
           <div className="flex items-start gap-6">
             {/* Property Image - More Prominent */}
             <div className="relative flex-shrink-0">
@@ -148,9 +148,9 @@ const ModernApartmentCard: React.FC<ModernApartmentCardProps> = ({
 
             {/* Property Info with Flowing Typography */}
             <div className="flex-1 min-w-0">
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div>
-                  <h3 className="text-2xl font-bold text-foreground mb-2 leading-tight">{apartment.name}</h3>
+                  <h3 className="text-2xl font-bold text-foreground mb-1 leading-tight">{apartment.name}</h3>
                   <p className="text-muted-foreground/80 text-sm flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-blue-400/60" />
                     {apartment.address}
@@ -192,7 +192,7 @@ const ModernApartmentCard: React.FC<ModernApartmentCardProps> = ({
         </div>
 
         {/* Hero Pricing Section */}
-        <div className="relative px-10 pb-8">
+        <div className="relative px-8 pb-6">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-700/20 via-slate-800/30 to-slate-900/40 border border-slate-600/20 backdrop-blur-sm">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-blue-500/5" />
             
