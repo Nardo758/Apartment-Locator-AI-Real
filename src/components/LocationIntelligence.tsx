@@ -73,25 +73,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         </div>
       </div>
 
-      {/* Search Settings Section */}
-      <div className="w-full">
-        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Settings className="w-5 h-5 text-blue-400" />
-              Search Settings
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">Configure your apartment search criteria and preferences</p>
-          </CardHeader>
-          <CardContent>
-            <EnhancedSearchSettings 
-              onSettingsChange={setSearchSettings}
-            />
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* POI Management and Live Market Intel */}
+      {/* POI Management and Search Settings */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* POI Management Panel */}
         <div className="flex flex-col">
@@ -105,89 +87,91 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
           />
         </div>
 
-        {/* Live Market Intel - Two Column Layout */}
+        {/* Search Settings Section */}
         <div className="flex flex-col">
-          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-full flex flex-col">
+          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-full">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                Live Market Intel
+                <Settings className="w-5 h-5 text-blue-400" />
+                Search Settings
               </CardTitle>
+              <p className="text-sm text-muted-foreground">Configure your apartment search criteria and preferences</p>
             </CardHeader>
-            <CardContent className="flex-1">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left Column - Market Data */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Avg Rent</span>
-                    <div className="text-right">
-                      <div className="text-xl font-semibold text-foreground">$2,284</div>
-                      <div className="text-xs text-green-400">+2.3% vs last month</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">New Listings</span>
-                    <div className="text-right">
-                      <div className="text-xl font-semibold text-foreground">47</div>
-                      <div className="text-xs text-green-400">+8 this week</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Days on Market</span>
-                    <div className="text-right">
-                      <div className="text-xl font-semibold text-foreground">12</div>
-                      <div className="text-xs text-red-400">+2 vs last month</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Competition</span>
-                    <div className="text-right">
-                      <div className="text-xl font-semibold text-foreground">High</div>
-                      <div className="text-xs text-orange-400">85% occupancy</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Column - Negotiation Intelligence */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                    <span className="text-sm font-medium text-blue-400">Negotiation Intel</span>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Concessions</span>
-                      <div className="text-right">
-                        <div className="text-lg font-semibold text-foreground">73%</div>
-                        <div className="text-xs text-green-400">offering incentives</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Landlord Urgency</span>
-                      <div className="text-right">
-                        <div className="text-lg font-semibold text-foreground">Moderate</div>
-                        <div className="text-xs text-yellow-400">15% price drops</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Best Window</span>
-                      <div className="text-right">
-                        <div className="text-lg font-semibold text-foreground">Next 2wks</div>
-                        <div className="text-xs text-blue-400">optimal timing</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <CardContent>
+              <EnhancedSearchSettings 
+                onSettingsChange={setSearchSettings}
+              />
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Live Market Intel - Compact Version */}
+      <div className="w-full">
+        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <div className="w-2 h-2 rounded-full bg-green-400"></div>
+              Live Market Intel
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* Market Data - Compact Grid */}
+              <div className="space-y-1">
+                <span className="text-xs text-muted-foreground">Avg Rent</span>
+                <div className="text-lg font-semibold text-foreground">$2,284</div>
+                <div className="text-xs text-green-400">+2.3% vs last month</div>
+              </div>
+              
+              <div className="space-y-1">
+                <span className="text-xs text-muted-foreground">New Listings</span>
+                <div className="text-lg font-semibold text-foreground">47</div>
+                <div className="text-xs text-green-400">+8 this week</div>
+              </div>
+              
+              <div className="space-y-1">
+                <span className="text-xs text-muted-foreground">Days on Market</span>
+                <div className="text-lg font-semibold text-foreground">12</div>
+                <div className="text-xs text-red-400">+2 vs last month</div>
+              </div>
+              
+              <div className="space-y-1">
+                <span className="text-xs text-muted-foreground">Competition</span>
+                <div className="text-lg font-semibold text-foreground">High</div>
+                <div className="text-xs text-orange-400">85% occupancy</div>
+              </div>
+            </div>
+
+            {/* Negotiation Intelligence - Compact Row */}
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-4 mt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                <span className="text-sm font-medium text-blue-400">Negotiation Intel</span>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">Concessions</span>
+                  <div className="text-lg font-semibold text-foreground">73%</div>
+                  <div className="text-xs text-green-400">offering incentives</div>
+                </div>
+                
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">Landlord Urgency</span>
+                  <div className="text-lg font-semibold text-foreground">Moderate</div>
+                  <div className="text-xs text-yellow-400">15% price drops</div>
+                </div>
+                
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">Best Window</span>
+                  <div className="text-lg font-semibold text-foreground">Next 2wks</div>
+                  <div className="text-xs text-blue-400">optimal timing</div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* View Mode Toggle for Mobile */}
