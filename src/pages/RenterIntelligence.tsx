@@ -1,7 +1,9 @@
 import React from 'react';
-import { ArrowLeft, Home, Target, TrendingDown } from 'lucide-react';
+import { ArrowLeft, Home, Target, TrendingDown, Brain, BarChart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { designSystem } from '@/lib/design-system';
+import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import { RenterDashboard } from '@/components/renter/RenterDashboard';
 
 // Mock apartment data with various scenarios for demonstration
@@ -200,87 +202,69 @@ const mockApartmentData = [
 
 const RenterIntelligence = () => {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-center justify-between mb-6">
-            <Link to="/demo">
-              <Button variant="outline" size="sm" className="text-white border-white hover:bg-white hover:text-green-600">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Demo
-              </Button>
-            </Link>
-            <Link to="/auth">
-              <Button className="bg-white text-green-600 hover:bg-gray-100">
-                Get Full Access
-              </Button>
-            </Link>
-          </div>
-          
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Home className="w-8 h-8" />
-              <h1 className="text-3xl font-bold">RenterIQ Intelligence</h1>
-            </div>
-            <p className="text-xl text-green-100 mb-2">
-              Flip the Script. Use Landlord Intelligence to Find Great Deals.
-            </p>
-            <p className="text-green-200">
-              Real-time market analysis to help you negotiate better rent and find desperate landlords
-            </p>
-          </div>
-        </div>
-      </header>
-
-      {/* Key Features Banner */}
-      <div className="border-b bg-muted/50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-            <div className="flex items-center justify-center gap-2">
-              <Target className="w-5 h-5 text-green-600" />
-              <span className="font-medium">Identify Desperate Landlords</span>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <TrendingDown className="w-5 h-5 text-blue-600" />
-              <span className="font-medium">Calculate Negotiation Leverage</span>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <Home className="w-5 h-5 text-purple-600" />
-              <span className="font-medium">Time Your Application</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2">Austin Market Intelligence</h2>
-          <p className="text-muted-foreground">
-            Live market data showing which landlords are desperate and ready to negotiate. 
-            Green deals = major leverage, Red deals = move fast.
-          </p>
-        </div>
-        
-        <RenterDashboard properties={mockApartmentData} />
-      </main>
-
-      {/* Footer CTA */}
-      <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
-        <div className="max-w-7xl mx-auto px-6 py-8 text-center">
-          <h3 className="text-xl font-bold mb-2">Ready to Beat the Market?</h3>
-          <p className="text-green-100 mb-4">
-            Get access to live data on 10,000+ units across Texas and negotiate like a pro
-          </p>
-          <Link to="/auth">
-            <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100">
-              Start Finding Deals
+    <ModernPageLayout
+      title="Renter Intelligence Dashboard"
+      subtitle="AI-powered insights to help you find the perfect apartment with negotiation advantages"
+      headerContent={
+        <div className="flex gap-3">
+          <Link to="/demo">
+            <Button variant="outline" size="sm" className="gap-2">
+              <ArrowLeft size={16} />
+              Back to Demo
+            </Button>
+          </Link>
+          <Link to="/market-intel">
+            <Button className={`${designSystem.buttons.primary} ${designSystem.buttons.small} gap-2`}>
+              <BarChart size={16} />
+              Market Intel
             </Button>
           </Link>
         </div>
+      }
+    >
+      {/* Intelligence Overview */}
+      <div className={`${designSystem.animations.entrance} mb-8`}>
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+            <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-4">
+              <Brain className="w-8 h-8 text-blue-600" />
+            </div>
+            <h3 className={`${designSystem.typography.subheadingLarge} mb-2`}>AI Analysis</h3>
+            <p className={designSystem.typography.body}>
+              Advanced algorithms analyze market conditions and property opportunities
+            </p>
+          </div>
+          
+          <div className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800">
+            <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
+              <Target className="w-8 h-8 text-green-600" />
+            </div>
+            <h3 className={`${designSystem.typography.subheadingLarge} mb-2`}>Smart Targeting</h3>
+            <p className={designSystem.typography.body}>
+              Identify properties with the highest negotiation potential and savings
+            </p>
+          </div>
+          
+          <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
+            <div className="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mx-auto mb-4">
+              <TrendingDown className="w-8 h-8 text-purple-600" />
+            </div>
+            <h3 className={`${designSystem.typography.subheadingLarge} mb-2`}>Market Leverage</h3>
+            <p className={designSystem.typography.body}>
+              Capitalize on market conditions that favor renters and negotiation
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Renter Dashboard Component */}
+      <div className={`${designSystem.animations.entrance}`} style={{ animationDelay: '300ms' }}>
+        <RenterDashboard 
+          apartmentData={mockApartmentData}
+          enableAdvancedAnalytics={true}
+        />
+      </div>
+    </ModernPageLayout>
   );
 };
 

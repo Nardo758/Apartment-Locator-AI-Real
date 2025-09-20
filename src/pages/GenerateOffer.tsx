@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { ArrowLeft, Zap, DollarSign, Calendar, FileText, Sparkles, TrendingUp, AlertCircle, Mail, Send } from 'lucide-react';
+import { ArrowLeft, Zap, DollarSign, Calendar, FileText, Sparkles, TrendingUp, AlertCircle, Mail, Send, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,6 +11,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { usePropertyState } from '@/contexts/PropertyStateContext';
 import { Property } from '@/data/mockData';
+import { designSystem } from '@/lib/design-system';
+import ModernPageLayout from '@/components/modern/ModernPageLayout';
+import ModernCard from '@/components/modern/ModernCard';
 import Breadcrumb from '@/components/Breadcrumb';
 import Header from '../components/Header';
 
