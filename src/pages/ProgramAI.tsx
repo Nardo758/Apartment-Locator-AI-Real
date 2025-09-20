@@ -14,6 +14,9 @@ import { usePropertyState } from '@/contexts/PropertyStateContext';
 import { Brain, MapPin, Target, Clock, Home, DollarSign, Heart, X, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import Header from '@/components/Header';
+import { ModernCard } from '@/components/modern/ModernCard';
+import { ModernPageLayout } from '@/components/modern/ModernPageLayout';
+import { designSystem } from '@/lib/design-system';
 
 interface AIPreferences {
   // Housing
@@ -437,8 +440,8 @@ const ProgramAI = () => {
                 </div>
               </div>
             </CardContent>
-          </Card>
-
+          </ModernCard>
+ 
           {/* Transportation & Mobility */}
           <Card className="glass-dark border-border/20">
             <CardHeader>
@@ -958,8 +961,7 @@ const ProgramAI = () => {
             {saving ? 'Saving...' : 'Save AI Preferences'}
           </Button>
         </div>
-        </div>
-      </div>
+      </ModernPageLayout>
     </div>
   );
 };
