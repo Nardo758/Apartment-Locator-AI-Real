@@ -43,64 +43,61 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
 
   return (
     <div id="location-intelligence" className="w-full space-y-6">
-      {/* Compact Section Header */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
-              <Target className="w-4 h-4 text-blue-400" />
+      {/* Section Header */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 md:p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
+              <Target className="w-6 h-6 text-blue-400" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-foreground">Location Intelligence</h2>
-              <p className="text-sm text-muted-foreground">AI-powered apartment recommendations</p>
+              <h2 className="text-3xl font-bold text-foreground">Location Intelligence</h2>
+              <p className="text-muted-foreground text-lg">AI-powered apartment recommendations based on your lifestyle and location preferences</p>
             </div>
           </div>
           
-          {/* Compact AI Status */}
-          <Badge 
-            variant={hasAIPreferences ? "default" : "outline"}
-            className={`text-xs ${hasAIPreferences ? "bg-green-500/20 text-green-400 border-green-500/30" : ""}`}
-          >
-            <Brain className="w-3 h-3 mr-1" />
-            {hasAIPreferences ? `AI Active (${preferencesCount})` : 'Setup AI'}
-          </Badge>
+          <div className="flex items-center gap-4">
+            {/* AI Status Indicator */}
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
+              <div className={`w-2 h-2 rounded-full ${hasAIPreferences ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
+              <Badge 
+                variant={hasAIPreferences ? "default" : "outline"}
+                className={hasAIPreferences ? "bg-green-500/20 text-green-400 border-green-500/30" : ""}
+              >
+                <Brain className="w-3 h-3 mr-1" />
+                {hasAIPreferences ? `AI Preferences Active (${preferencesCount})` : 'Setup AI Preferences'}
+              </Badge>
+            </div>
+
+          </div>
         </div>
       </div>
 
-      {/* Compact POI Management and Search Settings */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        {/* Compact POI Management */}
+      {/* POI Management and Search Settings */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        {/* POI Management Panel */}
         <div className="flex flex-col">
-          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <MapPin className="w-4 h-4 text-blue-400" />
-                Points of Interest
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <ModernPOIManager
-                pointsOfInterest={pointsOfInterest}
-                onAddPOI={addPOI}
-                onRemovePOI={removePOI}
-                onUpdatePriority={updatePOIPriority}
-                showModal={showPOIModal}
-                setShowModal={setShowPOIModal}
-              />
-            </CardContent>
-          </Card>
+          <ModernPOIManager
+            pointsOfInterest={pointsOfInterest}
+            onAddPOI={addPOI}
+            onRemovePOI={removePOI}
+            onUpdatePriority={updatePOIPriority}
+            showModal={showPOIModal}
+            setShowModal={setShowPOIModal}
+          />
         </div>
 
-        {/* Compact Search Settings */}
+        {/* Search Settings Section */}
         <div className="flex flex-col">
-          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Settings className="w-4 h-4 text-blue-400" />
+          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-full">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Settings className="w-5 h-5 text-blue-400" />
                 Search Settings
               </CardTitle>
+              <p className="text-sm text-muted-foreground">Configure your apartment search criteria and preferences</p>
             </CardHeader>
-            <CardContent className="pt-0">
+            <CardContent>
               <EnhancedSearchSettings 
                 onSettingsChange={setSearchSettings}
               />
@@ -109,91 +106,100 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         </div>
       </div>
 
-      {/* Ultra Compact Live Market Intel */}
+      {/* Live Market Intel - Compact Version */}
       <div className="w-full">
         <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
               <div className="w-2 h-2 rounded-full bg-green-400"></div>
               Live Market Intel
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
-            <div className="grid grid-cols-4 lg:grid-cols-7 gap-3 text-center">
-              {/* Market Data */}
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* Market Data - Compact Grid */}
               <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Avg Rent</div>
-                <div className="text-sm font-semibold text-foreground">$2,284</div>
-                <div className="text-xs text-green-400">+2.3%</div>
+                <span className="text-xs text-muted-foreground">Avg Rent</span>
+                <div className="text-lg font-semibold text-foreground">$2,284</div>
+                <div className="text-xs text-green-400">+2.3% vs last month</div>
               </div>
               
               <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Listings</div>
-                <div className="text-sm font-semibold text-foreground">47</div>
-                <div className="text-xs text-green-400">+8</div>
+                <span className="text-xs text-muted-foreground">New Listings</span>
+                <div className="text-lg font-semibold text-foreground">47</div>
+                <div className="text-xs text-green-400">+8 this week</div>
               </div>
               
               <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Days</div>
-                <div className="text-sm font-semibold text-foreground">12</div>
-                <div className="text-xs text-red-400">+2</div>
+                <span className="text-xs text-muted-foreground">Days on Market</span>
+                <div className="text-lg font-semibold text-foreground">12</div>
+                <div className="text-xs text-red-400">+2 vs last month</div>
               </div>
               
               <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Competition</div>
-                <div className="text-sm font-semibold text-foreground">High</div>
-                <div className="text-xs text-orange-400">85%</div>
+                <span className="text-xs text-muted-foreground">Competition</span>
+                <div className="text-lg font-semibold text-foreground">High</div>
+                <div className="text-xs text-orange-400">85% occupancy</div>
+              </div>
+            </div>
+
+            {/* Negotiation Intelligence - Compact Row */}
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-4 mt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                <span className="text-sm font-medium text-blue-400">Negotiation Intel</span>
               </div>
               
-              {/* Negotiation Intel */}
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Concessions</div>
-                <div className="text-sm font-semibold text-foreground">73%</div>
-                <div className="text-xs text-green-400">offers</div>
-              </div>
-              
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Urgency</div>
-                <div className="text-sm font-semibold text-foreground">Moderate</div>
-                <div className="text-xs text-yellow-400">15%</div>
-              </div>
-              
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground">Best Window</div>
-                <div className="text-sm font-semibold text-foreground">2wks</div>
-                <div className="text-xs text-blue-400">optimal</div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">Concessions</span>
+                  <div className="text-lg font-semibold text-foreground">73%</div>
+                  <div className="text-xs text-green-400">offering incentives</div>
+                </div>
+                
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">Landlord Urgency</span>
+                  <div className="text-lg font-semibold text-foreground">Moderate</div>
+                  <div className="text-xs text-yellow-400">15% price drops</div>
+                </div>
+                
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">Best Window</span>
+                  <div className="text-lg font-semibold text-foreground">Next 2wks</div>
+                  <div className="text-xs text-blue-400">optimal timing</div>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Compact View Mode Toggle */}
-      <div className="flex justify-center mb-2 lg:hidden">
-        <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-1 flex">
+      {/* View Mode Toggle for Mobile */}
+      <div className="flex justify-center mb-4 lg:hidden">
+        <div className="bg-slate-800/30 border border-slate-700/30 rounded-lg p-1 flex">
           <Button
             variant={viewMode === 'map' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('map')}
-            className="rounded-md text-xs"
+            className="rounded-md"
           >
-            <MapPin className="w-3 h-3 mr-1" />
+            <MapPin className="w-4 h-4 mr-2" />
             Map
           </Button>
           <Button
             variant={viewMode === 'list' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('list')}
-            className="rounded-md text-xs"
+            className="rounded-md"
           >
-            <List className="w-3 h-3 mr-1" />
+            <List className="w-4 h-4 mr-2" />
             List
           </Button>
         </div>
       </div>
 
-      {/* Main Content Area - Map Priority */}
-      <div className="grid grid-cols-1 xl:grid-cols-6 gap-3">
+      {/* Main Content Area */}
+      <div className="grid grid-cols-1 xl:grid-cols-6 gap-4 md:gap-6">
         {/* Dynamic View Content */}
         <div className={`transition-all duration-300 ${viewMode === 'map' ? 'xl:col-span-4' : 'xl:col-span-6'}`}>
           {viewMode === 'map' ? (
