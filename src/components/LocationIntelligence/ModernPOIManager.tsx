@@ -404,7 +404,7 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                 return (
                   <div 
                     key={poi.id} 
-                    className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-blue-300 transition-all duration-300 group relative overflow-hidden min-h-[180px]"
+                    className="bg-white rounded-2xl border border-slate-200 p-7 hover:shadow-xl hover:border-blue-300 transition-all duration-300 group relative overflow-hidden min-h-[200px]"
                   >
                     {/* Background gradient accent */}
                     <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${categoryConfig.gradient}`}></div>
@@ -415,13 +415,13 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                           <span className="text-3xl">{categoryConfig.icon}</span>
                         </div>
                         <div className="flex-1 min-w-0 pt-1">
-                          <div className={`${designSystem.typography.heading5} text-slate-900 leading-tight mb-1`}>
+                          <div className={`${designSystem.typography.heading5} text-slate-900 leading-tight mb-2 font-semibold`}>
                             {poi.name}
                           </div>
-                          <div className={`${designSystem.typography.bodySmall} text-slate-600 leading-snug mb-2 line-clamp-2`}>
+                          <div className={`${designSystem.typography.bodySmall} text-slate-600 leading-relaxed mb-3 break-words`}>
                             {poi.address}
                           </div>
-                          <div className={`${designSystem.typography.captionSmall} text-slate-500 font-medium`}>
+                          <div className={`${designSystem.typography.captionSmall} text-slate-500 font-medium uppercase tracking-wide`}>
                             {categoryConfig.label}
                           </div>
                         </div>
