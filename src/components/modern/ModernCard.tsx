@@ -17,6 +17,7 @@ interface ModernCardProps {
   onClick?: () => void;
   animate?: boolean;
   animationDelay?: number;
+  style?: React.CSSProperties;
 }
 
 export const ModernCard: React.FC<ModernCardProps> = ({
@@ -32,7 +33,8 @@ export const ModernCard: React.FC<ModernCardProps> = ({
   contentClassName = '',
   onClick,
   animate = false,
-  animationDelay = 0
+  animationDelay = 0,
+  style
 }) => {
   const getCardClasses = () => {
     let classes = designSystem.backgrounds.card;
@@ -57,10 +59,11 @@ export const ModernCard: React.FC<ModernCardProps> = ({
   };
 
   const getAnimationStyle = () => {
+    const baseStyle = style || {};
     if (animate && animationDelay > 0) {
-      return { animationDelay: `${animationDelay}ms` };
+      return { ...baseStyle, animationDelay: `${animationDelay}ms` };
     }
-    return {};
+    return baseStyle;
   };
 
   const cardContent = (

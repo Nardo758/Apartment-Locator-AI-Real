@@ -97,7 +97,7 @@ const SavedProperties: React.FC = () => {
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-blue-600 mb-1">
-                      {new Set(savedPropertiesList.map(p => p.location)).size}
+                      {new Set(savedPropertiesList.map(p => p.city)).size}
                     </div>
                     <div className={`${designSystem.typography.label} font-medium`}>
                       Locations
@@ -118,7 +118,7 @@ const SavedProperties: React.FC = () => {
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-green-600 mb-1">
-                      ${Math.round(savedPropertiesList.reduce((avg, p) => avg + p.price, 0) / savedPropertiesList.length || 0).toLocaleString()}
+                      ${Math.round(savedPropertiesList.reduce((avg, p) => avg + p.aiPrice, 0) / savedPropertiesList.length || 0).toLocaleString()}
                     </div>
                     <div className={`${designSystem.typography.label} font-medium`}>
                       Avg. Price

@@ -260,8 +260,7 @@ const RenterIntelligence = () => {
       {/* Renter Dashboard Component */}
       <div className={`${designSystem.animations.entrance}`} style={{ animationDelay: '300ms' }}>
         <RenterDashboard 
-          apartmentData={mockApartmentData}
-          enableAdvancedAnalytics={true}
+          properties={mockApartmentData}
         />
       </div>
     </ModernPageLayout>

@@ -421,7 +421,7 @@ export class RentVsBuyAnalyzer {
     if (debtToIncome > 0.4) riskScore += 2;
     else if (debtToIncome > 0.3) riskScore += 1;
     
-    const overallRiskLevel = riskScore >= 5 ? 'high' : riskScore >= 3 ? 'medium' : 'low';
+    const overallRiskLevel: 'high' | 'medium' | 'low' = riskScore >= 5 ? 'high' : riskScore >= 3 ? 'medium' : 'low';
     
     return {
       rentRisks,

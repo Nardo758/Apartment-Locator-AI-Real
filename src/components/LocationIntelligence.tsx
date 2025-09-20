@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import POIManager from './LocationIntelligence/POIManager';
+import ModernPOIManager from './LocationIntelligence/ModernPOIManager';
 import SmartMap from './LocationIntelligence/SmartMap';
 import SmartResults from './LocationIntelligence/SmartResults';
 import EnhancedSearchSettings, { SearchSettings } from './LocationIntelligence/EnhancedSearchSettings';
@@ -78,7 +78,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         {/* POI Management Panel - Equal width and height */}
         <div className="w-full lg:w-1/3 flex flex-col">
           <div className="w-full flex flex-col h-full min-h-[540px]">
-            <POIManager
+            <ModernPOIManager
               pointsOfInterest={pointsOfInterest}
               onAddPOI={addPOI}
               onRemovePOI={removePOI}

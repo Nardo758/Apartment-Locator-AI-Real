@@ -39,7 +39,7 @@ export const ResponsiveDashboard: React.FC<ResponsiveDashboardProps> = ({
   if (viewMode === 'mobile') {
     return (
       <div className={`responsive-dashboard mobile-view ${className}`}>
-        <MobileDashboard userRole={userRole} />
+        <MobileDashboard />
       </div>
     );
   }

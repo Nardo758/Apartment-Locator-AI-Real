@@ -185,6 +185,7 @@ export const designSystem = {
     stackSmall: "flex flex-col space-y-2",
     stackMedium: "flex flex-col space-y-4",
     stackLarge: "flex flex-col space-y-6",
+    stackTight: "flex flex-col space-y-1",
     
     // Legacy support
     center: "flex items-center justify-center",
@@ -229,6 +230,7 @@ export const designSystem = {
     marginMedium: "mb-8 sm:mb-12",
     marginSmall: "mb-4 sm:mb-6",
     marginTight: "mb-2 sm:mb-4",
+    small: "mb-2",
     
     // Card padding variants
     cardPadding: "p-6",
