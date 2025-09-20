@@ -42,9 +42,9 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   console.log('🎯 Location Intelligence loaded:', { userProfile, preferencesCount, hasAIPreferences });
 
   return (
-    <div id="location-intelligence" className="h-full">
+    <div id="location-intelligence" className="w-full space-y-6">
       {/* Section Header */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 md:p-6 border border-slate-200 dark:border-slate-700 shadow-sm mb-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 md:p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
@@ -73,11 +73,10 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         </div>
       </div>
 
-      {/* Main Layout with Sidebar */}
-      <div className="flex h-[calc(100vh-250px)]">
-        {/* Main Content Area */}
-        <div className="flex-1 pr-6 space-y-6 overflow-y-auto">
-          {/* POI Management */}
+      {/* POI Management and Live Market Intel */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        {/* POI Management Panel */}
+        <div className="flex flex-col">
           <ModernPOIManager
             pointsOfInterest={pointsOfInterest}
             onAddPOI={addPOI}
@@ -86,100 +85,154 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
             showModal={showPOIModal}
             setShowModal={setShowPOIModal}
           />
+        </div>
 
-          {/* Live Market Intel Card */}
-          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+        {/* Live Market Intel */}
+        <div className="flex flex-col">
+          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-full flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <div className="w-2 h-2 rounded-full bg-green-400"></div>
                 Live Market Intel
               </CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">$2,284</div>
-                <div className="text-sm text-muted-foreground">Avg Rent</div>
-                <div className="text-xs text-green-400">+2.3%</div>
+            <CardContent className="space-y-4 flex-1 overflow-y-auto">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Avg Rent</span>
+                <div className="text-right">
+                  <div className="text-xl font-semibold text-foreground">$2,284</div>
+                  <div className="text-xs text-green-400">+2.3% vs last month</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">47</div>
-                <div className="text-sm text-muted-foreground">New Listings</div>
-                <div className="text-xs text-green-400">+8 this week</div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">New Listings</span>
+                <div className="text-right">
+                  <div className="text-xl font-semibold text-foreground">47</div>
+                  <div className="text-xs text-green-400">+8 this week</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">12</div>
-                <div className="text-sm text-muted-foreground">Days on Market</div>
-                <div className="text-xs text-red-400">+2 vs last month</div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Days on Market</span>
+                <div className="text-right">
+                  <div className="text-xl font-semibold text-foreground">12</div>
+                  <div className="text-xs text-red-400">+2 vs last month</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">73%</div>
-                <div className="text-sm text-muted-foreground">Concessions</div>
-                <div className="text-xs text-green-400">offering incentives</div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Competition</span>
+                <div className="text-right">
+                  <div className="text-xl font-semibold text-foreground">High</div>
+                  <div className="text-xs text-orange-400">85% occupancy</div>
+                </div>
+              </div>
+
+              {/* Negotiation Intelligence Section */}
+              <div className="border-t border-slate-600/30 pt-4 mt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                  <span className="text-sm font-medium text-blue-400">Negotiation Intel</span>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Concessions</span>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-foreground">73%</div>
+                      <div className="text-xs text-green-400">offering incentives</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Landlord Urgency</span>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-foreground">Moderate</div>
+                      <div className="text-xs text-yellow-400">15% price drops</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Best Window</span>
+                    <div className="text-right">
+                      <div className="text-lg font-semibold text-foreground">Next 2wks</div>
+                      <div className="text-xs text-blue-400">optimal timing</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
+        </div>
+      </div>
 
-          {/* Content Based on View Mode */}
+      {/* View Mode Toggle for Mobile */}
+      <div className="flex justify-center mb-4 lg:hidden">
+        <div className="bg-slate-800/30 border border-slate-700/30 rounded-lg p-1 flex">
+          <Button
+            variant={viewMode === 'map' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('map')}
+            className="rounded-md"
+          >
+            <MapPin className="w-4 h-4 mr-2" />
+            Map
+          </Button>
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('list')}
+            className="rounded-md"
+          >
+            <List className="w-4 h-4 mr-2" />
+            List
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="grid grid-cols-1 xl:grid-cols-6 gap-4 md:gap-6">
+        {/* Dynamic View Content */}
+        <div className={`transition-all duration-300 ${viewMode === 'map' ? 'xl:col-span-4' : 'xl:col-span-6'}`}>
           {viewMode === 'map' ? (
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden h-[500px]">
-              <SmartMap
-                pointsOfInterest={pointsOfInterest}
+            <SmartMap
+              pointsOfInterest={pointsOfInterest}
+              smartResults={smartResults}
+              userProfile={userProfile}
+              selectedPropertyId={selectedPropertyId}
+              onPropertySelect={setSelectedPropertyId}
+            />
+          ) : (
+            <div className="space-y-6 animate-fade-in">
+              <SmartResults
                 smartResults={smartResults}
+                pointsOfInterest={pointsOfInterest}
                 userProfile={userProfile}
-                selectedPropertyId={selectedPropertyId}
+                getCombinedScore={getCombinedScore}
                 onPropertySelect={setSelectedPropertyId}
+                selectedPropertyId={selectedPropertyId}
               />
             </div>
-          ) : (
-            <SmartResults
-              smartResults={smartResults}
-              pointsOfInterest={pointsOfInterest}
-              userProfile={userProfile}
-              getCombinedScore={getCombinedScore}
-              onPropertySelect={setSelectedPropertyId}
-              selectedPropertyId={selectedPropertyId}
-            />
           )}
         </div>
 
-        {/* Search Settings Sidebar */}
-        <div className="w-80 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 p-4 overflow-y-auto">
-          <div className="space-y-4">
-            {/* View Toggle */}
-            <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex-1 ${
-                  viewMode === 'list' 
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' 
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                <List className="w-4 h-4 mr-2 inline" />
-                List
-              </button>
-              <button
-                onClick={() => setViewMode('map')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex-1 ${
-                  viewMode === 'map' 
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' 
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                <MapPin className="w-4 h-4 mr-2 inline" />
-                Map
-              </button>
-            </div>
-
-            {/* Search Settings */}
-            <EnhancedSearchSettings onSettingsChange={(settings) => setSearchSettings(settings)} />
-
-            {/* Property Cards for Map View */}
-            {viewMode === 'map' && smartResults.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Top Properties</h3>
-                <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                  {smartResults.slice(0, 4).map((property) => (
+        {/* Map View Sidebar */}
+        {viewMode === 'map' && (
+          <div className="xl:col-span-2 space-y-6 animate-slide-in-right">
+            <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-fit max-h-[600px] overflow-hidden">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <MapPin className="w-5 h-5 text-blue-400" />
+                  Property Cards
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  {smartResults.length} properties • Click to highlight on map
+                </p>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-y-auto max-h-[500px] space-y-3 px-6 pb-6">
+                  {smartResults.slice(0, 6).map((property) => (
                     <CompactPropertyCard
                       key={property.id}
                       property={{
@@ -201,35 +254,42 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
                     />
                   ))}
                 </div>
-              </div>
-            )}
-
-            {/* AI Setup CTA */}
-            {!hasAIPreferences && (
-              <Card className="border border-yellow-500/30 bg-yellow-500/5 mt-6">
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <div className="w-10 h-10 mx-auto rounded-lg bg-yellow-500/20 flex items-center justify-center mb-3">
-                      <Zap className="w-5 h-5 text-yellow-400" />
-                    </div>
-                    <h3 className="font-semibold text-foreground mb-2">Unlock AI Recommendations</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Get personalized scores by setting up your AI preferences
-                    </p>
-                    <Button 
-                      onClick={() => navigate('/program-ai')}
-                      className="bg-yellow-600 hover:bg-yellow-700 w-full"
-                      size="sm"
-                    >
-                      <Settings className="w-4 h-4 mr-1" />
-                      Setup AI
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+              </CardContent>
+            </Card>
           </div>
+        )}
+
+        {/* List View Sidebar */}
+        {viewMode === 'list' && (
+        <div className="xl:col-span-1 space-y-6">
+
+          {/* No AI Preferences Call-to-Action */}
+          {!hasAIPreferences && (
+            <Card className="border border-yellow-500/30 bg-yellow-500/5">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-yellow-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-foreground mb-1">Unlock AI-Powered Recommendations</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Complete your AI preferences to get personalized apartment scores combining location and lifestyle factors.
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={() => navigate('/program-ai')}
+                    className="bg-yellow-600 hover:bg-yellow-700"
+                  >
+                    <Settings className="w-4 h-4 mr-1" />
+                    Setup AI
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
+        )}
       </div>
     </div>
   );
