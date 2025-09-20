@@ -2,8 +2,10 @@
 import React, { useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Home, ArrowRight } from 'lucide-react';
+import { CheckCircle, Home, ArrowRight, Sparkles, Zap, Target } from 'lucide-react';
+import { designSystem } from '@/lib/design-system';
+import ModernCard from '@/components/modern/ModernCard';
+import GradientSection from '@/components/modern/GradientSection';
 
 const Success = () => {
   const [searchParams] = useSearchParams();
@@ -14,87 +16,115 @@ const Success = () => {
     localStorage.removeItem('apartmentiq_trial_data');
   }, []);
 
+  const nextSteps = [
+    {
+      step: '1',
+      icon: Target,
+      title: 'Access Your Dashboard',
+      description: 'Start using AI-powered apartment hunting tools immediately',
+      color: 'text-blue-600'
+    },
+    {
+      step: '2', 
+      icon: Sparkles,
+      title: 'Set Your Preferences',
+      description: 'Configure your search criteria and AI assistant',
+      color: 'text-purple-600'
+    },
+    {
+      step: '3',
+      icon: Zap,
+      title: 'Start Finding Apartments',
+      description: 'Let AI analyze properties and help you negotiate better deals',
+      color: 'text-green-600'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-background animated-bg flex items-center justify-center p-4">
-      <Card className="glass max-w-2xl w-full">
-        <CardHeader className="text-center pb-6">
-          <div className="mx-auto mb-4 w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center">
-            <CheckCircle className="h-8 w-8 text-emerald-500" />
+    <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark} flex items-center justify-center p-4`}>
+      <div className="max-w-4xl w-full">
+        {/* Success Header */}
+        <div className={`${designSystem.animations.entrance} text-center mb-8`}>
+          <div className="mx-auto mb-6 w-24 h-24 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 rounded-full flex items-center justify-center">
+            <CheckCircle className="h-12 w-12 text-green-600" />
           </div>
-          <CardTitle className="text-3xl font-bold gradient-text">
-            🎉 Payment Successful!
-          </CardTitle>
-          <p className="text-muted-foreground mt-2">
-            Welcome to AI Apartment Locator! Your payment has been processed successfully.
+          <h1 className={`${designSystem.typography.hero} mb-4`}>
+            🎉 <span className={designSystem.typography.heroGradient}>Payment Successful!</span>
+          </h1>
+          <p className={`${designSystem.typography.bodyLarge} max-w-2xl mx-auto`}>
+            Welcome to Apartment Locator AI! Your payment has been processed successfully and you now have access to all premium features.
           </p>
-        </CardHeader>
+        </div>
 
-        <CardContent className="space-y-6">
-          {sessionId && (
-            <div className="bg-muted/20 rounded-lg p-4">
-              <div className="text-sm text-muted-foreground mb-1">Session ID</div>
-              <div className="font-mono text-sm break-all">{sessionId}</div>
+        {sessionId && (
+          <ModernCard className={`${designSystem.animations.entrance} mb-8 max-w-2xl mx-auto`} style={{ animationDelay: '200ms' }}>
+            <div className="text-center">
+              <div className={`text-sm ${designSystem.colors.muted} mb-1`}>Session ID</div>
+              <div className="font-mono text-sm break-all bg-gray-50 dark:bg-gray-800/50 p-2 rounded">{sessionId}</div>
             </div>
-          )}
+          </ModernCard>
+        )}
 
-          <div className="space-y-4">
-            <h3 className="font-semibold text-foreground">What happens next?</h3>
-            <div className="space-y-3 text-sm text-muted-foreground">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-primary font-semibold text-xs">1</span>
+        {/* Next Steps */}
+        <GradientSection variant="feature" title="What happens next?" className="mb-8">
+          <div className={`${designSystem.layouts.gridThree} max-w-4xl mx-auto`}>
+            {nextSteps.map((step, index) => (
+              <ModernCard
+                key={step.step}
+                animate
+                animationDelay={index * 100 + 300}
+                hover
+                className="text-center"
+              >
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center">
+                      <step.icon className={`w-8 h-8 ${step.color}`} />
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                      {step.step}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className={`${designSystem.typography.subheadingLarge} mb-2`}>
+                      {step.title}
+                    </h3>
+                    <p className={designSystem.typography.body}>
+                      {step.description}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <div className="font-medium text-foreground">Access Your Dashboard</div>
-                  <div>Start using AI-powered apartment hunting tools immediately</div>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-primary font-semibold text-xs">2</span>
-                </div>
-                <div>
-                  <div className="font-medium text-foreground">Set Your Preferences</div>
-                  <div>Configure your search criteria and AI assistant</div>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-primary font-semibold text-xs">3</span>
-                </div>
-                <div>
-                  <div className="font-medium text-foreground">Start Finding Apartments</div>
-                  <div>Let AI analyze properties and help you negotiate better deals</div>
-                </div>
-              </div>
-            </div>
+              </ModernCard>
+            ))}
           </div>
+        </GradientSection>
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Button asChild className="btn-primary flex-1" size="lg">
-              <Link to="/dashboard">
-                <ArrowRight className="w-4 h-4 mr-2" />
-                Start Using AI Apartment Locator
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="flex-1" size="lg">
-              <Link to="/">
-                <Home className="w-4 h-4 mr-2" />
-                Return to Home
-              </Link>
-            </Button>
-          </div>
+        {/* Action Buttons */}
+        <div className={`${designSystem.animations.entrance} flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto mb-8`} style={{ animationDelay: '600ms' }}>
+          <Button asChild className={`${designSystem.buttons.primary} ${designSystem.buttons.large} flex-1 gap-2`}>
+            <Link to="/dashboard">
+              <ArrowRight className="w-5 h-5" />
+              Start Using AI Apartment Locator
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="flex-1 gap-2" size="lg">
+            <Link to="/">
+              <Home className="w-5 h-5" />
+              Return to Home
+            </Link>
+          </Button>
+        </div>
 
-          <div className="text-center pt-4 border-t border-border">
-            <p className="text-sm text-muted-foreground">
-              Need help? Contact our support team at{' '}
-              <a href="mailto:support@apartmentlocatorai.com" className="text-primary hover:underline">
-                support@apartmentlocatorai.com
-              </a>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Support Info */}
+        <ModernCard className={`${designSystem.animations.entrance} max-w-2xl mx-auto text-center`} style={{ animationDelay: '800ms' }}>
+          <p className={`text-sm ${designSystem.colors.muted}`}>
+            Need help getting started? Contact our support team at{' '}
+            <a href="mailto:support@apartmentlocatorai.com" className="text-primary hover:underline font-medium">
+              support@apartmentlocatorai.com
+            </a>
+          </p>
+        </ModernCard>
+      </div>
     </div>
   );
 };

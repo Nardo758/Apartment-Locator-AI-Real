@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowLeft, Search, HelpCircle, MessageCircle, Book, Video, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { designSystem } from '@/lib/design-system';
+import ModernPageLayout from '@/components/modern/ModernPageLayout';
+import ModernCard from '@/components/modern/ModernCard';
 
 const Help: React.FC = () => {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
   const faqs = [
@@ -86,126 +87,106 @@ const Help: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/dashboard')}
-                className="gap-2"
-              >
-                <ArrowLeft size={16} />
-                Back to Dashboard
-              </Button>
-              <div className="flex items-center gap-2">
-                <HelpCircle className="text-primary" size={20} />
-                <h1 className="text-xl font-semibold text-foreground">
-                  Help & Support
-                </h1>
-              </div>
+    <ModernPageLayout
+      title="Help & Support"
+      subtitle="Find answers to common questions and get the help you need"
+      headerContent={
+        <Link to="/">
+          <Button variant="outline" size="sm" className="gap-2">
+            <ArrowLeft size={16} />
+            Back to Home
+          </Button>
+        </Link>
+      }
+    >
+      {/* Search */}
+      <ModernCard className={`${designSystem.animations.entrance} mb-8`}>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
+          <Input
+            placeholder="Search for help articles, FAQs, or topics..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      </ModernCard>
+
+      {/* Help Categories */}
+      <div className={`${designSystem.layouts.gridTwo} mb-12`}>
+        {helpCategories.map((category, index) => (
+          <ModernCard
+            key={category.title}
+            title={category.title}
+            icon={<category.icon className="w-6 h-6 text-blue-600" />}
+            animate
+            animationDelay={index * 100}
+            hover
+            className="cursor-pointer"
+          >
+            <div>
+              <p className={`${designSystem.typography.body} mb-3`}>{category.description}</p>
+              <ul className={designSystem.spacing.small}>
+                {category.topics.map((topic, index) => (
+                  <li key={index} className={`text-sm ${designSystem.colors.muted}`}>• {topic}</li>
+                ))}
+              </ul>
             </div>
+          </ModernCard>
+        ))}
+      </div>
+
+      {/* FAQ Section */}
+      <ModernCard title="Frequently Asked Questions" className="mb-8">
+        {filteredFaqs.length === 0 ? (
+          <div className="text-center py-8">
+            <div className={`${designSystem.typography.body} mb-4`}>
+              No results found for "{searchQuery}"
+            </div>
+            <p className={designSystem.colors.muted}>
+              Try different keywords or browse our help categories above.
+            </p>
           </div>
-        </div>
-      </header>
-
-      {/* Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
-          {/* Search */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
-                <Input
-                  placeholder="Search for help articles, FAQs, or topics..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Help Categories */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {helpCategories.map((category) => (
-              <Card key={category.title} className="cursor-pointer hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <category.icon className="text-primary" size={24} />
-                    {category.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-3">{category.description}</p>
-                  <ul className="space-y-1">
-                    {category.topics.map((topic, index) => (
-                      <li key={index} className="text-sm text-muted-foreground">• {topic}</li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+        ) : (
+          <Accordion type="single" collapsible className="w-full">
+            {filteredFaqs.map((faq) => (
+              <AccordionItem key={faq.id} value={faq.id}>
+                <AccordionTrigger className="text-left">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className={designSystem.colors.muted}>
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
             ))}
+          </Accordion>
+        )}
+      </ModernCard>
+
+      {/* Contact Support */}
+      <ModernCard 
+        title="Still Need Help?"
+        icon={<Mail className="w-6 h-6 text-blue-600" />}
+      >
+        <div className={designSystem.spacing.content}>
+          <p className={designSystem.typography.body}>
+            Can't find what you're looking for? Our support team is here to help you get the most out of Apartment Locator AI.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link to="/contact">
+              <Button className={`${designSystem.buttons.primary} gap-2`}>
+                <MessageCircle size={16} />
+                Contact Support
+              </Button>
+            </Link>
+            <Button variant="outline" className="gap-2">
+              <Video size={16} />
+              Schedule Demo
+            </Button>
           </div>
-
-          {/* FAQ Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Frequently Asked Questions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {filteredFaqs.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  No results found for "{searchQuery}". Try different keywords or browse our help categories above.
-                </div>
-              ) : (
-                <Accordion type="single" collapsible className="w-full">
-                  {filteredFaqs.map((faq) => (
-                    <AccordionItem key={faq.id} value={faq.id}>
-                      <AccordionTrigger className="text-left">
-                        {faq.question}
-                      </AccordionTrigger>
-                      <AccordionContent className="text-muted-foreground">
-                        {faq.answer}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Contact Support */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail size={20} />
-                Still Need Help?
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground">
-                Can't find what you're looking for? Our support team is here to help you get the most out of Apartment Locator AI.
-              </p>
-              <div className="flex gap-4">
-                <Button onClick={() => navigate('/contact')} className="gap-2">
-                  <MessageCircle size={16} />
-                  Contact Support
-                </Button>
-                <Button variant="outline" className="gap-2">
-                  <Video size={16} />
-                  Schedule Demo
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         </div>
-      </main>
-    </div>
+      </ModernCard>
+    </ModernPageLayout>
   );
 };
 
