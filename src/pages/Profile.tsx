@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Save, Settings, DollarSign } from 'lucide-react';
+import { User, Save, Settings, DollarSign, Shield, CheckCircle, AlertCircle, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,6 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { designSystem } from '@/lib/design-system';
+import ModernPageLayout from '@/components/modern/ModernPageLayout';
+import ModernCard from '@/components/modern/ModernCard';
 import Header from '@/components/Header';
 
 const Profile: React.FC = () => {
@@ -161,21 +163,67 @@ const Profile: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
       <Header />
       
-      {/* Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
-        <div className="space-y-6">
+      <ModernPageLayout
+        title="Profile Settings"
+        subtitle="Manage your account information and preferences"
+        showHeader={false}
+        headerContent={
+          <Button 
+            onClick={handleSave}
+            disabled={loading}
+            className={`${designSystem.buttons.primary} gap-2`}
+          >
+            <Save size={16} />
+            {loading ? 'Saving...' : 'Save Changes'}
+          </Button>
+        }
+      >
+        <div className={designSystem.spacing.content}>
+          {/* Profile Summary */}
+          <ModernCard 
+            className={`${designSystem.animations.entrance} mb-8`}
+            gradient
+          >
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+                <User className="w-8 h-8 text-white" />
+              </div>
+              <div className="flex-1">
+                <h2 className={`${designSystem.typography.subheadingLarge} mb-1`}>
+                  {profile.email || 'Your Profile'}
+                </h2>
+                <p className={designSystem.typography.body}>
+                  {profile.location || 'Location not set'}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                {profile.income_verified && (
+                  <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Verified
+                  </Badge>
+                )}
+                {profile.bank_verified && (
+                  <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                    <Shield className="w-3 h-3 mr-1" />
+                    Bank Connected
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </ModernCard>
+
           {/* Basic Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User size={20} />
-                Basic Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <ModernCard 
+            title="Basic Information"
+            icon={<User className="w-6 h-6 text-blue-600" />}
+            animate
+            className="mb-8"
+          >
+            <div className={designSystem.spacing.content}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="email">Email</Label>
@@ -206,18 +254,18 @@ const Profile: React.FC = () => {
                   rows={3}
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </ModernCard>
 
           {/* Employment Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings size={20} />
-                Employment Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <ModernCard 
+            title="Employment Information"
+            icon={<Settings className="w-6 h-6 text-purple-600" />}
+            animate
+            animationDelay={100}
+            className="mb-8"
+          >
+            <div className={designSystem.spacing.content}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="employment_type">Employment Type</Label>
@@ -264,19 +312,18 @@ const Profile: React.FC = () => {
                   </Select>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </ModernCard>
 
           {/* Financial Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign size={20} />
-                Financial Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ModernCard 
+            title="Financial Information"
+            icon={<DollarSign className="w-6 h-6 text-green-600" />}
+            animate
+            animationDelay={200}
+          >
+            <div className={designSystem.spacing.content}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <Label htmlFor="gross_income">Annual Gross Income</Label>
                   <Input
@@ -297,7 +344,7 @@ const Profile: React.FC = () => {
                     placeholder="1800"
                   />
                 </div>
-                <div>
+                <div className="md:col-span-2">
                   <Label htmlFor="credit_score">Credit Score Range</Label>
                   <Select value={profile.credit_score} onValueChange={(value) => setProfile({ ...profile, credit_score: value })}>
                     <SelectTrigger>
@@ -313,25 +360,33 @@ const Profile: React.FC = () => {
               </div>
               
               {/* Bank Verification Status */}
-              <div className="pt-4 border-t">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-base font-medium">Bank Account Verification</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Connect your bank account for instant income verification
+              <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CreditCard className="w-5 h-5 text-blue-600" />
+                      <Label className="text-base font-medium">Bank Account Verification</Label>
+                    </div>
+                    <p className={`text-sm ${designSystem.colors.muted}`}>
+                      Connect your bank account for instant income verification and better rental offers
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     {profile.bank_verified ? (
-                      <Badge variant="secondary">Verified</Badge>
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Verified
+                      </Badge>
                     ) : (
                       <Button 
                         variant="outline" 
+                        className="gap-2"
                         onClick={() => {
                           // This would trigger Plaid Link in a real implementation
                           handlePlaidSuccess('demo_token', { account_id: 'demo_account' });
                         }}
                       >
+                        <Shield className="w-4 h-4" />
                         Connect Bank
                       </Button>
                     )}
@@ -339,20 +394,27 @@ const Profile: React.FC = () => {
                 </div>
                 
                 {profile.income_verified && (
-                  <div className="mt-3 p-3 bg-accent rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">Income Verified</Badge>
-                      <span className="text-sm text-muted-foreground">
-                        Your income has been automatically verified through your bank account
-                      </span>
+                  <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-full bg-green-100 dark:bg-green-900/30">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-green-800 dark:text-green-400 mb-1">
+                          Income Verified Successfully
+                        </div>
+                        <div className={`text-sm ${designSystem.colors.muted}`}>
+                          Your income has been automatically verified through your bank account. This gives you a competitive advantage in rental applications.
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </ModernCard>
         </div>
-      </main>
+      </ModernPageLayout>
     </div>
   );
 };
