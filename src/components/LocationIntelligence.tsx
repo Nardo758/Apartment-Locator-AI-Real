@@ -74,24 +74,22 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* POI Management and Live Market Intel */}
-      <div className="flex flex-col lg:flex-row gap-6 mb-6 items-stretch min-h-[540px]">
-        {/* POI Management Panel - Equal width and height */}
-        <div className="w-full lg:w-1/2 flex flex-col">
-          <div className="w-full flex flex-col h-full min-h-[540px]">
-            <ModernPOIManager
-              pointsOfInterest={pointsOfInterest}
-              onAddPOI={addPOI}
-              onRemovePOI={removePOI}
-              onUpdatePriority={updatePOIPriority}
-              showModal={showPOIModal}
-              setShowModal={setShowPOIModal}
-            />
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* POI Management Panel */}
+        <div className="flex flex-col">
+          <ModernPOIManager
+            pointsOfInterest={pointsOfInterest}
+            onAddPOI={addPOI}
+            onRemovePOI={removePOI}
+            onUpdatePriority={updatePOIPriority}
+            showModal={showPOIModal}
+            setShowModal={setShowPOIModal}
+          />
         </div>
 
-        {/* Live Market Intel - Equal width and height */}
-        <div className="w-full lg:w-1/2 flex flex-col">
-          <Card className="bg-slate-800/30 border border-slate-700/30 w-full h-full flex flex-col min-h-[540px]">
+        {/* Live Market Intel */}
+        <div className="flex flex-col">
+          <Card className="bg-slate-800/30 border border-slate-700/30 h-full flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <div className="w-2 h-2 rounded-full bg-green-400"></div>
