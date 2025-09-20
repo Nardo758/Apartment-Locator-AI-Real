@@ -11,85 +11,98 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    // Ensure componentTagger returns a valid plugin or false
+    mode === 'development' && typeof componentTagger === 'function' ? componentTagger() : false,
   ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    // Ensure proper environment variables for client-side
+    'process.env.NODE_ENV': JSON.stringify(mode),
+  },
   build: {
-    // Increase chunk size warning limit to 1000kb (1MB)
     chunkSizeWarningLimit: 1000,
-    // Enable source maps for better debugging in production
     sourcemap: false,
-    // Optimize for production
     minify: 'esbuild',
-    // Enable CSS code splitting
     cssCodeSplit: true,
     rollupOptions: {
+      external: [
+        // Exclude server-only packages from client build
+        'puppeteer',
+        'cheerio',
+        'pg',
+        'fs',
+        'path',
+        'os'
+      ],
       output: {
         manualChunks: (id) => {
-          // Core React libraries
-          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
-            return 'react-vendor';
+          try {
+            // Safety check for valid module IDs
+            if (!id || typeof id !== 'string') return null;
+            
+            // Server-only libraries - exclude from client bundle
+            if (id.includes('puppeteer') || 
+                id.includes('cheerio') || 
+                id.includes('node:') ||
+                id.includes('/node_modules/pg/') ||
+                id.includes('/node_modules/fs/') ||
+                id.includes('/node_modules/os/')) {
+              return null;
+            }
+
+            // Client-safe chunking logic
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('@radix-ui/')) {
+              return 'ui-components';
+            }
+            if (id.includes('@supabase/') || id.includes('@tanstack/') || id.includes('axios')) {
+              return 'backend';
+            }
+            if (id.includes('react-hook-form') || id.includes('@hookform/') || id.includes('zod')) {
+              return 'forms';
+            }
+            if (id.includes('recharts') || id.includes('d3-')) {
+              return 'charts';
+            }
+            if (id.includes('date-fns') || id.includes('clsx') || id.includes('tailwind-merge') || 
+                id.includes('class-variance-authority') || id.includes('lucide-react')) {
+              return 'utils';
+            }
+            if (id.includes('node_modules') && !id.includes('puppeteer') && !id.includes('cheerio')) {
+              return 'vendor';
+            }
+            if (id.includes('src/pages/')) {
+              return 'pages';
+            }
+            if (id.includes('src/components/')) {
+              return 'components';
+            }
+            if (id.includes('src/lib/') && !id.includes('server')) {
+              return 'lib';
+            }
+            if (id.includes('src/hooks/')) {
+              return 'hooks';
+            }
+            return null;
+          } catch (error) {
+            console.warn('Error processing chunk:', id, error);
+            return null;
           }
-          
-          // All Radix UI components
-          if (id.includes('@radix-ui/')) {
-            return 'ui-components';
-          }
-          
-          // Backend & API libraries
-          if (id.includes('@supabase/') || id.includes('@tanstack/') || id.includes('axios')) {
-            return 'backend';
-          }
-          
-          // Form handling libraries
-          if (id.includes('react-hook-form') || id.includes('@hookform/') || id.includes('zod')) {
-            return 'forms';
-          }
-          
-          // Chart libraries
-          if (id.includes('recharts') || id.includes('d3-')) {
-            return 'charts';
-          }
-          
-          // Utility libraries
-          if (id.includes('date-fns') || id.includes('clsx') || id.includes('tailwind-merge') || 
-              id.includes('class-variance-authority') || id.includes('lucide-react')) {
-            return 'utils';
-          }
-          
-          // Large third-party libraries
-          if (id.includes('puppeteer') || id.includes('cheerio')) {
-            return 'scraping';
-          }
-          
-          // Node modules that are large
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-          
-          // Application code - split by feature
-          if (id.includes('src/pages/')) {
-            return 'pages';
-          }
-          
-          if (id.includes('src/components/')) {
-            return 'components';
-          }
-          
-          if (id.includes('src/lib/')) {
-            return 'lib';
-          }
-          
-          if (id.includes('src/hooks/')) {
-            return 'hooks';
-          }
-        }
-      }
-    }
+        },
+      },
+    },
+  },
+  // SSR configuration
+  ssr: {
+    noExternal: ['@radix-ui/*']
+  },
+  optimizeDeps: {
+    exclude: ['puppeteer', 'cheerio', 'pg']
   }
 }));

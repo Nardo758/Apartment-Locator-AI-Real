@@ -12,34 +12,42 @@ import { PaymentButton } from '@/components/PaymentButton';
 
 const Landing = () => {
   const navigate = useNavigate();
+  const [mounted, setMounted] = useState(false);
+  const [currentDemo, setCurrentDemo] = useState(0);
 
-  // Check if user is already authenticated
+  // SSR/hydration safe
+  useEffect(() => {
+    setMounted(true);
+    const interval = setInterval(() => {
+      setCurrentDemo((prev) => (prev + 1) % 2);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        navigate('/dashboard');
+        navigate("/dashboard");
       }
     };
     checkAuth();
   }, [navigate]);
-  const [currentDemo, setCurrentDemo] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentDemo(prev => (prev + 1) % 2);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
-    const target = document.querySelector(targetId);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (typeof window !== "undefined") {
+      const target = document.querySelector(targetId);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     }
   };
+
+  if (!mounted) {
+    // Prevent hydration mismatch for animated content
+    return <div style={{ minHeight: "100vh", background: "#0a0a0a" }} />;
+  }
 
   return (
     <div className="min-h-screen text-white overflow-x-hidden" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", lineHeight: 1.6, color: '#ffffff', background: '#0a0a0a' }}>
