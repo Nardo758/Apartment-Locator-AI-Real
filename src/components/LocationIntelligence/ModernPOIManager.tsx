@@ -307,7 +307,7 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                     onClick={handleSubmit} 
                     className={`${designSystem.buttons.primary} ${designSystem.radius.medium} h-12 px-8 flex-1 shadow-lg hover:shadow-xl`}
                   >
-                    <Plus className="w-4 h-4 mr-2" />
+                    <Plus className={`${designSystem.icons.medium} mr-2`} />
                     Add Point of Interest
                   </Button>
                   <Button 
@@ -326,8 +326,8 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
         {/* Enhanced Location Search Section */}
         <div className="mt-6 p-6 bg-white rounded-xl border border-slate-200 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center">
-              <Search className="w-4 h-4 text-white" />
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center">
+              <Search className={`${designSystem.icons.medium} text-white`} />
             </div>
             <div>
               <div className={`${designSystem.typography.labelLarge} text-slate-900 font-semibold`}>
@@ -340,7 +340,7 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
           </div>
           
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Search className={`absolute left-4 top-1/2 -translate-y-1/2 ${designSystem.icons.medium} text-slate-400`} />
             <Input
               placeholder="Try 'Downtown Austin' or '123 Main Street, Austin, TX'"
               value={searchLocation}
@@ -380,7 +380,7 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                   }}
                   className="p-6 bg-white border border-slate-200 rounded-xl hover:shadow-lg hover:border-blue-300 transition-all duration-200 group"
                 >
-                  <div className="text-3xl mb-3 group-hover:scale-110 transition-transform duration-200">
+                  <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-200">
                     {option.icon}
                   </div>
                   <div className={`${designSystem.typography.labelLarge} text-slate-900 mb-1`}>
@@ -411,8 +411,8 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                     
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-4 flex-1 min-w-0">
-                        <div className={`w-14 h-14 rounded-xl bg-gradient-to-r ${categoryConfig.gradient} flex items-center justify-center shadow-lg`}>
-                          <span className="text-2xl">{categoryConfig.icon}</span>
+                        <div className={`w-16 h-16 rounded-xl bg-gradient-to-r ${categoryConfig.gradient} flex items-center justify-center shadow-lg`}>
+                          <span className="text-3xl">{categoryConfig.icon}</span>
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className={`${designSystem.typography.heading5} text-slate-900 truncate`}>
@@ -431,9 +431,9 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                         size="sm"
                         variant="ghost"
                         onClick={() => onRemovePOI(poi.id)}
-                        className="w-8 h-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 hover:text-red-600 rounded-lg"
+                        className="w-10 h-10 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 hover:text-red-600 rounded-lg"
                       >
-                        <X className="w-4 h-4" />
+                        <X className={designSystem.icons.medium} />
                       </Button>
                     </div>
                     
@@ -446,7 +446,7 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                         </Badge>
                         
                         <div className="flex items-center gap-2 text-slate-600">
-                          <Clock className="w-4 h-4" />
+                          <Clock className={designSystem.icons.medium} />
                           <span className={`${designSystem.typography.labelSmall} font-medium`}>
                             {poi.maxTime} min
                           </span>
@@ -454,8 +454,8 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                       </div>
                       
                       <div className="flex items-center gap-2 text-slate-600">
-                        <Route className="w-4 h-4" />
-                        <span className="text-lg mr-1">{transportConfig.icon}</span>
+                        <Route className={designSystem.icons.medium} />
+                        <span className="text-xl mr-1">{transportConfig.icon}</span>
                         <span className={`${designSystem.typography.labelSmall} font-medium`}>
                           {transportConfig.label}
                         </span>
