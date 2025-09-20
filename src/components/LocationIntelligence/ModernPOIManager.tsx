@@ -395,7 +395,7 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
           </div>
         ) : (
           <div className="flex-1 flex flex-col">
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 flex-1">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1">
               {pointsOfInterest.map((poi) => {
                 const categoryConfig = getCategoryConfig(poi.category);
                 const priorityConfig = getPriorityConfig(poi.priority);
@@ -404,24 +404,24 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                 return (
                   <div 
                     key={poi.id} 
-                    className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-blue-300 transition-all duration-300 group relative overflow-hidden"
+                    className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-blue-300 transition-all duration-300 group relative overflow-hidden min-h-[180px]"
                   >
                     {/* Background gradient accent */}
                     <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${categoryConfig.gradient}`}></div>
                     
                     <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-4 flex-1 min-w-0">
-                        <div className={`w-16 h-16 rounded-xl bg-gradient-to-r ${categoryConfig.gradient} flex items-center justify-center shadow-lg`}>
+                      <div className="flex items-start gap-4 flex-1 min-w-0">
+                        <div className={`w-16 h-16 rounded-xl bg-gradient-to-r ${categoryConfig.gradient} flex items-center justify-center shadow-lg flex-shrink-0`}>
                           <span className="text-3xl">{categoryConfig.icon}</span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className={`${designSystem.typography.heading5} text-slate-900 truncate`}>
+                        <div className="flex-1 min-w-0 pt-1">
+                          <div className={`${designSystem.typography.heading5} text-slate-900 leading-tight mb-1`}>
                             {poi.name}
                           </div>
-                          <div className={`${designSystem.typography.bodySmall} text-slate-600 truncate`}>
+                          <div className={`${designSystem.typography.bodySmall} text-slate-600 leading-snug mb-2 line-clamp-2`}>
                             {poi.address}
                           </div>
-                          <div className={`${designSystem.typography.captionSmall} text-slate-500 mt-1`}>
+                          <div className={`${designSystem.typography.captionSmall} text-slate-500 font-medium`}>
                             {categoryConfig.label}
                           </div>
                         </div>
