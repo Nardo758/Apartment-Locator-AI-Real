@@ -857,7 +857,7 @@ const GenerateOffer = () => {
                 </div>
               </form>
             </Form>
-          )}
+        )}
       </ModernPageLayout>
     </div>
   );
