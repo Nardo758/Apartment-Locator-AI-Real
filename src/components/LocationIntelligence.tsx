@@ -24,7 +24,6 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   const [showPOIModal, setShowPOIModal] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
   const [searchSettings, setSearchSettings] = useState(null);
-  const [showSearchSettings, setShowSearchSettings] = useState(false);
   
   const {
     pointsOfInterest,
@@ -74,6 +73,24 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         </div>
       </div>
 
+      {/* Search Settings Section */}
+      <div className="w-full">
+        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Settings className="w-5 h-5 text-blue-400" />
+              Search Settings
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">Configure your apartment search criteria and preferences</p>
+          </CardHeader>
+          <CardContent>
+            <EnhancedSearchSettings 
+              onSettingsChange={setSearchSettings}
+            />
+          </CardContent>
+        </Card>
+      </div>
+
       {/* POI Management and Live Market Intel */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* POI Management Panel */}
@@ -89,24 +106,13 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         </div>
 
         {/* Live Market Intel - Two Column Layout */}
-        <div className="flex flex-col relative">
+        <div className="flex flex-col">
           <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-full flex flex-col">
             <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                  Live Market Intel
-                </CardTitle>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowSearchSettings(!showSearchSettings)}
-                  className="gap-2"
-                >
-                  <Settings className="w-4 h-4" />
-                  Search Settings
-                </Button>
-              </div>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                Live Market Intel
+              </CardTitle>
             </CardHeader>
             <CardContent className="flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -181,33 +187,6 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
               </div>
             </CardContent>
           </Card>
-
-          {/* Search Settings Floating Panel */}
-          {showSearchSettings && (
-            <div className="absolute top-16 right-0 z-50 w-80 animate-fade-in">
-              <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Search Settings</CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowSearchSettings(false)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <p className="text-sm text-muted-foreground">Configure your apartment search criteria and preferences</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <EnhancedSearchSettings 
-                    onSettingsChange={setSearchSettings}
-                  />
-                </CardContent>
-              </Card>
-            </div>
-          )}
         </div>
       </div>
 
