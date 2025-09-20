@@ -3,6 +3,8 @@ import { ModernDashboard } from './ModernDashboard';
 import { MobileDashboard } from './MobileDashboard';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+// Fixed: Use useIsMobile instead of useMediaQuery
+
 interface ResponsiveDashboardProps {
   className?: string;
   userRole?: 'owner' | 'manager' | 'analyst';
