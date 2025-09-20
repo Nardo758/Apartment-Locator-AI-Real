@@ -289,7 +289,8 @@ const GenerateOffer = () => {
                 Back to Dashboard
               </Button>
             </div>
-          ) : (
+          </ModernCard>
+        ) : (
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleGenerateOffer)} className="space-y-8">
                 {/* Document Header */}
@@ -857,7 +858,6 @@ const GenerateOffer = () => {
               </form>
             </Form>
           )}
-        </div>
       </ModernPageLayout>
     </div>
   );
