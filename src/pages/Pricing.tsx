@@ -1,6 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { PricingCard } from '@/components/PricingCard';
-import { Shield } from 'lucide-react';
+import { Shield, ArrowLeft, CheckCircle, TrendingUp, DollarSign, Brain } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { designSystem } from '@/lib/design-system';
+import ModernPageLayout from '@/components/modern/ModernPageLayout';
+import GradientSection from '@/components/modern/GradientSection';
+import ModernCard from '@/components/modern/ModernCard';
 
 const Pricing = () => {
   const plans = [
@@ -56,28 +62,62 @@ const Pricing = () => {
     }
   ];
 
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-16">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent mb-6">
-            Choose Your Plan
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            One-time payment for AI-powered apartment hunting with built-in negotiation advantages
-          </p>
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <Shield className="h-4 w-4 text-primary" />
-            <span>30-day money-back guarantee</span>
-          </div>
-        </div>
+  const trustMetrics = [
+    {
+      icon: TrendingUp,
+      title: "Success Rate",
+      value: "85%",
+      description: "of users find apartments 40% faster",
+      color: "text-green-600"
+    },
+    {
+      icon: DollarSign,
+      title: "Money Saved",
+      value: "$2,400",
+      description: "average savings per year",
+      color: "text-blue-600"
+    },
+    {
+      icon: Brain,
+      title: "AI Powered",
+      value: "10,000+",
+      description: "properties analyzed by advanced algorithms",
+      color: "text-purple-600"
+    }
+  ];
 
-        {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
-          {plans.map((plan) => (
+  return (
+    <ModernPageLayout 
+      title="Choose Your Plan"
+      subtitle="One-time payment for AI-powered apartment hunting with built-in negotiation advantages"
+      headerContent={
+        <Link to="/">
+          <Button variant="outline" size="sm" className="gap-2">
+            <ArrowLeft size={16} />
+            Back to Home
+          </Button>
+        </Link>
+      }
+    >
+      {/* Trust Badge */}
+      <div className={`${designSystem.animations.entrance} text-center mb-12`}>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+          <Shield className="h-4 w-4 text-green-600" />
+          <span className="text-sm font-medium text-green-700 dark:text-green-400">
+            30-day money-back guarantee
+          </span>
+        </div>
+      </div>
+
+      {/* Pricing Cards */}
+      <div className={`${designSystem.layouts.gridThree} ${designSystem.spacing.marginLarge} max-w-6xl mx-auto`}>
+        {plans.map((plan, index) => (
+          <div
+            key={plan.title}
+            className={designSystem.animations.entrance}
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
             <PricingCard
-              key={plan.title}
               title={plan.title}
               price={plan.price}
               description={plan.description}
@@ -86,33 +126,116 @@ const Pricing = () => {
               isPopular={plan.isPopular}
               accessDays={plan.accessDays}
             />
-          ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Trust Indicators */}
+      <GradientSection variant="feature" className="mt-20">
+        <div className="text-center mb-12">
+          <h2 className={`${designSystem.typography.heading} mb-4`}>
+            Why Choose Apartment Locator AI?
+          </h2>
+          <p className={designSystem.typography.subheading}>
+            Join thousands of successful renters who've transformed their apartment hunting experience
+          </p>
         </div>
 
-        {/* Trust Indicators */}
-        <div className="text-center">
-          <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg p-6 max-w-2xl mx-auto">
-            <h3 className="text-lg font-semibold text-foreground mb-4">
-              Why Choose AI Apartment Locator?
+        <div className={`${designSystem.layouts.gridThree} max-w-4xl mx-auto`}>
+          {trustMetrics.map((metric, index) => (
+            <ModernCard
+              key={metric.title}
+              animate
+              animationDelay={index * 100}
+              hover
+              className="text-center"
+            >
+              <div className="flex flex-col items-center space-y-4">
+                <div className={`p-4 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20`}>
+                  <metric.icon className={`${designSystem.icons.large} ${metric.color}`} />
+                </div>
+                <div>
+                  <div className={`text-3xl font-bold ${metric.color} mb-1`}>
+                    {metric.value}
+                  </div>
+                  <div className={`font-semibold ${designSystem.colors.dark} mb-2`}>
+                    {metric.title}
+                  </div>
+                  <p className={designSystem.typography.body}>
+                    {metric.description}
+                  </p>
+                </div>
+              </div>
+            </ModernCard>
+          ))}
+        </div>
+      </GradientSection>
+
+      {/* Additional Features */}
+      <GradientSection variant="content" className="mt-20">
+        <div className="max-w-4xl mx-auto">
+          <ModernCard gradient className="text-center p-8">
+            <h3 className={`${designSystem.typography.subheadingLarge} mb-6`}>
+              What Makes Our AI Different?
             </h3>
-            <div className="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-              <div>
-                <div className="font-medium text-primary mb-1">🏆 Success Rate</div>
-                <div>85% of users find apartments 40% faster</div>
+            
+            <div className="grid md:grid-cols-2 gap-8 text-left">
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold mb-1">Negotiation Intelligence</h4>
+                    <p className={designSystem.typography.body}>
+                      AI analyzes landlord behavior patterns and market conditions to suggest optimal negotiation strategies
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold mb-1">Hidden Inventory Discovery</h4>
+                    <p className={designSystem.typography.body}>
+                      Access off-market listings and properties before they hit major platforms
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <div className="font-medium text-primary mb-1">💰 Money Saved</div>
-                <div>Average savings of $2,400 per year</div>
-              </div>
-              <div>
-                <div className="font-medium text-primary mb-1">🤖 AI Powered</div>
-                <div>Advanced algorithms analyze 10,000+ properties</div>
+              
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold mb-1">Personalized Matching</h4>
+                    <p className={designSystem.typography.body}>
+                      Machine learning algorithms understand your preferences and lifestyle needs
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold mb-1">Real-time Market Data</h4>
+                    <p className={designSystem.typography.body}>
+                      Stay ahead with live pricing trends, vacancy rates, and market insights
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+
+            <div className="mt-8">
+              <Link to="/auth">
+                <Button className={`${designSystem.buttons.primary} ${designSystem.buttons.large}`}>
+                  Start Your Free Trial Today
+                </Button>
+              </Link>
+            </div>
+          </ModernCard>
         </div>
-      </div>
-    </div>
+      </GradientSection>
+    </ModernPageLayout>
   );
 };
 
