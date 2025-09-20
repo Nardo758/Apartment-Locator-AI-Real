@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { EnhancedPricingDashboard } from '@/components/EnhancedPricingDashboard';
 import { RentVsBuyAnalysis } from '@/components/RentVsBuyAnalysis';
+import { designSystem, createCard, createHeading, createStatusBadge } from '@/lib/design-system';
 
 interface ModernDashboardProps {
   className?: string;
@@ -130,23 +131,23 @@ export const ModernDashboard: React.FC<ModernDashboardProps> = ({
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 ${className}`}>
-      {/* Modern Header */}
-      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+    <div className={`${designSystem.backgrounds.page} ${className}`}>
+      {/* Enhanced Header */}
+      <div className={`sticky top-0 z-50 ${createCard('default', false)} border-b ${designSystem.colors.border} backdrop-blur-lg`}>
+        <div className={`${designSystem.layouts.container} ${designSystem.spacing.paddingMedium}`}>
+          <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.gapMedium} flex-col lg:flex-row`}>
+            <div className={designSystem.layouts.stackSmall}>
+              <h1 className={`${designSystem.typography.heading1} ${designSystem.colors.text}`}>
                 Revenue Intelligence Hub
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className={`${designSystem.typography.bodyMuted}`}>
                 AI-powered pricing optimization and market analysis
               </p>
             </div>
             
-            <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" className="gap-2">
-                <Filter className="w-4 h-4" />
+            <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapSmall}`}>
+              <Button variant="outline" size="sm" className={`${designSystem.buttons.outline} ${designSystem.spacing.gapSmall}`}>
+                <Filter className={designSystem.icons.small} />
                 Filters
               </Button>
               
@@ -155,251 +156,275 @@ export const ModernDashboard: React.FC<ModernDashboardProps> = ({
                 size="sm" 
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="gap-2"
+                className={`${designSystem.buttons.outline} ${designSystem.spacing.gapSmall}`}
               >
-                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`${designSystem.icons.small} ${refreshing ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
               
-              <Button variant="outline" size="sm" className="gap-2 relative">
-                <Bell className="w-4 h-4" />
+              <Button variant="outline" size="sm" className={`${designSystem.buttons.outline} ${designSystem.spacing.gapSmall} relative`}>
+                <Bell className={designSystem.icons.small} />
                 {notifications > 0 && (
-                  <Badge className="absolute -top-2 -right-2 w-5 h-5 p-0 flex items-center justify-center bg-red-500">
+                  <Badge className={`absolute -top-2 -right-2 w-5 h-5 p-0 flex items-center justify-center ${createStatusBadge('error')}`}>
                     {notifications}
                   </Badge>
                 )}
               </Button>
               
-              <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4" />
+              <Button variant="outline" size="sm" className={designSystem.buttons.outline}>
+                <Settings className={designSystem.icons.small} />
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6 space-y-6">
-        {/* Key Metrics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className={`${designSystem.layouts.container} ${designSystem.spacing.content}`}>
+        {/* Enhanced Key Metrics Cards */}
+        <div className={`${designSystem.layouts.gridFour} ${designSystem.spacing.gapMedium}`}>
           {/* Total Revenue */}
-          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-none shadow-lg hover:shadow-xl transition-all">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium opacity-90">Total Revenue</CardTitle>
-              <DollarSign className="h-4 w-4 opacity-90" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(metrics.totalRevenue)}</div>
-              <div className="flex items-center mt-2 text-sm opacity-90">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                <span>+{metrics.monthlyGrowth}% from last month</span>
+          <div className={`bg-gradient-to-br from-blue-600 to-blue-700 text-white ${designSystem.radius.large} ${designSystem.shadows.large} ${designSystem.animations.hoverCard} ${designSystem.spacing.cardPadding}`}>
+            <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.itemsSmall}`}>
+              <div className={designSystem.layouts.stackSmall}>
+                <p className={`${designSystem.typography.labelSmall} text-blue-100`}>Total Revenue</p>
+                <div className={`${designSystem.typography.heading2} text-white font-bold`}>
+                  {formatCurrency(metrics.totalRevenue)}
+                </div>
+                <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapSmall} items-center text-blue-100`}>
+                  <TrendingUp className={designSystem.icons.small} />
+                  <span className={designSystem.typography.captionSmall}>+{metrics.monthlyGrowth}% from last month</span>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+              <DollarSign className={`${designSystem.icons.large} text-blue-200`} />
+            </div>
+          </div>
 
           {/* Occupancy Rate */}
-          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-none shadow-lg hover:shadow-xl transition-all">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium opacity-90">Occupancy Rate</CardTitle>
-              <Home className="h-4 w-4 opacity-90" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.occupancyRate}%</div>
-              <Progress value={metrics.occupancyRate} className="mt-2 bg-green-400/30" />
-            </CardContent>
-          </Card>
+          <div className={`bg-gradient-to-br from-green-600 to-green-700 text-white ${designSystem.radius.large} ${designSystem.shadows.large} ${designSystem.animations.hoverCard} ${designSystem.spacing.cardPadding}`}>
+            <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.itemsSmall}`}>
+              <div className={designSystem.layouts.stackSmall}>
+                <p className={`${designSystem.typography.labelSmall} text-green-100`}>Occupancy Rate</p>
+                <div className={`${designSystem.typography.heading2} text-white font-bold`}>
+                  {metrics.occupancyRate}%
+                </div>
+                <Progress value={metrics.occupancyRate} className="mt-2 bg-green-400/30" />
+              </div>
+              <Home className={`${designSystem.icons.large} text-green-200`} />
+            </div>
+          </div>
 
           {/* Average Rent */}
-          <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-none shadow-lg hover:shadow-xl transition-all">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium opacity-90">Average Rent</CardTitle>
-              <Target className="h-4 w-4 opacity-90" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(metrics.averageRent)}</div>
-              <div className="flex items-center mt-2 text-sm opacity-90">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                <span>+2.1% vs market avg</span>
+          <div className={`bg-gradient-to-br from-indigo-600 to-indigo-700 text-white ${designSystem.radius.large} ${designSystem.shadows.large} ${designSystem.animations.hoverCard} ${designSystem.spacing.cardPadding}`}>
+            <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.itemsSmall}`}>
+              <div className={designSystem.layouts.stackSmall}>
+                <p className={`${designSystem.typography.labelSmall} text-indigo-100`}>Average Rent</p>
+                <div className={`${designSystem.typography.heading2} text-white font-bold`}>
+                  {formatCurrency(metrics.averageRent)}
+                </div>
+                <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapSmall} items-center text-indigo-100`}>
+                  <TrendingUp className={designSystem.icons.small} />
+                  <span className={designSystem.typography.captionSmall}>+2.1% vs market avg</span>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+              <Target className={`${designSystem.icons.large} text-indigo-200`} />
+            </div>
+          </div>
 
           {/* Pending Actions */}
-          <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-none shadow-lg hover:shadow-xl transition-all">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium opacity-90">Pending Actions</CardTitle>
-              <Activity className="h-4 w-4 opacity-90" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.pendingActions}</div>
-              <div className="text-sm opacity-90 mt-2">
-                {metrics.pendingActions > 10 ? 'High priority' : 'Normal priority'}
+          <div className={`bg-gradient-to-br from-amber-600 to-amber-700 text-white ${designSystem.radius.large} ${designSystem.shadows.large} ${designSystem.animations.hoverCard} ${designSystem.spacing.cardPadding}`}>
+            <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.itemsSmall}`}>
+              <div className={designSystem.layouts.stackSmall}>
+                <p className={`${designSystem.typography.labelSmall} text-amber-100`}>Pending Actions</p>
+                <div className={`${designSystem.typography.heading2} text-white font-bold`}>
+                  {metrics.pendingActions}
+                </div>
+                <div className={`${designSystem.typography.captionSmall} text-amber-100 mt-2`}>
+                  {metrics.pendingActions > 10 ? 'High priority' : 'Normal priority'}
+                </div>
               </div>
-            </CardContent>
-          </Card>
+              <Activity className={`${designSystem.icons.large} text-amber-200`} />
+            </div>
+          </div>
         </div>
 
-        {/* Secondary Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="hover:shadow-lg transition-all">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Portfolio Value</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(metrics.portfolioValue)}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Total asset value
-              </p>
-            </CardContent>
-          </Card>
+        {/* Enhanced Secondary Metrics */}
+        <div className={`${designSystem.layouts.gridThree} ${designSystem.spacing.gapMedium}`}>
+          <div className={`${createCard('default', true)} ${designSystem.spacing.cardPadding}`}>
+            <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.itemsSmall}`}>
+              <div className={designSystem.layouts.stackSmall}>
+                <p className={`${designSystem.typography.label} ${designSystem.colors.textMuted}`}>Portfolio Value</p>
+                <div className={`${designSystem.typography.heading3} ${designSystem.colors.text}`}>
+                  {formatCurrency(metrics.portfolioValue)}
+                </div>
+                <p className={`${designSystem.typography.captionSmall} ${designSystem.colors.textLight}`}>
+                  Total asset value
+                </p>
+              </div>
+              <BarChart3 className={`${designSystem.icons.medium} ${designSystem.colors.textSubtle}`} />
+            </div>
+          </div>
 
-          <Card className="hover:shadow-lg transition-all">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Units Managed</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.unitsManaged}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Across all properties
-              </p>
-            </CardContent>
-          </Card>
+          <div className={`${createCard('default', true)} ${designSystem.spacing.cardPadding}`}>
+            <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.itemsSmall}`}>
+              <div className={designSystem.layouts.stackSmall}>
+                <p className={`${designSystem.typography.label} ${designSystem.colors.textMuted}`}>Units Managed</p>
+                <div className={`${designSystem.typography.heading3} ${designSystem.colors.text}`}>
+                  {metrics.unitsManaged}
+                </div>
+                <p className={`${designSystem.typography.captionSmall} ${designSystem.colors.textLight}`}>
+                  Across all properties
+                </p>
+              </div>
+              <Users className={`${designSystem.icons.medium} ${designSystem.colors.textSubtle}`} />
+            </div>
+          </div>
 
-          <Card className="hover:shadow-lg transition-all">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.activeListings}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Currently marketing
-              </p>
-            </CardContent>
-          </Card>
+          <div className={`${createCard('default', true)} ${designSystem.spacing.cardPadding}`}>
+            <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.itemsSmall}`}>
+              <div className={designSystem.layouts.stackSmall}>
+                <p className={`${designSystem.typography.label} ${designSystem.colors.textMuted}`}>Active Listings</p>
+                <div className={`${designSystem.typography.heading3} ${designSystem.colors.text}`}>
+                  {metrics.activeListings}
+                </div>
+                <p className={`${designSystem.typography.captionSmall} ${designSystem.colors.textLight}`}>
+                  Currently marketing
+                </p>
+              </div>
+              <MapPin className={`${designSystem.icons.medium} ${designSystem.colors.textSubtle}`} />
+            </div>
+          </div>
         </div>
 
-        {/* Main Content Tabs */}
+        {/* Enhanced Main Content Tabs */}
         <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-6">
-            <TabsTrigger value="overview" className="gap-2">
-              <BarChart3 className="w-4 h-4" />
+          <TabsList className={`grid w-full grid-cols-2 lg:grid-cols-4 ${designSystem.spacing.marginMedium} ${designSystem.backgrounds.card} ${designSystem.radius.large}`}>
+            <TabsTrigger value="overview" className={`${designSystem.spacing.gapSmall} ${designSystem.typography.label}`}>
+              <BarChart3 className={designSystem.icons.small} />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="pricing" className="gap-2">
-              <Brain className="w-4 h-4" />
+            <TabsTrigger value="pricing" className={`${designSystem.spacing.gapSmall} ${designSystem.typography.label}`}>
+              <Brain className={designSystem.icons.small} />
               AI Pricing
             </TabsTrigger>
-            <TabsTrigger value="rent-vs-buy" className="gap-2">
-              <Target className="w-4 h-4" />
+            <TabsTrigger value="rent-vs-buy" className={`${designSystem.spacing.gapSmall} ${designSystem.typography.label}`}>
+              <Target className={designSystem.icons.small} />
               Rent vs Buy
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-2">
-              <Activity className="w-4 h-4" />
+            <TabsTrigger value="analytics" className={`${designSystem.spacing.gapSmall} ${designSystem.typography.label}`}>
+              <Activity className={designSystem.icons.small} />
               Analytics
             </TabsTrigger>
           </TabsList>
 
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Quick Actions */}
-              <Card className="hover:shadow-lg transition-all">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-yellow-500" />
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button className="w-full justify-start gap-2" variant="outline">
-                    <Eye className="w-4 h-4" />
+          {/* Enhanced Overview Tab */}
+          <TabsContent value="overview" className={designSystem.spacing.content}>
+            <div className={`${designSystem.layouts.gridTwo} ${designSystem.spacing.gapLarge}`}>
+              {/* Enhanced Quick Actions */}
+              <div className={`${createCard('primary', true)} ${designSystem.spacing.cardPadding}`}>
+                <div className={`${designSystem.layouts.stackSmall} ${designSystem.spacing.marginSmall}`}>
+                  <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapSmall} items-center`}>
+                    <Zap className={`${designSystem.icons.medium} ${designSystem.colors.warning}`} />
+                    <h3 className={`${designSystem.typography.heading5} ${designSystem.colors.text}`}>Quick Actions</h3>
+                  </div>
+                </div>
+                <div className={designSystem.spacing.content}>
+                  <Button className={`w-full justify-start ${designSystem.spacing.gapSmall} ${designSystem.buttons.outline}`} variant="outline">
+                    <Eye className={designSystem.icons.small} />
                     Review Pricing Recommendations
                   </Button>
-                  <Button className="w-full justify-start gap-2" variant="outline">
-                    <Shield className="w-4 h-4" />
+                  <Button className={`w-full justify-start ${designSystem.spacing.gapSmall} ${designSystem.buttons.outline}`} variant="outline">
+                    <Shield className={designSystem.icons.small} />
                     Check Risk Assessments
                   </Button>
-                  <Button className="w-full justify-start gap-2" variant="outline">
-                    <Calendar className="w-4 h-4" />
+                  <Button className={`w-full justify-start ${designSystem.spacing.gapSmall} ${designSystem.buttons.outline}`} variant="outline">
+                    <Calendar className={designSystem.icons.small} />
                     Schedule Market Analysis
                   </Button>
-                  <Button className="w-full justify-start gap-2" variant="outline">
-                    <Users className="w-4 h-4" />
+                  <Button className={`w-full justify-start ${designSystem.spacing.gapSmall} ${designSystem.buttons.outline}`} variant="outline">
+                    <Users className={designSystem.icons.small} />
                     Generate Tenant Reports
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              {/* Recent Activity */}
-              <Card className="hover:shadow-lg transition-all">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-blue-500" />
-                    Recent Activity
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                    <div className="text-sm">
-                      <div className="font-medium">Unit 301 - Rent Optimized</div>
-                      <div className="text-muted-foreground">Increased from $2,800 to $2,950 • 2 hours ago</div>
+              {/* Enhanced Recent Activity */}
+              <div className={`${createCard('default', true)} ${designSystem.spacing.cardPadding}`}>
+                <div className={`${designSystem.layouts.stackSmall} ${designSystem.spacing.marginSmall}`}>
+                  <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapSmall} items-center`}>
+                    <Activity className={`${designSystem.icons.medium} ${designSystem.colors.info}`} />
+                    <h3 className={`${designSystem.typography.heading5} ${designSystem.colors.text}`}>Recent Activity</h3>
+                  </div>
+                </div>
+                <div className={designSystem.spacing.content}>
+                  <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapSmall} items-start`}>
+                    <div className={`w-2 h-2 ${designSystem.colors.success} rounded-full mt-2 flex-shrink-0`}></div>
+                    <div className={designSystem.layouts.stackTight}>
+                      <div className={`${designSystem.typography.bodySmall} ${designSystem.colors.text} font-medium`}>
+                        Unit 301 - Rent Optimized
+                      </div>
+                      <div className={`${designSystem.typography.captionSmall} ${designSystem.colors.textLight}`}>
+                        Increased from $2,800 to $2,950 • 2 hours ago
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                    <div className="text-sm">
-                      <div className="font-medium">Market Analysis Complete</div>
-                      <div className="text-muted-foreground">Downtown district report ready • 4 hours ago</div>
+                  <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapSmall} items-start`}>
+                    <div className={`w-2 h-2 ${designSystem.colors.info} rounded-full mt-2 flex-shrink-0`}></div>
+                    <div className={designSystem.layouts.stackTight}>
+                      <div className={`${designSystem.typography.bodySmall} ${designSystem.colors.text} font-medium`}>
+                        Market Analysis Complete
+                      </div>
+                      <div className={`${designSystem.typography.captionSmall} ${designSystem.colors.textLight}`}>
+                        Downtown district report ready • 4 hours ago
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
-                    <div className="text-sm">
-                      <div className="font-medium">Risk Alert - Unit 205</div>
-                      <div className="text-muted-foreground">45+ days on market, action needed • 6 hours ago</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Market Insights */}
-            <Card className="hover:shadow-lg transition-all">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="w-5 h-5 text-purple-500" />
-                  AI Market Insights
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <div className="text-sm text-muted-foreground">Market Trend</div>
-                    <div className="text-2xl font-bold text-green-600">Bullish</div>
-                    <div className="text-sm">
-                      Rental demand up 12% this quarter with limited inventory driving price growth
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="text-sm text-muted-foreground">Optimal Pricing Window</div>
-                    <div className="text-2xl font-bold text-blue-600">2-3 Weeks</div>
-                    <div className="text-sm">
-                      Current market conditions favor slight price increases for quality units
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="text-sm text-muted-foreground">Competitor Activity</div>
-                    <div className="text-2xl font-bold text-orange-600">Moderate</div>
-                    <div className="text-sm">
-                      3 new listings in target area, average 15 days on market
+                  <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapSmall} items-start`}>
+                    <div className={`w-2 h-2 ${designSystem.colors.warning} rounded-full mt-2 flex-shrink-0`}></div>
+                    <div className={designSystem.layouts.stackTight}>
+                      <div className={`${designSystem.typography.bodySmall} ${designSystem.colors.text} font-medium`}>
+                        Risk Alert - Unit 205
+                      </div>
+                      <div className={`${designSystem.typography.captionSmall} ${designSystem.colors.textLight}`}>
+                        45+ days on market, action needed • 6 hours ago
+                      </div>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+
+            {/* Enhanced Market Insights */}
+            <div className={`${createCard('secondary', true)} ${designSystem.spacing.cardPaddingLarge}`}>
+              <div className={`${designSystem.layouts.stackSmall} ${designSystem.spacing.marginMedium}`}>
+                <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapSmall} items-center`}>
+                  <Brain className={`${designSystem.icons.medium} ${designSystem.colors.secondary}`} />
+                  <h3 className={`${designSystem.typography.heading4} ${designSystem.colors.text}`}>AI Market Insights</h3>
+                </div>
+              </div>
+              <div className={`${designSystem.layouts.gridThree} ${designSystem.spacing.gapLarge}`}>
+                <div className={designSystem.layouts.stackSmall}>
+                  <div className={`${designSystem.typography.labelMuted} ${designSystem.colors.textLight}`}>Market Trend</div>
+                  <div className={`${designSystem.typography.heading3} ${designSystem.colors.success}`}>Bullish</div>
+                  <div className={`${designSystem.typography.bodySmall} ${designSystem.colors.textMuted}`}>
+                    Rental demand up 12% this quarter with limited inventory driving price growth
+                  </div>
+                </div>
+                <div className={designSystem.layouts.stackSmall}>
+                  <div className={`${designSystem.typography.labelMuted} ${designSystem.colors.textLight}`}>Optimal Pricing Window</div>
+                  <div className={`${designSystem.typography.heading3} ${designSystem.colors.info}`}>2-3 Weeks</div>
+                  <div className={`${designSystem.typography.bodySmall} ${designSystem.colors.textMuted}`}>
+                    Current market conditions favor slight price increases for quality units
+                  </div>
+                </div>
+                <div className={designSystem.layouts.stackSmall}>
+                  <div className={`${designSystem.typography.labelMuted} ${designSystem.colors.textLight}`}>Competitor Activity</div>
+                  <div className={`${designSystem.typography.heading3} ${designSystem.colors.warning}`}>Moderate</div>
+                  <div className={`${designSystem.typography.bodySmall} ${designSystem.colors.textMuted}`}>
+                    3 new listings in target area, average 15 days on market
+                  </div>
+                </div>
+              </div>
+            </div>
           </TabsContent>
 
           {/* AI Pricing Tab */}

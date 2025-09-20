@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { usePricingIntelligence } from '@/hooks/usePricingIntelligence';
 import type { ApartmentIQData } from '@/lib/pricing-engine';
+import { designSystem, createCard, createHeading, createStatusBadge } from '@/lib/design-system';
 
 // Sample data to demonstrate the advanced pricing capabilities
 const mockProperties = [
@@ -204,131 +205,133 @@ export const AdvancedPricingDemo: React.FC = () => {
   const { recommendations, loading } = usePricingIntelligence(mockProperties);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-gray-900">
+    <div className={`${designSystem.backgrounds.page} ${designSystem.spacing.paddingMedium}`}>
+      <div className={`${designSystem.layouts.container} ${designSystem.spacing.content}`}>
+        {/* Enhanced Header */}
+        <div className={`text-center ${designSystem.spacing.contentLarge} ${designSystem.spacing.marginLarge}`}>
+          <h1 className={`${designSystem.typography.hero} ${designSystem.colors.text} ${designSystem.spacing.marginSmall}`}>
             Advanced Pricing Intelligence
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className={`${designSystem.typography.heroSubtitle} ${designSystem.layouts.containerTight} mx-auto ${designSystem.spacing.marginMedium}`}>
             AI-powered pricing recommendations with specific dollar amounts, confidence scores, 
             urgency levels, and comprehensive revenue impact analysis
           </p>
-          <div className="flex justify-center space-x-4">
-            <Badge variant="outline" className="text-sm">
+          <div className={`${designSystem.layouts.flexWrap} justify-center ${designSystem.spacing.gapMedium}`}>
+            <Badge variant="outline" className={`${designSystem.typography.captionSmall} ${createStatusBadge('info')}`}>
               Market Velocity Adjustments
             </Badge>
-            <Badge variant="outline" className="text-sm">
+            <Badge variant="outline" className={`${designSystem.typography.captionSmall} ${createStatusBadge('success')}`}>
               Progressive DOM Penalties
             </Badge>
-            <Badge variant="outline" className="text-sm">
+            <Badge variant="outline" className={`${designSystem.typography.captionSmall} ${createStatusBadge('warning')}`}>
               Smart Lease Timelines
             </Badge>
-            <Badge variant="outline" className="text-sm">
+            <Badge variant="outline" className={`${designSystem.typography.captionSmall} ${createStatusBadge('info')}`}>
               Revenue Impact Analysis
             </Badge>
           </div>
         </div>
 
-        {/* Key Features Overview */}
-        <Card>
-          <CardHeader>
-            <CardTitle>New Pricing Capabilities</CardTitle>
-            <CardDescription>
+        {/* Enhanced Key Features Overview */}
+        <div className={`${createCard('primary', true)} ${designSystem.spacing.cardPaddingLarge}`}>
+          <div className={`${designSystem.layouts.stackSmall} ${designSystem.spacing.marginMedium}`}>
+            <h2 className={`${designSystem.typography.heading3} ${designSystem.colors.text}`}>New Pricing Capabilities</h2>
+            <p className={`${designSystem.typography.bodyMuted}`}>
               Your algorithm now tells users exactly what to charge, when to act, and what financial impact to expect
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <h3 className="font-semibold text-green-700">Market Velocity Adjustments</h3>
-                <p className="text-sm text-gray-600">
-                  Hot markets get 5% premium, stale markets get 8% discount
-                </p>
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-semibold text-orange-700">Days-on-Market Penalties</h3>
-                <p className="text-sm text-gray-600">
-                  Progressive penalties from 2% at week 2 up to 20% after 2 months
-                </p>
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-semibold text-blue-700">Lease Probability Integration</h3>
-                <p className="text-sm text-gray-600">
-                  Units with &lt;30% probability get 5% reduction
-                </p>
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-semibold text-purple-700">Smart Timeline Estimates</h3>
-                <p className="text-sm text-gray-600">
-                  Predicts 40% faster leasing with 5%+ rent cuts
-                </p>
-              </div>
+            </p>
+          </div>
+          <div className={`${designSystem.layouts.gridFour} ${designSystem.spacing.gapLarge}`}>
+            <div className={`${designSystem.layouts.stackSmall} ${designSystem.spacing.cardPaddingSmall} ${designSystem.backgrounds.cardSuccess} ${designSystem.radius.medium}`}>
+              <h3 className={`${designSystem.typography.heading6} ${designSystem.colors.success}`}>Market Velocity Adjustments</h3>
+              <p className={`${designSystem.typography.bodySmall} ${designSystem.colors.textMuted}`}>
+                Hot markets get 5% premium, stale markets get 8% discount
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            <div className={`${designSystem.layouts.stackSmall} ${designSystem.spacing.cardPaddingSmall} ${designSystem.backgrounds.cardWarning} ${designSystem.radius.medium}`}>
+              <h3 className={`${designSystem.typography.heading6} ${designSystem.colors.warning}`}>Days-on-Market Penalties</h3>
+              <p className={`${designSystem.typography.bodySmall} ${designSystem.colors.textMuted}`}>
+                Progressive penalties from 2% at week 2 up to 20% after 2 months
+              </p>
+            </div>
+            <div className={`${designSystem.layouts.stackSmall} ${designSystem.spacing.cardPaddingSmall} ${designSystem.backgrounds.card} ${designSystem.radius.medium} border-2 border-blue-200`}>
+              <h3 className={`${designSystem.typography.heading6} ${designSystem.colors.info}`}>Lease Probability Integration</h3>
+              <p className={`${designSystem.typography.bodySmall} ${designSystem.colors.textMuted}`}>
+                Units with &lt;30% probability get 5% reduction
+              </p>
+            </div>
+            <div className={`${designSystem.layouts.stackSmall} ${designSystem.spacing.cardPaddingSmall} ${designSystem.backgrounds.card} ${designSystem.radius.medium} border-2 border-purple-200`}>
+              <h3 className={`${designSystem.typography.heading6} ${designSystem.colors.secondary}`}>Smart Timeline Estimates</h3>
+              <p className={`${designSystem.typography.bodySmall} ${designSystem.colors.textMuted}`}>
+                Predicts 40% faster leasing with 5%+ rent cuts
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Portfolio Dashboard */}
         <AdvancedPricingDashboard properties={mockProperties} />
 
-        {/* Individual Recommendation Cards */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Individual Unit Recommendations
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Enhanced Individual Recommendation Cards */}
+        <div className={designSystem.spacing.content}>
+          <div className={`${designSystem.layouts.stackSmall} ${designSystem.spacing.marginMedium}`}>
+            <h2 className={`${designSystem.typography.heading2} ${designSystem.colors.text}`}>
+              Individual Unit Recommendations
+            </h2>
+            <p className={`${designSystem.typography.bodyMuted}`}>
+              Detailed AI-powered pricing recommendations for each unit with confidence scores and revenue impact
+            </p>
+          </div>
+          <div className={`${designSystem.layouts.gridTwo} ${designSystem.spacing.gapLarge}`}>
             {Object.values(recommendations).slice(0, 4).map((recommendation) => (
-              <PricingRecommendationCard
-                key={recommendation.unitId}
-                recommendation={recommendation}
-                unitName={`${mockProperties.find(p => p.apartmentIQData?.unitId === recommendation.unitId)?.apartmentIQData?.propertyName} - Unit ${recommendation.unitId}`}
-              />
+              <div key={recommendation.unitId} className={`${createCard('default', true)} ${designSystem.spacing.cardPadding}`}>
+                <PricingRecommendationCard
+                  recommendation={recommendation}
+                  unitName={`${mockProperties.find(p => p.apartmentIQData?.unitId === recommendation.unitId)?.apartmentIQData?.propertyName} - Unit ${recommendation.unitId}`}
+                />
+              </div>
             ))}
           </div>
         </div>
 
-        {/* Strategy Classification Examples */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Strategy Classification System</CardTitle>
-            <CardDescription>
+        {/* Enhanced Strategy Classification Examples */}
+        <div className={`${createCard('secondary', true)} ${designSystem.spacing.cardPaddingLarge}`}>
+          <div className={`${designSystem.layouts.stackSmall} ${designSystem.spacing.marginMedium}`}>
+            <h2 className={`${designSystem.typography.heading3} ${designSystem.colors.text}`}>Strategy Classification System</h2>
+            <p className={`${designSystem.typography.bodyMuted}`}>
               Automatic categorization of pricing strategies based on market conditions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <h3 className="font-semibold text-red-800 mb-2">Aggressive Reduction</h3>
-                <p className="text-sm text-red-700 mb-2">10%+ cuts</p>
-                <p className="text-xs text-red-600">
-                  For units 30+ days on market in challenging conditions
-                </p>
-              </div>
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                <h3 className="font-semibold text-orange-800 mb-2">Moderate Reduction</h3>
-                <p className="text-sm text-orange-700 mb-2">3-10% cuts</p>
-                <p className="text-xs text-orange-600">
-                  For units with moderate market pressure
-                </p>
-              </div>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-800 mb-2">Hold</h3>
-                <p className="text-sm text-gray-700 mb-2">Minimal changes</p>
-                <p className="text-xs text-gray-600">
-                  For well-positioned units in stable markets
-                </p>
-              </div>
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h3 className="font-semibold text-green-800 mb-2">Increase</h3>
-                <p className="text-sm text-green-700 mb-2">3%+ increases</p>
-                <p className="text-xs text-green-600">
-                  For below-market units in hot markets
-                </p>
-              </div>
+            </p>
+          </div>
+          <div className={`${designSystem.layouts.gridFour} ${designSystem.spacing.gapLarge}`}>
+            <div className={`${designSystem.backgrounds.cardError} ${designSystem.spacing.cardPadding} ${designSystem.radius.large}`}>
+              <h3 className={`${designSystem.typography.heading6} ${designSystem.colors.error} ${designSystem.spacing.marginTight}`}>Aggressive Reduction</h3>
+              <p className={`${designSystem.typography.bodySmall} ${designSystem.colors.errorLight} ${designSystem.spacing.marginTight}`}>10%+ cuts</p>
+              <p className={`${designSystem.typography.captionSmall} ${designSystem.colors.textMuted}`}>
+                For units 30+ days on market in challenging conditions
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            <div className={`${designSystem.backgrounds.cardWarning} ${designSystem.spacing.cardPadding} ${designSystem.radius.large}`}>
+              <h3 className={`${designSystem.typography.heading6} ${designSystem.colors.warning} ${designSystem.spacing.marginTight}`}>Moderate Reduction</h3>
+              <p className={`${designSystem.typography.bodySmall} ${designSystem.colors.warningLight} ${designSystem.spacing.marginTight}`}>3-10% cuts</p>
+              <p className={`${designSystem.typography.captionSmall} ${designSystem.colors.textMuted}`}>
+                For units with moderate market pressure
+              </p>
+            </div>
+            <div className={`${designSystem.backgrounds.card} ${designSystem.spacing.cardPadding} ${designSystem.radius.large} border-2 ${designSystem.colors.border}`}>
+              <h3 className={`${designSystem.typography.heading6} ${designSystem.colors.textMuted} ${designSystem.spacing.marginTight}`}>Hold</h3>
+              <p className={`${designSystem.typography.bodySmall} ${designSystem.colors.textMuted} ${designSystem.spacing.marginTight}`}>Minimal changes</p>
+              <p className={`${designSystem.typography.captionSmall} ${designSystem.colors.textLight}`}>
+                For well-positioned units in stable markets
+              </p>
+            </div>
+            <div className={`${designSystem.backgrounds.cardSuccess} ${designSystem.spacing.cardPadding} ${designSystem.radius.large}`}>
+              <h3 className={`${designSystem.typography.heading6} ${designSystem.colors.success} ${designSystem.spacing.marginTight}`}>Increase</h3>
+              <p className={`${designSystem.typography.bodySmall} ${designSystem.colors.successLight} ${designSystem.spacing.marginTight}`}>3%+ increases</p>
+              <p className={`${designSystem.typography.captionSmall} ${designSystem.colors.textMuted}`}>
+                For below-market units in hot markets
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Urgency Levels */}
         <Card>

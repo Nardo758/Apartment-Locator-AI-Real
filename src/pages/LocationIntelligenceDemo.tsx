@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, Target, Zap } from 'lucide-react';
-import { designSystem } from '@/lib/design-system';
+import { designSystem, createCard, createHeading } from '@/lib/design-system';
 import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import ModernCard from '@/components/modern/ModernCard';
 import Header from '@/components/Header';
@@ -61,16 +61,16 @@ const LocationIntelligenceDemo = () => {
         subtitle="Experience AI-powered location analysis and apartment discovery"
         showHeader={false}
         headerContent={
-          <div className="flex gap-3">
+          <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapMedium}`}>
             <Link to="/">
-              <Button variant="outline" size="sm" className="gap-2">
-                <ArrowLeft size={16} />
+              <Button variant="outline" size="sm" className={`${designSystem.spacing.gapSmall} ${designSystem.buttons.outline}`}>
+                <ArrowLeft className={designSystem.icons.small} />
                 Back to Home
               </Button>
             </Link>
             <Link to="/auth">
-              <Button className={`${designSystem.buttons.primary} ${designSystem.buttons.small} gap-2`}>
-                <Zap size={16} />
+              <Button className={`${designSystem.buttons.primarySmall} ${designSystem.spacing.gapSmall}`}>
+                <Zap className={designSystem.icons.small} />
                 Get Full Access
               </Button>
             </Link>
@@ -78,75 +78,63 @@ const LocationIntelligenceDemo = () => {
         }
       >
         {/* Demo Introduction */}
-        <div className={`${designSystem.animations.entrance} mb-8`}>
-          <div className="grid md:grid-cols-3 gap-6">
-            <ModernCard 
-              animate
-              hover
-              className="text-center"
-            >
-              <div className="flex flex-col items-center space-y-3">
-                <div className="p-3 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-                  <MapPin className="w-6 h-6 text-blue-600" />
+        <div className={`${designSystem.animations.entrance} ${designSystem.spacing.marginMedium}`}>
+          <div className={`${designSystem.layouts.gridThree} ${designSystem.spacing.gapLarge}`}>
+            <div className={`${createCard('primary', true)} text-center ${designSystem.spacing.cardPaddingLarge}`}>
+              <div className={`${designSystem.layouts.stackMedium} items-center`}>
+                <div className="p-4 rounded-full bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200/60">
+                  <MapPin className={`${designSystem.icons.large} ${designSystem.colors.primary}`} />
                 </div>
-                <div>
-                  <h3 className={`${designSystem.typography.subheadingLarge} mb-1`}>
+                <div className={designSystem.layouts.stackSmall}>
+                  <h3 className={`${designSystem.typography.heading4} ${designSystem.colors.text} text-center`}>
                     Smart Location Analysis
                   </h3>
-                  <p className={designSystem.typography.body}>
-                    AI analyzes commute times, amenities, and lifestyle factors
+                  <p className={`${designSystem.typography.body} text-center`}>
+                    AI analyzes commute times, amenities, and lifestyle factors with precision
                   </p>
                 </div>
               </div>
-            </ModernCard>
+            </div>
 
-            <ModernCard 
-              animate
-              animationDelay={100}
-              hover
-              className="text-center"
-            >
-              <div className="flex flex-col items-center space-y-3">
-                <div className="p-3 rounded-full bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
-                  <Target className="w-6 h-6 text-green-600" />
+            <div className={`${createCard('success', true)} text-center ${designSystem.spacing.cardPaddingLarge}`}>
+              <div className={`${designSystem.layouts.stackMedium} items-center`}>
+                <div className="p-4 rounded-full bg-gradient-to-br from-green-50 to-green-100 border border-green-200/60">
+                  <Target className={`${designSystem.icons.large} ${designSystem.colors.success}`} />
                 </div>
-                <div>
-                  <h3 className={`${designSystem.typography.subheadingLarge} mb-1`}>
+                <div className={designSystem.layouts.stackSmall}>
+                  <h3 className={`${designSystem.typography.heading4} ${designSystem.colors.text} text-center`}>
                     Personalized Matching
                   </h3>
-                  <p className={designSystem.typography.body}>
-                    Properties ranked based on your unique preferences
+                  <p className={`${designSystem.typography.body} text-center`}>
+                    Properties ranked based on your unique preferences and requirements
                   </p>
                 </div>
               </div>
-            </ModernCard>
+            </div>
 
-            <ModernCard 
-              animate
-              animationDelay={200}
-              hover
-              className="text-center"
-            >
-              <div className="flex flex-col items-center space-y-3">
-                <div className="p-3 rounded-full bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
-                  <Zap className="w-6 h-6 text-purple-600" />
+            <div className={`${createCard('warning', true)} text-center ${designSystem.spacing.cardPaddingLarge}`}>
+              <div className={`${designSystem.layouts.stackMedium} items-center`}>
+                <div className="p-4 rounded-full bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200/60">
+                  <Zap className={`${designSystem.icons.large} ${designSystem.colors.warning}`} />
                 </div>
-                <div>
-                  <h3 className={`${designSystem.typography.subheadingLarge} mb-1`}>
+                <div className={designSystem.layouts.stackSmall}>
+                  <h3 className={`${designSystem.typography.heading4} ${designSystem.colors.text} text-center`}>
                     Negotiation Intelligence
                   </h3>
-                  <p className={designSystem.typography.body}>
-                    Identify properties with the best savings potential
+                  <p className={`${designSystem.typography.body} text-center`}>
+                    Identify properties with the best savings potential and market insights
                   </p>
                 </div>
               </div>
-            </ModernCard>
+            </div>
           </div>
         </div>
 
         {/* Location Intelligence Component */}
-        <div className={`${designSystem.animations.entrance}`} style={{ animationDelay: '300ms' }}>
-          <LocationIntelligence userProfile={mockUserProfile} />
+        <div className={`${designSystem.animations.entrance} ${designSystem.spacing.marginLarge}`} style={{ animationDelay: '300ms' }}>
+          <div className={`${createCard('default', false)} ${designSystem.spacing.cardPadding} ${designSystem.radius.large}`}>
+            <LocationIntelligence userProfile={mockUserProfile} />
+          </div>
         </div>
       </ModernPageLayout>
     </div>

@@ -36,6 +36,7 @@ import {
   type RiskAssessment,
   type AutomationRule
 } from '@/lib/pricing-engine';
+import { designSystem, createCard, createHeading, createStatusBadge, getDataVizColor } from '@/lib/design-system';
 
 interface EnhancedPricingDashboardProps {
   properties: Array<{
@@ -263,143 +264,144 @@ export const EnhancedPricingDashboard: React.FC<EnhancedPricingDashboardProps> =
   };
 
   return (
-    <div className="space-y-6">
+    <div className={designSystem.spacing.content}>
       {/* Enhanced Header with ML Controls */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-none">
-        <CardHeader>
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-2xl">
-                <Brain className="w-6 h-6 text-purple-600" />
+      <div className={`${createCard('primary', false)} ${designSystem.spacing.cardPaddingLarge}`}>
+        <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.gapMedium} flex-col lg:flex-row`}>
+          <div className={designSystem.layouts.stackSmall}>
+            <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapSmall} items-center`}>
+              <Brain className={`${designSystem.icons.large} ${designSystem.colors.secondary}`} />
+              <h2 className={`${designSystem.typography.heading2} ${designSystem.colors.text}`}>
                 AI-Powered Pricing Intelligence
-              </CardTitle>
-              <p className="text-muted-foreground mt-1">
-                Advanced ML algorithms with competitor monitoring and risk assessment
-              </p>
+              </h2>
             </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Brain className="w-4 h-4" />
-                <span className="text-sm">ML Engine</span>
-                <Switch 
-                  checked={mlEnabled} 
-                  onCheckedChange={setMlEnabled}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4" />
-                <span className="text-sm">Automation</span>
-                <Switch 
-                  checked={automationEnabled} 
-                  onCheckedChange={setAutomationEnabled}
-                />
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={initializeMLFeatures}
-                disabled={refreshing}
-                className="gap-2"
-              >
-                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
-            </div>
+            <p className={`${designSystem.typography.bodyMuted}`}>
+              Advanced ML algorithms with competitor monitoring and risk assessment
+            </p>
           </div>
-        </CardHeader>
-      </Card>
+          
+          <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapMedium} items-center flex-wrap`}>
+            <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapSmall} items-center`}>
+              <Brain className={designSystem.icons.small} />
+              <span className={`${designSystem.typography.label} ${designSystem.colors.textMuted}`}>ML Engine</span>
+              <Switch 
+                checked={mlEnabled} 
+                onCheckedChange={setMlEnabled}
+              />
+            </div>
+            <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapSmall} items-center`}>
+              <Zap className={designSystem.icons.small} />
+              <span className={`${designSystem.typography.label} ${designSystem.colors.textMuted}`}>Automation</span>
+              <Switch 
+                checked={automationEnabled} 
+                onCheckedChange={setAutomationEnabled}
+              />
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={initializeMLFeatures}
+              disabled={refreshing}
+              className={`${designSystem.buttons.outline} ${designSystem.spacing.gapSmall}`}
+            >
+              <RefreshCw className={`${designSystem.icons.small} ${refreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
+        </div>
+      </div>
 
       {/* Enhanced Portfolio Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue Impact</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${portfolioSummary.totalImpact.toLocaleString()}
+      <div className={`${designSystem.layouts.gridFive} ${designSystem.spacing.gapMedium}`}>
+        <div className={`${createCard('default', true)} ${designSystem.spacing.cardPadding}`}>
+          <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.itemsSmall}`}>
+            <div className={designSystem.layouts.stackSmall}>
+              <p className={`${designSystem.typography.labelSmall} ${designSystem.colors.textMuted}`}>Total Revenue Impact</p>
+              <div className={`${designSystem.typography.heading4} ${designSystem.colors.text} font-bold`}>
+                ${portfolioSummary.totalImpact.toLocaleString()}
+              </div>
+              <p className={`${designSystem.typography.captionSmall} ${designSystem.colors.textLight}`}>
+                Annual revenue change
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Annual revenue change
-            </p>
-          </CardContent>
-        </Card>
+            <DollarSign className={`${designSystem.icons.medium} ${designSystem.colors.success}`} />
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">ML Confidence</CardTitle>
-            <Brain className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {Math.round(averageMLConfidence * 100)}%
+        <div className={`${createCard('default', true)} ${designSystem.spacing.cardPadding}`}>
+          <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.itemsSmall}`}>
+            <div className={designSystem.layouts.stackSmall}>
+              <p className={`${designSystem.typography.labelSmall} ${designSystem.colors.textMuted}`}>ML Confidence</p>
+              <div className={`${designSystem.typography.heading4} ${designSystem.colors.text} font-bold`}>
+                {Math.round(averageMLConfidence * 100)}%
+              </div>
+              <Progress 
+                value={averageMLConfidence * 100} 
+                className="mt-2 h-2"
+                style={{ backgroundColor: getDataVizColor(0, 'primary') }}
+              />
             </div>
-            <Progress 
-              value={averageMLConfidence * 100} 
-              className="mt-2"
-            />
-          </CardContent>
-        </Card>
+            <Brain className={`${designSystem.icons.medium} ${designSystem.colors.secondary}`} />
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Competitor Threats</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {Array.from(competitorData.values()).reduce((sum, competitors) => 
-                sum + competitors.filter(c => c.daysOnMarket < 14).length, 0)}
+        <div className={`${createCard('default', true)} ${designSystem.spacing.cardPadding}`}>
+          <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.itemsSmall}`}>
+            <div className={designSystem.layouts.stackSmall}>
+              <p className={`${designSystem.typography.labelSmall} ${designSystem.colors.textMuted}`}>Competitor Threats</p>
+              <div className={`${designSystem.typography.heading4} ${designSystem.colors.text} font-bold`}>
+                {Array.from(competitorData.values()).reduce((sum, competitors) => 
+                  sum + competitors.filter(c => c.daysOnMarket < 14).length, 0)}
+              </div>
+              <p className={`${designSystem.typography.captionSmall} ${designSystem.colors.textLight}`}>
+                Active competitors
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Active competitors
-            </p>
-          </CardContent>
-        </Card>
+            <Eye className={`${designSystem.icons.medium} ${designSystem.colors.warning}`} />
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">High Risk Units</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {Array.from(riskAssessments.values()).filter(r => 
-                r.overallRisk === 'high' || r.overallRisk === 'critical').length}
+        <div className={`${createCard('default', true)} ${designSystem.spacing.cardPadding}`}>
+          <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.itemsSmall}`}>
+            <div className={designSystem.layouts.stackSmall}>
+              <p className={`${designSystem.typography.labelSmall} ${designSystem.colors.textMuted}`}>High Risk Units</p>
+              <div className={`${designSystem.typography.heading4} ${designSystem.colors.text} font-bold`}>
+                {Array.from(riskAssessments.values()).filter(r => 
+                  r.overallRisk === 'high' || r.overallRisk === 'critical').length}
+              </div>
+              <p className={`${designSystem.typography.captionSmall} ${designSystem.colors.textLight}`}>
+                Require attention
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Require attention
-            </p>
-          </CardContent>
-        </Card>
+            <Shield className={`${designSystem.icons.medium} ${designSystem.colors.error}`} />
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Automation Rules</CardTitle>
-            <Zap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {automationRules.filter(r => r.enabled).length}
+        <div className={`${createCard('default', true)} ${designSystem.spacing.cardPadding}`}>
+          <div className={`${designSystem.layouts.flexBetween} ${designSystem.spacing.itemsSmall}`}>
+            <div className={designSystem.layouts.stackSmall}>
+              <p className={`${designSystem.typography.labelSmall} ${designSystem.colors.textMuted}`}>Automation Rules</p>
+              <div className={`${designSystem.typography.heading4} ${designSystem.colors.text} font-bold`}>
+                {automationRules.filter(r => r.enabled).length}
+              </div>
+              <p className={`${designSystem.typography.captionSmall} ${designSystem.colors.textLight}`}>
+                Active rules
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Active rules
-            </p>
-          </CardContent>
-        </Card>
+            <Zap className={`${designSystem.icons.medium} ${designSystem.colors.info}`} />
+          </div>
+        </div>
       </div>
 
       {/* Enhanced Analysis Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="ml-insights">ML Insights</TabsTrigger>
-          <TabsTrigger value="competitors">Competitors</TabsTrigger>
-          <TabsTrigger value="risk-analysis">Risk Analysis</TabsTrigger>
-          <TabsTrigger value="automation">Automation</TabsTrigger>
-          <TabsTrigger value="recommendations">Actions</TabsTrigger>
+        <TabsList className={`grid w-full grid-cols-3 lg:grid-cols-6 ${designSystem.backgrounds.card} ${designSystem.radius.large} ${designSystem.spacing.marginMedium}`}>
+          <TabsTrigger value="overview" className={designSystem.typography.labelSmall}>Overview</TabsTrigger>
+          <TabsTrigger value="ml-insights" className={designSystem.typography.labelSmall}>ML Insights</TabsTrigger>
+          <TabsTrigger value="competitors" className={designSystem.typography.labelSmall}>Competitors</TabsTrigger>
+          <TabsTrigger value="risk-analysis" className={designSystem.typography.labelSmall}>Risk Analysis</TabsTrigger>
+          <TabsTrigger value="automation" className={designSystem.typography.labelSmall}>Automation</TabsTrigger>
+          <TabsTrigger value="recommendations" className={designSystem.typography.labelSmall}>Actions</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab - Enhanced */}
