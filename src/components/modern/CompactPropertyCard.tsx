@@ -61,11 +61,11 @@ const CompactPropertyCard: React.FC<CompactPropertyCardProps> = ({
         </div>
       )}
 
-      <CardContent className="p-4 relative">
-        <div className="flex items-start gap-3">
+      <CardContent className="p-6 relative">
+        <div className="flex items-start gap-4">
           {/* Property Image */}
           <div className="relative flex-shrink-0">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-600/40 via-slate-700/50 to-slate-800/60 flex items-center justify-center border border-slate-500/30 shadow-lg overflow-hidden backdrop-blur-sm">
+            <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-slate-600/40 via-slate-700/50 to-slate-800/60 flex items-center justify-center border border-slate-500/30 shadow-lg overflow-hidden backdrop-blur-sm">
               <Home className="w-6 h-6 text-slate-300 opacity-70" />
             </div>
             
@@ -79,7 +79,7 @@ const CompactPropertyCard: React.FC<CompactPropertyCardProps> = ({
 
           {/* Property Info */}
           <div className="flex-1 min-w-0">
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div>
                 <h4 className="font-semibold text-foreground text-sm truncate leading-tight">{property.name}</h4>
                 <p className="text-xs text-muted-foreground/80 truncate flex items-center gap-1">
@@ -129,7 +129,7 @@ const CompactPropertyCard: React.FC<CompactPropertyCardProps> = ({
               )}
 
               {/* Quick Action Buttons */}
-              <div className="flex gap-2 mt-2">
+              <div className="flex gap-3 mt-4">
                 <Button
                   size="sm"
                   variant="ghost"
