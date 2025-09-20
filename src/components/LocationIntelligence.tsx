@@ -42,7 +42,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   console.log('🎯 Location Intelligence loaded:', { userProfile, preferencesCount, hasAIPreferences });
 
   return (
-    <div id="location-intelligence" className="space-y-8 w-full overflow-visible">
+    <div id="location-intelligence" className="w-full space-y-6 overflow-visible">
       {/* Section Header */}
       <div className="glass-dark rounded-xl p-6">
         <div className="flex items-center justify-between">
