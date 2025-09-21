@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { userProfileUtils, authUtils, handleSupabaseError } from '@/lib/supabase-utils';
+// import { userProfileUtils, authUtils, handleSupabaseError } from '@/lib/supabase-utils';
 import { usePropertyState } from '@/contexts/PropertyStateContext';
 import { Brain, MapPin, Target, Clock, Home, DollarSign, Heart, X, Plus, Settings } from 'lucide-react';
 import { toast } from 'sonner';
@@ -133,10 +133,10 @@ const ProgramAI = () => {
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
-        const user = await authUtils.getCurrentUser();
+        const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const profile = await userProfileUtils.getProfile(user.id);
+        const { data: profile } = await supabase.from('user_profiles').select('*').eq('user_id', user.id).single();
         if (!profile) {
           console.log('No profile found for user, using defaults');
           return;
@@ -200,8 +200,7 @@ const ProgramAI = () => {
           
         setPreferences(updatedPreferences);
       } catch (error) {
-        const errorInfo = handleSupabaseError(error, 'loadUserProfile');
-        console.error('Error loading user profile:', errorInfo);
+        console.error('Error loading user profile:', error);
         toast.error('Failed to load your preferences. Using defaults.');
       }
     };
@@ -267,7 +266,7 @@ const ProgramAI = () => {
       syncWithGlobalState();
 
       // Save to Supabase
-      const user = await authUtils.getCurrentUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error('Please sign in to save preferences');
         navigate('/auth');
@@ -345,14 +344,13 @@ const ProgramAI = () => {
         }
       };
 
-      await userProfileUtils.upsertProfile(profileData);
+      await supabase.from('user_profiles').upsert(profileData);
 
       toast.success('AI preferences saved successfully!');
       navigate('/dashboard');
     } catch (error: any) {
-      const errorInfo = handleSupabaseError(error, 'savePreferences');
-      console.error('Error saving preferences:', errorInfo);
-      toast.error('Failed to save preferences: ' + errorInfo.message);
+      console.error('Error saving preferences:', error);
+      toast.error('Failed to save preferences: ' + (error.message || 'Unknown error'));
     } finally {
       setSaving(false);
     }

@@ -57,7 +57,7 @@ const AppDiagnostics: React.FC = () => {
       try {
         // Dynamic import to avoid issues if Supabase client fails
         const { supabase } = await import('@/integrations/supabase/client');
-        const { data, error } = await supabase.from('profiles').select('count').limit(1);
+        const { data, error } = await supabase.from('user_profiles').select('count').limit(1);
         
         if (error) {
           updateCheck('Supabase Connection', 'error', 'Database connection failed', error.message);
