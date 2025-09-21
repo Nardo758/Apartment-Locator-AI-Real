@@ -10,7 +10,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-// import { userProfileUtils, authUtils, handleSupabaseError } from '@/lib/supabase-utils';
 import { usePropertyState } from '@/contexts/PropertyStateContext';
 import { Brain, MapPin, Target, Clock, Home, DollarSign, Heart, X, Plus, Settings } from 'lucide-react';
 import { toast } from 'sonner';
@@ -82,11 +81,12 @@ const ProgramAI = () => {
   const [saving, setSaving] = useState(false);
   const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
   
-  // Default preferences with all fields defined
-  const defaultPreferences: AIPreferences = {
+  const [preferences, setPreferences] = useState<AIPreferences>({
     bedrooms: '1',
-    amenities: [],
+    amenities: searchFilters.amenities || [],
     dealBreakers: [],
+    
+    // Transportation & Mobility
     publicTransitAccess: [],
     walkabilityScoreRequirement: 'moderate',
     bikeFriendly: false,
@@ -94,6 +94,8 @@ const ProgramAI = () => {
     rideShareAvailability: 'standard',
     airportProximity: 'moderate',
     highwayAccess: false,
+    
+    // Neighborhood & Community
     schoolDistrictQuality: 'no-preference',
     crimeRatePreference: 'low',
     noiseLevelTolerance: 'moderate',
@@ -101,32 +103,34 @@ const ProgramAI = () => {
     ageDemographics: 'mixed',
     diversityIndex: 'moderate',
     localCultureArts: false,
+    
+    // Safety & Security
     securitySystemRequired: false,
     gatedCommunityPreference: 'no-preference',
     emergencyServicesResponseTime: 'standard',
     floodZoneAvoidance: false,
     fireSafetyFeatures: [],
+    
+    // Shopping & Services
     groceryStoreTypes: [],
     shoppingMallAccess: false,
     farmersMarkets: false,
     bankingAccess: false,
     postOfficeProximity: false,
     dryCleaningServices: false,
+    
+    // Technology & Connectivity
     internetSpeedRequirement: 'standard',
     cellTowerCoverage: 'good',
     smartHomeCompatibility: false,
     cableStreamingOptions: [],
+    
     lifestyle: '',
     workSchedule: '',
     priorities: [],
     bio: '',
     useCase: '',
     additionalNotes: ''
-  };
-
-  const [preferences, setPreferences] = useState<AIPreferences>({
-    ...defaultPreferences,
-    amenities: searchFilters.amenities || []
   });
 
   // Load user profile data on component mount
@@ -136,72 +140,70 @@ const ProgramAI = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data: profile } = await supabase.from('user_profiles').select('*').eq('user_id', user.id).single();
-        if (!profile) {
-          console.log('No profile found for user, using defaults');
+        const { data: profile, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error loading profile:', error);
           return;
         }
 
-        const profileAny = profile as any; // Type assertion for new columns
-        // Robust merge with exhaustive field mapping
-        const updatedPreferences: AIPreferences = {
-            ...defaultPreferences,
-            bedrooms: profileAny.bedrooms || defaultPreferences.bedrooms,
-            amenities: Array.isArray(profileAny.amenities) ? profileAny.amenities : defaultPreferences.amenities,
-            dealBreakers: Array.isArray(profileAny.deal_breakers) ? profileAny.deal_breakers : defaultPreferences.dealBreakers,
+        if (profile) {
+          const profileAny = profile as any; // Type assertion for new columns
+          setPreferences(prev => ({
+            ...prev,
+            bedrooms: profileAny.bedrooms || '1',
+            amenities: profileAny.amenities || [],
+            dealBreakers: profileAny.deal_breakers || [],
             
-            // Transportation & Mobility
-            publicTransitAccess: Array.isArray(profileAny.public_transit_access) ? profileAny.public_transit_access : defaultPreferences.publicTransitAccess,
-            walkabilityScoreRequirement: profileAny.walkability_score_requirement || defaultPreferences.walkabilityScoreRequirement,
-            bikeFriendly: profileAny.bike_friendly !== undefined ? Boolean(profileAny.bike_friendly) : defaultPreferences.bikeFriendly,
-            evChargingStations: profileAny.ev_charging_stations !== undefined ? Boolean(profileAny.ev_charging_stations) : defaultPreferences.evChargingStations,
-            rideShareAvailability: profileAny.ride_share_availability || defaultPreferences.rideShareAvailability,
-            airportProximity: profileAny.airport_proximity || defaultPreferences.airportProximity,
-            highwayAccess: profileAny.highway_access !== undefined ? Boolean(profileAny.highway_access) : defaultPreferences.highwayAccess,
+            // Load additional preferences from profile if they exist
+            publicTransitAccess: profileAny.public_transit_access || [],
+            walkabilityScoreRequirement: profileAny.walkability_score_requirement || 'moderate',
+            bikeFriendly: profileAny.bike_friendly || false,
+            evChargingStations: profileAny.ev_charging_stations || false,
+            rideShareAvailability: profileAny.ride_share_availability || 'standard',
+            airportProximity: profileAny.airport_proximity || 'moderate',
+            highwayAccess: profileAny.highway_access || false,
             
-            // Neighborhood & Community
-            schoolDistrictQuality: profileAny.school_district_quality || defaultPreferences.schoolDistrictQuality,
-            crimeRatePreference: profileAny.crime_rate_preference || defaultPreferences.crimeRatePreference,
-            noiseLevelTolerance: profileAny.noise_level_tolerance || defaultPreferences.noiseLevelTolerance,
-            populationDensity: profileAny.population_density || defaultPreferences.populationDensity,
-            ageDemographics: profileAny.age_demographics || defaultPreferences.ageDemographics,
-            diversityIndex: profileAny.diversity_index || defaultPreferences.diversityIndex,
-            localCultureArts: profileAny.local_culture_arts !== undefined ? Boolean(profileAny.local_culture_arts) : defaultPreferences.localCultureArts,
+            schoolDistrictQuality: profileAny.school_district_quality || 'no-preference',
+            crimeRatePreference: profileAny.crime_rate_preference || 'low',
+            noiseLevelTolerance: profileAny.noise_level_tolerance || 'moderate',
+            populationDensity: profileAny.population_density || 'moderate',
+            ageDemographics: profileAny.age_demographics || 'mixed',
+            diversityIndex: profileAny.diversity_index || 'moderate',
+            localCultureArts: profileAny.local_culture_arts || false,
             
-            // Safety & Security
-            securitySystemRequired: profileAny.security_system_required !== undefined ? Boolean(profileAny.security_system_required) : defaultPreferences.securitySystemRequired,
-            gatedCommunityPreference: profileAny.gated_community_preference || defaultPreferences.gatedCommunityPreference,
-            emergencyServicesResponseTime: profileAny.emergency_services_response_time || defaultPreferences.emergencyServicesResponseTime,
-            floodZoneAvoidance: profileAny.flood_zone_avoidance !== undefined ? Boolean(profileAny.flood_zone_avoidance) : defaultPreferences.floodZoneAvoidance,
-            fireSafetyFeatures: Array.isArray(profileAny.fire_safety_features) ? profileAny.fire_safety_features : defaultPreferences.fireSafetyFeatures,
+            securitySystemRequired: profileAny.security_system_required || false,
+            gatedCommunityPreference: profileAny.gated_community_preference || 'no-preference',
+            emergencyServicesResponseTime: profileAny.emergency_services_response_time || 'standard',
+            floodZoneAvoidance: profileAny.flood_zone_avoidance || false,
+            fireSafetyFeatures: profileAny.fire_safety_features || [],
             
-            // Shopping & Services
-            groceryStoreTypes: Array.isArray(profileAny.grocery_store_types) ? profileAny.grocery_store_types : defaultPreferences.groceryStoreTypes,
-            shoppingMallAccess: profileAny.shopping_mall_access !== undefined ? Boolean(profileAny.shopping_mall_access) : defaultPreferences.shoppingMallAccess,
-            farmersMarkets: profileAny.farmers_markets !== undefined ? Boolean(profileAny.farmers_markets) : defaultPreferences.farmersMarkets,
-            bankingAccess: profileAny.banking_access !== undefined ? Boolean(profileAny.banking_access) : defaultPreferences.bankingAccess,
-            postOfficeProximity: profileAny.post_office_proximity !== undefined ? Boolean(profileAny.post_office_proximity) : defaultPreferences.postOfficeProximity,
-            dryCleaningServices: profileAny.dry_cleaning_services !== undefined ? Boolean(profileAny.dry_cleaning_services) : defaultPreferences.dryCleaningServices,
+            groceryStoreTypes: profileAny.grocery_store_types || [],
+            shoppingMallAccess: profileAny.shopping_mall_access || false,
+            farmersMarkets: profileAny.farmers_markets || false,
+            bankingAccess: profileAny.banking_access || false,
+            postOfficeProximity: profileAny.post_office_proximity || false,
+            dryCleaningServices: profileAny.dry_cleaning_services || false,
             
-            // Technology & Connectivity
-            internetSpeedRequirement: profileAny.internet_speed_requirement || defaultPreferences.internetSpeedRequirement,
-            cellTowerCoverage: profileAny.cell_tower_coverage || defaultPreferences.cellTowerCoverage,
-            smartHomeCompatibility: profileAny.smart_home_compatibility !== undefined ? Boolean(profileAny.smart_home_compatibility) : defaultPreferences.smartHomeCompatibility,
-            cableStreamingOptions: Array.isArray(profileAny.cable_streaming_options) ? profileAny.cable_streaming_options : defaultPreferences.cableStreamingOptions,
+            internetSpeedRequirement: profileAny.internet_speed_requirement || 'standard',
+            cellTowerCoverage: profileAny.cell_tower_coverage || 'good',
+            smartHomeCompatibility: profileAny.smart_home_compatibility || false,
+            cableStreamingOptions: profileAny.cable_streaming_options || [],
             
-            // Lifestyle & Preferences
-            lifestyle: profileAny.lifestyle || defaultPreferences.lifestyle,
-            workSchedule: profileAny.work_schedule || defaultPreferences.workSchedule,
-            priorities: Array.isArray(profileAny.priorities) ? profileAny.priorities : defaultPreferences.priorities,
-            bio: profileAny.bio || defaultPreferences.bio,
-            useCase: profileAny.use_case || defaultPreferences.useCase,
-            additionalNotes: profileAny.additional_notes || defaultPreferences.additionalNotes
-          };
-          
-        setPreferences(updatedPreferences);
+            lifestyle: profileAny.lifestyle || '',
+            workSchedule: profileAny.work_schedule || '',
+            priorities: profileAny.priorities || [],
+            bio: profileAny.bio || '',
+            useCase: profileAny.use_case || '',
+            additionalNotes: profileAny.additional_notes || ''
+          }));
+        }
       } catch (error) {
         console.error('Error loading user profile:', error);
-        toast.error('Failed to load your preferences. Using defaults.');
       }
     };
 
@@ -273,84 +275,86 @@ const ProgramAI = () => {
         return;
       }
 
-      const profileData = {
-        user_id: user.id,
-        email: user.email,
-        bedrooms: preferences.bedrooms,
-        amenities: preferences.amenities,
-        deal_breakers: preferences.dealBreakers,
-        
-        // Transportation & Mobility
-        public_transit_access: preferences.publicTransitAccess,
-        walkability_score_requirement: preferences.walkabilityScoreRequirement,
-        bike_friendly: preferences.bikeFriendly,
-        ev_charging_stations: preferences.evChargingStations,
-        ride_share_availability: preferences.rideShareAvailability,
-        airport_proximity: preferences.airportProximity,
-        highway_access: preferences.highwayAccess,
-        
-        // Neighborhood & Community
-        school_district_quality: preferences.schoolDistrictQuality,
-        crime_rate_preference: preferences.crimeRatePreference,
-        noise_level_tolerance: preferences.noiseLevelTolerance,
-        population_density: preferences.populationDensity,
-        age_demographics: preferences.ageDemographics,
-        diversity_index: preferences.diversityIndex,
-        local_culture_arts: preferences.localCultureArts,
-        
-        // Safety & Security
-        security_system_required: preferences.securitySystemRequired,
-        gated_community_preference: preferences.gatedCommunityPreference,
-        fire_safety_features: preferences.fireSafetyFeatures,
-        
-        // Shopping & Services
-        grocery_store_types: preferences.groceryStoreTypes,
-        shopping_mall_access: preferences.shoppingMallAccess,
-        farmers_markets: preferences.farmersMarkets,
-        banking_access: preferences.bankingAccess,
-        post_office_proximity: preferences.postOfficeProximity,
-        dry_cleaning_services: preferences.dryCleaningServices,
-        
-        // Technology & Connectivity
-        internet_speed_requirement: preferences.internetSpeedRequirement,
-        cell_tower_coverage: preferences.cellTowerCoverage,
-        smart_home_compatibility: preferences.smartHomeCompatibility,
-        
-        lifestyle: preferences.lifestyle,
-        work_schedule: preferences.workSchedule,
-        priorities: preferences.priorities,
-        bio: preferences.bio,
-        use_case: preferences.useCase,
-        additional_notes: preferences.additionalNotes,
-        has_completed_ai_programming: true,
-        ai_preferences: {
-          amenityImportant: preferences.amenities.length > 3,
-          transportationFocused: preferences.publicTransitAccess.length > 0 || preferences.bikeFriendly,
-          safetyConscious: preferences.securitySystemRequired || preferences.crimeRatePreference === 'very-low',
-          techSavvy: preferences.smartHomeCompatibility || preferences.internetSpeedRequirement === 'gigabit',
-          lifestyle: preferences.lifestyle,
-          priorities: preferences.priorities
-        },
-        search_criteria: {
-          preferredAmenities: preferences.amenities,
-          dealBreakers: preferences.dealBreakers,
-          transportationNeeds: preferences.publicTransitAccess,
-          safetyRequirements: preferences.fireSafetyFeatures,
-          communityPreferences: {
-            crimeRate: preferences.crimeRatePreference,
-            noiseLevel: preferences.noiseLevelTolerance,
-            demographics: preferences.ageDemographics
-          }
-        }
-      };
+        const { error } = await supabase
+          .from('user_profiles')
+          .upsert({
+            user_id: user.id,
+            email: user.email,
+            bedrooms: preferences.bedrooms,
+            amenities: preferences.amenities,
+            deal_breakers: preferences.dealBreakers,
+            
+            // Transportation & Mobility
+            public_transit_access: preferences.publicTransitAccess,
+            walkability_score_requirement: preferences.walkabilityScoreRequirement,
+            bike_friendly: preferences.bikeFriendly,
+            ev_charging_stations: preferences.evChargingStations,
+            ride_share_availability: preferences.rideShareAvailability,
+            airport_proximity: preferences.airportProximity,
+            highway_access: preferences.highwayAccess,
+            
+            // Neighborhood & Community
+            school_district_quality: preferences.schoolDistrictQuality,
+            crime_rate_preference: preferences.crimeRatePreference,
+            noise_level_tolerance: preferences.noiseLevelTolerance,
+            population_density: preferences.populationDensity,
+            age_demographics: preferences.ageDemographics,
+            diversity_index: preferences.diversityIndex,
+            local_culture_arts: preferences.localCultureArts,
+            
+            // Safety & Security
+            security_system_required: preferences.securitySystemRequired,
+            gated_community_preference: preferences.gatedCommunityPreference,
+            fire_safety_features: preferences.fireSafetyFeatures,
+            
+            // Shopping & Services
+            grocery_store_types: preferences.groceryStoreTypes,
+            shopping_mall_access: preferences.shoppingMallAccess,
+            farmers_markets: preferences.farmersMarkets,
+            banking_access: preferences.bankingAccess,
+            post_office_proximity: preferences.postOfficeProximity,
+            dry_cleaning_services: preferences.dryCleaningServices,
+            
+            // Technology & Connectivity
+            internet_speed_requirement: preferences.internetSpeedRequirement,
+            cell_tower_coverage: preferences.cellTowerCoverage,
+            smart_home_compatibility: preferences.smartHomeCompatibility,
+            
+            lifestyle: preferences.lifestyle,
+            work_schedule: preferences.workSchedule,
+            priorities: preferences.priorities,
+            bio: preferences.bio,
+            use_case: preferences.useCase,
+            additional_notes: preferences.additionalNotes,
+            has_completed_ai_programming: true,
+            ai_preferences: {
+              amenityImportant: preferences.amenities.length > 3,
+              transportationFocused: preferences.publicTransitAccess.length > 0 || preferences.bikeFriendly,
+              safetyConscious: preferences.securitySystemRequired || preferences.crimeRatePreference === 'very-low',
+              techSavvy: preferences.smartHomeCompatibility || preferences.internetSpeedRequirement === 'gigabit',
+              lifestyle: preferences.lifestyle,
+              priorities: preferences.priorities
+            },
+            search_criteria: {
+              preferredAmenities: preferences.amenities,
+              dealBreakers: preferences.dealBreakers,
+              transportationNeeds: preferences.publicTransitAccess,
+              safetyRequirements: preferences.fireSafetyFeatures,
+              communityPreferences: {
+                crimeRate: preferences.crimeRatePreference,
+                noiseLevel: preferences.noiseLevelTolerance,
+                demographics: preferences.ageDemographics
+              }
+            }
+          });
 
-      await supabase.from('user_profiles').upsert(profileData);
+      if (error) throw error;
 
       toast.success('AI preferences saved successfully!');
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Error saving preferences:', error);
-      toast.error('Failed to save preferences: ' + (error.message || 'Unknown error'));
+      toast.error('Failed to save preferences: ' + error.message);
     } finally {
       setSaving(false);
     }

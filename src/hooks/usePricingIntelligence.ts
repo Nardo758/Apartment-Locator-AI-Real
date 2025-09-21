@@ -39,8 +39,8 @@ export const usePricingIntelligence = (properties: Property[]) => {
           // Use comprehensive ApartmentIQ data
           const recommendation = engine.generateRecommendation(property.apartmentIQData);
           newRecommendations[property.id] = recommendation;
-        } else if (property.price !== undefined && property.daysOnMarket !== undefined && property.marketVelocity) {
-          // Fallback to legacy data structure - ensure all required fields are set
+        } else if (property.price && property.daysOnMarket !== undefined && property.marketVelocity) {
+          // Fallback to legacy data structure
           const legacyData: ApartmentIQData = {
             unitId: property.id,
             propertyName: 'Unknown Property',
@@ -50,7 +50,7 @@ export const usePricingIntelligence = (properties: Property[]) => {
             currentRent: property.price,
             originalRent: property.price,
             effectiveRent: property.price,
-            rentPerSqft: property.price / 800, // Calculated based on assumed sqft
+            rentPerSqft: 0,
             bedrooms: 1,
             bathrooms: 1,
             sqft: 800,
