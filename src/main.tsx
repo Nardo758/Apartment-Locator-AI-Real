@@ -3,6 +3,13 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
+// Ensure React is available globally for debugging
+if (typeof window !== 'undefined') {
+  (window as any).React = React;
+  console.log('🔧 React version:', React.version);
+  console.log('🔧 React available:', typeof React.createContext === 'function');
+}
+
 // Add console logs for debugging the startup process
 console.log('🚀 Main.tsx: Starting Apartment Locator AI...', {
   timestamp: new Date().toISOString(),
