@@ -46,6 +46,8 @@ interface AIPreferences {
   // Safety & Security
   securitySystemRequired: boolean;
   gatedCommunityPreference: string;
+  emergencyServicesResponseTime: string;
+  floodZoneAvoidance: boolean;
   fireSafetyFeatures: string[];
   
   // Shopping & Services
@@ -60,6 +62,7 @@ interface AIPreferences {
   internetSpeedRequirement: string;
   cellTowerCoverage: string;
   smartHomeCompatibility: boolean;
+  cableStreamingOptions?: string[];
   
   // Lifestyle & Preferences
   lifestyle: string;
@@ -104,6 +107,8 @@ const ProgramAI = () => {
     // Safety & Security
     securitySystemRequired: false,
     gatedCommunityPreference: 'no-preference',
+    emergencyServicesResponseTime: 'standard',
+    floodZoneAvoidance: false,
     fireSafetyFeatures: [],
     
     // Shopping & Services
@@ -118,6 +123,7 @@ const ProgramAI = () => {
     internetSpeedRequirement: 'standard',
     cellTowerCoverage: 'good',
     smartHomeCompatibility: false,
+    cableStreamingOptions: [],
     
     lifestyle: '',
     workSchedule: '',
