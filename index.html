@@ -19,33 +19,6 @@
 
   <body>
     <div id="root"></div>
-    <!-- Preload critical modules -->
-    <script type="modulepreload" src="/src/main.tsx"></script>
     <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- Fallback error handling -->
-    <script>
-      // Global error handler for module loading issues
-      window.addEventListener('error', function(e) {
-        if (e.message && e.message.includes('createContext')) {
-          console.error('React module loading error detected:', e);
-          document.getElementById('root').innerHTML = `
-            <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #fee2e2; font-family: system-ui;">
-              <div style="text-align: center; padding: 20px;">
-                <h1 style="color: #dc2626; margin-bottom: 16px;">Module Loading Error</h1>
-                <p style="color: #7f1d1d; margin-bottom: 16px;">React failed to load properly. This is usually a caching issue.</p>
-                <button onclick="window.location.reload()" style="background: #dc2626; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer;">
-                  Clear Cache & Reload
-                </button>
-              </div>
-            </div>
-          `;
-        }
-      });
-      
-      window.addEventListener('unhandledrejection', function(e) {
-        console.error('Unhandled promise rejection:', e.reason);
-      });
-    </script>
   </body>
 </html>
