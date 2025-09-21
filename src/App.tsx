@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PropertyStateProvider } from "./contexts/PropertyStateContext";
 import { OnboardingFlowProvider } from "./contexts/OnboardingFlowContext";
+import ErrorBoundary from "./components/ErrorBoundary";
+import AppDiagnostics from "./components/AppDiagnostics";
 import Landing from "./pages/Landing";
 import TestLanding from "./pages/TestLanding";
 import LandingFixed from "./pages/LandingFixed";
@@ -43,15 +46,37 @@ import MarketIntelRevamped from "./pages/MarketIntelRevamped";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <PropertyStateProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <OnboardingFlowProvider>
-            <Routes>
+const App = () => {
+  // Add console log for debugging
+  console.log('🚀 App component mounting...', {
+    timestamp: new Date().toISOString(),
+    nodeEnv: process.env.NODE_ENV,
+    viteMode: import.meta.env.MODE,
+    supabaseUrl: import.meta.env.VITE_SUPABASE_URL ? 'Set' : 'Missing',
+    supabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Missing'
+  });
+
+  // Show diagnostics only in development or when explicitly requested with ?debug parameter
+  const showDiagnostics = import.meta.env.DEV && new URLSearchParams(window.location.search).has('debug');
+  
+  if (showDiagnostics) {
+    return (
+      <ErrorBoundary>
+        <AppDiagnostics />
+      </ErrorBoundary>
+    );
+  }
+
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <PropertyStateProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <OnboardingFlowProvider>
+                <Routes>
             <Route path="/" element={<LandingSSRSafe />} />
             <Route path="/test" element={<TestLanding />} />
             <Route path="/original" element={<Landing />} />
@@ -87,12 +112,14 @@ const App = () => (
             <Route path="/privacy" element={<PrivacyPolicy />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
-          </Routes>
-          </OnboardingFlowProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </PropertyStateProvider>
-  </QueryClientProvider>
-);
+                </Routes>
+              </OnboardingFlowProvider>
+            </BrowserRouter>
+          </TooltipProvider>
+        </PropertyStateProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+};
 
 export default App;

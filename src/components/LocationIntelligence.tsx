@@ -24,6 +24,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   const [showPOIModal, setShowPOIModal] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
   const [searchSettings, setSearchSettings] = useState(null);
+  const [showSearchSettings, setShowSearchSettings] = useState(true);
   
   const {
     pointsOfInterest,
@@ -39,7 +40,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   const preferencesCount = getAIPreferencesCount();
   const hasAIPreferences = preferencesCount > 0;
 
-  console.log('🎯 Location Intelligence loaded:', { userProfile, preferencesCount, hasAIPreferences });
+  console.log('🎯 Location Intelligence loaded:', { userProfile, preferencesCount, hasAIPreferences, showSearchSettings });
 
   return (
     <div id="location-intelligence" className="w-full space-y-6">
@@ -57,161 +58,71 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
           </div>
           
           <div className="flex items-center gap-4">
-            {/* AI Status Indicator */}
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
-              <div className={`w-2 h-2 rounded-full ${hasAIPreferences ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
-              <Badge 
-                variant={hasAIPreferences ? "default" : "outline"}
-                className={hasAIPreferences ? "bg-green-500/20 text-green-400 border-green-500/30" : ""}
+            {/* AI Status Indicator and Search Settings Toggle */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                <div className={`w-2 h-2 rounded-full ${hasAIPreferences ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
+                <Badge 
+                  variant={hasAIPreferences ? "default" : "outline"}
+                  className={hasAIPreferences ? "bg-green-500/20 text-green-400 border-green-500/30" : ""}
+                >
+                  <Brain className="w-3 h-3 mr-1" />
+                  {hasAIPreferences ? `AI Preferences Active (${preferencesCount})` : 'Setup AI Preferences'}
+                </Badge>
+              </div>
+              
+              {/* Search Settings Toggle */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSearchSettings(!showSearchSettings)}
+                className="flex items-center gap-2 lg:hidden"
               >
-                <Brain className="w-3 h-3 mr-1" />
-                {hasAIPreferences ? `AI Preferences Active (${preferencesCount})` : 'Setup AI Preferences'}
-              </Badge>
+                <Settings className="w-4 h-4" />
+                Search
+              </Button>
             </div>
 
           </div>
         </div>
       </div>
 
-      {/* Search Methods Section */}
-      <div className="space-y-6">
-        {/* Search Methods Header */}
-        <div className="text-center">
-          <h3 className="text-xl font-semibold text-foreground mb-2">Choose Your Search Method</h3>
-          <p className="text-muted-foreground">Use location search or add points of interest to find your perfect apartment</p>
-        </div>
-
-        {/* Method Selection Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Method 1: Location Search */}
-          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 relative">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <span className="text-blue-400 font-bold text-sm">1</span>
+      {/* Floating Search Settings Panel - Top Right */}
+      <div className="fixed top-20 right-4 z-50 w-80 lg:w-96 max-h-[calc(100vh-6rem)] overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 backdrop-blur-md border-2 border-orange-500 rounded-xl shadow-2xl">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-blue-400" />
+                  <h3 className="text-lg font-semibold text-foreground">Search Settings</h3>
                 </div>
-                <div>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <MapPin className="w-5 h-5 text-blue-400" />
-                    Location Search
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">Search by address, neighborhood, or city</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
+                <button 
+                  onClick={() => setShowSearchSettings(false)}
+                  className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">Configure your search criteria</p>
+            </div>
+            <div className="max-h-[500px] overflow-y-auto">
               <EnhancedSearchSettings 
                 onSettingsChange={setSearchSettings}
               />
-            </CardContent>
-          </Card>
-
-          {/* Method 2: Points of Interest */}
-          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 relative">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <span className="text-purple-400 font-bold text-sm">2</span>
-                </div>
-                <div>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Plus className="w-5 h-5 text-purple-400" />
-                    Points of Interest
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">Add places important to your lifestyle</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <ModernPOIManager
-                pointsOfInterest={pointsOfInterest}
-                onAddPOI={addPOI}
-                onRemovePOI={removePOI}
-                onUpdatePriority={updatePOIPriority}
-                showModal={showPOIModal}
-                setShowModal={setShowPOIModal}
-              />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* OR Divider */}
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="bg-background px-4 text-muted-foreground font-medium">OR COMBINE BOTH METHODS</span>
-          </div>
+            </div>
         </div>
       </div>
 
-      {/* Live Market Intel - Compact Version */}
-      <div className="w-full">
-        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <div className="w-2 h-2 rounded-full bg-green-400"></div>
-              Live Market Intel
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {/* Market Data - Compact Grid */}
-              <div className="space-y-1">
-                <span className="text-xs text-muted-foreground">Avg Rent</span>
-                <div className="text-lg font-semibold text-foreground">$2,284</div>
-                <div className="text-xs text-green-400">+2.3% vs last month</div>
-              </div>
-              
-              <div className="space-y-1">
-                <span className="text-xs text-muted-foreground">New Listings</span>
-                <div className="text-lg font-semibold text-foreground">47</div>
-                <div className="text-xs text-green-400">+8 this week</div>
-              </div>
-              
-              <div className="space-y-1">
-                <span className="text-xs text-muted-foreground">Days on Market</span>
-                <div className="text-lg font-semibold text-foreground">12</div>
-                <div className="text-xs text-red-400">+2 vs last month</div>
-              </div>
-              
-              <div className="space-y-1">
-                <span className="text-xs text-muted-foreground">Competition</span>
-                <div className="text-lg font-semibold text-foreground">High</div>
-                <div className="text-xs text-orange-400">85% occupancy</div>
-              </div>
-            </div>
-
-            {/* Negotiation Intelligence - Compact Row */}
-            <div className="border-t border-slate-200 dark:border-slate-700 pt-4 mt-4">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                <span className="text-sm font-medium text-blue-400">Negotiation Intel</span>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-1">
-                  <span className="text-xs text-muted-foreground">Concessions</span>
-                  <div className="text-lg font-semibold text-foreground">73%</div>
-                  <div className="text-xs text-green-400">offering incentives</div>
-                </div>
-                
-                <div className="space-y-1">
-                  <span className="text-xs text-muted-foreground">Landlord Urgency</span>
-                  <div className="text-lg font-semibold text-foreground">Moderate</div>
-                  <div className="text-xs text-yellow-400">15% price drops</div>
-                </div>
-                
-                <div className="space-y-1">
-                  <span className="text-xs text-muted-foreground">Best Window</span>
-                  <div className="text-lg font-semibold text-foreground">Next 2wks</div>
-                  <div className="text-xs text-blue-400">optimal timing</div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* POI Management Panel - Full Width */}
+      <div className={`w-full transition-all duration-300 ${showSearchSettings ? 'pr-0 lg:pr-[26rem]' : 'pr-0'}`}> {/* Dynamic right padding based on panel visibility */}
+        <ModernPOIManager
+          pointsOfInterest={pointsOfInterest}
+          onAddPOI={addPOI}
+          onRemovePOI={removePOI}
+          onUpdatePriority={updatePOIPriority}
+          showModal={showPOIModal}
+          setShowModal={setShowPOIModal}
+        />
       </div>
 
       {/* View Mode Toggle for Mobile */}
@@ -239,7 +150,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* Main Content Area */}
-      <div className="grid grid-cols-1 xl:grid-cols-6 gap-4 md:gap-6">
+      <div className={`grid grid-cols-1 xl:grid-cols-6 gap-4 md:gap-6 transition-all duration-300 ${showSearchSettings ? 'pr-0 lg:pr-[26rem]' : 'pr-0'}`}> {/* Dynamic right padding for floating panel */}
         {/* Dynamic View Content */}
         <div className={`transition-all duration-300 ${viewMode === 'map' ? 'xl:col-span-4' : 'xl:col-span-6'}`}>
           {viewMode === 'map' ? (
@@ -337,6 +248,124 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
           )}
         </div>
         )}
+      </div>
+
+      {/* Live Market Intel - Prominent Bottom Card */}
+      <div className={`w-full mt-8 transition-all duration-300 ${showSearchSettings ? 'pr-0 lg:pr-[26rem]' : 'pr-0'}`}> {/* Dynamic right padding and top margin */}
+        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg">
+          {/* Orange Header Background */}
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-4 rounded-t-xl">
+            <CardTitle className="flex items-center gap-2 text-white text-xl font-bold">
+              <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+              Live Market Intel
+            </CardTitle>
+            <p className="text-orange-100 text-sm mt-1">Real-time market insights powered by AI</p>
+          </div>
+          
+          <CardContent className="p-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+              {/* Market Data - Enhanced Grid */}
+              <div className="space-y-2">
+                <span className="text-sm text-muted-foreground font-medium">Avg Rent</span>
+                <div className="text-2xl font-bold text-foreground">$2,284</div>
+                <div className="text-sm text-green-400 flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                  +2.3% vs last month
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <span className="text-sm text-muted-foreground font-medium">New Listings</span>
+                <div className="text-2xl font-bold text-foreground">47</div>
+                <div className="text-sm text-green-400 flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                  +8 this week
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <span className="text-sm text-muted-foreground font-medium">Days on Market</span>
+                <div className="text-2xl font-bold text-foreground">12</div>
+                <div className="text-sm text-red-400 flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                  +2 vs last month
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <span className="text-sm text-muted-foreground font-medium">Competition</span>
+                <div className="text-2xl font-bold text-foreground">High</div>
+                <div className="text-sm text-orange-400 flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-orange-400"></div>
+                  85% occupancy
+                </div>
+              </div>
+            </div>
+
+            {/* Negotiation Intelligence - Enhanced Section */}
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-3 h-3 rounded-full bg-blue-400 animate-pulse"></div>
+                <span className="text-lg font-semibold text-blue-400">Negotiation Intelligence</span>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <span className="text-sm text-muted-foreground font-medium">Concessions Available</span>
+                  <div className="text-2xl font-bold text-foreground">73%</div>
+                  <div className="text-sm text-green-400 flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                    offering incentives
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <span className="text-sm text-muted-foreground font-medium">Landlord Urgency</span>
+                  <div className="text-2xl font-bold text-foreground">Moderate</div>
+                  <div className="text-sm text-yellow-400 flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+                    15% price drops
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <span className="text-sm text-muted-foreground font-medium">Best Negotiation Window</span>
+                  <div className="text-2xl font-bold text-foreground">Next 2 weeks</div>
+                  <div className="text-sm text-blue-400 flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                    optimal timing
+                  </div>
+                </div>
+              </div>
+
+              {/* AI Insights */}
+              <div className="mt-6 p-4 rounded-lg bg-gradient-to-r from-orange-500/10 to-orange-600/10 border border-orange-500/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div>
+                  <span className="text-sm font-semibold text-orange-600 dark:text-orange-400">AI Market Prediction</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  85% probability of 1-month free rent offers in luxury complexes within the next 7 days based on current market trends and inventory levels.
+                </p>
+              </div>
+            </div>
+
+            {/* Last Updated */}
+            <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+              <div className="text-xs text-muted-foreground text-center">
+                <span className="inline-flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
+                  AI updated: 2 minutes ago
+                </span>
+                <span className="mx-2">•</span>
+                <span className="inline-flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                  Market data: 2 hours ago
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

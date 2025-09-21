@@ -88,25 +88,21 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
   };
 
   return (
-    <Card className="bg-slate-800/30 border border-slate-700/30 w-full flex flex-col h-full">
-      <CardHeader className="pb-3 flex-shrink-0">
+    <div className="w-full flex flex-col">
+      <div className="pb-3 px-4 flex-shrink-0">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Settings className="w-5 h-5 text-blue-400" />
-            Search Settings
-          </CardTitle>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={resetFilters}
-            className="text-xs hover:bg-slate-700/50"
+            className="text-xs hover:bg-slate-100 dark:hover:bg-slate-700"
           >
-            Reset
+            Reset All
           </Button>
         </div>
-      </CardHeader>
+      </div>
       
-      <CardContent className="flex-1 space-y-6 overflow-y-auto">
+      <div className="flex-1 space-y-6 px-4 pb-4 overflow-y-auto">
         {/* Budget Range */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
@@ -178,8 +174,8 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
           </div>
         </div>
 
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
