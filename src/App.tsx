@@ -55,8 +55,8 @@ const App = () => {
     supabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Missing'
   });
 
-  // Show diagnostics in development or if there are critical issues
-  const showDiagnostics = import.meta.env.DEV || new URLSearchParams(window.location.search).has('debug');
+  // Show diagnostics only in development or when explicitly requested with ?debug parameter
+  const showDiagnostics = import.meta.env.DEV && new URLSearchParams(window.location.search).has('debug');
   
   if (showDiagnostics) {
     return (
