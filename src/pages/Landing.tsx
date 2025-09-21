@@ -244,7 +244,7 @@ const Landing = () => {
               </div>
               
               <div className="flex gap-5" style={{ animation: 'slideInUp 1s ease-out 0.6s backwards' }}>
-                <Button size="lg" className="bg-gradient-primary text-white font-semibold" asChild>
+                <Button size="lg" className="btn-primary" asChild>
                   <Link to="/auth">Get Started Free</Link>
                 </Button>
                 <Button size="lg" variant="outline" className="border-white/20 text-foreground hover:bg-white/10" asChild>
