@@ -73,29 +73,31 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         </div>
       </div>
 
-      {/* POI Management and Search Settings */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-        {/* POI Management Panel */}
-        <div className="flex flex-col">
-          <ModernPOIManager
-            pointsOfInterest={pointsOfInterest}
-            onAddPOI={addPOI}
-            onRemovePOI={removePOI}
-            onUpdatePriority={updatePOIPriority}
-            showModal={showPOIModal}
-            setShowModal={setShowPOIModal}
-          />
+      {/* Search Methods Section */}
+      <div className="space-y-6">
+        {/* Search Methods Header */}
+        <div className="text-center">
+          <h3 className="text-xl font-semibold text-foreground mb-2">Choose Your Search Method</h3>
+          <p className="text-muted-foreground">Use location search or add points of interest to find your perfect apartment</p>
         </div>
 
-        {/* Search Settings Section */}
-        <div className="flex flex-col">
-          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-full">
+        {/* Method Selection Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Method 1: Location Search */}
+          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 relative">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Settings className="w-5 h-5 text-blue-400" />
-                Search Settings
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">Configure your apartment search criteria and preferences</p>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                  <span className="text-blue-400 font-bold text-sm">1</span>
+                </div>
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <MapPin className="w-5 h-5 text-blue-400" />
+                    Location Search
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">Search by address, neighborhood, or city</p>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <EnhancedSearchSettings 
@@ -103,6 +105,44 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
               />
             </CardContent>
           </Card>
+
+          {/* Method 2: Points of Interest */}
+          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 relative">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                  <span className="text-purple-400 font-bold text-sm">2</span>
+                </div>
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Plus className="w-5 h-5 text-purple-400" />
+                    Points of Interest
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">Add places important to your lifestyle</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <ModernPOIManager
+                pointsOfInterest={pointsOfInterest}
+                onAddPOI={addPOI}
+                onRemovePOI={removePOI}
+                onUpdatePriority={updatePOIPriority}
+                showModal={showPOIModal}
+                setShowModal={setShowPOIModal}
+              />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* OR Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-background px-4 text-muted-foreground font-medium">OR COMBINE BOTH METHODS</span>
+          </div>
         </div>
       </div>
 
