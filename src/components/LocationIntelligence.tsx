@@ -40,7 +40,7 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   const preferencesCount = getAIPreferencesCount();
   const hasAIPreferences = preferencesCount > 0;
 
-  console.log('🎯 Location Intelligence loaded:', { userProfile, preferencesCount, hasAIPreferences });
+  console.log('🎯 Location Intelligence loaded:', { userProfile, preferencesCount, hasAIPreferences, showSearchSettings });
 
   return (
     <div id="location-intelligence" className="w-full space-y-6">
@@ -88,11 +88,10 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
       </div>
 
       {/* Floating Search Settings Panel - Top Right */}
-      {showSearchSettings && (
-        <div className="fixed top-20 right-4 z-40 w-80 lg:w-96 max-h-[calc(100vh-6rem)] overflow-hidden">
-          <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex items-center justify-between">
+      <div className="fixed top-20 right-4 z-50 w-80 lg:w-96 max-h-[calc(100vh-6rem)] overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 backdrop-blur-md border-2 border-orange-500 rounded-xl shadow-2xl">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+            <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Settings className="w-5 h-5 text-blue-400" />
                   <h3 className="text-lg font-semibold text-foreground">Search Settings</h3>
@@ -103,17 +102,16 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
                 >
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">Configure your search criteria</p>
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">Configure your search criteria</p>
             </div>
             <div className="max-h-[500px] overflow-y-auto">
               <EnhancedSearchSettings 
                 onSettingsChange={setSearchSettings}
               />
             </div>
-          </div>
         </div>
-      )}
+      </div>
 
       {/* POI Management Panel - Full Width */}
       <div className={`w-full transition-all duration-300 ${showSearchSettings ? 'pr-0 lg:pr-[26rem]' : 'pr-0'}`}> {/* Dynamic right padding based on panel visibility */}
