@@ -345,7 +345,7 @@ const PropertyDetails: React.FC = () => {
                   <div className="text-center">
                     <div className="text-xs text-muted-foreground mb-1">Monthly Savings</div>
                     <div className="text-2xl font-bold text-green-600">
-                      ${(property.savings + 200).toLocaleString()}
+                      ${((property.originalPrice - property.effectivePrice) + 200).toLocaleString()}
                     </div>
                   </div>
                   <div className="text-center">

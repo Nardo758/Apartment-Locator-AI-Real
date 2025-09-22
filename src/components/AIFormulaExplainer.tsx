@@ -125,16 +125,16 @@ const AIFormulaExplainer: React.FC = () => {
           <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/30">
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Line 1: AI Price Advantage</span>
-                <span className="text-purple-400 font-mono">Original - AI_Price = AI_Savings</span>
+                <span className="text-muted-foreground">Line 1: Original ($2,350) - AI Predicted ($2,005)</span>
+                <span className="text-purple-400 font-mono">= Potential Savings ($345)</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Line 2: Concession Value</span>
-                <span className="text-blue-400 font-mono">Concession_Amount = Additional_Savings</span>
+                <span className="text-muted-foreground">Line 2: Concession Value ($200)</span>
+                <span className="text-blue-400 font-mono">= Additional Savings ($200)</span>
               </div>
               <div className="flex items-center justify-between border-t border-slate-600/30 pt-2">
-                <span className="text-foreground font-medium">Line 3: Total Savings</span>
-                <span className="text-green-400 font-mono">(AI + Concessions) × 12 = Annual</span>
+                <span className="text-foreground font-medium">Line 3: Total Monthly ($345 + $200 = $545)</span>
+                <span className="text-green-400 font-mono">Annual ($545 × 12 = $6,540)</span>
               </div>
             </div>
           </div>

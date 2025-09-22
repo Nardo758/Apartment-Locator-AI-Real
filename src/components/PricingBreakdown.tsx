@@ -18,6 +18,14 @@ const PricingBreakdown: React.FC<PricingBreakdownProps> = ({
   successRate,
   monthlySavings
 }) => {
+  // Calculation Logic:
+  // Line 1: Original - AI Predicted = Potential Savings
+  const potentialSavings = originalPrice - aiPrice;
+  // Line 2: Concession Value = Additional Savings
+  const additionalSavings = concessions;
+  // Line 3: Total Monthly (Potential + Additional), Annual (Total Monthly × 12)
+  const totalMonthlySavings = potentialSavings + additionalSavings;
+  const totalAnnualSavings = totalMonthlySavings * 12;
   return (
     <div className="space-y-4">
       {/* Visual Card Layout */}
@@ -64,7 +72,7 @@ const PricingBreakdown: React.FC<PricingBreakdownProps> = ({
           <div className="text-sm text-slate-300">
             Your effective monthly cost{' '}
             <span className="text-teal-400 font-medium">
-              (Save ${monthlySavings.toLocaleString()}/mo)
+              (Save ${totalMonthlySavings.toLocaleString()}/mo)
             </span>
           </div>
         </div>
@@ -115,7 +123,7 @@ const PricingBreakdown: React.FC<PricingBreakdownProps> = ({
         
         {/* Summary note */}
         <div className="text-xs text-slate-400 text-center mt-4">
-          Total monthly savings: ${monthlySavings.toLocaleString()}/mo • Annual savings: ${(monthlySavings * 12).toLocaleString()}/yr
+          Line 1: ${potentialSavings.toLocaleString()} • Line 2: ${additionalSavings.toLocaleString()} • Line 3: ${totalMonthlySavings.toLocaleString()}/mo (${totalAnnualSavings.toLocaleString()}/yr)
         </div>
       </div>
     </div>
