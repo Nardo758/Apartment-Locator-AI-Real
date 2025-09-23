@@ -355,6 +355,14 @@ const PropertyDetails: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Concession Value Line Item */}
+                <div className="flex items-center justify-center mb-2">
+                  <div className="text-sm">
+                    <span className="text-muted-foreground">Concession Value: </span>
+                    <span className="font-semibold text-green-600">${monthlyConcession.toLocaleString()}/mo</span>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-green-200 dark:border-green-800">
                   <div className="text-center">
                     <div className="text-xs text-muted-foreground mb-1">Monthly Savings</div>
