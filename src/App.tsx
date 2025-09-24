@@ -39,6 +39,8 @@ import ResponsiveDashboard from "./components/design/ResponsiveDashboard";
 import { RentVsBuyAnalysis } from "./components/RentVsBuyAnalysis";
 import { EnhancedPricingDashboard } from "./components/EnhancedPricingDashboard";
 import MarketIntelRevamped from "./pages/MarketIntelRevamped";
+import DataExport from "./pages/DataExport";
+import "./lib/data-tracker"; // Initialize data tracking
 
 
 const queryClient = new QueryClient();
@@ -85,6 +87,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/data-export" element={<DataExport />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -151,6 +151,12 @@ const Header: React.FC<HeaderProps> = ({ onSignOut }) => {
                   Help & Support
                 </Link>
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/data-export" className="flex items-center gap-2">
+                  <Settings size={16} />
+                  Export My Data
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               {onSignOut && (
                 <DropdownMenuItem onClick={onSignOut} className="flex items-center gap-2 text-red-600">
