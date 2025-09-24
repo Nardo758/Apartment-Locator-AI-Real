@@ -16,6 +16,8 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
       pageName?: string;
       componentName?: string;
       actionDetails?: any;
+      beforeState?: any;
+      afterState?: any;
       metadata?: any;
     }
   ) => {
@@ -30,15 +32,20 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
         action_details: details.actionDetails,
         metadata: {
           ...details.metadata,
+          before_state: details.beforeState,
+          after_state: details.afterState,
           timestamp: new Date().toISOString(),
           url: window.location.href,
-          user_agent: navigator.userAgent
+          user_agent: navigator.userAgent,
+          screen_resolution: `${window.screen.width}x${window.screen.height}`
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Failed to track activity:', error);
+      }
     } catch (error) {
-      console.error('Activity tracking failed:', error);
+      console.error('Failed to track activity:', error);
     }
   }, [user, pageContext, componentContext]);
 
@@ -79,14 +86,26 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     });
   }, [trackActivity]);
 
-  const trackSearch = useCallback((query: string, searchType: string, results?: any) => {
-    trackActivity('search', {
-      actionDetails: {
-        query,
-        search_type: searchType,
-        results_count: results?.length || 0
-      },
-      metadata: { results }
+  const trackSearch = useCallback((searchParams: any, resultsCount: number) => {
+    trackActivity('search_executed', {
+      componentName: 'search',
+      actionDetails: searchParams,
+      metadata: { results_count: resultsCount }
+    });
+  }, [trackActivity]);
+
+  const trackApartmentInteraction = useCallback((apartmentId: string, action: string, details?: any) => {
+    trackActivity('apartment_interaction', {
+      componentName: 'apartment_card',
+      actionDetails: { apartment_id: apartmentId, action, ...details }
+    });
+  }, [trackActivity]);
+
+  const trackFormSubmission = useCallback((formName: string, formData: any, success: boolean) => {
+    trackActivity('form_submission', {
+      componentName: formName,
+      actionDetails: formData,
+      metadata: { success, form_name: formName }
     });
   }, [trackActivity]);
 
@@ -184,11 +203,15 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
 
   return {
     trackActivity,
+    trackPageVisit,
+    trackPreferenceChange,
+    trackSearch,
+    trackApartmentInteraction,
+    trackFormSubmission,
     trackButtonClick,
     trackFormSubmit,
     trackFormFieldChange,
     trackFilterChange,
-    trackSearch,
     trackModalAction,
     trackUserPreferenceChange,
     trackFeatureUsage,
@@ -196,8 +219,6 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     trackErrorOccurrence,
     trackTimeSpent,
     trackPropertyInteraction,
-    trackAIInteraction,
-    trackPageVisit,
-    trackPreferenceChange
+    trackAIInteraction
   };
 };
