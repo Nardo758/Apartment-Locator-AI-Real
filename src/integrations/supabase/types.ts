@@ -170,6 +170,72 @@ export type Database = {
         }
         Relationships: []
       }
+      user_preferences: {
+        Row: {
+          additional_notes: string | null
+          amenities: string[] | null
+          bedrooms: string | null
+          bio: string | null
+          budget: number | null
+          created_at: string
+          deal_breakers: string[] | null
+          has_completed_ai_programming: boolean | null
+          id: string
+          lifestyle: string | null
+          location: string | null
+          max_drive_time: number | null
+          preferences: Json | null
+          priorities: string[] | null
+          search_radius: number | null
+          updated_at: string
+          use_case: string | null
+          user_id: string
+          work_schedule: string | null
+        }
+        Insert: {
+          additional_notes?: string | null
+          amenities?: string[] | null
+          bedrooms?: string | null
+          bio?: string | null
+          budget?: number | null
+          created_at?: string
+          deal_breakers?: string[] | null
+          has_completed_ai_programming?: boolean | null
+          id?: string
+          lifestyle?: string | null
+          location?: string | null
+          max_drive_time?: number | null
+          preferences?: Json | null
+          priorities?: string[] | null
+          search_radius?: number | null
+          updated_at?: string
+          use_case?: string | null
+          user_id: string
+          work_schedule?: string | null
+        }
+        Update: {
+          additional_notes?: string | null
+          amenities?: string[] | null
+          bedrooms?: string | null
+          bio?: string | null
+          budget?: number | null
+          created_at?: string
+          deal_breakers?: string[] | null
+          has_completed_ai_programming?: boolean | null
+          id?: string
+          lifestyle?: string | null
+          location?: string | null
+          max_drive_time?: number | null
+          preferences?: Json | null
+          priorities?: string[] | null
+          search_radius?: number | null
+          updated_at?: string
+          use_case?: string | null
+          user_id?: string
+          work_schedule?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
