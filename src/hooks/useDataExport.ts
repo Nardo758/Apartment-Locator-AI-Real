@@ -38,9 +38,16 @@ export const useDataExport = () => {
   const requestExport = async (request: ExportRequest) => {
     setIsLoading(true);
     try {
+      // Get current user
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        throw new Error('User must be authenticated to request data export');
+      }
+
       const { data, error } = await supabase
         .from('data_export_requests')
         .insert([{
+          user_id: session.user.id,
           export_type: request.exportType,
           export_format: request.exportFormat,
           data_categories: request.dataCategories,

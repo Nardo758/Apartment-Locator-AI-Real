@@ -98,6 +98,51 @@ export type Database = {
         }
         Relationships: []
       }
+      rental_offers: {
+        Row: {
+          ai_suggestions: Json | null
+          applicant_email: string
+          applicant_name: string
+          applicant_phone: string | null
+          created_at: string
+          id: string
+          leasing_office_email: string
+          offer_details: Json | null
+          property_address: string
+          status: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          ai_suggestions?: Json | null
+          applicant_email: string
+          applicant_name: string
+          applicant_phone?: string | null
+          created_at?: string
+          id?: string
+          leasing_office_email: string
+          offer_details?: Json | null
+          property_address: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          ai_suggestions?: Json | null
+          applicant_email?: string
+          applicant_name?: string
+          applicant_phone?: string | null
+          created_at?: string
+          id?: string
+          leasing_office_email?: string
+          offer_details?: Json | null
+          property_address?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
           access_token: string | null
@@ -170,6 +215,60 @@ export type Database = {
         }
         Relationships: []
       }
+      user_activity_logs: {
+        Row: {
+          activity_data: Json | null
+          activity_type: string
+          created_at: string
+          id: string
+          session_id: string
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: string
+          created_at?: string
+          id?: string
+          session_id: string
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: string
+          created_at?: string
+          id?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
+      user_content_logs: {
+        Row: {
+          action: string
+          content_data: Json | null
+          content_id: string | null
+          content_type: string
+          created_at: string
+          id: string
+          session_id: string
+        }
+        Insert: {
+          action: string
+          content_data?: Json | null
+          content_id?: string | null
+          content_type: string
+          created_at?: string
+          id?: string
+          session_id: string
+        }
+        Update: {
+          action?: string
+          content_data?: Json | null
+          content_id?: string | null
+          content_type?: string
+          created_at?: string
+          id?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           additional_notes: string | null
@@ -233,6 +332,36 @@ export type Database = {
           use_case?: string | null
           user_id?: string
           work_schedule?: string | null
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          device_info: Json | null
+          id: string
+          logout_time: string | null
+          session_id: string
+          start_time: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_info?: Json | null
+          id?: string
+          logout_time?: string | null
+          session_id: string
+          start_time?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_info?: Json | null
+          id?: string
+          logout_time?: string | null
+          session_id?: string
+          start_time?: string
+          user_id?: string | null
         }
         Relationships: []
       }
