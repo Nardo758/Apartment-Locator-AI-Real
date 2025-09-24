@@ -44,6 +44,99 @@ export type Database = {
         }
         Relationships: []
       }
+      data_export_requests: {
+        Row: {
+          created_at: string
+          data_categories: string[] | null
+          date_range_end: string | null
+          date_range_start: string | null
+          delivery_method: string
+          error_message: string | null
+          expires_at: string | null
+          export_format: string
+          export_type: string
+          file_url: string | null
+          id: string
+          progress_percentage: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_categories?: string[] | null
+          date_range_end?: string | null
+          date_range_start?: string | null
+          delivery_method: string
+          error_message?: string | null
+          expires_at?: string | null
+          export_format: string
+          export_type: string
+          file_url?: string | null
+          id?: string
+          progress_percentage?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data_categories?: string[] | null
+          date_range_end?: string | null
+          date_range_start?: string | null
+          delivery_method?: string
+          error_message?: string | null
+          expires_at?: string | null
+          export_format?: string
+          export_type?: string
+          file_url?: string | null
+          id?: string
+          progress_percentage?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscribers: {
+        Row: {
+          access_token: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          plan_end: string
+          plan_type: string
+          status: string
+          stripe_session_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          plan_end: string
+          plan_type: string
+          status?: string
+          stripe_session_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          plan_end?: string
+          plan_type?: string
+          status?: string
+          stripe_session_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_activities: {
         Row: {
           action_details: Json | null
