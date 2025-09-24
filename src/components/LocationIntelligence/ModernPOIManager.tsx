@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PointOfInterest } from '@/hooks/useLocationIntelligence';
 import { designSystem } from '@/lib/design-system';
+import { dataTracker } from '@/lib/data-tracker';
 
 interface ModernPOIManagerProps {
   pointsOfInterest: PointOfInterest[];
@@ -132,6 +133,21 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
         ...newPOI,
         coordinates: { lat: 30.2672, lng: -97.7431 }
       };
+      
+      // Track POI addition
+      dataTracker.trackContent({
+        contentType: 'point_of_interest',
+        action: 'create',
+        contentData: {
+          poi_category: newPOI.category,
+          poi_priority: newPOI.priority,
+          transport_mode: newPOI.transportMode,
+          max_time: newPOI.maxTime,
+          has_address: !!newPOI.address,
+          timestamp: new Date().toISOString()
+        }
+      });
+      
       onAddPOI(poiToAdd);
       setNewPOI({
         name: '',

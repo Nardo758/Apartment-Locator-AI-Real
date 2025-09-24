@@ -13,6 +13,7 @@ import { designSystem } from '@/lib/design-system';
 import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import ModernCard from '@/components/modern/ModernCard';
 import Header from '@/components/Header';
+import { dataTracker } from '@/lib/data-tracker';
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
@@ -40,6 +41,14 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     checkAuth();
+    
+    // Track profile page visit
+    dataTracker.trackPageView();
+    dataTracker.trackContent({
+      contentType: 'profile',
+      action: 'view',
+      contentData: { page: 'profile_settings' }
+    });
   }, []);
 
   const checkAuth = async () => {
@@ -97,7 +106,23 @@ const Profile: React.FC = () => {
   const handleSave = async () => {
     if (!user) return;
     
+    const oldProfile = { ...profile };
     setLoading(true);
+    
+    // Track profile update attempt
+    dataTracker.trackContent({
+      contentType: 'profile',
+      action: 'update',
+      contentData: {
+        fields_changed: Object.keys(profile).filter(key => 
+          profile[key as keyof typeof profile] !== oldProfile[key as keyof typeof oldProfile]
+        ),
+        has_financial_info: !!(profile.gross_income || profile.current_rent),
+        employment_type: profile.employment_type,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
     try {
       const { error } = await supabase
         .from('user_profiles')
@@ -139,6 +164,18 @@ const Profile: React.FC = () => {
       plaid_account_id: metadata.account_id,
       bank_verified: true,
       income_verified: true
+    });
+    
+    // Track bank connection
+    dataTracker.trackContent({
+      contentType: 'financial_verification',
+      action: 'create',
+      contentData: {
+        verification_type: 'bank_connection',
+        provider: 'plaid',
+        account_type: metadata.account_type || 'unknown',
+        timestamp: new Date().toISOString()
+      }
     });
     
     toast({

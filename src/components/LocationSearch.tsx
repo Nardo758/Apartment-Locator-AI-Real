@@ -4,6 +4,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { dataTracker } from '@/lib/data-tracker';
 
 interface PointOfInterest {
   id: string;
@@ -32,6 +33,16 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationChange, curre
 
   const handleSearch = () => {
     setIsSearching(true);
+    
+    // Track location search
+    dataTracker.trackSearch(searchValue, {
+      search_type: 'location',
+      search_radius: radius,
+      max_drive_time: maxDriveTime,
+      points_of_interest_count: pointsOfInterest.length,
+      timestamp: new Date().toISOString()
+    });
+    
     setTimeout(() => {
       const [city, state] = searchValue.split(', ');
       onLocationChange({ 
@@ -48,6 +59,15 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationChange, curre
   const adjustRadius = (change: number) => {
     const newRadius = Math.max(5, Math.min(50, radius + change));
     setRadius(newRadius);
+    
+    // Track radius adjustment
+    dataTracker.trackInteraction('adjust_search_radius', 'radius_slider', {
+      old_radius: radius,
+      new_radius: newRadius,
+      change: change,
+      timestamp: new Date().toISOString()
+    });
+    
     updateLocation({ radius: newRadius });
   };
 
@@ -76,6 +96,20 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationChange, curre
         ...newPOI
       };
       const updatedPOIs = [...pointsOfInterest, poi];
+      
+      // Track POI addition
+      dataTracker.trackContent({
+        contentType: 'point_of_interest',
+        action: 'create',
+        contentData: {
+          poi_name: newPOI.name,
+          transport_mode: newPOI.transportMode,
+          max_time: newPOI.maxTime,
+          total_pois: updatedPOIs.length,
+          timestamp: new Date().toISOString()
+        }
+      });
+      
       setPointsOfInterest(updatedPOIs);
       updateLocation({ pointsOfInterest: updatedPOIs });
       setNewPOI({ name: '', address: '', maxTime: 30, transportMode: 'driving' });
@@ -84,12 +118,34 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationChange, curre
   };
 
   const removePOI = (id: string) => {
+    const poiToRemove = pointsOfInterest.find(poi => poi.id === id);
     const updatedPOIs = pointsOfInterest.filter(poi => poi.id !== id);
+    
+    // Track POI removal
+    if (poiToRemove) {
+      dataTracker.trackContent({
+        contentType: 'point_of_interest',
+        action: 'delete',
+        contentData: {
+          poi_name: poiToRemove.name,
+          poi_id: id,
+          remaining_pois: updatedPOIs.length,
+          timestamp: new Date().toISOString()
+        }
+      });
+    }
+    
     setPointsOfInterest(updatedPOIs);
     updateLocation({ pointsOfInterest: updatedPOIs });
   };
 
   const quickAddPOI = (name: string) => {
+    // Track quick add POI click
+    dataTracker.trackClick('quick_add_poi', {
+      poi_type: name,
+      timestamp: new Date().toISOString()
+    });
+    
     setNewPOI({ ...newPOI, name });
     setIsAddingPOI(true);
   };

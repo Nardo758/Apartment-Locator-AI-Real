@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
+import { dataTracker } from '@/lib/data-tracker';
 
 interface SearchSettingsProps {
   onSettingsChange?: (settings: SearchSettings) => void;
@@ -44,6 +45,20 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
     const updated = { ...settings, ...newSettings };
     setSettings(updated);
     onSettingsChange?.(updated);
+    
+    // Track search settings changes
+    dataTracker.trackContent({
+      contentType: 'search_settings',
+      action: 'update',
+      contentData: {
+        changed_settings: Object.keys(newSettings),
+        budget_range: updated.budgetRange,
+        search_radius: updated.searchRadius,
+        selected_amenities: updated.amenities,
+        bedrooms_selected: updated.bedrooms,
+        timestamp: new Date().toISOString()
+      }
+    });
   };
 
   const bedroomOptions = [
@@ -62,6 +77,14 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
     const newBedrooms = settings.bedrooms.includes(bedroom)
       ? settings.bedrooms.filter(b => b !== bedroom)
       : [...settings.bedrooms, bedroom];
+    
+    // Track bedroom filter change
+    dataTracker.trackInteraction('toggle_bedroom_filter', bedroom, {
+      action: settings.bedrooms.includes(bedroom) ? 'remove' : 'add',
+      current_bedrooms: settings.bedrooms,
+      new_bedrooms: newBedrooms
+    });
+    
     updateSettings({ bedrooms: newBedrooms });
   };
 
@@ -69,6 +92,14 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
     const newAmenities = settings.amenities.includes(amenity)
       ? settings.amenities.filter(a => a !== amenity)
       : [...settings.amenities, amenity];
+    
+    // Track amenity filter change
+    dataTracker.trackInteraction('toggle_amenity_filter', amenity, {
+      action: settings.amenities.includes(amenity) ? 'remove' : 'add',
+      current_amenities: settings.amenities,
+      new_amenities: newAmenities
+    });
+    
     updateSettings({ amenities: newAmenities });
   };
 
@@ -83,6 +114,14 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
       amenities: [],
       moveInDate: null
     };
+    
+    // Track filter reset
+    dataTracker.trackInteraction('reset_search_filters', 'all_filters', {
+      previous_settings: settings,
+      reset_to: defaultSettings,
+      timestamp: new Date().toISOString()
+    });
+    
     setSettings(defaultSettings);
     onSettingsChange?.(defaultSettings);
   };

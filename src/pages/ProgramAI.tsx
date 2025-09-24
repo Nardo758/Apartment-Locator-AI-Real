@@ -18,6 +18,7 @@ import { ModernCard } from '@/components/modern/ModernCard';
 import { ModernPageLayout } from '@/components/modern/ModernPageLayout';
 import { designSystem } from '@/lib/design-system';
 import EnhancedSearchSettings, { SearchSettings } from '@/components/LocationIntelligence/EnhancedSearchSettings';
+import { dataTracker } from '@/lib/data-tracker';
 
 interface AIPreferences {
   // Housing
@@ -208,6 +209,14 @@ const ProgramAI = () => {
     };
 
     loadUserProfile();
+    
+    // Track page visit
+    dataTracker.trackPageView();
+    dataTracker.trackContent({
+      contentType: 'ai_preferences',
+      action: 'view',
+      contentData: { step: 'initial_load' }
+    });
   }, []);
 
   const commonAmenities = [
@@ -230,12 +239,34 @@ const ProgramAI = () => {
 
   const updatePreference = (key: keyof AIPreferences, value: any) => {
     setPreferences(prev => ({ ...prev, [key]: value }));
+    
+    // Track preference changes
+    dataTracker.trackContent({
+      contentType: 'ai_preferences',
+      action: 'update',
+      contentData: {
+        preference_key: key,
+        old_value: preferences[key],
+        new_value: value,
+        timestamp: new Date().toISOString()
+      }
+    });
   };
 
   const toggleArrayItem = (array: string[], item: string) => {
-    return array.includes(item) 
+    const newArray = array.includes(item) 
       ? array.filter(i => i !== item)
       : [...array, item];
+    
+    // Track array item toggles
+    dataTracker.trackInteraction('toggle_array_item', item, {
+      action: array.includes(item) ? 'remove' : 'add',
+      array_type: 'preferences',
+      current_array: array,
+      item_toggled: item
+    });
+    
+    return newArray;
   };
 
   const syncWithGlobalState = () => {
@@ -350,10 +381,37 @@ const ProgramAI = () => {
 
       if (error) throw error;
 
+      // Track successful save
+      dataTracker.trackContent({
+        contentType: 'ai_preferences',
+        action: 'create',
+        contentData: {
+          preferences_count: Object.keys(preferences).length,
+          amenities_selected: preferences.amenities.length,
+          deal_breakers_selected: preferences.dealBreakers.length,
+          priorities_selected: preferences.priorities.length,
+          completion_time: Date.now(),
+          has_bio: !!preferences.bio,
+          has_use_case: !!preferences.useCase
+        }
+      });
+
       toast.success('AI preferences saved successfully!');
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Error saving preferences:', error);
+      
+      // Track save error
+      dataTracker.trackContent({
+        contentType: 'ai_preferences',
+        action: 'update',
+        contentData: {
+          error: error.message,
+          step: 'save_failed',
+          timestamp: new Date().toISOString()
+        }
+      });
+      
       toast.error('Failed to save preferences: ' + error.message);
     } finally {
       setSaving(false);

@@ -98,6 +98,13 @@ const Header: React.FC<HeaderProps> = ({ onSignOut }) => {
                   Help & Support
                 </Link>
                 <Link
+                  to="/data-export"
+                  className="block px-3 py-2 text-muted-foreground hover:text-foreground"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Export My Data
+                </Link>
+                <Link
                   to="/contact"
                   className="block px-3 py-2 text-muted-foreground hover:text-foreground"
                   onClick={() => setMobileMenuOpen(false)}
