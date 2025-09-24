@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
-import { dataTracker } from '@/lib/data-tracker';
+import { supabase } from '@/integrations/supabase/client';
+import { useUser } from './useUser';
 
 export interface UserInteractionHookProps {
   pageContext?: string;
@@ -7,165 +8,182 @@ export interface UserInteractionHookProps {
 }
 
 export const useUserTracking = ({ pageContext, componentContext }: UserInteractionHookProps = {}) => {
-  
+  const { user } = useUser();
+
+  const trackActivity = useCallback(async (
+    activityType: string,
+    details: {
+      pageName?: string;
+      componentName?: string;
+      actionDetails?: any;
+      metadata?: any;
+    }
+  ) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase.from('user_activities').insert({
+        user_id: user.id,
+        activity_type: activityType,
+        page_name: details.pageName || pageContext,
+        component_name: details.componentName || componentContext,
+        action_details: details.actionDetails,
+        metadata: {
+          ...details.metadata,
+          timestamp: new Date().toISOString(),
+          url: window.location.href,
+          user_agent: navigator.userAgent
+        }
+      });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Activity tracking failed:', error);
+    }
+  }, [user, pageContext, componentContext]);
+
   const trackButtonClick = useCallback((buttonName: string, additionalData?: any) => {
-    dataTracker.trackClick(`button_${buttonName}`, {
-      page: pageContext,
-      component: componentContext,
-      ...additionalData,
-      timestamp: new Date().toISOString()
+    trackActivity('button_click', {
+      actionDetails: { button_name: buttonName },
+      metadata: additionalData
     });
-  }, [pageContext, componentContext]);
+  }, [trackActivity]);
 
   const trackFormSubmit = useCallback((formType: string, formData?: any) => {
-    dataTracker.trackContent({
-      contentType: 'form_submission',
-      action: 'create',
-      contentData: {
+    trackActivity('form_submission', {
+      actionDetails: {
         form_type: formType,
-        page: pageContext,
-        component: componentContext,
-        form_fields: formData ? Object.keys(formData) : [],
-        timestamp: new Date().toISOString(),
-        ...formData
-      }
+        form_fields: formData ? Object.keys(formData) : []
+      },
+      metadata: formData
     });
-  }, [pageContext, componentContext]);
+  }, [trackActivity]);
 
   const trackFormFieldChange = useCallback((fieldName: string, oldValue: any, newValue: any) => {
-    dataTracker.trackContent({
-      contentType: 'form_field_change',
-      action: 'update',
-      contentData: {
+    trackActivity('form_field_change', {
+      actionDetails: {
         field_name: fieldName,
         old_value: oldValue,
-        new_value: newValue,
-        page: pageContext,
-        component: componentContext,
-        timestamp: new Date().toISOString()
+        new_value: newValue
       }
     });
-  }, [pageContext, componentContext]);
+  }, [trackActivity]);
 
   const trackFilterChange = useCallback((filterType: string, filterValue: any, actionType: 'add' | 'remove' | 'update') => {
-    dataTracker.trackInteraction('filter_change', filterType, {
-      filter_value: filterValue,
-      action_type: actionType,
-      page: pageContext,
-      component: componentContext,
-      timestamp: new Date().toISOString()
+    trackActivity('filter_change', {
+      actionDetails: {
+        filter_type: filterType,
+        filter_value: filterValue,
+        action_type: actionType
+      }
     });
-  }, [pageContext, componentContext]);
+  }, [trackActivity]);
 
   const trackSearch = useCallback((query: string, searchType: string, results?: any) => {
-    dataTracker.trackSearch(query, {
-      search_type: searchType,
-      page: pageContext,
-      component: componentContext,
-      results_count: results?.length || 0,
-      timestamp: new Date().toISOString()
+    trackActivity('search', {
+      actionDetails: {
+        query,
+        search_type: searchType,
+        results_count: results?.length || 0
+      },
+      metadata: { results }
     });
-  }, [pageContext, componentContext]);
+  }, [trackActivity]);
 
   const trackModalAction = useCallback((modalName: string, action: 'open' | 'close' | 'submit') => {
-    dataTracker.trackInteraction('modal_action', modalName, {
-      action: action,
-      page: pageContext,
-      component: componentContext,
-      timestamp: new Date().toISOString()
+    trackActivity('modal_action', {
+      actionDetails: {
+        modal_name: modalName,
+        action: action
+      }
     });
-  }, [pageContext, componentContext]);
+  }, [trackActivity]);
 
   const trackUserPreferenceChange = useCallback((preferenceType: string, oldValue: any, newValue: any) => {
-    dataTracker.trackContent({
-      contentType: 'user_preference',
-      action: 'update',
-      contentData: {
+    trackActivity('preference_change', {
+      actionDetails: {
         preference_type: preferenceType,
         old_value: oldValue,
-        new_value: newValue,
-        page: pageContext,
-        component: componentContext,
-        timestamp: new Date().toISOString()
+        new_value: newValue
       }
     });
-  }, [pageContext, componentContext]);
+  }, [trackActivity]);
 
   const trackFeatureUsage = useCallback((featureName: string, usageData?: any) => {
-    dataTracker.trackInteraction('feature_usage', featureName, {
-      page: pageContext,
-      component: componentContext,
-      usage_data: usageData,
-      timestamp: new Date().toISOString()
+    trackActivity('feature_usage', {
+      actionDetails: {
+        feature_name: featureName
+      },
+      metadata: usageData
     });
-  }, [pageContext, componentContext]);
+  }, [trackActivity]);
 
   const trackNavigationAction = useCallback((fromPage: string, toPage: string, trigger?: string) => {
-    dataTracker.trackInteraction('navigation', 'page_change', {
-      from_page: fromPage,
-      to_page: toPage,
-      trigger: trigger, // 'click', 'programmatic', 'back_button', etc.
-      timestamp: new Date().toISOString()
-    });
-  }, []);
-
-  const trackErrorOccurrence = useCallback((errorType: string, errorMessage: string, errorContext?: any) => {
-    dataTracker.trackContent({
-      contentType: 'error_occurrence',
-      action: 'create',
-      contentData: {
-        error_type: errorType,
-        error_message: errorMessage,
-        page: pageContext,
-        component: componentContext,
-        error_context: errorContext,
-        timestamp: new Date().toISOString()
+    trackActivity('navigation', {
+      actionDetails: {
+        from_page: fromPage,
+        to_page: toPage,
+        trigger: trigger
       }
     });
-  }, [pageContext, componentContext]);
+  }, [trackActivity]);
+
+  const trackErrorOccurrence = useCallback((errorType: string, errorMessage: string, errorContext?: any) => {
+    trackActivity('error_occurrence', {
+      actionDetails: {
+        error_type: errorType,
+        error_message: errorMessage
+      },
+      metadata: errorContext
+    });
+  }, [trackActivity]);
 
   const trackTimeSpent = useCallback((startTime: number, activityType: string) => {
     const timeSpent = Date.now() - startTime;
-    dataTracker.trackInteraction('time_spent', activityType, {
-      duration_ms: timeSpent,
-      duration_seconds: Math.round(timeSpent / 1000),
-      page: pageContext,
-      component: componentContext,
-      timestamp: new Date().toISOString()
+    trackActivity('time_spent', {
+      actionDetails: {
+        activity_type: activityType,
+        duration_ms: timeSpent,
+        duration_seconds: Math.round(timeSpent / 1000)
+      }
     });
-  }, [pageContext, componentContext]);
+  }, [trackActivity]);
 
   const trackPropertyInteraction = useCallback((propertyId: string, interactionType: 'view' | 'save' | 'contact' | 'share' | 'compare') => {
-    dataTracker.trackContent({
-      contentType: 'property_interaction',
-      action: 'create',
-      contentId: propertyId,
-      contentData: {
-        interaction_type: interactionType,
+    trackActivity('property_interaction', {
+      actionDetails: {
         property_id: propertyId,
-        page: pageContext,
-        component: componentContext,
-        timestamp: new Date().toISOString()
+        interaction_type: interactionType
       }
     });
-  }, [pageContext, componentContext]);
+  }, [trackActivity]);
 
   const trackAIInteraction = useCallback((aiFeature: string, inputData?: any, outputData?: any) => {
-    dataTracker.trackContent({
-      contentType: 'ai_interaction',
-      action: 'create',
-      contentData: {
+    trackActivity('ai_interaction', {
+      actionDetails: {
         ai_feature: aiFeature,
         input_data: inputData,
-        output_data: outputData,
-        page: pageContext,
-        component: componentContext,
-        timestamp: new Date().toISOString()
+        output_data: outputData
       }
     });
-  }, [pageContext, componentContext]);
+  }, [trackActivity]);
+
+  const trackPageVisit = useCallback((pageName: string, additionalData = {}) => {
+    trackActivity('page_visit', {
+      pageName,
+      metadata: additionalData
+    });
+  }, [trackActivity]);
+
+  const trackPreferenceChange = useCallback((field: string, oldValue: any, newValue: any) => {
+    trackActivity('preference_change', {
+      componentName: 'preferences_form',
+      actionDetails: { field, old_value: oldValue, new_value: newValue }
+    });
+  }, [trackActivity]);
 
   return {
+    trackActivity,
     trackButtonClick,
     trackFormSubmit,
     trackFormFieldChange,
@@ -178,6 +196,8 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     trackErrorOccurrence,
     trackTimeSpent,
     trackPropertyInteraction,
-    trackAIInteraction
+    trackAIInteraction,
+    trackPageVisit,
+    trackPreferenceChange
   };
 };
