@@ -44,6 +44,51 @@ export type Database = {
         }
         Relationships: []
       }
+      apartments: {
+        Row: {
+          address: string
+          amenities: Json | null
+          bathrooms: number | null
+          bedrooms: number | null
+          contact_info: Json | null
+          created_at: string
+          id: string
+          images: Json | null
+          location_data: Json | null
+          rent: number | null
+          square_feet: number | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          amenities?: Json | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          contact_info?: Json | null
+          created_at?: string
+          id: string
+          images?: Json | null
+          location_data?: Json | null
+          rent?: number | null
+          square_feet?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          amenities?: Json | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          contact_info?: Json | null
+          created_at?: string
+          id?: string
+          images?: Json | null
+          location_data?: Json | null
+          rent?: number | null
+          square_feet?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       data_export_requests: {
         Row: {
           created_at: string
@@ -140,6 +185,66 @@ export type Database = {
           status?: string | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      saved_apartments: {
+        Row: {
+          apartment_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          rating: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          apartment_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          apartment_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      search_history: {
+        Row: {
+          created_at: string
+          id: string
+          radius: number | null
+          results_count: number
+          search_location: Json | null
+          search_parameters: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          radius?: number | null
+          results_count?: number
+          search_location?: Json | null
+          search_parameters: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          radius?: number | null
+          results_count?: number
+          search_location?: Json | null
+          search_parameters?: Json
+          user_id?: string
         }
         Relationships: []
       }
@@ -266,6 +371,48 @@ export type Database = {
           created_at?: string
           id?: string
           session_id?: string
+        }
+        Relationships: []
+      }
+      user_pois: {
+        Row: {
+          address: string
+          category: string
+          created_at: string
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          notes: string | null
+          priority: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          category: string
+          created_at?: string
+          id?: string
+          latitude: number
+          longitude: number
+          name: string
+          notes?: string | null
+          priority?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          category?: string
+          created_at?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          name?: string
+          notes?: string | null
+          priority?: number | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
