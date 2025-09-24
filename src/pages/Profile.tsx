@@ -70,7 +70,7 @@ const Profile: React.FC = () => {
   const loadProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('user_profiles')
+        .from('user_preferences')
         .select('*')
         .eq('user_id', userId)
         .single();
@@ -82,18 +82,18 @@ const Profile: React.FC = () => {
 
       if (data) {
         setProfile({
-          email: data.email || user?.email || '',
+          email: user?.email || '',
           location: data.location || 'Austin, TX',
           bio: data.bio || '',
-          gross_income: data.gross_income?.toString() || '',
-          employment_type: data.employment_type || '',
+          gross_income: data.budget?.toString() || '',
+          employment_type: data.lifestyle || '',
           employer_name: '',
           employment_duration: '',
           job_title: '',
-          current_rent: data.current_rent?.toString() || '',
-          credit_score: data.credit_score || '',
-          bank_verified: data.income_verified || false,
-          income_verified: data.income_verified || false,
+          current_rent: data.budget?.toString() || '',
+          credit_score: '',
+          bank_verified: data.has_completed_ai_programming || false,
+          income_verified: data.has_completed_ai_programming || false,
           plaid_account_id: '',
           plaid_access_token: ''
         });
@@ -125,17 +125,14 @@ const Profile: React.FC = () => {
     
     try {
       const { error } = await supabase
-        .from('user_profiles')
+        .from('user_preferences')
         .upsert({
           user_id: user.id,
-          email: profile.email,
           location: profile.location,
           bio: profile.bio,
-          gross_income: parseFloat(profile.gross_income) || null,
-          employment_type: profile.employment_type,
-          current_rent: parseFloat(profile.current_rent) || null,
-          credit_score: profile.credit_score,
-          income_verified: profile.income_verified,
+          budget: parseFloat(profile.gross_income) || null,
+          lifestyle: profile.employment_type,
+          has_completed_ai_programming: profile.income_verified,
           updated_at: new Date().toISOString()
         });
 

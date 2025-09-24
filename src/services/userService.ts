@@ -21,20 +21,20 @@ export class UserService {
       .from('user_preferences')
       .select('*')
       .eq('user_id', userId)
-      .maybeSingle();
+      .single();
 
-    if (error) throw error;
+    if (error && error.code !== 'PGRST116') throw error; // Not found is okay
     return data;
   }
 
-  async updateUserPreferences(userId: string, updates: any) {
+  async saveUserProfile(userId: string, profile: any) {
     const { data, error } = await supabase
-      .from('user_preferences')
-      .update({
-        ...updates,
+      .from('user_preferences') // Using user_preferences instead of user_profiles
+      .upsert({
+        user_id: userId,
+        ...profile,
         updated_at: new Date().toISOString()
       })
-      .eq('user_id', userId)
       .select()
       .single();
 
@@ -42,43 +42,15 @@ export class UserService {
     return data;
   }
 
-  async deleteUserPreferences(userId: string) {
-    const { error } = await supabase
-      .from('user_preferences')
-      .delete()
-      .eq('user_id', userId);
-
-    if (error) throw error;
-  }
-
-  async createUserProfile(userData: {
-    userId: string;
-    email?: string;
-    name?: string;
-    [key: string]: any;
-  }) {
+  async getUserProfile(userId: string) {
     const { data, error } = await supabase
-      .from('user_preferences')
-      .insert({
-        user_id: userData.userId,
-        ...userData
-      })
-      .select()
+      .from('user_preferences') // Using user_preferences instead of user_profiles
+      .select('*')
+      .eq('user_id', userId)
       .single();
 
-    if (error) throw error;
+    if (error && error.code !== 'PGRST116') throw error; // Not found is okay
     return data;
-  }
-
-  async hasCompletedAIProgramming(userId: string): Promise<boolean> {
-    const { data } = await this.getUserPreferences(userId);
-    return data?.has_completed_ai_programming || false;
-  }
-
-  async markAIProgrammingComplete(userId: string) {
-    return this.updateUserPreferences(userId, {
-      has_completed_ai_programming: true
-    });
   }
 }
 

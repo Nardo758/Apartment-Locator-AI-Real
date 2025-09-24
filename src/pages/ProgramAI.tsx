@@ -142,7 +142,7 @@ const ProgramAI = () => {
         if (!user) return;
 
         const { data: profile, error } = await supabase
-          .from('user_profiles')
+          .from('user_preferences')
           .select('*')
           .eq('user_id', user.id)
           .single();
@@ -307,7 +307,7 @@ const ProgramAI = () => {
       }
 
         const { error } = await supabase
-          .from('user_profiles')
+          .from('user_preferences')
           .upsert({
             user_id: user.id,
             email: user.email,

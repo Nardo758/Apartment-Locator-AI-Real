@@ -43,7 +43,15 @@ const OffersMade: React.FC = () => {
 
       // Mock status for demo purposes since we don't have a status column
       const offersWithStatus = data?.map((offer, index) => ({
-        ...offer,
+        id: offer.id,
+        property_id: offer.property_address || 'unknown',
+        property_details: offer.offer_details || {},
+        monthly_budget: 2500, // Default value
+        lease_term: 12, // Default value
+        move_in_date: new Date().toISOString().split('T')[0],
+        ai_suggestions: offer.ai_suggestions || {},
+        notes: '', // Default empty string
+        created_at: offer.created_at,
         status: (index === 0 ? 'pending' : index === 1 ? 'accepted' : 'pending') as 'pending' | 'accepted' | 'rejected' | 'expired'
       })) || [];
 

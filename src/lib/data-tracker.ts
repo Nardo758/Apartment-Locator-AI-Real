@@ -164,7 +164,7 @@ class DataTracker {
 
     try {
       await supabase.from('user_content_logs').insert({
-        user_id: this.userId,
+        session_id: this.sessionId,
         content_type: data.contentType,
         content_id: data.contentId,
         content_data: data.contentData || {},
