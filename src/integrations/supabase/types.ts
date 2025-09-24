@@ -44,6 +44,63 @@ export type Database = {
         }
         Relationships: []
       }
+      data_export_requests: {
+        Row: {
+          created_at: string
+          data_categories: string[] | null
+          date_range_end: string | null
+          date_range_start: string | null
+          delivery_method: string
+          error_message: string | null
+          expires_at: string | null
+          export_format: string
+          export_type: string
+          file_size: number | null
+          file_url: string | null
+          id: string
+          progress_percentage: number | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          data_categories?: string[] | null
+          date_range_end?: string | null
+          date_range_start?: string | null
+          delivery_method?: string
+          error_message?: string | null
+          expires_at?: string | null
+          export_format?: string
+          export_type?: string
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          progress_percentage?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          data_categories?: string[] | null
+          date_range_end?: string | null
+          date_range_start?: string | null
+          delivery_method?: string
+          error_message?: string | null
+          expires_at?: string | null
+          export_format?: string
+          export_type?: string
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          progress_percentage?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number
@@ -178,6 +235,81 @@ export type Database = {
           stripe_customer_id?: string | null
           stripe_session_id?: string | null
           updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_activity_logs: {
+        Row: {
+          activity_data: Json | null
+          activity_type: string
+          created_at: string
+          device_info: Json | null
+          element_clicked: string | null
+          id: string
+          ip_address: unknown | null
+          location_data: Json | null
+          page_url: string | null
+          session_id: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: string
+          created_at?: string
+          device_info?: Json | null
+          element_clicked?: string | null
+          id?: string
+          ip_address?: unknown | null
+          location_data?: Json | null
+          page_url?: string | null
+          session_id: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: string
+          created_at?: string
+          device_info?: Json | null
+          element_clicked?: string | null
+          id?: string
+          ip_address?: unknown | null
+          location_data?: Json | null
+          page_url?: string | null
+          session_id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_content_logs: {
+        Row: {
+          action: string
+          content_data: Json | null
+          content_id: string | null
+          content_type: string
+          created_at: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          content_data?: Json | null
+          content_id?: string | null
+          content_type: string
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          content_data?: Json | null
+          content_id?: string | null
+          content_type?: string
+          created_at?: string
+          id?: string
           user_id?: string | null
         }
         Relationships: []
@@ -431,6 +563,51 @@ export type Database = {
           work_address?: string | null
           work_frequency?: string | null
           work_schedule?: string | null
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          device_info: Json | null
+          id: string
+          ip_address: unknown | null
+          login_time: string
+          logout_time: string | null
+          pages_visited: number | null
+          session_duration: number | null
+          session_id: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_info?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          login_time?: string
+          logout_time?: string | null
+          pages_visited?: number | null
+          session_duration?: number | null
+          session_id: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_info?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          login_time?: string
+          logout_time?: string | null
+          pages_visited?: number | null
+          session_duration?: number | null
+          session_id?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
