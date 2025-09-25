@@ -1,0 +1,18 @@
+frontend/ (Your existing repo)
+├── src/
+│   ├── lib/                     # CREATE THIS FOLDER
+│   │   ├── supabase.ts         # NEW FILE - Database client
+│   │   ├── database.ts         # NEW FILE - Database helpers
+│   │   └── types.ts            # NEW FILE - TypeScript types
+│   ├── hooks/
+│   │   ├── useUserTracking.ts  # ✅ UPDATE EXISTING FILE
+│   │   ├── useDatabase.ts      # NEW FILE - Database operations
+│   │   └── useRealtime.ts      # NEW FILE - Real-time subscriptions
+│   ├── services/               # CREATE THIS FOLDER
+│   │   ├── activityService.ts  # NEW FILE
+│   │   ├── profileService.ts   # NEW FILE
+│   │   ├── searchService.ts    # NEW FILE
+│   │   └── exportService.ts    # NEW FILE
+│   └── utils/
+│       ├── dataExport.ts       # NEW FILE
+│       └── validation.ts       # NEW FILE

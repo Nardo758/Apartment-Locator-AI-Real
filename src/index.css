@@ -1,0 +1,311 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Apartment Locator AI Design System - Dark theme with glassmorphism */
+
+@layer base {
+  :root {
+    /* Light Theme - High contrast for readability */
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    /* Brand Colors (HSL) */
+    --primary: 244 60% 52%;
+    --primary-dark: 257 45% 48%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 178 82% 38%;
+    --secondary-dark: 161 63% 35%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 27%;
+
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 244 60% 52%;
+
+    --radius: 0.75rem;
+
+    /* Glassmorphism (light) */
+    --glass-bg: rgba(255, 255, 255, 0.6);
+    --glass-border: rgba(15, 23, 42, 0.08);
+    --glass-blur: blur(20px);
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-dark)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-dark)));
+    --gradient-bg: linear-gradient(45deg, hsl(var(--primary)) 0%, hsl(var(--primary-dark)) 50%, hsl(var(--secondary)) 100%);
+  }
+
+  /* Dark Theme */
+  .dark {
+    --background: 0 0% 1%;  /* Much darker background */
+    --foreground: 0 0% 96%; /* Light text */
+
+    --card: 0 0% 8%;       /* Dark glass cards */
+    --card-foreground: 0 0% 96%;
+
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 96%;
+
+    /* Brand Gradients */
+    --primary: 244 60% 71%;    /* #667EEA */
+    --primary-dark: 257 45% 58%; /* #764BA2 */
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 178 82% 60%;  /* #4ECDC4 */
+    --secondary-dark: 161 63% 51%; /* #44A08D */
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 80%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 96%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 12%;
+    --ring: 244 60% 71%;
+
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-blur: blur(20px);
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(244 60% 71%), hsl(257 45% 58%));
+    --gradient-secondary: linear-gradient(135deg, hsl(178 82% 60%), hsl(161 63% 51%));
+    --gradient-bg: linear-gradient(45deg, hsl(244 60% 71%) 0%, hsl(257 45% 58%) 25%, hsl(178 82% 60%) 50%, hsl(161 63% 51%) 75%, hsl(244 60% 71%) 100%);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  /* Animated background gradient */
+  .animated-bg {
+    background: var(--gradient-bg);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease-in-out infinite;
+  }
+
+  /* Glassmorphism utility classes */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .gradient-secondary-text {
+    background: var(--gradient-secondary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+@layer components {
+  /* Card hover lift effect */
+  .card-lift {
+    @apply transition-all duration-300 ease-out;
+    transform: translateY(0);
+  }
+
+  .card-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Progress bar animations */
+  .progress-animate {
+    animation: progressFill 2s ease-out;
+  }
+
+  /* Pulse effect for AI scanning */
+  .ai-pulse {
+    animation: aiPulse 2s ease-in-out infinite;
+  }
+
+  /* Button gradients */
+  .btn-primary {
+    background: var(--gradient-primary);
+    @apply text-primary-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  }
+
+  .btn-secondary {
+    background: var(--gradient-secondary);
+    @apply text-secondary-foreground font-medium px-4 py-2 rounded-lg transition-all duration-200;
+  }
+
+  .btn-secondary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(78, 205, 196, 0.3);
+  }
+
+  /* Status indicators */
+  .status-success {
+    @apply text-emerald-400 bg-emerald-500/10 border-emerald-500/30;
+  }
+
+  .status-warning {
+    @apply text-amber-400 bg-amber-500/10 border-amber-500/30;
+  }
+
+  .status-error {
+    @apply text-red-400 bg-red-500/10 border-red-500/30;
+  }
+
+  .status-info {
+    @apply text-blue-400 bg-blue-500/10 border-blue-500/30;
+  }
+
+  /* Progress colors */
+  .progress-excellent {
+    @apply bg-emerald-500;
+  }
+
+  .progress-good {
+    @apply bg-blue-500;
+  }
+
+  .progress-warning {
+    @apply bg-amber-500;
+  }
+
+  .progress-poor {
+    @apply bg-red-500;
+  }
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 100% 50%;
+  }
+  50% {
+    background-position: 50% 100%;
+  }
+  75% {
+    background-position: 50% 0%;
+  }
+}
+
+@keyframes progressFill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--progress-width);
+  }
+}
+
+@keyframes aiPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes drift {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(-100px) rotate(360deg); }
+}
+
+@keyframes scanline {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gradient-primary);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gradient-secondary);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
