@@ -1,7 +1,7 @@
 import { PropertyStateProvider } from './PropertyStateProvider'
 
-// This file is intentionally minimal: it only re-exports the provider component.
-// Implementation details, types and helpers live in separate files to keep
-// this module free of non-component exports and maintain fast-refresh safety.
+// Component-only entrypoint to preserve fast-refresh behavior during development.
+// Hooks and helper re-exports live in `src/contexts/index.ts` so consumer code can
+// import both from '@/contexts' without exposing non-component symbols here.
 
 export { PropertyStateProvider };
