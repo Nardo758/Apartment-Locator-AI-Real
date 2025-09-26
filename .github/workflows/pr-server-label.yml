@@ -1,0 +1,38 @@
+name: PR Server Change Labeler
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  label-server-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for server file changes
+        id: changes
+        uses: tj-actions/changed-files@v34
+        with:
+          files: |
+            supabase/server/**
+      - name: Add label and open issue for server changes
+        if: steps.changes.outputs.any_changed == 'true'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request
+            if (!pr) return
+            // Add label
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              labels: ['server-change']
+            })
+            // Open an issue reminding to set SUPABASE_SERVICE_ROLE_KEY if not present
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Server code changed in PR #${pr.number} - verify Supabase service role key`,
+              body: `PR #${pr.number} modified server-side code under \`supabase/server/\`. Make sure to configure the SUPABASE_SERVICE_ROLE_KEY as a repository secret and document any migration or RLS policy changes.`
+            })
