@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { usePropertyState } from '@/contexts/PropertyStateContext';
 import { Property } from '@/data/mockData';
+import { PartialOfferFormData } from '@/data/OfferFormTypes';
 import { designSystem } from '@/lib/design-system';
 import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import ModernCard from '@/components/modern/ModernCard';
@@ -44,6 +45,9 @@ const GenerateOffer = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { selectedProperty, setOfferFormData, offerFormData } = usePropertyState();
+  // offerFormData comes from context as a loose Record<string, unknown> —
+  // narrow it locally to avoid TypeScript `unknown` complaints.
+  const ctxOffer = offerFormData as Partial<OfferFormData>;
   
   // Get property from context or URL params
   const propertyFromParams = searchParams.get('property');
@@ -90,13 +94,13 @@ const GenerateOffer = () => {
 
   const form = useForm<OfferFormData>({
     defaultValues: {
-      ...offerFormData,
-      userEmail: offerFormData.userEmail || '',
-      moveInDate: offerFormData.moveInDate || '',
-      leaseTerm: offerFormData.leaseTerm || '12',
-      monthlyBudget: offerFormData.monthlyBudget || (property?.effectivePrice?.toString() || '2850'),
-      securityDeposit: offerFormData.securityDeposit || '500',
-      notes: offerFormData.notes || '',
+  ...(ctxOffer as Partial<OfferFormData>),
+  userEmail: ctxOffer.userEmail || '',
+  moveInDate: ctxOffer.moveInDate || '',
+  leaseTerm: ctxOffer.leaseTerm || '12',
+  monthlyBudget: ctxOffer.monthlyBudget || (property?.effectivePrice?.toString() || '2850'),
+  securityDeposit: ctxOffer.securityDeposit || '500',
+  notes: ctxOffer.notes || '',
       // Important Terms
       petPolicy: offerFormData.petPolicy || (property?.petPolicy || 'Pets allowed with $250 deposit'),
       utilities: offerFormData.utilities || 'Tenant responsible for electric/gas',
@@ -117,7 +121,7 @@ const GenerateOffer = () => {
   // Save form data to context on changes
   useEffect(() => {
     const subscription = form.watch((data) => {
-      setOfferFormData(data);
+  setOfferFormData(data as PartialOfferFormData);
     });
     return () => subscription.unsubscribe();
   }, [form, setOfferFormData]);
@@ -455,6 +459,7 @@ const GenerateOffer = () => {
                                 <FormControl>
                                   <input
                                     type="checkbox"
+                                    aria-label="First month free"
                                     checked={field.value}
                                     onChange={field.onChange}
                                     className="rounded border-white/20 bg-transparent"
@@ -481,6 +486,7 @@ const GenerateOffer = () => {
                                 <FormControl>
                                   <input
                                     type="checkbox"
+                                    aria-label="Reduced security deposit"
                                     checked={field.value}
                                     onChange={field.onChange}
                                     className="rounded border-white/20 bg-transparent"
@@ -507,6 +513,7 @@ const GenerateOffer = () => {
                                 <FormControl>
                                   <input
                                     type="checkbox"
+                                    aria-label="Waive application fee"
                                     checked={field.value}
                                     onChange={field.onChange}
                                     className="rounded border-white/20 bg-transparent"

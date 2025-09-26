@@ -202,7 +202,8 @@ const mockProperties = [
 ];
 
 export const AdvancedPricingDemo: React.FC = () => {
-  const { recommendations, loading } = usePricingIntelligence(mockProperties);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { recommendations, loading } = usePricingIntelligence(mockProperties as any);
 
   return (
     <div className={`${designSystem.backgrounds.page} ${designSystem.spacing.paddingMedium}`}>

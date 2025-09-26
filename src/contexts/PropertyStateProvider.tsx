@@ -2,12 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Property } from '@/data/mockData'
 import { toast } from 'sonner'
 import { defaultSearchFilters, defaultUserPreferences, safeParseJSON, SearchFilters, UserPreferences } from './property-state-utils'
+import { PartialOfferFormData } from '@/data/OfferFormTypes'
 import { PropertyStateContext } from './property-state-context'
 import { PropertyStateContextType } from './PropertyStateContextTypes'
 
 export const PropertyStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [offerFormData, setOfferFormData] = useState<Record<string, unknown>>({});
+  const [offerFormData, setOfferFormData] = useState<PartialOfferFormData>({});
   const [favoriteProperties, setFavoriteProperties] = useState<string[]>([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 

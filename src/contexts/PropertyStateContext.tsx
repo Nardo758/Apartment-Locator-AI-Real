@@ -1,7 +1,6 @@
+/* eslint-disable react-refresh/only-export-components */
 import { PropertyStateProvider } from './PropertyStateProvider'
+import { usePropertyState } from './property-state-hook'
 
-// This file is intentionally minimal: it only re-exports the provider component.
-// Implementation details, types and helpers live in separate files to keep
-// this module free of non-component exports and maintain fast-refresh safety.
-
-export { PropertyStateProvider };
+// This file re-exports the provider and hook for consumer convenience.
+export { PropertyStateProvider, usePropertyState };

@@ -432,7 +432,8 @@ export const ModernDashboard: React.FC<ModernDashboardProps> = ({
             <Card className="hover:shadow-lg transition-all">
               <CardContent className="p-0">
                 <EnhancedPricingDashboard 
-                  properties={mockProperties}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  properties={mockProperties as any}
                   enableMLFeatures={true}
                   enableAutomation={true}
                 />

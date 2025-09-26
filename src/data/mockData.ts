@@ -2,6 +2,7 @@
 
 export interface Property {
   id: string;
+  apartmentIQData?: unknown;
   name: string;
   address: string;
   city: string;

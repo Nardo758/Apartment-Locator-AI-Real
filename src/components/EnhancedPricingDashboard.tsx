@@ -37,16 +37,10 @@ import {
   type AutomationRule
 } from '@/lib/pricing-engine';
 import { designSystem, createCard, createHeading, createStatusBadge, getDataVizColor } from '@/lib/design-system';
+import { Property } from '@/data/mockData';
 
 interface EnhancedPricingDashboardProps {
-  properties: Array<{
-    id: string;
-    apartmentIQData?: unknown;
-    price?: number;
-    daysOnMarket?: number;
-    marketVelocity?: 'hot' | 'normal' | 'slow' | 'stale';
-    concessionUrgency?: 'none' | 'standard' | 'aggressive' | 'desperate';
-  }>;
+  properties: Property[];
   enableMLFeatures?: boolean;
   enableAutomation?: boolean;
 }

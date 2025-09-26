@@ -11,6 +11,7 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { dataTracker } from '@/lib/data-tracker';
+import type { Json } from '@/integrations/supabase/types';
 
 interface SearchSettingsProps {
   onSettingsChange?: (settings: SearchSettings) => void;
@@ -116,11 +117,31 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
     };
     
     // Track filter reset
-    dataTracker.trackInteraction('reset_search_filters', 'all_filters', {
-      previous_settings: settings,
-      reset_to: defaultSettings,
+    const payload = {
+      previous_settings: {
+        budgetRange: settings.budgetRange,
+        searchRadius: settings.searchRadius,
+        maxDriveTime: settings.maxDriveTime,
+        bedrooms: settings.bedrooms,
+        petPolicy: settings.petPolicy,
+        parkingRequired: settings.parkingRequired,
+        amenities: settings.amenities,
+        moveInDate: settings.moveInDate ? settings.moveInDate.toISOString() : null
+      },
+      reset_to: {
+        budgetRange: defaultSettings.budgetRange,
+        searchRadius: defaultSettings.searchRadius,
+        maxDriveTime: defaultSettings.maxDriveTime,
+        bedrooms: defaultSettings.bedrooms,
+        petPolicy: defaultSettings.petPolicy,
+        parkingRequired: defaultSettings.parkingRequired,
+        amenities: defaultSettings.amenities,
+        moveInDate: defaultSettings.moveInDate
+      },
       timestamp: new Date().toISOString()
-    });
+    };
+
+  dataTracker.trackInteraction('reset_search_filters', 'all_filters', payload as unknown as Json);
     
     setSettings(defaultSettings);
     onSettingsChange?.(defaultSettings);
