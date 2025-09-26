@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Save, Settings, DollarSign, Shield, CheckCircle, AlertCircle, CreditCard } from 'lucide-react';
+import { User, Save, Settings, DollarSign, Shield, CheckCircle, AlertCircle, CreditCard, MapPin, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -209,7 +209,7 @@ const Profile: React.FC = () => {
           <Button 
             onClick={handleSave}
             disabled={loading}
-            className={`${designSystem.buttons.primary} gap-2`}
+            className={`${designSystem.buttons.primary} gap-2 ${designSystem.animations.hoverLift}`}
           >
             <Save size={16} />
             {loading ? 'Saving...' : 'Save Changes'}
@@ -219,34 +219,50 @@ const Profile: React.FC = () => {
         <div className={designSystem.spacing.content}>
           {/* Profile Summary */}
           <ModernCard 
-            className={`${designSystem.animations.entrance} mb-8`}
+            className={`${designSystem.animations.entrance} ${designSystem.spacing.marginLarge} ${designSystem.backgrounds.cardPrimary} ${designSystem.backgrounds.cardHoverPrimary}`}
             gradient
           >
-            <div className="flex items-center gap-6">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-                <User className="w-8 h-8 text-white" />
+            <div className="flex items-center gap-6 p-2">
+              <div className="relative">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 flex items-center justify-center shadow-lg">
+                  <User className="w-10 h-10 text-white" />
+                </div>
+                {(profile.income_verified || profile.bank_verified) && (
+                  <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-2 border-white shadow-md">
+                    <CheckCircle className="w-4 h-4 text-white" />
+                  </div>
+                )}
               </div>
               <div className="flex-1">
-                <h2 className={`${designSystem.typography.subheadingLarge} mb-1`}>
+                <h2 className={`${designSystem.typography.heading3} mb-2 ${designSystem.colors.text}`}>
                   {profile.email || 'Your Profile'}
                 </h2>
-                <p className={designSystem.typography.body}>
-                  {profile.location || 'Location not set'}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                {profile.income_verified && (
-                  <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Verified
-                  </Badge>
-                )}
-                {profile.bank_verified && (
-                  <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-                    <Shield className="w-3 h-3 mr-1" />
-                    Bank Connected
-                  </Badge>
-                )}
+                <div className="flex items-center gap-2 mb-3">
+                  <MapPin className="w-4 h-4 text-slate-500" />
+                  <p className={`${designSystem.typography.body} ${designSystem.colors.textMuted}`}>
+                    {profile.location || 'Location not set'}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {profile.income_verified && (
+                    <Badge className="bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Income Verified
+                    </Badge>
+                  )}
+                  {profile.bank_verified && (
+                    <Badge className="bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors">
+                      <Shield className="w-3 h-3 mr-1" />
+                      Bank Connected
+                    </Badge>
+                  )}
+                  {!profile.income_verified && !profile.bank_verified && (
+                    <Badge variant="outline" className="text-slate-600 border-slate-300">
+                      <AlertCircle className="w-3 h-3 mr-1" />
+                      Verification Pending
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
           </ModernCard>
@@ -256,38 +272,53 @@ const Profile: React.FC = () => {
             title="Basic Information"
             icon={<User className="w-6 h-6 text-blue-600" />}
             animate
-            className="mb-8"
+            className={`${designSystem.spacing.marginLarge} ${designSystem.backgrounds.card} ${designSystem.backgrounds.cardHover}`}
           >
-            <div className={designSystem.spacing.content}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
+            <div className={`${designSystem.spacing.contentLarge} space-y-6`}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className={designSystem.typography.labelLarge}>
+                    Email Address
+                  </Label>
                   <Input
                     id="email"
                     value={profile.email}
                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                     placeholder="your@email.com"
+                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="location">Preferred Location</Label>
-                  <Input
-                    id="location"
-                    value={profile.location}
-                    onChange={(e) => setProfile({ ...profile, location: e.target.value })}
-                    placeholder="Austin, TX"
-                  />
+                <div className="space-y-2">
+                  <Label htmlFor="location" className={designSystem.typography.labelLarge}>
+                    Preferred Location
+                  </Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      id="location"
+                      value={profile.location}
+                      onChange={(e) => setProfile({ ...profile, location: e.target.value })}
+                      placeholder="Austin, TX"
+                      className="pl-10 transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    />
+                  </div>
                 </div>
               </div>
-              <div>
-                <Label htmlFor="bio">Bio</Label>
+              <div className="space-y-2">
+                <Label htmlFor="bio" className={designSystem.typography.labelLarge}>
+                  About You
+                </Label>
                 <Textarea
                   id="bio"
                   value={profile.bio}
                   onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                  placeholder="Tell us a bit about yourself..."
-                  rows={3}
+                  placeholder="Tell us a bit about yourself and what you're looking for in your next home..."
+                  rows={4}
+                  className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none"
                 />
+                <p className="text-sm text-slate-500 mt-1">
+                  This helps us provide more personalized recommendations
+                </p>
               </div>
             </div>
           </ModernCard>
@@ -295,17 +326,20 @@ const Profile: React.FC = () => {
           {/* Employment Information */}
           <ModernCard 
             title="Employment Information"
+            subtitle="Your employment details help verify income and improve rental applications"
             icon={<Settings className="w-6 h-6 text-purple-600" />}
             animate
             animationDelay={100}
-            className="mb-8"
+            className={`${designSystem.spacing.marginLarge} ${designSystem.backgrounds.card} ${designSystem.backgrounds.cardHover}`}
           >
-            <div className={designSystem.spacing.content}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="employment_type">Employment Type</Label>
+            <div className={`${designSystem.spacing.contentLarge} space-y-6`}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="employment_type" className={designSystem.typography.labelLarge}>
+                    Employment Type
+                  </Label>
                   <Select value={profile.employment_type} onValueChange={(value) => setProfile({ ...profile, employment_type: value })}>
-                    <SelectTrigger>
+                    <SelectTrigger className="transition-all duration-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500">
                       <SelectValue placeholder="Select employment type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -315,28 +349,12 @@ const Profile: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label htmlFor="employer_name">Employer Name</Label>
-                  <Input
-                    id="employer_name"
-                    value={profile.employer_name}
-                    onChange={(e) => setProfile({ ...profile, employer_name: e.target.value })}
-                    placeholder="Company Name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="job_title">Job Title</Label>
-                  <Input
-                    id="job_title"
-                    value={profile.job_title}
-                    onChange={(e) => setProfile({ ...profile, job_title: e.target.value })}
-                    placeholder="Software Engineer"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="employment_duration">Employment Duration</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="employment_duration" className={designSystem.typography.labelLarge}>
+                    Employment Duration
+                  </Label>
                   <Select value={profile.employment_duration} onValueChange={(value) => setProfile({ ...profile, employment_duration: value })}>
-                    <SelectTrigger>
+                    <SelectTrigger className="transition-all duration-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500">
                       <SelectValue placeholder="Select duration" />
                     </SelectTrigger>
                     <SelectContent>
@@ -346,6 +364,30 @@ const Profile: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="employer_name" className={designSystem.typography.labelLarge}>
+                    Employer Name
+                  </Label>
+                  <Input
+                    id="employer_name"
+                    value={profile.employer_name}
+                    onChange={(e) => setProfile({ ...profile, employer_name: e.target.value })}
+                    placeholder="Company Name"
+                    className="transition-all duration-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="job_title" className={designSystem.typography.labelLarge}>
+                    Job Title
+                  </Label>
+                  <Input
+                    id="job_title"
+                    value={profile.job_title}
+                    onChange={(e) => setProfile({ ...profile, job_title: e.target.value })}
+                    placeholder="Software Engineer"
+                    className="transition-all duration-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  />
+                </div>
               </div>
             </div>
           </ModernCard>
@@ -353,36 +395,54 @@ const Profile: React.FC = () => {
           {/* Financial Information */}
           <ModernCard 
             title="Financial Information"
+            subtitle="Secure financial details to strengthen your rental applications"
             icon={<DollarSign className="w-6 h-6 text-green-600" />}
             animate
             animationDelay={200}
+            className={`${designSystem.backgrounds.card} ${designSystem.backgrounds.cardHover}`}
           >
-            <div className={designSystem.spacing.content}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <Label htmlFor="gross_income">Annual Gross Income</Label>
-                  <Input
-                    id="gross_income"
-                    type="number"
-                    value={profile.gross_income}
-                    onChange={(e) => setProfile({ ...profile, gross_income: e.target.value })}
-                    placeholder="75000"
-                  />
+            <div className={`${designSystem.spacing.contentLarge} space-y-8`}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="gross_income" className={designSystem.typography.labelLarge}>
+                    Annual Gross Income
+                  </Label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      id="gross_income"
+                      type="number"
+                      value={profile.gross_income}
+                      onChange={(e) => setProfile({ ...profile, gross_income: e.target.value })}
+                      placeholder="75000"
+                      className="pl-10 transition-all duration-200 focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                    />
+                  </div>
+                  <p className="text-sm text-slate-500">Before taxes and deductions</p>
                 </div>
-                <div>
-                  <Label htmlFor="current_rent">Current Monthly Rent</Label>
-                  <Input
-                    id="current_rent"
-                    type="number"
-                    value={profile.current_rent}
-                    onChange={(e) => setProfile({ ...profile, current_rent: e.target.value })}
-                    placeholder="1800"
-                  />
+                <div className="space-y-2">
+                  <Label htmlFor="current_rent" className={designSystem.typography.labelLarge}>
+                    Current Monthly Rent
+                  </Label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      id="current_rent"
+                      type="number"
+                      value={profile.current_rent}
+                      onChange={(e) => setProfile({ ...profile, current_rent: e.target.value })}
+                      placeholder="1800"
+                      className="pl-10 transition-all duration-200 focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                    />
+                  </div>
+                  <p className="text-sm text-slate-500">Or expected rent budget</p>
                 </div>
-                <div className="md:col-span-2">
-                  <Label htmlFor="credit_score">Credit Score Range</Label>
+                <div className="md:col-span-2 space-y-2">
+                  <Label htmlFor="credit_score" className={designSystem.typography.labelLarge}>
+                    Credit Score Range
+                  </Label>
                   <Select value={profile.credit_score} onValueChange={(value) => setProfile({ ...profile, credit_score: value })}>
-                    <SelectTrigger>
+                    <SelectTrigger className="transition-all duration-200 focus:ring-2 focus:ring-green-500/20 focus:border-green-500">
                       <SelectValue placeholder="Select credit score range" />
                     </SelectTrigger>
                     <SelectContent>
@@ -391,31 +451,38 @@ const Profile: React.FC = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-sm text-slate-500">Higher credit scores improve rental approval chances</p>
                 </div>
               </div>
               
               {/* Bank Verification Status */}
-              <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-start justify-between mb-4">
+              <div className="pt-6 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex items-start justify-between mb-6">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CreditCard className="w-5 h-5 text-blue-600" />
-                      <Label className="text-base font-medium">Bank Account Verification</Label>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className={`p-2 rounded-lg ${profile.bank_verified ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                        <CreditCard className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <Label className={`${designSystem.typography.heading6} text-slate-900`}>
+                          Bank Account Verification
+                        </Label>
+                        <p className={`text-sm ${designSystem.colors.textMuted} mt-1`}>
+                          Connect your bank account for instant income verification and better rental offers
+                        </p>
+                      </div>
                     </div>
-                    <p className={`text-sm ${designSystem.colors.muted}`}>
-                      Connect your bank account for instant income verification and better rental offers
-                    </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 ml-4">
                     {profile.bank_verified ? (
-                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                      <Badge className="bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Verified
                       </Badge>
                     ) : (
                       <Button 
                         variant="outline" 
-                        className="gap-2"
+                        className={`gap-2 ${designSystem.animations.hoverLift} border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300`}
                         onClick={() => {
                           // This would trigger Plaid Link in a real implementation
                           handlePlaidSuccess('demo_token', { account_id: 'demo_account' });
@@ -429,17 +496,47 @@ const Profile: React.FC = () => {
                 </div>
                 
                 {profile.income_verified && (
-                  <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-full bg-green-100 dark:bg-green-900/30">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
+                  <div className={`p-6 ${designSystem.backgrounds.cardSuccess} rounded-xl border border-green-200 shadow-sm`}>
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 rounded-full bg-green-100 shadow-sm">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
                       </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-green-800 mb-2 text-lg">
+                          Income Verified Successfully ✨
+                        </div>
+                        <div className={`text-sm ${designSystem.colors.textMuted} leading-relaxed`}>
+                          Your income has been automatically verified through your bank account. This gives you a competitive advantage in rental applications and may qualify you for exclusive properties.
+                        </div>
+                        <div className="mt-3 flex items-center gap-4 text-sm">
+                          <div className="flex items-center gap-1 text-green-700">
+                            <CheckCircle className="w-3 h-3" />
+                            <span>Faster approvals</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-green-700">
+                            <CheckCircle className="w-3 h-3" />
+                            <span>Better negotiating power</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-green-700">
+                            <CheckCircle className="w-3 h-3" />
+                            <span>Premium listings access</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {!profile.income_verified && (
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-center gap-3">
+                      <Info className="w-5 h-5 text-blue-600" />
                       <div>
-                        <div className="font-medium text-green-800 dark:text-green-400 mb-1">
-                          Income Verified Successfully
+                        <div className="font-medium text-blue-800 dark:text-blue-400 mb-1">
+                          Complete your verification for better results
                         </div>
                         <div className={`text-sm ${designSystem.colors.muted}`}>
-                          Your income has been automatically verified through your bank account. This gives you a competitive advantage in rental applications.
+                          Verified profiles receive 3x more responses and access to exclusive properties
                         </div>
                       </div>
                     </div>
