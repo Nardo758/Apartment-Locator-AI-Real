@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "jest",
+    "test:ci": "jest --runInBand --reporters=default",
     "test:scraping": "jest src/scraping/tests/",
+  "smoke": "node scripts/smoke.cjs",
     "scrape:austin": "node -e \"import('./src/scraping/index.js').then(s => s.scrapeCityApartments('austin', 'tx'))\"",
     "scrape:all": "node -e \"import('./src/scraping/index.js').then(s => s.scrapeApartments())\"",
     "scrape:ai": "node -e \"import('./src/scraping/index.js').then(s => s.scrapeWithAI('austin', 'tx'))\"",
@@ -63,7 +65,7 @@
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",
     "pg": "^8.16.3",
-    "puppeteer": "^21.5.0",
+    "puppeteer": "^24.22.3",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
@@ -98,6 +100,6 @@
     "ts-jest": "^29.1.1",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
-    "vite": "^5.4.19"
+    "vite": "^7.1.7"
   }
 }
