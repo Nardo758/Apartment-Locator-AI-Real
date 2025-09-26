@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Clock, Zap, ChevronDown, ChevronUp, Heart } from 'lucide-react';
 import { Property } from '../data/mockData';
-import { usePropertyState } from '../contexts/PropertyStateContext';
+import { usePropertyState } from '../contexts';
 import PricingBreakdown from './PricingBreakdown';
 import { toast } from '@/hooks/use-toast';
 

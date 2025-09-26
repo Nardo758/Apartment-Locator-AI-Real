@@ -102,57 +102,8 @@ const Profile: React.FC = () => {
     });
   }, [checkAuth]);
 
-  const checkAuth = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        navigate('/auth');
-        return;
-      }
-      
-      setUser(session.user);
-      loadProfile(session.user.id);
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      navigate('/auth');
-    }
-  };
-
-  const loadProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading profile:', error);
-        return;
-      }
-
-      if (data) {
-        setProfile({
-          email: user?.email || '',
-          location: data.location || 'Austin, TX',
-          bio: data.bio || '',
-          gross_income: data.budget?.toString() || '',
-          employment_type: data.lifestyle || '',
-          employer_name: '',
-          employment_duration: '',
-          job_title: '',
-          current_rent: data.budget?.toString() || '',
-          credit_score: '',
-          bank_verified: data.has_completed_ai_programming || false,
-          income_verified: data.has_completed_ai_programming || false,
-          plaid_account_id: '',
-          plaid_access_token: ''
-        });
-      }
-    } catch (error) {
-      console.error('Error loading profile:', error);
-    }
-  };
+  // The `checkAuth` and `loadProfile` functions are declared above using useCallback.
+  // Keep those implementations (for stable references) and avoid redeclaring them here.
 
   const handleSave = async () => {
     if (!user) return;
