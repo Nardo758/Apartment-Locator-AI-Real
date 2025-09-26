@@ -219,8 +219,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationChange, curre
                 <div className="w-full bg-slate-700 rounded-full h-1.5">
                   <div 
                     className="bg-gradient-to-r from-blue-400 to-purple-400 h-1.5 rounded-full transition-all duration-300"
-                    style={{ width: `${(radius - 5) / 45 * 100}%` }}
-                  />
+                    style={{ width: `${(radius - 5) / 45 * 100}%` }}/>
                 </div>
               </div>
               <Button
@@ -259,8 +258,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationChange, curre
                 <div className="w-full bg-slate-700 rounded-full h-1.5">
                   <div 
                     className="bg-gradient-to-r from-purple-400 to-pink-400 h-1.5 rounded-full transition-all duration-300"
-                    style={{ width: `${(maxDriveTime - 10) / 110 * 100}%` }}
-                  />
+                    style={{ width: `${(maxDriveTime - 10) / 110 * 100}%` }}/>
                 </div>
               </div>
               <Button

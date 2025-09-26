@@ -60,7 +60,6 @@ const PaymentSuccess: React.FC = () => {
         {/* Plan Features */}
         <ModernCard 
           className={`${designSystem.animations.entrance} mb-8`}
-          style={{ animationDelay: '200ms' }}
           gradient
         >
           <div className="text-center mb-6">

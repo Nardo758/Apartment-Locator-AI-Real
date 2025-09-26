@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
 import { usePropertyState } from '@/contexts';
@@ -14,60 +14,64 @@ const Breadcrumb: React.FC = () => {
   const location = useLocation();
   const { selectedProperty } = usePropertyState();
 
-  const generateBreadcrumbs = (): BreadcrumbItem[] => {
+  const breadcrumbs = useMemo((): BreadcrumbItem[] => {
     const pathSegments = location.pathname.split('/').filter(Boolean);
-    const breadcrumbs: BreadcrumbItem[] = [
+    const crumbs: BreadcrumbItem[] = [
       { label: 'Dashboard', path: '/dashboard' }
     ];
 
     if (pathSegments.includes('property') && selectedProperty) {
-      breadcrumbs.push({
+      crumbs.push({
         label: selectedProperty.name,
         path: `/property/${selectedProperty.id}`
       });
     }
 
     if (pathSegments.includes('generate-offer')) {
-      breadcrumbs.push({
+      crumbs.push({
         label: 'Generate Offer',
         isActive: true
       });
     }
 
-    // Mark the last item as active
-    if (breadcrumbs.length > 0 && !breadcrumbs[breadcrumbs.length - 1].isActive) {
-      breadcrumbs[breadcrumbs.length - 1].isActive = true;
+    // Mark the last item as active if not explicitly set
+    if (crumbs.length > 0 && !crumbs[crumbs.length - 1].isActive) {
+      crumbs[crumbs.length - 1].isActive = true;
     }
 
-    return breadcrumbs;
-  };
-
-  const breadcrumbs = generateBreadcrumbs();
+    return crumbs;
+  }, [location.pathname, selectedProperty]);
 
   return (
-    <nav className="flex items-center space-x-2 text-sm mb-6">
+    <nav className="flex items-center space-x-2 text-sm mb-6" aria-label="Breadcrumb">
       <button
+        type="button"
         onClick={() => navigate('/dashboard')}
+        aria-label="Home"
         className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
       >
-        <Home size={16} className="mr-1" />
+        <Home size={16} className="mr-1" aria-hidden="true" />
       </button>
       
       {breadcrumbs.map((item, index) => (
-        <React.Fragment key={index}>
-          <ChevronRight size={14} className="text-muted-foreground" />
+        <React.Fragment key={`${item.label}-${item.path ?? index}`}>
+          <ChevronRight size={14} className="text-muted-foreground" aria-hidden="true" />
           {item.path && !item.isActive ? (
             <button
+              type="button"
               onClick={() => navigate(item.path!)}
               className="text-muted-foreground hover:text-foreground transition-colors max-w-[200px] truncate"
+              title={item.label}
             >
               {item.label}
             </button>
           ) : (
-            <span 
+            <span
+              aria-current={item.isActive ? 'page' : undefined}
               className={`max-w-[200px] truncate ${
                 item.isActive ? 'text-foreground font-medium' : 'text-muted-foreground'
               }`}
+              title={item.label}
             >
               {item.label}
             </span>

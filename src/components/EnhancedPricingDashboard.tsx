@@ -37,16 +37,10 @@ import {
   type AutomationRule
 } from '@/lib/pricing-engine';
 import { designSystem, createCard, createHeading, createStatusBadge, getDataVizColor } from '@/lib/design-system';
+import { Property } from '@/data/mockData';
 
 interface EnhancedPricingDashboardProps {
-  properties: Array<{
-    id: string;
-    apartmentIQData?: unknown;
-    price?: number;
-    daysOnMarket?: number;
-    marketVelocity?: 'hot' | 'normal' | 'slow' | 'stale';
-    concessionUrgency?: 'none' | 'standard' | 'aggressive' | 'desperate';
-  }>;
+  properties: Property[];
   enableMLFeatures?: boolean;
   enableAutomation?: boolean;
 }
@@ -342,8 +336,7 @@ export const EnhancedPricingDashboard: React.FC<EnhancedPricingDashboardProps> =
               <Progress 
                 value={averageMLConfidence * 100} 
                 className="mt-2 h-2"
-                style={{ backgroundColor: getDataVizColor(0, 'primary') }}
-              />
+                style={{ backgroundColor: getDataVizColor(0, 'primary') }}/>
             </div>
             <Brain className={`${designSystem.icons.medium} ${designSystem.colors.secondary}`} />
           </div>

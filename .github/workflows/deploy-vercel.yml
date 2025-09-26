@@ -7,6 +7,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+      REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -17,16 +21,15 @@ jobs:
           if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then echo "VERCEL_TOKEN is missing"; missing=1; fi
           if [ -z "${{ secrets.REACT_APP_SUPABASE_URL }}" ]; then echo "REACT_APP_SUPABASE_URL is missing"; missing=1; fi
           if [ -z "${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}" ]; then echo "REACT_APP_SUPABASE_ANON_KEY is missing"; missing=1; fi
+          if [ -z "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" ]; then echo "SUPABASE_SERVICE_ROLE_KEY is missing"; missing=1; fi
           if [ "$missing" -eq 1 ]; then exit 1; fi
 
-      - name: Vercel Action
+      - name: Deploy to Vercel
         uses: amondnet/vercel-action@v20
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod --yes'
           working-directory: .
-          prod: true
-        env:
-          REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
-          REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+        # Using the Vercel GitHub Action for deploys

@@ -27,7 +27,8 @@ export const AdvancedPricingDashboard: React.FC<AdvancedPricingDashboardProps> =
     getPortfolioInsights,
     getRecommendationsByUrgency,
     getRecommendationsByStrategy
-  } = usePricingIntelligence(properties);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } = usePricingIntelligence(properties as any);
 
   if (loading) {
     return (

@@ -165,6 +165,38 @@
     animation: aiPulse 2s ease-in-out infinite;
   }
 
+  /* SmartMap helpers to replace inline styles used for connectors and popups */
+  .smartmap-grid {
+    background-image: radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px, 40px 40px;
+    background-position: 0 0, 0 0;
+    opacity: 0.06;
+    pointer-events: none;
+  }
+
+  .smartmap-connector {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: left center;
+    width: 20px;
+    height: 2px;
+    background: rgba(148,163,184,0.2); /* slate-500/30 */
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  .smartmap-connector--0 { width: 20px; transform: translate(-50%, -50%) rotate(45deg); }
+  .smartmap-connector--1 { width: 30px; transform: translate(-50%, -50%) rotate(75deg); }
+
+  .smartmap-popup {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
   /* Button gradients */
   .btn-primary {
     background: var(--gradient-primary);
@@ -219,6 +251,11 @@
   .progress-poor {
     @apply bg-red-500;
   }
+
+  /* Progress fill using CSS variable */
+  .progress-fill {
+    width: var(--progress-width, 0%);
+  }
 }
 
 @keyframes gradientShift {
@@ -241,7 +278,7 @@
     width: 0%;
   }
   to {
-    width: var(--progress-width);
+    width: var(--progress-width, 0%);
   }
 }
 
@@ -300,12 +337,4 @@
   background: var(--gradient-secondary);
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-  }
-}
+/* Duplicate @layer base removed (consolidated earlier in the file). */

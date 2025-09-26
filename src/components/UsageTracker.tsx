@@ -33,8 +33,7 @@ const UsageTracker: React.FC = () => {
           <div className="w-full bg-muted/30 rounded-full h-2">
             <div 
               className={`h-2 rounded-full transition-all duration-1000 ${getProgressColor(searchesUsed, searchesLimit)}`}
-              style={{ width: `${getProgressWidth(searchesUsed, searchesLimit)}%` }}
-            ></div>
+              style={{ width: `${getProgressWidth(searchesUsed, searchesLimit)}%` }}></div>
           </div>
         </div>
 
@@ -47,8 +46,7 @@ const UsageTracker: React.FC = () => {
           <div className="w-full bg-muted/30 rounded-full h-2">
             <div 
               className={`h-2 rounded-full transition-all duration-1000 ${getProgressColor(aiOffersUsed, aiOffersLimit)}`}
-              style={{ width: `${getProgressWidth(aiOffersUsed, aiOffersLimit)}%` }}
-            ></div>
+              style={{ width: `${getProgressWidth(aiOffersUsed, aiOffersLimit)}%` }}></div>
           </div>
         </div>
 
@@ -61,8 +59,7 @@ const UsageTracker: React.FC = () => {
           <div className="w-full bg-muted/30 rounded-full h-2">
             <div 
               className={`h-2 rounded-full transition-all duration-1000 ${getProgressColor(reportsUsed, reportsLimit)}`}
-              style={{ width: `${getProgressWidth(reportsUsed, reportsLimit)}%` }}
-            ></div>
+              style={{ width: `${getProgressWidth(reportsUsed, reportsLimit)}%` }}></div>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { Property } from '@/data/mockData'
+import { PartialOfferFormData } from '@/data/OfferFormTypes'
 
 export interface SearchFilters {
   location: string;
@@ -24,8 +25,8 @@ export interface PropertyStateContextType {
   favoriteProperties: string[];
   setFavoriteProperties: (favorites: string[]) => void;
   toggleFavorite: (propertyId: string) => void;
-  offerFormData: Record<string, unknown>;
-  setOfferFormData: (data: Record<string, unknown>) => void;
+  offerFormData: PartialOfferFormData;
+  setOfferFormData: (data: PartialOfferFormData) => void;
   clearOfferFormData: () => void;
   searchFilters: SearchFilters;
   setSearchFilters: (filters: Partial<SearchFilters>) => void;

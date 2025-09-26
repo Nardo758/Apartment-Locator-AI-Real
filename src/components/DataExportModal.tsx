@@ -84,6 +84,7 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({ isOpen, onClos
                   <div className="flex items-center space-x-2">
                     <input 
                       type="radio" 
+                      aria-label="Complete export"
                       checked={exportType === 'complete'} 
                       onChange={() => setExportType('complete')}
                       className="text-primary"
@@ -104,6 +105,7 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({ isOpen, onClos
                   <div className="flex items-center space-x-2">
                     <input 
                       type="radio" 
+                      aria-label="Selective export"
                       checked={exportType === 'category'} 
                       onChange={() => setExportType('category')}
                       className="text-primary"

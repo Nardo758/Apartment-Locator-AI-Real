@@ -19,6 +19,7 @@ import { ModernPageLayout } from '@/components/modern/ModernPageLayout';
 import { designSystem } from '@/lib/design-system';
 import EnhancedSearchSettings, { SearchSettings } from '@/components/LocationIntelligence/EnhancedSearchSettings';
 import { dataTracker } from '@/lib/data-tracker';
+import { Json } from '@/integrations/supabase/types';
 
 interface AIPreferences {
   // Housing
@@ -242,13 +243,14 @@ const ProgramAI = () => {
     setPreferences(prev => ({ ...prev, [key]: value as unknown as AIPreferences[keyof AIPreferences] }));
     
     // Track preference changes
-    dataTracker.trackContent({
+      dataTracker.trackContent({
       contentType: 'ai_preferences',
       action: 'update',
       contentData: {
         preference_key: key,
         old_value: preferences[key],
-        new_value: value,
+        // new_value can be runtime-unknown; cast to Json for tracking payload
+        new_value: value as unknown as Json,
         timestamp: new Date().toISOString()
       }
     });

@@ -5,9 +5,15 @@ import { Button } from '@/components/ui/button';
 import { designSystem } from '@/lib/design-system';
 import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import { RenterDashboard } from '@/components/renter/RenterDashboard';
+import type { ApartmentIQData } from '@/lib/pricing-engine';
 
 // Mock apartment data with various scenarios for demonstration
-const mockApartmentData = [
+type MockUnit = {
+  id: string;
+  apartmentIQData: ApartmentIQData;
+}
+
+const mockApartmentData: MockUnit[] = [
   {
     id: 'apt-1',
     apartmentIQData: {
@@ -145,9 +151,9 @@ const mockApartmentData = [
       concessionValue: 300, // Admin fee waiver
       concessionType: 'fee_waiver',
       concessionUrgency: 'standard',
-      rentTrend: 'stable',
+  rentTrend: 'stable',
       rentChangePercent: 1.2,
-      concessionTrend: 'stable',
+  concessionTrend: 'none',
       marketPosition: 'at_market',
       percentileRank: 55,
       amenityScore: 85,
@@ -258,7 +264,7 @@ const RenterIntelligence = () => {
       </div>
 
       {/* Renter Dashboard Component */}
-      <div className={`${designSystem.animations.entrance}`} style={{ animationDelay: '300ms' }}>
+  <div className={`${designSystem.animations.entrance} delay-300`}>
         <RenterDashboard 
           properties={mockApartmentData}
         />

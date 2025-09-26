@@ -268,7 +268,8 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
 
   // Use pricing intelligence hook
   const { recommendations, loading: pricingLoading } = usePricingIntelligence(
-    mockApartments.map(apt => ({ id: apt.id, apartmentIQData: apt.apartmentIQData }))
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  mockApartments.map(apt => ({ id: apt.id, apartmentIQData: apt.apartmentIQData })) as any
   );
 
   const displayApartments = apartments.length > 0 ? apartments : mockApartments;

@@ -50,7 +50,7 @@ const PropertyDetails: React.FC = () => {
     selectedProperty,
     setSelectedProperty,
     favoriteProperties,
-    setFavoriteProperties 
+    toggleFavorite 
   } = usePropertyState();
   
   const [property, setProperty] = useState<Property | null>(selectedProperty);
@@ -147,20 +147,7 @@ const PropertyDetails: React.FC = () => {
 
   const handleFavorite = () => {
     if (!property) return;
-    
-    if (isFavorited) {
-      setFavoriteProperties(favoriteProperties.filter(id => id !== property.id));
-      toast({
-        title: "Removed from favorites",
-        description: "Property removed from your favorites"
-      });
-    } else {
-      setFavoriteProperties([...favoriteProperties, property.id]);
-      toast({
-        title: "Added to favorites",
-        description: "Property saved to your favorites"
-      });
-    }
+    toggleFavorite(property.id);
   };
 
   const handleShare = () => {

@@ -2,6 +2,8 @@
 
 This PR centralizes Supabase-related TypeScript types, removes explicit `any` usages in key serverless functions and UI code, and extracts non-component helpers into utility modules so component files export only React components (fixes react-refresh fast-refresh warnings).
 
+Important: this branch now contains a manually-derived `Database` type in `supabase/types.ts` that was created from code analysis to cover the most-used tables. It's a conservative, safe mapping intended to improve type-safety until a full Supabase-generated `Database` type can be produced and integrated.
+
 Key changes
 
 - Add `supabase/types.ts` with shared interfaces used by client code and serverless functions.
@@ -37,7 +39,10 @@ Checklist for reviewers
 
 Notes / Follow-ups
 
-- The `Database` type in `supabase/types.ts` is currently a lightweight placeholder. We recommend generating full DB types with the Supabase CLI or introspection and integrating them into this file.
+- The `Database` type in `supabase/types.ts` is currently a manually-derived mapping for priority tables. Next steps:
+	 1. (Optional) Generate full DB types with the Supabase CLI and replace `supabase/types.ts`.
+	 2. Run a stricter CI pass (lint + `tsc --noEmit`) and fix any narrow typing regressions introduced by generated types.
+	 3. Iterate on replacing `any` / `unknown` usages across the codebase with the new Row types.
 - I can update the PR description or open the PR for you if you'd like me to (no GH CLI detected in this environment). The branch has been pushed: `chore/typed-supabase-and-remove-any`.
 
 Suggested PR title: chore(types): centralize Supabase types and remove explicit any in serverless functions

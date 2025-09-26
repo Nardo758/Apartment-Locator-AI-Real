@@ -1,7 +1,9 @@
+// @ts-nocheck
+// This function is intended to run on Deno (Supabase Functions). Disable TS checking here to avoid Node/Bundler TypeScript errors in the repo tooling.
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
-import type { OfferEmailRequest, AISuggestions } from '../../types'
+import type { OfferEmailRequestLocal as OfferEmailRequest, AISuggestionsLocal as AISuggestions } from '../../types-local'
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -55,24 +57,24 @@ const handler = async (req: Request): Promise<Response> => {
     const formatAISuggestions = (suggestions: unknown) => {
       if (!suggestions) return '';
 
-  // Narrow suggestions to AISuggestions for safe access
-  const s = typeof suggestions === 'object' && suggestions !== null ? suggestions as AISuggestions : {} as AISuggestions;
+      // Narrow suggestions to AISuggestions for safe access
+      const s = typeof suggestions === 'object' && suggestions !== null ? suggestions as AISuggestions : {} as AISuggestions;
 
       return `
         <h3>AI Market Analysis & Recommendations</h3>
         
         <h4>Recommended Offer Strategy:</h4>
         <ul>
-          <li><strong>Suggested Rent:</strong> ${suggestions.recommendedOffer?.suggestedRent || 'N/A'}</li>
-          <li><strong>Strategy:</strong> ${suggestions.recommendedOffer?.strategy || 'N/A'}</li>
-          <li><strong>Reasoning:</strong> ${suggestions.recommendedOffer?.reasoning || 'N/A'}</li>
+          <li><strong>Suggested Rent:</strong> ${s.recommendedOffer?.suggestedRent || 'N/A'}</li>
+          <li><strong>Strategy:</strong> ${s.recommendedOffer?.strategy || 'N/A'}</li>
+          <li><strong>Reasoning:</strong> ${s.recommendedOffer?.reasoning || 'N/A'}</li>
         </ul>
 
         <h4>Market Analysis:</h4>
         <ul>
-          <li><strong>Market Position:</strong> ${suggestions.marketAnalysis?.marketPosition || 'N/A'}</li>
-          <li><strong>Demand Level:</strong> ${suggestions.marketAnalysis?.demandLevel || 'N/A'}</li>
-          <li><strong>Competitive Analysis:</strong> ${suggestions.marketAnalysis?.competitiveAnalysis || 'N/A'}</li>
+          <li><strong>Market Position:</strong> ${s.marketAnalysis?.marketPosition || 'N/A'}</li>
+          <li><strong>Demand Level:</strong> ${s.marketAnalysis?.demandLevel || 'N/A'}</li>
+          <li><strong>Competitive Analysis:</strong> ${s.marketAnalysis?.competitiveAnalysis || 'N/A'}</li>
         </ul>
 
         <h4>Potential Concessions:</h4>
@@ -82,8 +84,8 @@ const handler = async (req: Request): Promise<Response> => {
         }).join('') : '<li>No concessions suggested</li>'}
 
         <h4>Timing Recommendations:</h4>
-  <p><strong>Best Time to Apply:</strong> ${ s.timingRecommendations?.bestTimeToApply || 'N/A' }</p>
-  <p><strong>Reasoning:</strong> ${ s.timingRecommendations?.reasoning || 'N/A' }</p>
+  <p><strong>Best Time to Apply:</strong> ${s.timingRecommendations?.bestTimeToApply || 'N/A'}</p>
+  <p><strong>Reasoning:</strong> ${s.timingRecommendations?.reasoning || 'N/A'}</p>
       `;
     };
 
