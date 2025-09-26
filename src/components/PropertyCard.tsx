@@ -21,7 +21,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
   const isFavorited = favoriteProperties.includes(property.id);
 
-  const handleFavorite = (e: React.MouseEvent) => {
+  const handleFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (isFavorited) {
       setFavoriteProperties(favoriteProperties.filter(id => id !== property.id));
@@ -89,15 +89,17 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         <div className="flex items-center justify-between mb-2">
           <h4 className="text-foreground text-lg font-semibold">{property.address}</h4>
           <button
+            type="button"
             onClick={handleFavorite}
             aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+              aria-pressed={isFavorited}
             className={`p-1.5 rounded-lg transition-all duration-200 ${
               isFavorited 
                 ? 'text-red-500 bg-red-500/10 border border-red-500/20' 
                 : 'text-muted-foreground hover:text-red-500 hover:bg-red-500/5'
             }`}
           >
-            <Heart size={16} className={isFavorited ? 'fill-current' : ''} aria-hidden="true" />
+            <Heart size={16} className={isFavorited ? 'fill-current' : ''} aria-hidden />
           </button>
         </div>
         <div className="text-red-400 text-sm font-medium">
@@ -125,9 +127,30 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       {/* Progress Bar */}
       <div className="mb-3">
         <div className="w-full bg-slate-700 rounded-full h-2">
-          <div 
-            className="bg-gradient-to-r from-green-400 to-green-500 h-2 rounded-full transition-all duration-1000"
-            style={{ width: `${property.successRate}%` }}></div>
+          {(() => {
+            // Map successRate to a discrete Tailwind width class to avoid inline styles
+            const computeWidthClass = (rate: number) => {
+              const capped = Math.max(0, Math.min(100, Math.round(rate / 10) * 10));
+              switch (capped) {
+                case 0: return 'w-0';
+                case 10: return 'w-[10%]';
+                case 20: return 'w-[20%]';
+                case 30: return 'w-[30%]';
+                case 40: return 'w-[40%]';
+                case 50: return 'w-1/2';
+                case 60: return 'w-[60%]';
+                case 70: return 'w-[70%]';
+                case 80: return 'w-[80%]';
+                case 90: return 'w-[90%]';
+                case 100: return 'w-full';
+                default: return 'w-1/2';
+              }
+            };
+            const widthClass = computeWidthClass(property.successRate);
+            return (
+              <div className={`bg-gradient-to-r from-green-400 to-green-500 h-2 rounded-full transition-all duration-1000 ${widthClass}`} />
+            );
+          })()}
         </div>
       </div>
 
@@ -141,13 +164,15 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       {/* Action Buttons - Clean Design */}
       <div className="flex gap-3">
         <button 
+          type="button"
           className="flex-1 bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 text-primary-foreground font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
           onClick={handleGenerateOffer}
         >
-          <Zap size={16} />
+          <Zap size={16} aria-hidden />
           Generate AI Offer
         </button>
         <button 
+          type="button"
           className="flex-1 bg-slate-700/50 hover:bg-slate-700/70 text-foreground font-medium py-3 px-4 rounded-lg transition-all duration-200 border border-slate-600/30"
           onClick={handleViewDetails}
         >
