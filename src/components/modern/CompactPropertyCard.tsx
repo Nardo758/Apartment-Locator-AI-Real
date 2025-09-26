@@ -4,6 +4,7 @@ import { Heart, Eye, Star, MapPin, Car, Clock, Check, TrendingUp, AlertTriangle,
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { usePropertyState } from '@/contexts';
 
 interface CompactPropertyCardProps {
   property: {
@@ -35,6 +36,14 @@ const CompactPropertyCard: React.FC<CompactPropertyCardProps> = ({
   onClick
 }) => {
   const navigate = useNavigate();
+  const { favoriteProperties, toggleFavorite } = usePropertyState();
+
+  const isFavorited = favoriteProperties.includes(property.id);
+
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite(property.id);
+  };
 
   const getScoreGradient = (score: number) => {
     if (score >= 90) return 'from-emerald-400 to-green-500';
@@ -130,6 +139,19 @@ const CompactPropertyCard: React.FC<CompactPropertyCardProps> = ({
 
               {/* Quick Action Buttons */}
               <div className="flex gap-2 mt-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleFavorite}
+                  className={`text-xs px-2 py-1 h-6 rounded-lg ${
+                    isFavorited 
+                      ? 'text-red-500 hover:bg-red-500/10' 
+                      : 'text-muted-foreground hover:text-red-500 hover:bg-red-500/5'
+                  }`}
+                >
+                  <Heart className={`w-3 h-3 mr-1 ${isFavorited ? 'fill-current' : ''}`} />
+                  {isFavorited ? 'Saved' : 'Save'}
+                </Button>
                 <Button
                   size="sm"
                   variant="ghost"
