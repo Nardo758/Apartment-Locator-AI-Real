@@ -4,7 +4,6 @@ import { MapPin, Clock, Zap, ChevronDown, ChevronUp, Heart } from 'lucide-react'
 import { Property } from '../data/mockData';
 import { usePropertyState } from '@/contexts';
 import PricingBreakdown from './PricingBreakdown';
-import { toast } from '@/hooks/use-toast';
 
 interface PropertyCardProps {
   property: Property;
@@ -16,26 +15,14 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const { 
     setSelectedProperty, 
     favoriteProperties, 
-    setFavoriteProperties 
+    toggleFavorite 
   } = usePropertyState();
 
   const isFavorited = favoriteProperties.includes(property.id);
 
   const handleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isFavorited) {
-      setFavoriteProperties(favoriteProperties.filter(id => id !== property.id));
-      toast({
-        title: "Removed from favorites",
-        description: "Property removed from your favorites"
-      });
-    } else {
-      setFavoriteProperties([...favoriteProperties, property.id]);
-      toast({
-        title: "Added to favorites",
-        description: "Property saved to your favorites"
-      });
-    }
+    toggleFavorite(property.id);
   };
 
   const handleViewDetails = () => {
