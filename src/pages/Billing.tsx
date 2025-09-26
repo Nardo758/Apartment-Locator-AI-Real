@@ -161,8 +161,7 @@ const Billing: React.FC = () => {
               <div
                 key={invoice.id}
                 className={`flex items-center justify-between p-4 ${designSystem.backgrounds.section} rounded-lg ${designSystem.animations.entrance}`}
-                style={{ animationDelay: `${300 + index * 100}ms` }}
-              >
+                style={{ animationDelay: `${300 + index * 100}ms` }}>
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-full bg-green-100 dark:bg-green-900/20">
                     <CheckCircle className="text-green-600" size={20} />

@@ -127,8 +127,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         <div className="w-full bg-slate-700 rounded-full h-2">
           <div 
             className="bg-gradient-to-r from-green-400 to-green-500 h-2 rounded-full transition-all duration-1000"
-            style={{ width: `${property.successRate}%` }}
-          ></div>
+            style={{ width: `${property.successRate}%` }}></div>
         </div>
       </div>
 

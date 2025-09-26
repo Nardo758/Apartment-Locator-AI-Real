@@ -62,8 +62,7 @@ export const TrialStatus: React.FC<TrialStatusProps> = ({
         <div className="w-full bg-muted/30 rounded-full h-2">
           <div 
             className={`h-2 rounded-full transition-all duration-500 ${getProgressColor()}`}
-            style={{ width: `${progressWidth}%` }}
-          />
+            style={{ width: `${progressWidth}%` }}/>
         </div>
 
         {/* Time Remaining */}

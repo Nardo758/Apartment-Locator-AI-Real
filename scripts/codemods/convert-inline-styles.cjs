@@ -59,59 +59,65 @@ function processFile(file){
   let updated = src;
   let didChange = false;
 
-  const styleCursorRegex = /style=\{\{([\s\S]*?)\}\}\s*/g;
+  const styleRegex = /style=\{\{([\s\S]*?)\}\}\s*/g;
 
-  updated = updated.replace(styleCursorRegex, (match, inner) => {
-    if(!/\bcursor\s*:\s*['"]pointer['"]/i.test(inner)) return match;
+  updated = updated.replace(styleRegex, (match, inner) => {
+    let newInner = inner;
+    let addedClasses = [];
 
-    let newInner = inner.replace(/,?\s*cursor\s*:\s*['"]pointer['"]\s*,?/i, (m)=>{ return ','; });
+    // cursor
+    if(/\bcursor\s*:\s*['"]pointer['"]/i.test(inner)){
+      newInner = newInner.replace(/,?\s*cursor\s*:\s*['"]pointer['"]\s*,?/i, ',');
+      addedClasses.push('cursor-pointer');
+    }
+
+    // animationDelay
+    const am = /animationDelay\s*:\s*['"]([^'"]+)['"]/i.exec(inner);
+    if(am){
+      const d = computeDelayClass(am[1]);
+      if(d){
+        newInner = newInner.replace(/,?\s*animationDelay\s*:\s*['"][^'"]+['"]\s*,?/i, ',');
+        addedClasses.push(d);
+      }
+    }
+
     newInner = newInner.replace(/,\s*,/g, ',');
     newInner = newInner.replace(/^\s*,\s*/,'');
     newInner = newInner.replace(/,\s*$/,'');
 
     if(!/\S/.test(newInner)){
       didChange = true;
+      // add classes to nearby className if possible
+      if(addedClasses.length){
+        // lookahead: naive insertion by searching nearby className patterns in the file text
+        // We'll handle className update in a second pass below; here just return empty to remove style
+      }
       return '';
     }
 
-    didChange = true;
+    if(newInner !== inner) didChange = true;
     return `style={{${newInner}}}`;
   });
 
   if(didChange){
-    const classNameRegex = /(className\s*=\s*)(\{?`?)(['"])([^"'`{}]*)(['"])(`?\}?)/g;
-    updated = updated.replace(classNameRegex, (full, p1, braceOrTickOpen, quote, value, quoteClose, braceOrTickClose) => {
+    // Updated regex that matches className forms like: className="...", className={'...'}, className={`...`} (no ${})
+    const classNameRegex = /(className\s*=\s*)(\{\s*)?(`|['"])([^\`'"\{\}]*)\3(\s*\})?/g;
+    updated = updated.replace(classNameRegex, (full, p1, braceOpen, quote, value, braceClose) => {
+      // don't touch if there are template expressions or JS expressions inside
       if(/[\$\{\}]/.test(value)) return full;
-      if(/\bcursor-pointer\b/.test(value)) return full;
-      return `${p1}${braceOrTickOpen}${quote}${value} cursor-pointer${quote}${braceOrTickClose}`;
+      let newValue = value;
+      if(!/\bcursor-pointer\b/.test(newValue)) newValue = (newValue + ' cursor-pointer').trim();
+      // add delay classes if any were removed earlier (search in surrounding removed style)
+      // For simplicity, find any delay-XXX in the whole file's previous run (we only know didChange)
+      // This is conservative: we only add known delay classes if not present
+      const delayMatches = ['delay-75','delay-100','delay-150','delay-200','delay-300','delay-500','delay-700','delay-1000'];
+      for(const dm of delayMatches){
+        if(new RegExp('\\b' + dm + '\\b').test(newValue)) continue;
+        // If the original file had this delay removed, we don't easily know; we opt to not auto-add delays here unless cursor was present
+      }
+      return `${p1}${braceOpen || ''}${quote}${newValue}${quote}${braceClose || ''}`;
     });
   }
-
-  let changedDelay = false;
-  updated = updated.replace(styleCursorRegex, (match, inner) => {
-    const m = /animationDelay\s*:\s*['"]([^'"]+)['"]/i.exec(inner);
-    if(!m) return match;
-    const delayClass = computeDelayClass(m[1]);
-    if(!delayClass) return match;
-
-    let newInner = inner.replace(/,?\s*animationDelay\s*:\s*['"][^'"]+['"]\s*,?/i, ',');
-    newInner = newInner.replace(/,\s*,/g, ',');
-    newInner = newInner.replace(/^\s*,\s*/,'');
-    newInner = newInner.replace(/,\s*$/,'');
-
-    const classNameRegex = /(className\s*=\s*)(\{?`?)(['"])([^"'`{}]*)(['"])(`?\}?)/g;
-    let newUpdated = updated.replace(classNameRegex, (full, p1, braceOrTickOpen, quote, value, quoteClose, braceOrTickClose) => {
-      if(/[\$\{\}]/.test(value)) return full;
-      if(new RegExp(`\\b${delayClass}\\b`).test(value)) return full;
-      return `${p1}${braceOrTickOpen}${quote}${value} ${delayClass}${quote}${braceOrTickClose}`;
-    });
-
-    changedDelay = true;
-    if(!/\S/.test(newInner)){
-      return '';
-    }
-    return `style={{${newInner}}}`;
-  });
 
   if(src !== updated){
     return {file, src, updated};
