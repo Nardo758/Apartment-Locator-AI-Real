@@ -24,6 +24,8 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       "@typescript-eslint/no-unused-vars": "off",
+      // Allow `any` temporarily as warnings so we can incrementally improve types
+      "@typescript-eslint/no-explicit-any": "warn",
     },
   }
 );
