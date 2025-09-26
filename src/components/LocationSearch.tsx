@@ -27,15 +27,17 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationChange, curre
   const [pointsOfInterest, setPointsOfInterest] = useState<PointOfInterest[]>(currentLocation.pointsOfInterest);
   const [isSearching, setIsSearching] = useState(false);
   const [isAddingPOI, setIsAddingPOI] = useState(false);
-  const [newPOI, setNewPOI] = useState({ name: '', address: '', maxTime: 30, transportMode: 'driving' as const });
+  type NewPOI = { name: string; address: string; maxTime: number; transportMode: PointOfInterest['transportMode'] };
+  const [newPOI, setNewPOI] = useState<NewPOI>({ name: '', address: '', maxTime: 30, transportMode: 'driving' });
 
   const commonPOIs = ['Work', 'Gym', 'Family', 'Airport', 'School', 'Shopping', 'Healthcare', 'Nightlife'];
 
   const handleSearch = () => {
     setIsSearching(true);
     
-    // Track location search
-    dataTracker.trackSearch(searchValue, {
+    // Track location search (pass a single payload)
+    dataTracker.trackSearch({
+      query: searchValue,
       search_type: 'location',
       search_radius: radius,
       max_drive_time: maxDriveTime,
@@ -339,7 +341,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ onLocationChange, curre
                 </div>
                 <Select 
                   value={newPOI.transportMode} 
-                  onValueChange={(value: any) => setNewPOI({ ...newPOI, transportMode: value })}
+                  onValueChange={(value: string) => setNewPOI({ ...newPOI, transportMode: value as PointOfInterest['transportMode'] })}
                 >
                   <SelectTrigger className="bg-slate-700/50 border-slate-600/50">
                     <SelectValue />

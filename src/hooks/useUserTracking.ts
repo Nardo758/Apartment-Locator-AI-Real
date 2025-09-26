@@ -7,39 +7,64 @@ export interface UserInteractionHookProps {
   componentContext?: string;
 }
 
+type AnyObject = Record<string, unknown>;
+
+type ActivityDetails = {
+  pageName?: string;
+  componentName?: string;
+  actionDetails?: AnyObject | unknown[] | string | number | null;
+  beforeState?: unknown;
+  afterState?: unknown;
+  metadata?: AnyObject | null;
+};
+
+import type { Json } from '@/integrations/supabase/types';
+
+const toJson = (value: unknown): Json | null => {
+  if (value === null || value === undefined) return null;
+  const t = typeof value;
+  if (t === 'string' || t === 'number' || t === 'boolean') return value as string | number | boolean;
+  if (Array.isArray(value)) return value.map((v) => toJson(v)) as Json[];
+  if (t === 'object') {
+    const out: { [k: string]: Json | undefined } = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      out[k] = toJson(v) ?? undefined;
+    }
+    return out as Json;
+  }
+  // fallback to string
+  return String(value) as unknown as Json;
+};
+
 export const useUserTracking = ({ pageContext, componentContext }: UserInteractionHookProps = {}) => {
   const { user } = useUser();
 
   const trackActivity = useCallback(async (
     activityType: string,
-    details: {
-      pageName?: string;
-      componentName?: string;
-      actionDetails?: any;
-      beforeState?: any;
-      afterState?: any;
-      metadata?: any;
-    }
-  ) => {
+    details: ActivityDetails = {}
+  ): Promise<void> => {
     if (!user) return;
 
     try {
-      const { error } = await supabase.from('user_activities').insert({
+      // Build a payload typed to the generated Database Insert type to satisfy TS
+      const payload: import('@/integrations/supabase/types').Database["public"]["Tables"]["user_activities"]["Insert"] = {
         user_id: user.id,
         activity_type: activityType,
         page_name: details.pageName || pageContext,
         component_name: details.componentName || componentContext,
-        action_details: details.actionDetails,
-        metadata: {
-          ...details.metadata,
-          before_state: details.beforeState,
-          after_state: details.afterState,
+        action_details: toJson(details.actionDetails),
+        metadata: toJson({
+          ...(details.metadata ?? {}),
+          before_state: details.beforeState ?? null,
+          after_state: details.afterState ?? null,
           timestamp: new Date().toISOString(),
-          url: window.location.href,
-          user_agent: navigator.userAgent,
-          screen_resolution: `${window.screen.width}x${window.screen.height}`
-        }
-      });
+          url: typeof window !== 'undefined' ? window.location.href : null,
+          user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+          screen_resolution: typeof window !== 'undefined' ? `${window.screen.width}x${window.screen.height}` : null
+        })
+      };
+
+      const { error } = await supabase.from('user_activities').insert(payload);
 
       if (error) {
         console.error('Failed to track activity:', error);
@@ -49,14 +74,14 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     }
   }, [user, pageContext, componentContext]);
 
-  const trackButtonClick = useCallback((buttonName: string, additionalData?: any) => {
+  const trackButtonClick = useCallback((buttonName: string, additionalData?: AnyObject) => {
     trackActivity('button_click', {
       actionDetails: { button_name: buttonName },
       metadata: additionalData
     });
   }, [trackActivity]);
 
-  const trackFormSubmit = useCallback((formType: string, formData?: any) => {
+  const trackFormSubmit = useCallback((formType: string, formData?: AnyObject) => {
     trackActivity('form_submission', {
       actionDetails: {
         form_type: formType,
@@ -66,7 +91,7 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     });
   }, [trackActivity]);
 
-  const trackFormFieldChange = useCallback((fieldName: string, oldValue: any, newValue: any) => {
+  const trackFormFieldChange = useCallback((fieldName: string, oldValue: unknown, newValue: unknown) => {
     trackActivity('form_field_change', {
       actionDetails: {
         field_name: fieldName,
@@ -76,7 +101,7 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     });
   }, [trackActivity]);
 
-  const trackFilterChange = useCallback((filterType: string, filterValue: any, actionType: 'add' | 'remove' | 'update') => {
+  const trackFilterChange = useCallback((filterType: string, filterValue: unknown, actionType: 'add' | 'remove' | 'update') => {
     trackActivity('filter_change', {
       actionDetails: {
         filter_type: filterType,
@@ -86,7 +111,7 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     });
   }, [trackActivity]);
 
-  const trackSearch = useCallback((searchParams: any, resultsCount: number) => {
+  const trackSearch = useCallback((searchParams: AnyObject | string | number, resultsCount: number) => {
     trackActivity('search_executed', {
       componentName: 'search',
       actionDetails: searchParams,
@@ -94,14 +119,14 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     });
   }, [trackActivity]);
 
-  const trackApartmentInteraction = useCallback((apartmentId: string, action: string, details?: any) => {
+  const trackApartmentInteraction = useCallback((apartmentId: string, action: string, details?: AnyObject) => {
     trackActivity('apartment_interaction', {
       componentName: 'apartment_card',
       actionDetails: { apartment_id: apartmentId, action, ...details }
     });
   }, [trackActivity]);
 
-  const trackFormSubmission = useCallback((formName: string, formData: any, success: boolean) => {
+  const trackFormSubmission = useCallback((formName: string, formData: AnyObject, success: boolean) => {
     trackActivity('form_submission', {
       componentName: formName,
       actionDetails: formData,
@@ -118,7 +143,7 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     });
   }, [trackActivity]);
 
-  const trackUserPreferenceChange = useCallback((preferenceType: string, oldValue: any, newValue: any) => {
+  const trackUserPreferenceChange = useCallback((preferenceType: string, oldValue: unknown, newValue: unknown) => {
     trackActivity('preference_change', {
       actionDetails: {
         preference_type: preferenceType,
@@ -128,7 +153,7 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     });
   }, [trackActivity]);
 
-  const trackFeatureUsage = useCallback((featureName: string, usageData?: any) => {
+  const trackFeatureUsage = useCallback((featureName: string, usageData?: AnyObject) => {
     trackActivity('feature_usage', {
       actionDetails: {
         feature_name: featureName
@@ -147,7 +172,7 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     });
   }, [trackActivity]);
 
-  const trackErrorOccurrence = useCallback((errorType: string, errorMessage: string, errorContext?: any) => {
+  const trackErrorOccurrence = useCallback((errorType: string, errorMessage: string, errorContext?: AnyObject) => {
     trackActivity('error_occurrence', {
       actionDetails: {
         error_type: errorType,
@@ -177,7 +202,7 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     });
   }, [trackActivity]);
 
-  const trackAIInteraction = useCallback((aiFeature: string, inputData?: any, outputData?: any) => {
+  const trackAIInteraction = useCallback((aiFeature: string, inputData?: AnyObject, outputData?: AnyObject) => {
     trackActivity('ai_interaction', {
       actionDetails: {
         ai_feature: aiFeature,
@@ -187,14 +212,14 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     });
   }, [trackActivity]);
 
-  const trackPageVisit = useCallback((pageName: string, additionalData = {}) => {
+  const trackPageVisit = useCallback((pageName: string, additionalData: AnyObject = {}) => {
     trackActivity('page_visit', {
       pageName,
       metadata: additionalData
     });
   }, [trackActivity]);
 
-  const trackPreferenceChange = useCallback((field: string, oldValue: any, newValue: any) => {
+  const trackPreferenceChange = useCallback((field: string, oldValue: unknown, newValue: unknown) => {
     trackActivity('preference_change', {
       componentName: 'preferences_form',
       actionDetails: { field, old_value: oldValue, new_value: newValue }

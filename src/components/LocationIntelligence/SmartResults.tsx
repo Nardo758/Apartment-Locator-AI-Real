@@ -12,7 +12,7 @@ import ModernApartmentCard from '@/components/modern/ModernApartmentCard';
 interface SmartResultsProps {
   smartResults: SmartProperty[];
   pointsOfInterest: PointOfInterest[];
-  userProfile: any;
+  userProfile: Record<string, unknown> | null;
   getCombinedScore: (propertyId: string) => number;
   onPropertySelect?: (id: string) => void;
   selectedPropertyId?: string | null;
@@ -74,12 +74,14 @@ const SmartResults: React.FC<SmartResultsProps> = ({
     return 'bg-red-500/20 border-red-500/30';
   };
 
+  const isArray = (v: unknown): v is unknown[] => Array.isArray(v);
+
   const getPreferencesCount = () => {
     let count = 0;
-    if (userProfile?.budget) count++;
-    if (userProfile?.amenities?.length > 0) count++;
-    if (userProfile?.lifestyle) count++;
-    if (userProfile?.priorities?.length > 0) count++;
+    if (userProfile && userProfile['budget']) count++;
+    if (userProfile && isArray(userProfile['amenities']) && userProfile['amenities'].length > 0) count++;
+    if (userProfile && userProfile['lifestyle']) count++;
+    if (userProfile && isArray(userProfile['priorities']) && userProfile['priorities'].length > 0) count++;
     return count;
   };
 
@@ -100,7 +102,7 @@ const SmartResults: React.FC<SmartResultsProps> = ({
             </div>
             
             <div className="flex items-center gap-3">
-              <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+              <Select value={sortBy} onValueChange={(value: string) => setSortBy(value as 'combinedScore' | 'locationScore' | 'price')}>
                 <SelectTrigger className="w-48 bg-slate-700/50 border-slate-600/50">
                   <ArrowUpDown className="w-4 h-4 mr-2" />
                   <SelectValue />
@@ -112,7 +114,7 @@ const SmartResults: React.FC<SmartResultsProps> = ({
                 </SelectContent>
               </Select>
               
-              <Select value={filterBy} onValueChange={(value: any) => setFilterBy(value)}>
+              <Select value={filterBy} onValueChange={(value: string) => setFilterBy(value as 'all' | 'topPicks' | 'budgetMatch')}>
                 <SelectTrigger className="w-36 bg-slate-700/50 border-slate-600/50">
                   <Filter className="w-4 h-4 mr-2" />
                   <SelectValue />
@@ -177,13 +179,13 @@ const SmartResults: React.FC<SmartResultsProps> = ({
                   days90: 7200
                 }
               },
-              poiDistances: property.poiTimes.reduce((acc: any, poi) => {
+              poiDistances: property.poiTimes.reduce((acc: Record<string, {distance: string; driveTime: number}>, poi) => {
                 acc[poi.poiName] = {
                   distance: `${(poi.time * 0.5).toFixed(1)} mi`,
                   driveTime: poi.time
                 };
                 return acc;
-              }, {})
+              }, {} as Record<string, {distance: string; driveTime: number}>)
             }}
             pointsOfInterest={pointsOfInterest}
             onSave={(id) => console.log('Save:', id)}

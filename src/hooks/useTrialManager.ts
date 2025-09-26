@@ -124,19 +124,32 @@ export const useTrialManager = () => {
     );
   }, [trialStatus, getTimeRemaining, isExpired]);
 
-  const convertToTeaserData = useCallback((fullIntelligence: any): TeaserIntelligence => {
-    // Round leverage score to nearest 10
-    const roundedScore = Math.round(fullIntelligence.overallLeverageScore / 10) * 10;
-    
+  const convertToTeaserData = useCallback((fullIntelligence: unknown): TeaserIntelligence => {
+    const asRecord = (fullIntelligence as Record<string, unknown> | undefined) || {};
+
+    // helper to read numbers safely
+    const getNumber = (obj: Record<string, unknown>, key: string, fallback: number) => {
+      const v = obj[key];
+      return typeof v === 'number' ? v : fallback;
+    };
+
+    // Round leverage score to nearest 10 (fallback to 50)
+    const overall = getNumber(asRecord, 'overallLeverageScore', 50);
+    const roundedScore = Math.round(overall / 10) * 10;
+
     // Create savings range (+/- 40% of actual)
-    const actualSavings = fullIntelligence.recommendation?.monthlySavings || 300;
+    const rec = (asRecord.recommendation as Record<string, unknown> | undefined) || undefined;
+    const actualSavings = typeof rec?.monthlySavings === 'number' ? rec!.monthlySavings : 300;
     const variance = actualSavings * 0.4;
-    
+
     // Determine opportunity level based on score
     let opportunityLevel: TeaserIntelligence['opportunityLevel'] = 'MODERATE';
     if (roundedScore >= 90) opportunityLevel = 'EXCEPTIONAL';
     else if (roundedScore >= 70) opportunityLevel = 'HIGH';
     else if (roundedScore < 50) opportunityLevel = 'LOW';
+
+    const combinedInsights = Array.isArray(asRecord.combinedInsights) ? (asRecord.combinedInsights as unknown[]) : [];
+    const dataStatus = (asRecord.dataStatus as Record<string, unknown> | undefined) || {};
 
     return {
       leverageScore: roundedScore,
@@ -145,12 +158,12 @@ export const useTrialManager = () => {
         max: Math.round(actualSavings + variance)
       },
       opportunityLevel,
-      insightsCount: fullIntelligence.combinedInsights?.length || 3,
+      insightsCount: combinedInsights.length || 3,
       advantages: {
-        hasTimingAdvantage: fullIntelligence.dataStatus?.timing === 'favorable',
-        hasSeasonalAdvantage: fullIntelligence.dataStatus?.seasonal === 'favorable',
-        marketCondition: fullIntelligence.dataStatus?.market || 'Neutral',
-        hasOwnershipAdvantage: fullIntelligence.dataStatus?.ownership === 'favorable'
+        hasTimingAdvantage: dataStatus.timing === 'favorable',
+        hasSeasonalAdvantage: dataStatus.seasonal === 'favorable',
+        marketCondition: typeof dataStatus.market === 'string' ? (dataStatus.market as 'Favorable' | 'Neutral' | 'Challenging') : 'Neutral',
+        hasOwnershipAdvantage: dataStatus.ownership === 'favorable'
       },
       blurredInsights: [
         { id: '1', title: 'Landlord Pressure Points Analysis', type: 'financial' },

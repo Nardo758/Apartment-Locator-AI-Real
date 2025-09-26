@@ -1,21 +1,25 @@
 import React from 'react';
 import { Search, TrendingUp, Settings, Target } from 'lucide-react';
 
+interface PointOfInterestShort {
+  id: string;
+  name: string;
+  address?: string;
+  maxTime?: number;
+  transportMode?: 'driving' | 'transit' | 'walking' | 'biking';
+}
+
+interface SyncedSettings {
+  location: string;
+  radius: number;
+  maxDriveTime: number;
+  pointsOfInterest: PointOfInterestShort[];
+}
+
 interface QuickActionsProps {
   onSearchAreaClick?: () => void;
-  syncedSettings?: {
-    location: string;
-    radius: number;
-    maxDriveTime: number;
-    pointsOfInterest: Array<{
-      id: string;
-      name: string;
-      address: string;
-      maxTime: number;
-      transportMode: string;
-    }>;
-  };
-  onSettingsChange?: (settings: any) => void;
+  syncedSettings?: SyncedSettings;
+  onSettingsChange?: (settings: SyncedSettings) => void;
 }
 
 const QuickActions: React.FC<QuickActionsProps> = ({ onSearchAreaClick, syncedSettings, onSettingsChange }) => {

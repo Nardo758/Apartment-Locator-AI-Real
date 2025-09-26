@@ -1,16 +1,18 @@
 import { supabase } from "@/integrations/supabase/client";
 
+export type JsonObject = Record<string, unknown>;
+
 export interface ActivityData {
   activityType: string;
   pageUrl?: string;
   elementClicked?: string;
-  activityData?: any;
+  activityData?: JsonObject;
   sessionId: string;
 }
 
 export interface SessionData {
   sessionId: string;
-  deviceInfo: any;
+  deviceInfo: JsonObject;
   ipAddress?: string;
   userAgent?: string;
 }
@@ -18,13 +20,13 @@ export interface SessionData {
 export interface ContentData {
   contentType: string;
   contentId?: string;
-  contentData?: any;
+  contentData?: JsonObject;
   action: 'create' | 'update' | 'delete' | 'view';
 }
 
 class DataTracker {
   private sessionId: string;
-  private deviceInfo: any;
+  private deviceInfo: JsonObject;
   private userId: string | null = null;
 
   constructor() {
@@ -37,7 +39,7 @@ class DataTracker {
     return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  private getDeviceInfo() {
+  private getDeviceInfo(): JsonObject {
     return {
       userAgent: navigator.userAgent,
       screen: {
@@ -140,7 +142,7 @@ class DataTracker {
     });
   }
 
-  async trackClick(element: string, additionalData?: any) {
+  async trackClick(element: string, additionalData?: JsonObject) {
     await this.trackActivity({
       activityType: 'click',
       elementClicked: element,
@@ -148,13 +150,14 @@ class DataTracker {
     });
   }
 
-  async trackSearch(query: string, results?: any) {
+  async trackSearch(queryOrPayload: string | { query: string; results?: unknown[]; [k: string]: unknown }) {
+    const payload = typeof queryOrPayload === 'string' ? { query: queryOrPayload, results: [] as unknown[] } : queryOrPayload;
     await this.trackActivity({
       activityType: 'search',
       activityData: {
-        query,
-        results_count: results?.length || 0,
-        results: results
+        query: payload.query,
+        results_count: Array.isArray(payload.results) ? payload.results.length : 0,
+        results: Array.isArray(payload.results) ? payload.results : []
       }
     });
   }
@@ -175,7 +178,7 @@ class DataTracker {
     }
   }
 
-  async trackInteraction(type: string, target: string, data?: any) {
+  async trackInteraction(type: string, target: string, data?: JsonObject) {
     await this.trackActivity({
       activityType: 'interaction',
       activityData: {

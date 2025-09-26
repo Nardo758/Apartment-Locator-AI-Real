@@ -190,7 +190,7 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({ isOpen, onClos
             <CardContent className="space-y-4">
               <div>
                 <Label>Export Format</Label>
-                <Select value={exportFormat} onValueChange={(value: any) => setExportFormat(value)}>
+                <Select value={exportFormat} onValueChange={(value: string) => setExportFormat(value as 'json' | 'csv' | 'pdf' | 'xml')}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose format" />
                   </SelectTrigger>
@@ -205,7 +205,7 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({ isOpen, onClos
 
               <div>
                 <Label>Delivery Method</Label>
-                <Select value={deliveryMethod} onValueChange={(value: any) => setDeliveryMethod(value)}>
+                <Select value={deliveryMethod} onValueChange={(value: string) => setDeliveryMethod(value as 'download' | 'email')}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose delivery method" />
                   </SelectTrigger>

@@ -1,12 +1,13 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 import { useUser } from './useUser';
 
 export const useDatabase = () => {
   const { user } = useUser();
 
   // User Preferences
-  const saveUserPreferences = useCallback(async (preferences: any) => {
+  const saveUserPreferences = useCallback(async (preferences: Record<string, unknown>) => {
     if (!user) throw new Error('User not authenticated');
     
     const { data, error } = await supabase
@@ -73,16 +74,16 @@ export const useDatabase = () => {
   }, [user]);
 
   // Search History
-  const saveSearch = useCallback(async (searchParams: any, resultsCount: number, location: any, radius: number) => {
+  const saveSearch = useCallback(async (searchParams: Record<string, unknown>, resultsCount: number, location: Record<string, unknown> | null, radius: number) => {
     if (!user) throw new Error('User not authenticated');
     
     const { data, error } = await supabase
       .from('search_history')
       .insert({
         user_id: user.id,
-        search_parameters: searchParams,
+        search_parameters: searchParams as unknown as Json,
         results_count: resultsCount,
-        search_location: location,
+        search_location: (location ?? null) as unknown as Json | null,
         radius: radius
       })
       .select()
@@ -107,15 +108,34 @@ export const useDatabase = () => {
   }, [user]);
 
   // Points of Interest
-  const savePOI = useCallback(async (poiData: any) => {
+  interface POIInput {
+    address: string;
+    category: string;
+    latitude: number;
+    longitude: number;
+    name: string;
+    notes?: string | null;
+    priority?: number | null;
+  }
+
+  const savePOI = useCallback(async (poiData: POIInput) => {
     if (!user) throw new Error('User not authenticated');
     
+    const poiPayload = {
+      address: poiData.address,
+      category: poiData.category,
+      latitude: poiData.latitude,
+      longitude: poiData.longitude,
+      name: poiData.name,
+      notes: poiData.notes ?? null,
+      priority: poiData.priority ?? null,
+      user_id: user.id,
+      created_at: new Date().toISOString()
+    } as const;
+
     const { data, error } = await supabase
       .from('user_pois')
-      .insert({
-        user_id: user.id,
-        ...poiData
-      })
+      .insert(poiPayload)
       .select()
       .single();
 

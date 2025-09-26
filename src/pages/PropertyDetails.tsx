@@ -54,8 +54,15 @@ const PropertyDetails: React.FC = () => {
   } = usePropertyState();
   
   const [property, setProperty] = useState<Property | null>(selectedProperty);
-  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
-  const [loading, setLoading] = useState(!selectedProperty);
+  type AiAnalysis = {
+    opportunityScore?: number;
+    tier?: string;
+    successRate?: number; // 0..1
+    recommendation?: string;
+  } | null;
+
+  const [aiAnalysis, setAiAnalysis] = useState<AiAnalysis>(null);
+  const [loading, setLoading] = useState<boolean>(!selectedProperty);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const isFavorited = property ? favoriteProperties.includes(property.id) : false;
@@ -81,41 +88,62 @@ const PropertyDetails: React.FC = () => {
         setLoading(false);
       }
       
-      // Perform AI analysis if we have a property
-      if (property) {
-        try {
-          const aiEngine = new ApartmentIQAI();
-          const tracker = new AlgorithmAnalyticsTracker();
-          
-          const propertyData = SampleDataFactory.createPropertyData();
-          propertyData.propertyId = property.id;
-          propertyData.rent = property.originalPrice;
-          propertyData.vacancyDuration = property.daysVacant;
-          
-          const marketData = SampleDataFactory.createMarketData();
-          const behavioralData = SampleDataFactory.createBehavioralData();
-          const tenantProfile = SampleDataFactory.createTenantProfile();
-          
-          const { result } = await tracker.trackOpportunityAnalysis(
-            propertyData,
-            marketData,
-            behavioralData,
-            tenantProfile,
-            'user-123',
-            'session-456'
-          );
-          
-          setAiAnalysis(result);
-        } catch (error) {
-          console.error('AI analysis failed:', error);
-        }
-      }
+      // AI analysis should run in a separate effect depending on `property` below
     };
 
     if (id) {
       loadPropertyDetails();
     }
   }, [id, navigate, selectedProperty, setSelectedProperty]);
+
+  // Run AI analysis when we have a property (separate effect to satisfy exhaustive-deps)
+  useEffect(() => {
+    const runAiAnalysis = async () => {
+      if (!property) return;
+
+      try {
+        const aiEngine = new ApartmentIQAI();
+        const tracker = new AlgorithmAnalyticsTracker();
+
+        const propertyData = SampleDataFactory.createPropertyData();
+        propertyData.propertyId = property.id;
+        propertyData.rent = property.originalPrice;
+        propertyData.vacancyDuration = property.daysVacant;
+
+        const marketData = SampleDataFactory.createMarketData();
+        const behavioralData = SampleDataFactory.createBehavioralData();
+        const tenantProfile = SampleDataFactory.createTenantProfile();
+
+        const { result } = await tracker.trackOpportunityAnalysis(
+          propertyData,
+          marketData,
+          behavioralData,
+          tenantProfile,
+          'user-123',
+          'session-456'
+        );
+
+        // Narrow result to the expected shape before setting state
+        let normalized: AiAnalysis = null;
+        if (result && typeof result === 'object') {
+          const obj = result as unknown as Record<string, unknown>;
+          normalized = {
+            opportunityScore: typeof obj.opportunityScore === 'number' ? (obj.opportunityScore as number) : undefined,
+            tier: typeof obj.tier === 'string' ? (obj.tier as string) : undefined,
+            successRate: typeof obj.successRate === 'number' ? (obj.successRate as number) : undefined,
+            recommendation: typeof obj.recommendation === 'string' ? (obj.recommendation as string) : undefined,
+          };
+        }
+
+        setAiAnalysis(normalized);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error('AI analysis failed:', message);
+      }
+    };
+
+    void runAiAnalysis();
+  }, [property]);
 
   const handleFavorite = () => {
     if (!property) return;

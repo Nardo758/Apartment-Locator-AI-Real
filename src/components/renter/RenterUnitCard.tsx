@@ -18,10 +18,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { RenterDealIntelligence } from '@/lib/renter-intelligence';
+import type { ApartmentIQData } from '@/lib/pricing-engine';
 
 interface Property {
   id: string;
-  apartmentIQData?: any;
+  apartmentIQData?: ApartmentIQData;
 }
 
 interface RenterUnitCardProps {

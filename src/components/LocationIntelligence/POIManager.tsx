@@ -129,7 +129,7 @@ const POIManager: React.FC<POIManagerProps> = ({
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1 block">Category</label>
-                    <Select value={newPOI.category} onValueChange={(value: any) => setNewPOI({ ...newPOI, category: value })}>
+                    <Select value={newPOI.category} onValueChange={(value: string) => setNewPOI({ ...newPOI, category: value as 'work' | 'gym' | 'school' | 'shopping' | 'custom' })}>
                       <SelectTrigger className="bg-slate-800 border-slate-600">
                         <SelectValue />
                       </SelectTrigger>
@@ -157,7 +157,7 @@ const POIManager: React.FC<POIManagerProps> = ({
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1 block">Priority</label>
-                    <Select value={newPOI.priority} onValueChange={(value: any) => setNewPOI({ ...newPOI, priority: value })}>
+                    <Select value={newPOI.priority} onValueChange={(value: string) => setNewPOI({ ...newPOI, priority: value as 'high' | 'medium' | 'low' })}>
                       <SelectTrigger className="bg-slate-800 border-slate-600">
                         <SelectValue />
                       </SelectTrigger>
@@ -180,7 +180,7 @@ const POIManager: React.FC<POIManagerProps> = ({
                   </div>
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1 block">Transport</label>
-                    <Select value={newPOI.transportMode} onValueChange={(value: any) => setNewPOI({ ...newPOI, transportMode: value })}>
+                    <Select value={newPOI.transportMode} onValueChange={(value: string) => setNewPOI({ ...newPOI, transportMode: value as 'driving' | 'transit' | 'walking' | 'biking' })}>
                       <SelectTrigger className="bg-slate-800 border-slate-600">
                         <SelectValue />
                       </SelectTrigger>
@@ -283,7 +283,7 @@ const POIManager: React.FC<POIManagerProps> = ({
                           {getTransportIcon(poi.transportMode)} {poi.maxTime}min
                         </Badge>
                       </div>
-                      <Select value={poi.priority} onValueChange={(value: any) => onUpdatePriority(poi.id, value)}>
+                      <Select value={poi.priority} onValueChange={(value: string) => onUpdatePriority(poi.id, value as 'high' | 'medium' | 'low')}>
                         <SelectTrigger className="w-20 h-6 bg-transparent border-0 p-0 text-xs">
                           <ChevronDown className="w-3 h-3" />
                         </SelectTrigger>

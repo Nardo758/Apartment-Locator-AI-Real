@@ -1,22 +1,13 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import type { ExportRequest, UserData, UserProfile, ActivityItem, ContentItem, SessionItem, OrderItem, ExportInfo } from '../../types'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface ExportRequest {
-  exportId: string;
-}
-
-interface UserData {
-  profile: any;
-  activity: any[];
-  content: any[];
-  sessions: any[];
-  orders: any[];
-}
+// Use centralized types
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
@@ -281,72 +272,90 @@ serve(async (req: Request) => {
       }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Export processing error:', error);
-    
-    // Update export request with error
+
+    const errMsg = error instanceof Error ? error.message : String(error);
+
+    // Update export request with error (best-effort)
     const { exportId } = await req.json().catch(() => ({ exportId: null }));
     if (exportId) {
       await supabase
         .from('data_export_requests')
         .update({
           status: 'failed',
-          error_message: error.message || 'Unknown error occurred'
+          error_message: errMsg,
         })
         .eq('id', exportId);
     }
 
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Export processing failed' 
+      JSON.stringify({
+        error: errMsg,
       }),
       {
         status: 500,
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          ...corsHeaders 
+          ...corsHeaders,
         },
       }
     );
   }
 });
 
-function generateCSV(data: any): string {
+function generateCSV(data: unknown): string {
   const rows: string[] = [];
-  
+
   // Add headers
   rows.push('Category,Type,Data,Timestamp');
-  
+
+  const d = typeof data === 'object' && data !== null ? data as Record<string, unknown> : {};
+
   // Add profile data
-  if (data.profile_data) {
-    rows.push(`Profile,Profile Information,"${JSON.stringify(data.profile_data).replace(/"/g, '""')}",${data.export_info.export_date}`);
+  if (d.profile_data) {
+    try {
+      const exportInfo = d.export_info as ExportInfo | undefined
+      rows.push(`Profile,Profile Information,"${JSON.stringify(d.profile_data).replace(/"/g, '""')}",${exportInfo?.export_date ?? ''}`);
+    } catch {
+      // fall back to a safe representation
+      const exportInfo = d.export_info as ExportInfo | undefined
+      rows.push(`Profile,Profile Information,"",${exportInfo?.export_date ?? ''}`);
+    }
   }
-  
+
   // Add activity data
-  data.activity_data?.forEach((activity: any) => {
-    rows.push(`Activity,${activity.activity_type},"${JSON.stringify(activity).replace(/"/g, '""')}",${activity.created_at}`);
+  const activities = Array.isArray(d.activity_data) ? d.activity_data : [];
+  activities.forEach((activity) => {
+    const a = typeof activity === 'object' && activity !== null ? activity as Record<string, unknown> : {};
+    rows.push(`Activity,${(a.activity_type as string) ?? ''},"${JSON.stringify(a).replace(/"/g, '""')}",${(a.created_at as string) ?? ''}`);
   });
-  
+
   // Add content data
-  data.content_data?.forEach((content: any) => {
-    rows.push(`Content,${content.content_type || 'offer'},"${JSON.stringify(content).replace(/"/g, '""')}",${content.created_at}`);
+  const contents = Array.isArray(d.content_data) ? d.content_data : [];
+  contents.forEach((content) => {
+    const c = typeof content === 'object' && content !== null ? content as Record<string, unknown> : {};
+    rows.push(`Content,${(c.content_type as string) || 'offer'},"${JSON.stringify(c).replace(/"/g, '""')}",${(c.created_at as string) ?? ''}`);
   });
-  
+
   return rows.join('\n');
 }
 
-function generateXML(data: any): string {
+function generateXML(data: unknown): string {
+  const d = typeof data === 'object' && data !== null ? data as Record<string, unknown> : {};
+  const exportInfo = d.export_info as ExportInfo | undefined;
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <data_export>
   <export_info>
-    <user_id>${data.export_info.user_id}</user_id>
-    <export_date>${data.export_info.export_date}</export_date>
-    <export_type>${data.export_info.export_type}</export_type>
+    <user_id>${exportInfo?.user_id ?? ''}</user_id>
+    <export_date>${exportInfo?.export_date ?? ''}</export_date>
+    <export_type>${exportInfo?.export_type ?? ''}</export_type>
   </export_info>
-  <profile_data>${xmlEscape(JSON.stringify(data.profile_data))}</profile_data>
-  <activity_data>${xmlEscape(JSON.stringify(data.activity_data))}</activity_data>
-  <content_data>${xmlEscape(JSON.stringify(data.content_data))}</content_data>
-  <session_data>${xmlEscape(JSON.stringify(data.session_data))}</session_data>
+  <profile_data>${xmlEscape(JSON.stringify(d.profile_data ?? {}))}</profile_data>
+  <activity_data>${xmlEscape(JSON.stringify(d.activity_data ?? []))}</activity_data>
+  <content_data>${xmlEscape(JSON.stringify(d.content_data ?? []))}</content_data>
+  <session_data>${xmlEscape(JSON.stringify(d.session_data ?? []))}</session_data>
 </data_export>`;
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -16,7 +16,7 @@ export const useSubscription = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  const checkSubscription = async () => {
+  const checkSubscription = useCallback(async () => {
     try {
       setIsLoading(true);
       
@@ -72,7 +72,7 @@ export const useSubscription = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   const validateAccessToken = async (token: string): Promise<boolean> => {
     try {
@@ -153,7 +153,7 @@ export const useSubscription = () => {
     return () => {
       authSubscription.unsubscribe();
     };
-  }, []);
+  }, [checkSubscription]);
 
   return {
     subscription,

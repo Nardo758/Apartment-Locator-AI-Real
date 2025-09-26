@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Save, Settings, DollarSign, Shield, CheckCircle, AlertCircle, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -37,11 +37,62 @@ const Profile: React.FC = () => {
     plaid_access_token: ''
   });
 
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id?: string; email?: string } | null>(null);
+
+  const loadProfile = useCallback(async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error loading profile:', error);
+        return;
+      }
+
+      if (data) {
+        setProfile({
+          email: (user && user.email) || '',
+          location: data.location || 'Austin, TX',
+          bio: data.bio || '',
+          gross_income: data.budget?.toString() || '',
+          employment_type: data.lifestyle || '',
+          employer_name: '',
+          employment_duration: '',
+          job_title: '',
+          current_rent: data.budget?.toString() || '',
+          credit_score: '',
+          bank_verified: data.has_completed_ai_programming || false,
+          income_verified: data.has_completed_ai_programming || false,
+          plaid_account_id: '',
+          plaid_access_token: ''
+        });
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    }
+  }, [user]);
+
+  const checkAuth = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        navigate('/auth');
+        return;
+      }
+      setUser({ id: session.user.id, email: session.user.email });
+      await loadProfile(session.user.id);
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      navigate('/auth');
+    }
+  }, [navigate, loadProfile]);
 
   useEffect(() => {
     checkAuth();
-    
+
     // Track profile page visit
     dataTracker.trackPageView();
     dataTracker.trackContent({
@@ -49,7 +100,7 @@ const Profile: React.FC = () => {
       action: 'view',
       contentData: { page: 'profile_settings' }
     });
-  }, []);
+  }, [checkAuth]);
 
   const checkAuth = async () => {
     try {
@@ -154,11 +205,12 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handlePlaidSuccess = (token: string, metadata: any) => {
+  const handlePlaidSuccess = (token: string, metadata: unknown) => {
+    const meta = (metadata as Record<string, unknown> | undefined) || {};
     setProfile({
       ...profile,
       plaid_access_token: token,
-      plaid_account_id: metadata.account_id,
+      plaid_account_id: (meta.account_id as string) || '',
       bank_verified: true,
       income_verified: true
     });
@@ -167,10 +219,10 @@ const Profile: React.FC = () => {
     dataTracker.trackContent({
       contentType: 'financial_verification',
       action: 'create',
-      contentData: {
+        contentData: {
         verification_type: 'bank_connection',
         provider: 'plaid',
-        account_type: metadata.account_type || 'unknown',
+        account_type: (meta.account_type as string) || 'unknown',
         timestamp: new Date().toISOString()
       }
     });

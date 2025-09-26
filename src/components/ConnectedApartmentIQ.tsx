@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/use-toast';
-import { ApartmentScraperAPI, type UnitData } from '@/lib/apartment-scraper-api';
+import { ApartmentScraperAPI, type UnitData, type MarketInsights } from '@/lib/apartment-scraper-api';
 import { Loader2, Search, MapPin, Calendar, DollarSign, Home } from 'lucide-react';
 
 export const ConnectedApartmentIQ: React.FC = () => {
@@ -14,7 +14,7 @@ export const ConnectedApartmentIQ: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [scrapeProgress, setScrapeProgress] = useState(0);
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
-  const [insights, setInsights] = useState<any>(null);
+  const [insights, setInsights] = useState<MarketInsights | null>(null);
   const { toast } = useToast();
   
   const handleTriggerScrape = async () => {
@@ -173,11 +173,11 @@ export const ConnectedApartmentIQ: React.FC = () => {
               </div>
             </div>
             
-            {insights.common_concessions?.length > 0 && (
+            {Array.isArray(insights?.common_concessions) && insights.common_concessions.length > 0 && (
               <div>
                 <h4 className="text-sm font-medium text-foreground mb-2">Common Concessions</h4>
                 <div className="flex flex-wrap gap-2">
-                  {insights.common_concessions.map((concession: any, index: number) => (
+                  {insights.common_concessions.map((concession, index: number) => (
                     <Badge key={index} variant="secondary" className="text-xs">
                       {concession.type} ({concession.frequency}%)
                     </Badge>

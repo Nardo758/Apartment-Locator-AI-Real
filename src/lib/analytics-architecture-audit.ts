@@ -31,7 +31,7 @@ export interface AnalyticsEvent {
   timestamp: Date;
   user_id: string;
   session_id: string;
-  properties: Record<string, any>;
+  properties: Record<string, unknown>;
 }
 
 export interface AlgorithmDecisionEvent extends AnalyticsEvent {
@@ -74,7 +74,7 @@ export interface UserInteractionEvent extends AnalyticsEvent {
     component: string;
     page: string;
     target: string;
-    value?: any;
+    value?: unknown;
   };
 }
 
@@ -298,7 +298,7 @@ export class AlgorithmAnalyticsTracker {
     target: string,
     userId: string,
     sessionId: string,
-    value?: any
+    value?: unknown
   ): UserInteractionEvent {
     const event: UserInteractionEvent = {
       event_name: 'user_interaction',

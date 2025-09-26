@@ -5,10 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useRenterIntelligence } from '@/hooks/useRenterIntelligence';
 import { RenterUnitCard } from './RenterUnitCard';
+import type { ApartmentIQData } from '@/lib/pricing-engine';
 
 interface Property {
   id: string;
-  apartmentIQData?: any;
+  apartmentIQData?: ApartmentIQData;
 }
 
 interface RenterDashboardProps {

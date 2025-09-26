@@ -59,7 +59,7 @@ export const LeverageScoreCard: React.FC<LeverageScoreCardProps> = ({
             <Target className="w-5 h-5 text-blue-500" />
             Negotiation Intelligence
           </CardTitle>
-          <Badge variant={getLeverageVariant(leverageScore) as any} className="text-sm font-semibold border">
+          <Badge variant={getLeverageVariant(leverageScore)} className="text-sm font-semibold border">
             {leverageScore}/100 Leverage
           </Badge>
         </div>

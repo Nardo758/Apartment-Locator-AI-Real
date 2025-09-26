@@ -13,11 +13,11 @@ import { toast } from '@/hooks/use-toast';
 interface RentalOffer {
   id: string;
   property_id: string;
-  property_details: any;
+  property_details: Record<string, unknown>;
   monthly_budget: number;
   lease_term: number;
   move_in_date: string;
-  ai_suggestions: any;
+  ai_suggestions: Record<string, unknown>;
   notes: string;
   created_at: string;
   status?: 'pending' | 'accepted' | 'rejected' | 'expired';
@@ -42,18 +42,21 @@ const OffersMade: React.FC = () => {
       if (error) throw error;
 
       // Mock status for demo purposes since we don't have a status column
-      const offersWithStatus = data?.map((offer, index) => ({
-        id: offer.id,
-        property_id: offer.property_address || 'unknown',
-        property_details: offer.offer_details || {},
-        monthly_budget: 2500, // Default value
-        lease_term: 12, // Default value
-        move_in_date: new Date().toISOString().split('T')[0],
-        ai_suggestions: offer.ai_suggestions || {},
-        notes: '', // Default empty string
-        created_at: offer.created_at,
-        status: (index === 0 ? 'pending' : index === 1 ? 'accepted' : 'pending') as 'pending' | 'accepted' | 'rejected' | 'expired'
-      })) || [];
+      const offersWithStatus = (data || []).map((offerRow: unknown, index: number) => {
+        const offer = offerRow as Record<string, unknown>;
+        return {
+          id: String(offer.id),
+          property_id: String(offer.property_address || 'unknown'),
+          property_details: (offer.offer_details && typeof offer.offer_details === 'object') ? offer.offer_details as Record<string, unknown> : {},
+          monthly_budget: Number(offer.monthly_budget || 2500), // Default value
+          lease_term: Number(offer.lease_term || 12), // Default value
+          move_in_date: String(offer.move_in_date || new Date().toISOString().split('T')[0]),
+          ai_suggestions: (offer.ai_suggestions && typeof offer.ai_suggestions === 'object') ? offer.ai_suggestions as Record<string, unknown> : {},
+          notes: String(offer.notes || ''), // Default empty string
+          created_at: String(offer.created_at),
+          status: (index === 0 ? 'pending' : index === 1 ? 'accepted' : 'pending') as 'pending' | 'accepted' | 'rejected' | 'expired'
+        };
+      });
 
       setOffers(offersWithStatus);
     } catch (error) {
@@ -223,7 +226,11 @@ const OffersMade: React.FC = () => {
               </div>
             </ModernCard>
           ) : (
-            offers.map((offer, index) => (
+            offers.map((offer, index) => {
+              const ai = (offer.ai_suggestions && typeof offer.ai_suggestions === 'object') ? (offer.ai_suggestions as Record<string, unknown>) : {};
+              const negotiatedPriceText = ai.negotiated_price ? String(ai.negotiated_price) : 'N/A';
+              const successProbabilityText = ai.success_probability ? String(ai.success_probability) : 'N/A';
+              return (
               <ModernCard
                 key={offer.id}
                 animate
@@ -235,7 +242,7 @@ const OffersMade: React.FC = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-3">
                       <h3 className={`${designSystem.typography.subheadingLarge}`}>
-                        {offer.property_details?.address || `Property ${offer.property_id}`}
+                        {(((offer.property_details && typeof offer.property_details === 'object') ? (offer.property_details as Record<string, unknown>).address : undefined) as string) || `Property ${offer.property_id}`}
                       </h3>
                       <Badge className={`${getStatusColor(offer.status || 'pending')} flex items-center gap-1`}>
                         {getStatusIcon(offer.status || 'pending')}
@@ -246,7 +253,7 @@ const OffersMade: React.FC = () => {
                     <div className="flex items-center gap-4 text-sm mb-4">
                       <div className="flex items-center gap-1">
                         <MapPin className="w-4 h-4 text-blue-600" />
-                        <span>{offer.property_details?.city || 'Austin, TX'}</span>
+                        <span>{String(((offer.property_details && typeof offer.property_details === 'object') ? (offer.property_details as Record<string, unknown>).city : undefined) || 'Austin, TX')}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4 text-green-600" />
@@ -266,13 +273,13 @@ const OffersMade: React.FC = () => {
                           <div className="flex justify-between">
                             <span className={designSystem.colors.muted}>Offer Amount:</span>
                             <span className="text-green-600 font-medium">
-                              ${offer.ai_suggestions.negotiated_price?.toLocaleString() || 'N/A'}
+                              ${negotiatedPriceText}
                             </span>
                           </div>
                           <div className="flex justify-between">
                             <span className={designSystem.colors.muted}>Success Rate:</span>
                             <span className="text-yellow-600 font-medium">
-                              {offer.ai_suggestions.success_probability || 'N/A'}%
+                              {successProbabilityText}%
                             </span>
                           </div>
                           <div className="flex justify-between">
@@ -305,7 +312,8 @@ const OffersMade: React.FC = () => {
                   </div>
                 </div>
               </ModernCard>
-            ))
+            );
+            })
           )}
         </div>
       </ModernPageLayout>

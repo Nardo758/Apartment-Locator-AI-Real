@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
+import type { OfferEmailRequest, AISuggestions } from '../../types'
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -10,16 +11,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface OfferEmailRequest {
-  userEmail: string;
-  moveInDate: string;
-  leaseTerm: number;
-  monthlyBudget: number;
-  notes?: string;
-  propertyId: string;
-  propertyDetails?: any;
-  aiSuggestions?: any;
-}
+// Use centralized OfferEmailRequest type
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -60,9 +52,12 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Offer saved to database:", savedOffer);
 
     // Format AI suggestions for email
-    const formatAISuggestions = (suggestions: any) => {
+    const formatAISuggestions = (suggestions: unknown) => {
       if (!suggestions) return '';
-      
+
+  // Narrow suggestions to AISuggestions for safe access
+  const s = typeof suggestions === 'object' && suggestions !== null ? suggestions as AISuggestions : {} as AISuggestions;
+
       return `
         <h3>AI Market Analysis & Recommendations</h3>
         
@@ -81,13 +76,14 @@ const handler = async (req: Request): Promise<Response> => {
         </ul>
 
         <h4>Potential Concessions:</h4>
-        ${suggestions.potentialConcessions?.map((concession: any) => 
-          `<li><strong>${concession.type}:</strong> ${concession.description} (${concession.likelihood} likelihood)</li>`
-        ).join('') || '<li>No concessions suggested</li>'}
+        ${Array.isArray(s.potentialConcessions) ? s.potentialConcessions.map((concession: unknown) => {
+          const c = typeof concession === 'object' && concession !== null ? concession as Record<string, unknown> : {};
+          return `<li><strong>${(c.type as string) ?? ''}:</strong> ${(c.description as string) ?? ''} (${(c.likelihood as string) ?? ''} likelihood)</li>`;
+        }).join('') : '<li>No concessions suggested</li>'}
 
         <h4>Timing Recommendations:</h4>
-        <p><strong>Best Time to Apply:</strong> ${suggestions.timingRecommendations?.bestTimeToApply || 'N/A'}</p>
-        <p><strong>Reasoning:</strong> ${suggestions.timingRecommendations?.reasoning || 'N/A'}</p>
+  <p><strong>Best Time to Apply:</strong> ${ s.timingRecommendations?.bestTimeToApply || 'N/A' }</p>
+  <p><strong>Reasoning:</strong> ${ s.timingRecommendations?.reasoning || 'N/A' }</p>
       `;
     };
 
@@ -134,18 +130,19 @@ const handler = async (req: Request): Promise<Response> => {
         ...corsHeaders,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in send-offer-email function:", error);
+    const errMsg = error instanceof Error ? error.message : String(error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error.message 
+      JSON.stringify({
+        success: false,
+        error: errMsg,
       }),
       {
         status: 500,
-        headers: { 
-          "Content-Type": "application/json", 
-          ...corsHeaders 
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
         },
       }
     );

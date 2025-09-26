@@ -82,12 +82,13 @@ const Auth = () => {
         toast.success('Account created successfully! Please check your email to verify your account.');
         setIsSignUp(false);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Sign up error:', error);
-      if (error.message.includes('already registered')) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes('already registered')) {
         setError('This email is already registered. Please sign in instead.');
       } else {
-        setError(error.message || 'Failed to create account');
+        setError(message || 'Failed to create account');
       }
     } finally {
       setLoading(false);
@@ -122,14 +123,15 @@ const Auth = () => {
         // Navigate to dashboard using react-router
         navigate('/dashboard');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Sign in error:', error);
-      if (error.message.includes('Invalid login credentials')) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes('Invalid login credentials')) {
         setError('Invalid email or password. Please try again.');
-      } else if (error.message.includes('Email not confirmed')) {
+      } else if (message.includes('Email not confirmed')) {
         setError('Please check your email and click the verification link before signing in.');
       } else {
-        setError(error.message || 'Failed to sign in');
+        setError(message || 'Failed to sign in');
       }
     } finally {
       setLoading(false);

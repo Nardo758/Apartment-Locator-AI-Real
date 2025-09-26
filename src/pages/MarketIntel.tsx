@@ -50,6 +50,14 @@ const MarketIntel: React.FC = () => {
   );
 
   // Calculate rent vs buy analysis
+  const locationMap: Record<string, string> = {
+    'austin': 'Austin, TX',
+    'dallas': 'Dallas, TX',
+    'houston': 'Houston, TX'
+  };
+
+  const locationName = locationMap[selectedRegion] || 'Austin, TX';
+
   useEffect(() => {
     const analyzer = RentVsBuyAnalyzer.getInstance();
     
@@ -68,7 +76,7 @@ const MarketIntel: React.FC = () => {
     const propertyScenario = {
       propertyValue,
       currentRent,
-      location: getLocationName(),
+      location: locationName,
       propertyTax: propertyValue * 0.018, // 1.8%
       hoaFees: 150,
       maintenanceCosts: propertyValue * 0.01, // 1%
@@ -89,15 +97,10 @@ const MarketIntel: React.FC = () => {
     
     const result = analyzer.analyzeRentVsBuy(renterProfile, propertyScenario, marketConditions);
     setRentVsBuyResult(result);
-  }, [currentRent, propertyValue, downPaymentPercent, timeHorizon, annualIncome, currentSavings]);
+  }, [currentRent, propertyValue, downPaymentPercent, timeHorizon, annualIncome, currentSavings, locationName, selectedRegion]);
 
-  const locationMap: Record<string, string> = {
-    'austin': 'Austin, TX',
-    'dallas': 'Dallas, TX',
-    'houston': 'Houston, TX'
-  };
-
-  const getLocationName = () => locationMap[selectedRegion] || 'Austin, TX';
+  // helper kept for external usage within this module
+  const getLocationName = () => locationName;
 
   const getMarketMetrics = () => {
     if (!intelligence?.marketData[0]) return [];
@@ -185,11 +188,10 @@ const MarketIntel: React.FC = () => {
           {/* Quick Market Metrics */}
           {!loading && intelligence && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              {getMarketMetrics().map((metric, index) => (
+              {getMarketMetrics().map((metric) => (
                 <div
                   key={metric.title}
                   className="animate-in fade-in slide-in-from-bottom-4 duration-500"
-                  style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <Card className="relative overflow-hidden border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300">
                     <CardContent className="p-4">

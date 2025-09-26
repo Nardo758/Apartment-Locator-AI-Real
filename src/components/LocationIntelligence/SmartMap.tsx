@@ -6,13 +6,22 @@ import { Card, CardContent } from '@/components/ui/card';
 import { PointOfInterest, SmartProperty } from '@/hooks/useLocationIntelligence';
 import POIManager from './POIManager';
 
+interface UserProfileShape {
+  has_completed_ai_programming?: boolean;
+  amenities?: unknown[];
+  priorities?: unknown[];
+  budget?: unknown;
+}
+
 interface SmartMapProps {
   pointsOfInterest: PointOfInterest[];
   smartResults: SmartProperty[];
-  userProfile: any;
+  userProfile: UserProfileShape | null;
   selectedPropertyId?: string | null;
   onPropertySelect?: (id: string) => void;
 }
+
+const isUserProfileArray = (val: unknown): val is unknown[] => Array.isArray(val);
 
 const SmartMap: React.FC<SmartMapProps> = ({
   pointsOfInterest,
@@ -36,10 +45,12 @@ const SmartMap: React.FC<SmartMapProps> = ({
   }, [selectedPropertyId]);
 
   // Check if AI preferences are active
-  const hasAIPreferences = userProfile?.has_completed_ai_programming || 
-    (userProfile?.amenities && userProfile.amenities.length > 0) ||
-    (userProfile?.priorities && userProfile.priorities.length > 0) ||
-    userProfile?.budget;
+  const hasAIPreferences = Boolean(
+    (userProfile && (userProfile.has_completed_ai_programming === true)) ||
+    (userProfile && isUserProfileArray(userProfile.amenities) && userProfile.amenities.length > 0) ||
+    (userProfile && isUserProfileArray(userProfile.priorities) && userProfile.priorities.length > 0) ||
+    (userProfile && !!userProfile.budget)
+  );
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'bg-green-500 border-green-400 text-white shadow-green-500/30';

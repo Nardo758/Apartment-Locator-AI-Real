@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -153,54 +153,54 @@ const ProgramAI = () => {
         }
 
         if (profile) {
-          const profileAny = profile as any; // Type assertion for new columns
+          const profileRecord = profile as Record<string, unknown>;
           setPreferences(prev => ({
             ...prev,
-            bedrooms: profileAny.bedrooms || '1',
-            amenities: profileAny.amenities || [],
-            dealBreakers: profileAny.deal_breakers || [],
+            bedrooms: (profileRecord.bedrooms as string) || '1',
+            amenities: (profileRecord.amenities as string[]) || [],
+            dealBreakers: (profileRecord.deal_breakers as string[]) || [],
             
             // Load additional preferences from profile if they exist
-            publicTransitAccess: profileAny.public_transit_access || [],
-            walkabilityScoreRequirement: profileAny.walkability_score_requirement || 'moderate',
-            bikeFriendly: profileAny.bike_friendly || false,
-            evChargingStations: profileAny.ev_charging_stations || false,
-            rideShareAvailability: profileAny.ride_share_availability || 'standard',
-            airportProximity: profileAny.airport_proximity || 'moderate',
-            highwayAccess: profileAny.highway_access || false,
+            publicTransitAccess: (profileRecord.public_transit_access as string[]) || [],
+            walkabilityScoreRequirement: (profileRecord.walkability_score_requirement as string) || 'moderate',
+            bikeFriendly: (profileRecord.bike_friendly as boolean) || false,
+            evChargingStations: (profileRecord.ev_charging_stations as boolean) || false,
+            rideShareAvailability: (profileRecord.ride_share_availability as string) || 'standard',
+            airportProximity: (profileRecord.airport_proximity as string) || 'moderate',
+            highwayAccess: (profileRecord.highway_access as boolean) || false,
             
-            schoolDistrictQuality: profileAny.school_district_quality || 'no-preference',
-            crimeRatePreference: profileAny.crime_rate_preference || 'low',
-            noiseLevelTolerance: profileAny.noise_level_tolerance || 'moderate',
-            populationDensity: profileAny.population_density || 'moderate',
-            ageDemographics: profileAny.age_demographics || 'mixed',
-            diversityIndex: profileAny.diversity_index || 'moderate',
-            localCultureArts: profileAny.local_culture_arts || false,
+            schoolDistrictQuality: (profileRecord.school_district_quality as string) || 'no-preference',
+            crimeRatePreference: (profileRecord.crime_rate_preference as string) || 'low',
+            noiseLevelTolerance: (profileRecord.noise_level_tolerance as string) || 'moderate',
+            populationDensity: (profileRecord.population_density as string) || 'moderate',
+            ageDemographics: (profileRecord.age_demographics as string) || 'mixed',
+            diversityIndex: (profileRecord.diversity_index as string) || 'moderate',
+            localCultureArts: (profileRecord.local_culture_arts as boolean) || false,
             
-            securitySystemRequired: profileAny.security_system_required || false,
-            gatedCommunityPreference: profileAny.gated_community_preference || 'no-preference',
-            emergencyServicesResponseTime: profileAny.emergency_services_response_time || 'standard',
-            floodZoneAvoidance: profileAny.flood_zone_avoidance || false,
-            fireSafetyFeatures: profileAny.fire_safety_features || [],
+            securitySystemRequired: (profileRecord.security_system_required as boolean) || false,
+            gatedCommunityPreference: (profileRecord.gated_community_preference as string) || 'no-preference',
+            emergencyServicesResponseTime: (profileRecord.emergency_services_response_time as string) || 'standard',
+            floodZoneAvoidance: (profileRecord.flood_zone_avoidance as boolean) || false,
+            fireSafetyFeatures: (profileRecord.fire_safety_features as string[]) || [],
             
-            groceryStoreTypes: profileAny.grocery_store_types || [],
-            shoppingMallAccess: profileAny.shopping_mall_access || false,
-            farmersMarkets: profileAny.farmers_markets || false,
-            bankingAccess: profileAny.banking_access || false,
-            postOfficeProximity: profileAny.post_office_proximity || false,
-            dryCleaningServices: profileAny.dry_cleaning_services || false,
+            groceryStoreTypes: (profileRecord.grocery_store_types as string[]) || [],
+            shoppingMallAccess: (profileRecord.shopping_mall_access as boolean) || false,
+            farmersMarkets: (profileRecord.farmers_markets as boolean) || false,
+            bankingAccess: (profileRecord.banking_access as boolean) || false,
+            postOfficeProximity: (profileRecord.post_office_proximity as boolean) || false,
+            dryCleaningServices: (profileRecord.dry_cleaning_services as boolean) || false,
             
-            internetSpeedRequirement: profileAny.internet_speed_requirement || 'standard',
-            cellTowerCoverage: profileAny.cell_tower_coverage || 'good',
-            smartHomeCompatibility: profileAny.smart_home_compatibility || false,
-            cableStreamingOptions: profileAny.cable_streaming_options || [],
+            internetSpeedRequirement: (profileRecord.internet_speed_requirement as string) || 'standard',
+            cellTowerCoverage: (profileRecord.cell_tower_coverage as string) || 'good',
+            smartHomeCompatibility: (profileRecord.smart_home_compatibility as boolean) || false,
+            cableStreamingOptions: (profileRecord.cable_streaming_options as string[]) || [],
             
-            lifestyle: profileAny.lifestyle || '',
-            workSchedule: profileAny.work_schedule || '',
-            priorities: profileAny.priorities || [],
-            bio: profileAny.bio || '',
-            useCase: profileAny.use_case || '',
-            additionalNotes: profileAny.additional_notes || ''
+            lifestyle: (profileRecord.lifestyle as string) || '',
+            workSchedule: (profileRecord.work_schedule as string) || '',
+            priorities: (profileRecord.priorities as string[]) || [],
+            bio: (profileRecord.bio as string) || '',
+            useCase: (profileRecord.use_case as string) || '',
+            additionalNotes: (profileRecord.additional_notes as string) || ''
           }));
         }
       } catch (error) {
@@ -237,8 +237,9 @@ const ProgramAI = () => {
     'Walkable Neighborhood', 'Parking Available'
   ];
 
-  const updatePreference = (key: keyof AIPreferences, value: any) => {
-    setPreferences(prev => ({ ...prev, [key]: value }));
+  const updatePreference = (key: keyof AIPreferences, value: unknown) => {
+    // Use a helper to avoid explicit `any` while allowing unknown runtime values
+    setPreferences(prev => ({ ...prev, [key]: value as unknown as AIPreferences[keyof AIPreferences] }));
     
     // Track preference changes
     dataTracker.trackContent({
@@ -269,7 +270,7 @@ const ProgramAI = () => {
     return newArray;
   };
 
-  const syncWithGlobalState = () => {
+  const syncWithGlobalState = useCallback(() => {
     // Sync search filters with global state
     setSearchFilters({
       location: searchFilters.location || 'Austin, TX',
@@ -284,12 +285,12 @@ const ProgramAI = () => {
       location: userPreferences.location || 'Austin, TX',
       moveInDate: userPreferences.moveInDate
     });
-  };
+  }, [searchFilters, userPreferences, preferences, setSearchFilters, setUserPreferences]);
 
-  // Auto-sync when key preferences change
+    // Auto-sync when key preferences change
   useEffect(() => {
     syncWithGlobalState();
-  }, [preferences.amenities, preferences.bedrooms]);
+  }, [preferences.amenities, preferences.bedrooms, syncWithGlobalState]);
 
   const handleSave = async () => {
     try {
@@ -398,21 +399,22 @@ const ProgramAI = () => {
 
       toast.success('AI preferences saved successfully!');
       navigate('/dashboard');
-    } catch (error: any) {
-      console.error('Error saving preferences:', error);
-      
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Error saving preferences:', message);
+
       // Track save error
       dataTracker.trackContent({
         contentType: 'ai_preferences',
         action: 'update',
         contentData: {
-          error: error.message,
+          error: message,
           step: 'save_failed',
           timestamp: new Date().toISOString()
         }
       });
-      
-      toast.error('Failed to save preferences: ' + error.message);
+
+      toast.error('Failed to save preferences: ' + message);
     } finally {
       setSaving(false);
     }

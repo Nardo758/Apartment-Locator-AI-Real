@@ -43,15 +43,15 @@ interface Apartment {
 
 interface ApartmentResultsProps {
   apartments?: Apartment[];
-  pointsOfInterest: any[];
+  pointsOfInterest: Record<string, unknown>[];
 }
 
 const ApartmentResults: React.FC<ApartmentResultsProps> = ({ 
   apartments = [], 
   pointsOfInterest = [] 
 }) => {
-  const [sortBy, setSortBy] = useState('aiScore');
-  const [filterBy, setFilterBy] = useState('all');
+  const [sortBy, setSortBy] = useState<'aiScore' | 'price' | 'newest'>('aiScore');
+  const [filterBy, setFilterBy] = useState<'all' | 'topPicks' | 'budgetMatch'>('all');
   const [savedApartments, setSavedApartments] = useState<Set<string>>(new Set());
   const [hoveredProperty, setHoveredProperty] = useState<string | null>(null);
 
@@ -321,7 +321,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
           <p className="text-sm text-muted-foreground">{filteredApartments.length} properties found</p>
         </div>
         <div className="flex gap-3">
-          <Select value={filterBy} onValueChange={setFilterBy}>
+          <Select value={filterBy} onValueChange={(v: string) => setFilterBy(v as 'all' | 'topPicks' | 'budgetMatch')}>
             <SelectTrigger className="w-40 bg-slate-800/50 border-slate-700/50">
               <SelectValue />
             </SelectTrigger>
@@ -331,7 +331,7 @@ const ApartmentResults: React.FC<ApartmentResultsProps> = ({
               <SelectItem value="budgetMatch">Budget Match</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={sortBy} onValueChange={setSortBy}>
+          <Select value={sortBy} onValueChange={(v: string) => setSortBy(v as 'aiScore' | 'price' | 'newest')}>
             <SelectTrigger className="w-40 bg-slate-800/50 border-slate-700/50">
               <SelectValue />
             </SelectTrigger>

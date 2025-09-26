@@ -443,7 +443,7 @@ export class RentVsBuyAnalyzer {
   // Recommendation Engine
   generateRecommendation(
     projections: FinancialProjection[],
-    riskAnalysis: any,
+    riskAnalysis: unknown,
     profile: RenterProfile,
     affordability: AffordabilityAssessment
   ) {
@@ -483,11 +483,13 @@ export class RentVsBuyAnalyzer {
       confidence -= 0.1;
     }
     
-    // Risk considerations
-    if (riskAnalysis.overallRiskLevel === 'high') {
+    // Risk considerations (narrow unknown to usable shape)
+    const riskObj = (riskAnalysis && typeof riskAnalysis === 'object') ? (riskAnalysis as Record<string, unknown>) : null;
+    const overallRiskLevel = riskObj && typeof riskObj.overallRiskLevel === 'string' ? (riskObj.overallRiskLevel as 'high' | 'medium' | 'low') : null;
+    if (overallRiskLevel === 'high') {
       score -= 2;
       confidence -= 0.15;
-    } else if (riskAnalysis.overallRiskLevel === 'low') {
+    } else if (overallRiskLevel === 'low') {
       score += 1;
       confidence += 0.1;
     }
@@ -543,7 +545,7 @@ export class RentVsBuyAnalyzer {
   generatePersonalizedInsights(
     profile: RenterProfile,
     scenario: PropertyScenario,
-    recommendation: any,
+    recommendation: unknown,
     affordability: AffordabilityAssessment
   ): string[] {
     const insights: string[] = [];
@@ -595,13 +597,15 @@ export class RentVsBuyAnalyzer {
 
   // Action Items Generator
   generateActionItems(
-    recommendation: any,
+    recommendation: unknown,
     profile: RenterProfile,
     affordability: AffordabilityAssessment
   ): string[] {
     const actions: string[] = [];
-    
-    if (recommendation.decision === 'buy') {
+    // Guard recommendation shape
+    const rec = (recommendation && typeof recommendation === 'object') ? (recommendation as Record<string, unknown>) : null;
+
+    if (rec && rec.decision === 'buy') {
       actions.push('Get pre-approved for a mortgage to understand exact budget and terms');
       actions.push('Start house hunting within your approved price range');
       actions.push('Research neighborhoods and compare property values');
@@ -610,7 +614,7 @@ export class RentVsBuyAnalyzer {
       if (affordability.qualificationProbability < 0.8) {
         actions.push('Work on improving credit score and reducing debt before purchasing');
       }
-    } else if (recommendation.decision === 'rent') {
+    } else if (rec && rec.decision === 'rent') {
       actions.push('Continue building savings and improving credit for future homeownership');
       actions.push('Consider investing the down payment funds in diversified portfolio');
       actions.push('Monitor local real estate market for future opportunities');
