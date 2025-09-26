@@ -20,12 +20,12 @@ const AppFooter: React.FC = () => {
             </p>
           </div>
           
-          <div className={`${designSystem.animations.entrance}`} style={{ animationDelay: '100ms' }}>
+          <div className={`${designSystem.animations.entrance}`} >
             <h4 className={`font-semibold mb-4 ${designSystem.colors.dark}`}>Product</h4>
             <QuickLinksCard variant="footer" />
           </div>
           
-          <div className={`${designSystem.animations.entrance}`} style={{ animationDelay: '200ms' }}>
+          <div className={`${designSystem.animations.entrance}`} >
             <h4 className={`font-semibold mb-4 ${designSystem.colors.dark}`}>Support</h4>
             <div className={designSystem.spacing.items}>
               <Link to="/help" className={`block text-sm ${designSystem.colors.muted} hover:text-primary ${designSystem.animations.transition}`}>
@@ -40,7 +40,7 @@ const AppFooter: React.FC = () => {
             </div>
           </div>
           
-          <div className={`${designSystem.animations.entrance}`} style={{ animationDelay: '300ms' }}>
+          <div className={`${designSystem.animations.entrance}`} >
             <h4 className={`font-semibold mb-4 ${designSystem.colors.dark}`}>Legal</h4>
             <div className={designSystem.spacing.items}>
               <Link to="/terms" className={`block text-sm ${designSystem.colors.muted} hover:text-primary ${designSystem.animations.transition}`}>

@@ -131,7 +131,7 @@ const LocationIntelligenceDemo = () => {
         </div>
 
         {/* Location Intelligence Component */}
-        <div className={`${designSystem.animations.entrance} ${designSystem.spacing.marginLarge}`} style={{ animationDelay: '300ms' }}>
+        <div className={`${designSystem.animations.entrance} ${designSystem.spacing.marginLarge}`} >
           <div className={`${createCard('default', false)} ${designSystem.spacing.cardPadding} ${designSystem.radius.large}`}>
             <LocationIntelligence userProfile={mockUserProfile} />
           </div>

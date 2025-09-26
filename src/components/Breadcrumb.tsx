@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
-import { usePropertyState } from '@/contexts/PropertyStateContext';
+import { usePropertyState } from '@/contexts';
 
 interface BreadcrumbItem {
   label: string;
@@ -48,6 +48,7 @@ const Breadcrumb: React.FC = () => {
     <nav className="flex items-center space-x-2 text-sm mb-6">
       <button
         onClick={() => navigate('/dashboard')}
+        aria-label="Home"
         className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
       >
         <Home size={16} className="mr-1" />

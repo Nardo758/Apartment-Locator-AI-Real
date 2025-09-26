@@ -349,7 +349,7 @@ const AuthModern = () => {
           </Card>
 
           {/* Trust Indicators */}
-          <div className={`mt-6 text-center ${designSystem.animations.entrance}`} style={{ animationDelay: '300ms' }}>
+          <div className={`mt-6 text-center ${designSystem.animations.entrance} delay-300`}>
             <p className={`${designSystem.typography.caption} text-gray-600`}>
               🔒 Secure authentication • 📊 Real market data • 🤖 AI-powered insights
             </p>
