@@ -336,8 +336,7 @@ export const EnhancedPricingDashboard: React.FC<EnhancedPricingDashboardProps> =
               <Progress 
                 value={averageMLConfidence * 100} 
                 className="mt-2 h-2"
-                style={{ backgroundColor: getDataVizColor(0, 'primary') }}
-              />
+                style={{ backgroundColor: getDataVizColor(0, 'primary') }}/>
             </div>
             <Brain className={`${designSystem.icons.medium} ${designSystem.colors.secondary}`} />
           </div>

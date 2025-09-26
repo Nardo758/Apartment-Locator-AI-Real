@@ -50,8 +50,7 @@ const Landing = () => {
           style={{
             background: 'repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(255, 255, 255, 0.03) 50px, rgba(255, 255, 255, 0.03) 51px)',
             animation: 'drift 20s linear infinite'
-          }}
-        />
+          }}/>
       </div>
 
       {/* Header */}
@@ -68,8 +67,7 @@ const Landing = () => {
               <a 
                 href="#features" 
                 className="text-white font-medium relative transition-all duration-300"
-                style={{ textDecoration: 'none' }}
-                onClick={(e) => handleSmoothScroll(e, '#features')}
+                style={{ textDecoration: 'none' }}onClick={(e) => handleSmoothScroll(e, '#features')}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = '#667eea';
                   e.currentTarget.style.transform = 'translateY(-2px)';
@@ -86,8 +84,7 @@ const Landing = () => {
               <a 
                 href="#pricing" 
                 className="text-white font-medium relative transition-all duration-300"
-                style={{ textDecoration: 'none' }}
-                onClick={(e) => handleSmoothScroll(e, '#pricing')}
+                style={{ textDecoration: 'none' }}onClick={(e) => handleSmoothScroll(e, '#pricing')}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = '#667eea';
                   e.currentTarget.style.transform = 'translateY(-2px)';
@@ -104,8 +101,7 @@ const Landing = () => {
               <a 
                 href="/about" 
                 className="text-white font-medium relative transition-all duration-300"
-                style={{ textDecoration: 'none' }}
-                onMouseEnter={(e) => {
+                style={{ textDecoration: 'none' }}onMouseEnter={(e) => {
                   e.currentTarget.style.color = '#667eea';
                   e.currentTarget.style.transform = 'translateY(-2px)';
                 }}
@@ -121,8 +117,7 @@ const Landing = () => {
               <a 
                 href="/contact" 
                 className="text-white font-medium relative transition-all duration-300"
-                style={{ textDecoration: 'none' }}
-                onMouseEnter={(e) => {
+                style={{ textDecoration: 'none' }}onMouseEnter={(e) => {
                   e.currentTarget.style.color = '#667eea';
                   e.currentTarget.style.transform = 'translateY(-2px)';
                 }}
@@ -142,8 +137,7 @@ const Landing = () => {
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
                 textDecoration: 'none'
-              }}
-              onMouseEnter={(e) => {
+              }}onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-3px)';
                 e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.6)';
               }}
@@ -170,8 +164,7 @@ const Landing = () => {
                   WebkitBackgroundClip: 'text',
                   backgroundClip: 'text',
                   WebkitTextFillColor: 'transparent'
-                }}
-              >
+                }}>
                 Never Overpay for Rent Again
               </h1>
               <p className="text-xl mb-8" style={{ color: '#b0b0b0' }}>
@@ -184,8 +177,7 @@ const Landing = () => {
                   style={{ 
                     background: 'rgba(255, 255, 255, 0.05)',
                     border: '1px solid rgba(255, 255, 255, 0.1)'
-                  }}
-                  onMouseEnter={(e) => {
+                  }}onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-5px)';
                     e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
                   }}
@@ -202,8 +194,7 @@ const Landing = () => {
                   style={{ 
                     background: 'rgba(255, 255, 255, 0.05)',
                     border: '1px solid rgba(255, 255, 255, 0.1)'
-                  }}
-                  onMouseEnter={(e) => {
+                  }}onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-5px)';
                     e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
                   }}
@@ -220,8 +211,7 @@ const Landing = () => {
                   style={{ 
                     background: 'rgba(255, 255, 255, 0.05)',
                     border: '1px solid rgba(255, 255, 255, 0.1)'
-                  }}
-                  onMouseEnter={(e) => {
+                  }}onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-5px)';
                     e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
                   }}
@@ -254,22 +244,19 @@ const Landing = () => {
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 backdropFilter: 'blur(10px)',
                 animation: 'slideInRight 1s ease-out'
-              }}
-            >
+              }}>
               <div 
                 className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%]"
                 style={{
                   background: 'linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1), transparent)',
                   animation: 'scanline 3s linear infinite'
-                }}
-              />
+                }}/>
               
               <div className="flex justify-between items-center mb-5 relative z-10">
                 <div className="text-xl font-bold" style={{ color: '#667eea' }}>AI-Powered Property Analysis</div>
                 <div 
                   className="text-white px-3 py-1 rounded-2xl text-sm font-semibold"
-                  style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}
-                >
+                  style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
                   LIVE AI
                 </div>
               </div>
@@ -280,8 +267,7 @@ const Landing = () => {
                   background: 'rgba(255, 255, 255, 0.08)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   transform: currentDemo === 0 ? 'translateY(-3px)' : 'translateY(0)'
-                }}
-                onMouseEnter={(e) => {
+                }}onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-3px)';
                   e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
                 }}
@@ -301,8 +287,7 @@ const Landing = () => {
                   </div>
                   <div 
                     className="text-white px-2 py-1 rounded-lg text-sm font-semibold"
-                    style={{ background: 'linear-gradient(135deg, #4ecdc4, #44a08d)' }}
-                  >
+                    style={{ background: 'linear-gradient(135deg, #4ecdc4, #44a08d)' }}>
                     Save $220/mo
                   </div>
                 </div>
@@ -314,8 +299,7 @@ const Landing = () => {
                         background: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
                         width: '84%',
                         animation: 'progressFill 2s ease-out'
-                      }}
-                    />
+                      }}/>
                   </div>
                   <div className="text-sm font-semibold" style={{ color: '#4ecdc4' }}>84% Success</div>
                 </div>
@@ -327,8 +311,7 @@ const Landing = () => {
                   background: 'rgba(255, 255, 255, 0.08)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   transform: currentDemo === 1 ? 'translateY(-3px)' : 'translateY(0)'
-                }}
-                onMouseEnter={(e) => {
+                }}onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-3px)';
                   e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
                 }}
@@ -348,8 +331,7 @@ const Landing = () => {
                   </div>
                   <div 
                     className="text-white px-2 py-1 rounded-lg text-sm font-semibold"
-                    style={{ background: 'linear-gradient(135deg, #4ecdc4, #44a08d)' }}
-                  >
+                    style={{ background: 'linear-gradient(135deg, #4ecdc4, #44a08d)' }}>
                     Save $310/mo
                   </div>
                 </div>
@@ -361,8 +343,7 @@ const Landing = () => {
                         background: 'linear-gradient(135deg, #4ecdc4, #44a08d)',
                         width: '91%',
                         animation: 'progressFill 2s ease-out'
-                      }}
-                    />
+                      }}/>
                   </div>
                   <div className="text-sm font-semibold" style={{ color: '#4ecdc4' }}>91% Success</div>
                 </div>
@@ -382,8 +363,7 @@ const Landing = () => {
               WebkitBackgroundClip: 'text',
               backgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
-            }}
-          >
+            }}>
             Powered by Advanced AI
           </h2>
           <div className="grid md:grid-cols-3 gap-10">
@@ -403,8 +383,7 @@ const Landing = () => {
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   animationDelay: `${index * 0.2}s`,
                   animation: 'float 6s ease-in-out infinite'
-                }}
-                onMouseEnter={(e) => {
+                }}onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-10px)';
                   e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
                   e.currentTarget.style.boxShadow = '0 20px 40px rgba(102, 126, 234, 0.2)';
@@ -437,8 +416,7 @@ const Landing = () => {
               style={{ 
                 background: 'rgba(255, 255, 255, 0.05)',
                 border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}
-              onMouseEnter={(e) => {
+              }}onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
                 e.currentTarget.style.boxShadow = '0 20px 40px rgba(102, 126, 234, 0.3)';
               }}
@@ -478,8 +456,7 @@ const Landing = () => {
                   className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
                   style={{ 
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  }}
-                >
+                  }}>
                   Get Basic Plan
                 </PaymentButton>
               </div>
@@ -492,8 +469,7 @@ const Landing = () => {
                 background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2))',
                 border: '2px solid #667eea',
                 transform: 'scale(1.05)'
-              }}
-              onMouseEnter={(e) => {
+              }}onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-5px) scale(1.07)';
                 e.currentTarget.style.boxShadow = '0 20px 40px rgba(102, 126, 234, 0.3)';
               }}
@@ -540,8 +516,7 @@ const Landing = () => {
                   className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
                   style={{ 
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  }}
-                >
+                  }}>
                   Get Pro Plan - $29.99
                 </PaymentButton>
               </div>
@@ -553,8 +528,7 @@ const Landing = () => {
               style={{ 
                 background: 'rgba(255, 255, 255, 0.05)',
                 border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}
-              onMouseEnter={(e) => {
+              }}onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
                 e.currentTarget.style.boxShadow = '0 20px 40px rgba(102, 126, 234, 0.3)';
               }}
@@ -602,8 +576,7 @@ const Landing = () => {
                   className="text-white px-8 py-4 border-0 rounded-[25px] text-lg font-semibold w-full transition-all duration-300"
                   style={{ 
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  }}
-                >
+                  }}>
                   Get Premium Plan
                 </PaymentButton>
               </div>

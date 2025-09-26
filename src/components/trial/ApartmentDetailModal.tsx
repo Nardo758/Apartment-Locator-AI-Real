@@ -158,8 +158,7 @@ export const ApartmentDetailModal: React.FC<ApartmentDetailModalProps> = ({
                 <div className="w-full bg-muted/30 rounded-full h-3">
                   <div 
                     className="bg-gradient-primary h-3 rounded-full transition-all duration-500"
-                    style={{ width: `${apartment.leverageScore}%` }}
-                  />
+                    style={{ width: `${apartment.leverageScore}%` }}/>
                 </div>
               </div>
 
