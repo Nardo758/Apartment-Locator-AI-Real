@@ -13,13 +13,13 @@ export default async function handler(req: Request) {
     // Example: run a privileged query to insert a record
     const { data, error } = await supabase.from('server_logs').insert([{ message: 'Triggered from Vercel Edge' }])
     if (error) {
-      // eslint-disable-next-line no-console
+       
       console.error('Supabase error:', error)
       return new Response(JSON.stringify({ error: error.message }), { status: 500 })
     }
     return new Response(JSON.stringify({ data }), { status: 200 })
   } catch (err) {
-    // eslint-disable-next-line no-console
+     
     console.error(err)
     return new Response(JSON.stringify({ error: 'Server error' }), { status: 500 })
   }

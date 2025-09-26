@@ -7,7 +7,7 @@ const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || process.env
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   // In local dev, it's fine to log; in production you should ensure env vars are set
-  // eslint-disable-next-line no-console
+   
   console.warn('Supabase URL or ANON key is not set. Check your environment variables.')
 }
 
@@ -23,7 +23,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
 export const getCurrentUser = async () => {
   const { data, error } = await supabase.auth.getUser()
   if (error) {
-    // eslint-disable-next-line no-console
+     
     console.error('Error getting user:', error)
     return null
   }
