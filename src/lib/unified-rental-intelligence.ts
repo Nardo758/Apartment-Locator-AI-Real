@@ -407,21 +407,23 @@ export class UnifiedRentalIntelligenceEngine {
 
   private generateRealisticMarketData(location: string): RentalMarketMetrics[] {
     const locationData = this.getLocationMarketData(location);
-    
-    return [{
-      location: locationData.name,
-      locationLevel: 'metro' as const,
-      timestamp: new Date(),
-      medianRent: locationData.medianRent,
-      rentYoYChange: locationData.yoyChange,
-      rentMoMChange: locationData.momChange,
-      inventoryLevel: locationData.inventory,
-      daysOnMarket: locationData.daysOnMarket,
-      newListings: locationData.newListings,
-      priceDropPercentage: locationData.priceDrops,
-      aboveListPricePercentage: locationData.aboveList,
-      listToSoldRatio: 1.2,
-      tourDemand: 2.5,
+
+    if (!locationData) {
+      // Fallback generic metric
+      return [{
+        location,
+        locationLevel: 'metro' as const,
+        timestamp: new Date(),
+        medianRent: 1800,
+        rentYoYChange: 0,
+        rentMoMChange: 0,
+        inventoryLevel: 800,
+        daysOnMarket: 45,
+        newListings: 120,
+        priceDropPercentage: 5,
+        aboveListPricePercentage: 10,
+        listToSoldRatio: 1.1,
+        tourDemand: 1.5,
       seasonalIndex: this.calculateSeasonalIndex(new Date()),
       quarterEndPressure: this.isQuarterEnd(new Date()),
       monthEndPressure: this.isMonthEnd(new Date()),
@@ -429,6 +431,31 @@ export class UnifiedRentalIntelligenceEngine {
       sampleSize: 500,
       dataSource: 'fallback_realistic' as const,
       lastUpdated: new Date(),
+      isRealData: false
+      }];
+    }
+
+    return [{
+      location: locationData.location,
+      locationLevel: locationData.locationLevel,
+      timestamp: new Date(),
+      medianRent: locationData.medianRent,
+      rentYoYChange: locationData.rentYoYChange,
+      rentMoMChange: locationData.rentMoMChange,
+      inventoryLevel: locationData.inventoryLevel,
+      daysOnMarket: locationData.daysOnMarket,
+      newListings: locationData.newListings,
+      priceDropPercentage: locationData.priceDropPercentage,
+      aboveListPricePercentage: locationData.aboveListPricePercentage,
+      listToSoldRatio: locationData.listToSoldRatio ?? 1.0,
+      tourDemand: locationData.tourDemand ?? 1.0,
+      seasonalIndex: locationData.seasonalIndex ?? 50,
+      quarterEndPressure: !!locationData.quarterEndPressure,
+      monthEndPressure: !!locationData.monthEndPressure,
+      dataQuality: locationData.dataQuality ?? 'medium',
+      sampleSize: locationData.sampleSize ?? 100,
+      lastUpdated: locationData.lastUpdated ?? new Date(),
+      dataSource: locationData.dataSource ?? 'fallback_realistic',
       isRealData: false
     }];
   }
@@ -465,42 +492,79 @@ export class UnifiedRentalIntelligenceEngine {
     };
   }
 
-  private getLocationMarketData(location: string): any {
+  private getLocationMarketData(location: string): RentalMarketMetrics | null {
     const locationLower = location.toLowerCase();
     
-    const locationMap: Record<string, any> = {
+    const now = new Date();
+    const locationMap: Record<string, RentalMarketMetrics> = {
       'austin': {
-        name: 'Austin, TX',
+        location: 'Austin, TX',
+        locationLevel: 'metro',
+        timestamp: now,
         medianRent: 2200,
-        yoyChange: -8.5,
-        momChange: -2.1,
-        inventory: 950,
+        rentYoYChange: -8.5,
+        rentMoMChange: -2.1,
+        inventoryLevel: 950,
         daysOnMarket: 55,
         newListings: 165,
-        priceDrops: 32,
-        aboveList: 15
+        priceDropPercentage: 32,
+        aboveListPricePercentage: 15,
+        listToSoldRatio: 1.05,
+        tourDemand: 2.0,
+        seasonalIndex: 40,
+        quarterEndPressure: false,
+        monthEndPressure: false,
+        dataQuality: 'medium',
+        sampleSize: 200,
+        lastUpdated: now,
+        dataSource: 'fallback_realistic',
+        isRealData: false
       },
       'dallas': {
-        name: 'Dallas, TX',
+        location: 'Dallas, TX',
+        locationLevel: 'metro',
+        timestamp: now,
         medianRent: 1800,
-        yoyChange: -3.2,
-        momChange: -0.8,
-        inventory: 1100,
+        rentYoYChange: -3.2,
+        rentMoMChange: -0.8,
+        inventoryLevel: 1100,
         daysOnMarket: 42,
         newListings: 200,
-        priceDrops: 18,
-        aboveList: 22
+        priceDropPercentage: 18,
+        aboveListPricePercentage: 22,
+        listToSoldRatio: 1.08,
+        tourDemand: 1.8,
+        seasonalIndex: 50,
+        quarterEndPressure: false,
+        monthEndPressure: false,
+        dataQuality: 'medium',
+        sampleSize: 180,
+        lastUpdated: now,
+        dataSource: 'fallback_realistic',
+        isRealData: false
       },
       'houston': {
-        name: 'Houston, TX',
+        location: 'Houston, TX',
+        locationLevel: 'metro',
+        timestamp: now,
         medianRent: 1600,
-        yoyChange: -1.8,
-        momChange: -0.3,
-        inventory: 1300,
+        rentYoYChange: -1.8,
+        rentMoMChange: -0.3,
+        inventoryLevel: 1300,
         daysOnMarket: 38,
         newListings: 250,
-        priceDrops: 15,
-        aboveList: 28
+        priceDropPercentage: 15,
+        aboveListPricePercentage: 28,
+        listToSoldRatio: 1.1,
+        tourDemand: 1.6,
+        seasonalIndex: 55,
+        quarterEndPressure: false,
+        monthEndPressure: false,
+        dataQuality: 'medium',
+        sampleSize: 210,
+        lastUpdated: now,
+        dataSource: 'fallback_realistic',
+        isRealData: false
       }
     };
 
@@ -512,15 +576,27 @@ export class UnifiedRentalIntelligenceEngine {
 
     // Default data
     return {
-      name: location,
+      location,
+      locationLevel: 'metro',
+      timestamp: now,
       medianRent: 1800,
-      yoyChange: 0,
-      momChange: 0,
-      inventory: 600,
+      rentYoYChange: 0,
+      rentMoMChange: 0,
+      inventoryLevel: 600,
       daysOnMarket: 40,
       newListings: 100,
-      priceDrops: 18,
-      aboveList: 25
+      priceDropPercentage: 18,
+      aboveListPricePercentage: 25,
+      listToSoldRatio: 1.0,
+      tourDemand: 1.0,
+      seasonalIndex: 50,
+      quarterEndPressure: false,
+      monthEndPressure: false,
+      dataQuality: 'medium',
+      sampleSize: 100,
+      lastUpdated: now,
+      dataSource: 'fallback_realistic',
+      isRealData: false
     };
   }
 

@@ -54,8 +54,8 @@ interface BehavioralData {
   agentSuccessRate: number;
   decisionAuthority: number;
   avgResponseTime: number;
-  communicationPatterns: Record<string, any>;
-  previousNegotiations: Array<Record<string, any>>;
+  communicationPatterns: Record<string, unknown>;
+  previousNegotiations: Array<Record<string, unknown>>;
 }
 
 interface TenantProfile {
@@ -63,7 +63,7 @@ interface TenantProfile {
   creditScore: number;
   employmentStability: number;
   locationPreferences: string[];
-  commuteRequirements: Record<string, any>;
+  commuteRequirements: Record<string, unknown>;
   amenityPriorities: Record<string, number>;
   budgetFlexibility: number;
   riskTolerance: number;
@@ -132,8 +132,8 @@ class MLUtils {
 
 // Main ApartmentIQ AI Engine
 class ApartmentIQAI {
-  private historicalData: any[] = [];
-  private marketTrends: Record<string, any> = {};
+  private historicalData: Array<Record<string, unknown>> = [];
+  private marketTrends: Record<string, unknown> = {};
 
   constructor() {
     this.initializeModels();

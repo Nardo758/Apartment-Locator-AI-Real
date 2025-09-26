@@ -19,7 +19,7 @@ export class UserDataExportService {
     if (exportError) throw exportError
 
     try {
-      let data: any = {}
+  let data: unknown = {}
 
       switch (exportType) {
         case 'profile':
@@ -139,7 +139,7 @@ export class UserDataExportService {
     }
   }
 
-  private formatData(data: any, format: string): string {
+  private formatData(data: unknown, format: string): string {
     switch (format) {
       case 'json':
         return JSON.stringify(data, null, 2)
@@ -150,16 +150,19 @@ export class UserDataExportService {
     }
   }
 
-  private convertToCSV(data: any): string {
-    if (Array.isArray(data) && data.length > 0) {
-      const headers = Object.keys(data[0]).join(',')
-      const rows = data.map(row => 
-        Object.values(row).map(value => 
-          typeof value === 'string' ? `"${value.replace(/"/g, '""')}"` : value
-        ).join(',')
-      ).join('\n')
-      return `${headers}\n${rows}`
-    }
-    return JSON.stringify(data)
+  private convertToCSV(data: unknown): string {
+    if (!Array.isArray(data) || data.length === 0) return JSON.stringify(data);
+
+    const first = data[0] as Record<string, unknown>;
+    const headers = Object.keys(first).join(',');
+    const rows = (data as Array<Record<string, unknown>>).map(row =>
+      Object.values(row).map(value => {
+        if (typeof value === 'string') return `"${value.replace(/"/g, '""')}"`;
+        if (value === null || value === undefined) return '';
+        return String(value);
+      }).join(',')
+    ).join('\n');
+
+    return `${headers}\n${rows}`;
   }
 }

@@ -5,12 +5,12 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertTriangle, TrendingUp, TrendingDown, DollarSign, Clock, Target, BarChart3 } from 'lucide-react';
 import { usePricingIntelligence } from '@/hooks/usePricingIntelligence';
-import type { PricingRecommendation } from '@/lib/pricing-engine';
+import type { PricingRecommendation, ApartmentIQData } from '@/lib/pricing-engine';
 
 interface AdvancedPricingDashboardProps {
   properties: Array<{
     id: string;
-    apartmentIQData?: any;
+    apartmentIQData?: ApartmentIQData;
     price?: number;
     daysOnMarket?: number;
     marketVelocity?: 'hot' | 'normal' | 'slow' | 'stale';

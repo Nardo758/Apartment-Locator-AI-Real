@@ -219,7 +219,7 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                     <label className={`${designSystem.typography.labelSmall} text-slate-700 font-semibold`}>
                       Category
                     </label>
-                    <Select value={newPOI.category} onValueChange={(value: any) => setNewPOI({ ...newPOI, category: value })}>
+                    <Select value={newPOI.category} onValueChange={(value: string) => setNewPOI({ ...newPOI, category: value as 'work' | 'gym' | 'school' | 'shopping' | 'custom' })}>
                       <SelectTrigger className="h-12 border-slate-200 focus:border-blue-500 rounded-xl">
                         <SelectValue />
                       </SelectTrigger>
@@ -257,7 +257,7 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                     <label className={`${designSystem.typography.labelSmall} text-slate-700 font-semibold`}>
                       Priority Level
                     </label>
-                    <Select value={newPOI.priority} onValueChange={(value: any) => setNewPOI({ ...newPOI, priority: value })}>
+                    <Select value={newPOI.priority} onValueChange={(value: string) => setNewPOI({ ...newPOI, priority: value as 'high' | 'medium' | 'low' })}>
                       <SelectTrigger className="h-12 border-slate-200 focus:border-blue-500 rounded-xl">
                         <SelectValue />
                       </SelectTrigger>
@@ -297,7 +297,7 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                     <label className={`${designSystem.typography.labelSmall} text-slate-700 font-semibold`}>
                       Transport Mode
                     </label>
-                    <Select value={newPOI.transportMode} onValueChange={(value: any) => setNewPOI({ ...newPOI, transportMode: value })}>
+                    <Select value={newPOI.transportMode} onValueChange={(value: string) => setNewPOI({ ...newPOI, transportMode: value as 'driving' | 'transit' | 'walking' | 'biking' })}>
                       <SelectTrigger className="h-12 border-slate-200 focus:border-blue-500 rounded-xl">
                         <SelectValue />
                       </SelectTrigger>
@@ -478,9 +478,9 @@ const ModernPOIManager: React.FC<ModernPOIManagerProps> = ({
                       </div>
                       
                       <Select 
-                        value={poi.priority} 
-                        onValueChange={(value: any) => onUpdatePriority(poi.id, value)}
-                      >
+                          value={poi.priority} 
+                          onValueChange={(value: string) => onUpdatePriority(poi.id, value as 'high' | 'medium' | 'low')}
+                        >
                         <SelectTrigger className="w-full h-10 bg-slate-50 border-slate-200 rounded-lg text-sm">
                           <div className="flex items-center gap-2">
                             <span>Change Priority</span>

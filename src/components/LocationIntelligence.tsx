@@ -10,20 +10,21 @@ import ModernPOIManager from './LocationIntelligence/ModernPOIManager';
 import SmartMap from './LocationIntelligence/SmartMap';
 import SmartResults from './LocationIntelligence/SmartResults';
 import EnhancedSearchSettings from './LocationIntelligence/EnhancedSearchSettings';
+import { SearchSettings } from './LocationIntelligence/EnhancedSearchSettings';
 import ApartmentResults from './LocationIntelligence/ApartmentResults';
 import { useLocationIntelligence } from '@/hooks/useLocationIntelligence';
 import CompactPropertyCard from '@/components/modern/CompactPropertyCard';
 
 interface LocationIntelligenceProps {
-  userProfile: any;
+  userProfile?: Record<string, unknown> | null;
 }
 
-const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile }) => {
+const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile = null }) => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [showPOIModal, setShowPOIModal] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
-  const [searchSettings, setSearchSettings] = useState(null);
+  const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
   
   const {
     pointsOfInterest,

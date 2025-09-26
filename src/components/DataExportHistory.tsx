@@ -12,7 +12,7 @@ export const DataExportHistory: React.FC = () => {
 
   useEffect(() => {
     getExportHistory();
-  }, []);
+  }, [getExportHistory]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {

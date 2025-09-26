@@ -40,34 +40,90 @@ export interface SmartProperty {
   coordinates: { lat: number; lng: number };
 }
 
-export const useLocationIntelligence = (userProfile: any) => {
+export const useLocationIntelligence = (userProfile: Record<string, unknown> | null) => {
   const [pointsOfInterest, setPointsOfInterest] = useState<PointOfInterest[]>([]);
   const [smartResults, setSmartResults] = useState<SmartProperty[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Load POIs from user profile
   useEffect(() => {
-    if (userProfile?.points_of_interest) {
-      const pois = Array.isArray(userProfile.points_of_interest) 
-        ? userProfile.points_of_interest 
-        : [];
-      
-      const formattedPOIs = pois.map((poi: any) => ({
-        id: poi.id || Date.now().toString(),
-        name: poi.name || '',
-        address: poi.address || '',
-        category: poi.category || 'custom',
-        priority: poi.priority || 'medium',
-        coordinates: poi.coordinates || { lat: 30.2672, lng: -97.7431 },
-        maxTime: poi.maxTime || 30,
-        transportMode: poi.transportMode || 'driving'
-      }));
-      
-      setPointsOfInterest(formattedPOIs);
-    }
+    const raw = userProfile && userProfile['points_of_interest'];
+    const poisArr = Array.isArray(raw) ? raw : [];
+
+    const formattedPOIs: PointOfInterest[] = poisArr.map((poiRaw) => {
+      const poi = poiRaw as Record<string, unknown>;
+      const coords = poi['coordinates'] as Record<string, unknown> | undefined;
+      const hasCoords = coords && typeof coords['lat'] === 'number' && typeof coords['lng'] === 'number';
+      const category = typeof poi['category'] === 'string' ? poi['category'] as PointOfInterest['category'] : 'custom';
+      const priority = typeof poi['priority'] === 'string' ? poi['priority'] as PointOfInterest['priority'] : 'medium';
+      const transport = typeof poi['transportMode'] === 'string' ? poi['transportMode'] as PointOfInterest['transportMode'] : 'driving';
+
+      return {
+        id: (typeof poi['id'] === 'string' ? poi['id'] as string : Date.now().toString()),
+        name: typeof poi['name'] === 'string' ? poi['name'] as string : '',
+        address: typeof poi['address'] === 'string' ? poi['address'] as string : '',
+        category,
+        priority,
+        coordinates: hasCoords ? { lat: coords!['lat'] as number, lng: coords!['lng'] as number } : { lat: 30.2672, lng: -97.7431 },
+        maxTime: typeof poi['maxTime'] === 'number' ? poi['maxTime'] as number : 30,
+        transportMode: transport
+      };
+    });
+
+    setPointsOfInterest(formattedPOIs);
   }, [userProfile]);
 
   // Calculate combined scores and generate smart results
+  const calculateLocationScore = useCallback((property: { coordinates: { lat: number; lng: number } }, pois: PointOfInterest[]) => {
+    if (pois.length === 0) return 85; // Default score if no POIs
+
+    let totalScore = 0;
+    let weightSum = 0;
+    
+    pois.forEach(poi => {
+      const distance = calculateDistance(property.coordinates, poi.coordinates);
+      const time = distance * 2.5; // Rough time estimate
+      
+      // Score based on proximity to POI max time
+      const proximityScore = Math.max(0, 100 - (time / poi.maxTime) * 50);
+      
+      // Weight by priority
+      const weight = poi.priority === 'high' ? 3 : poi.priority === 'medium' ? 2 : 1;
+      
+      totalScore += proximityScore * weight;
+      weightSum += weight;
+    });
+    
+    return Math.round(totalScore / weightSum);
+  }, []);
+
+  const calculateAIScore = useCallback((property: { effectivePrice?: number; amenities?: string[] }, profile: Record<string, unknown> | null) => {
+    // Budget score
+    const budget = (profile && typeof profile['budget'] === 'number') ? profile['budget'] as number : 2500;
+    const effective = property.effectivePrice ?? 0;
+    const budgetScore = effective <= budget ? 
+      100 - ((effective / budget - 0.8) * 100) : 
+      Math.max(0, 100 - ((effective - budget) / budget) * 100);
+
+    // Amenity score
+    const userAmenities = Array.isArray(profile?.['amenities']) ? profile?.['amenities'] as string[] : [];
+    const propertyAmenities = Array.isArray(property.amenities) ? property.amenities : [];
+    const amenityMatches = userAmenities.filter((a) => 
+      propertyAmenities.some((pa) => pa.toLowerCase().includes((a as string).toLowerCase()))
+    ).length;
+    const amenityScore = userAmenities.length > 0 ? 
+      (amenityMatches / userAmenities.length) * 100 : 85;
+
+    // Lifestyle score (simplified)
+    const lifestyleScore = 75; // Base score, could be enhanced with more data
+
+    return {
+      budgetScore: Math.round(Math.max(0, Math.min(100, budgetScore))),
+      amenityScore: Math.round(amenityScore),
+      lifestyleScore
+    };
+  }, []);
+
   const generateSmartResults = useCallback(() => {
     setLoading(true);
     
@@ -132,60 +188,13 @@ export const useLocationIntelligence = (userProfile: any) => {
     
     setSmartResults(results);
     setLoading(false);
-  }, [pointsOfInterest, userProfile]);
+  }, [pointsOfInterest, userProfile, calculateLocationScore, calculateAIScore]);
 
   useEffect(() => {
     generateSmartResults();
   }, [generateSmartResults]);
 
-  const calculateLocationScore = (property: any, pois: PointOfInterest[]) => {
-    if (pois.length === 0) return 85; // Default score if no POIs
-    
-    let totalScore = 0;
-    let weightSum = 0;
-    
-    pois.forEach(poi => {
-      const distance = calculateDistance(property.coordinates, poi.coordinates);
-      const time = distance * 2.5; // Rough time estimate
-      
-      // Score based on proximity to POI max time
-      const proximityScore = Math.max(0, 100 - (time / poi.maxTime) * 50);
-      
-      // Weight by priority
-      const weight = poi.priority === 'high' ? 3 : poi.priority === 'medium' ? 2 : 1;
-      
-      totalScore += proximityScore * weight;
-      weightSum += weight;
-    });
-    
-    return Math.round(totalScore / weightSum);
-  };
-
-  const calculateAIScore = (property: any, profile: any) => {
-    // Budget score
-    const budget = profile?.budget || 2500;
-    const budgetScore = property.effectivePrice <= budget ? 
-      100 - ((property.effectivePrice / budget - 0.8) * 100) : 
-      Math.max(0, 100 - ((property.effectivePrice - budget) / budget) * 100);
-
-    // Amenity score
-    const userAmenities = profile?.amenities || [];
-    const propertyAmenities = property.amenities || [];
-    const amenityMatches = userAmenities.filter((a: string) => 
-      propertyAmenities.some((pa: string) => pa.toLowerCase().includes(a.toLowerCase()))
-    ).length;
-    const amenityScore = userAmenities.length > 0 ? 
-      (amenityMatches / userAmenities.length) * 100 : 85;
-
-    // Lifestyle score (simplified)
-    const lifestyleScore = 75; // Base score, could be enhanced with more data
-
-    return {
-      budgetScore: Math.round(Math.max(0, Math.min(100, budgetScore))),
-      amenityScore: Math.round(amenityScore),
-      lifestyleScore
-    };
-  };
+  // (older un-typed helpers removed — using the typed, memoized versions above)
 
   const calculateDistance = (coord1: { lat: number; lng: number }, coord2: { lat: number; lng: number }) => {
     const R = 3959; // Earth's radius in miles
@@ -222,11 +231,11 @@ export const useLocationIntelligence = (userProfile: any) => {
 
   const getAIPreferencesCount = () => {
     let count = 0;
-    if (userProfile?.budget) count++;
-    if (userProfile?.amenities?.length > 0) count++;
-    if (userProfile?.lifestyle) count++;
-    if (userProfile?.priorities?.length > 0) count++;
-    if (userProfile?.deal_breakers?.length > 0) count++;
+    if (userProfile && typeof userProfile['budget'] !== 'undefined') count++;
+    if (userProfile && Array.isArray(userProfile['amenities']) && userProfile['amenities'].length > 0) count++;
+    if (userProfile && typeof userProfile['lifestyle'] !== 'undefined') count++;
+    if (userProfile && Array.isArray(userProfile['priorities']) && userProfile['priorities'].length > 0) count++;
+    if (userProfile && Array.isArray(userProfile['deal_breakers']) && userProfile['deal_breakers'].length > 0) count++;
     return count;
   };
 

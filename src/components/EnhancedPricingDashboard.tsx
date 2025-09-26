@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -41,7 +41,7 @@ import { designSystem, createCard, createHeading, createStatusBadge, getDataVizC
 interface EnhancedPricingDashboardProps {
   properties: Array<{
     id: string;
-    apartmentIQData?: any;
+    apartmentIQData?: unknown;
     price?: number;
     daysOnMarket?: number;
     marketVelocity?: 'hot' | 'normal' | 'slow' | 'stale';
@@ -78,20 +78,7 @@ export const EnhancedPricingDashboard: React.FC<EnhancedPricingDashboardProps> =
   const mlIntelligence = useMemo(() => MLPricingIntelligence.getInstance(), []);
 
   // Initialize ML features and competitor monitoring
-  useEffect(() => {
-    if (mlEnabled && properties.length > 0) {
-      initializeMLFeatures();
-    }
-  }, [mlEnabled, properties]);
-
-  // Initialize automation rules
-  useEffect(() => {
-    if (automationEnabled) {
-      initializeAutomationRules();
-    }
-  }, [automationEnabled]);
-
-  const initializeMLFeatures = async () => {
+  const initializeMLFeatures = useCallback(async () => {
     setRefreshing(true);
     try {
       const newCompetitorData = new Map<string, CompetitorData[]>();
@@ -99,18 +86,22 @@ export const EnhancedPricingDashboard: React.FC<EnhancedPricingDashboardProps> =
       const newRiskAssessments = new Map<string, RiskAssessment>();
 
       for (const property of properties) {
-        if (property.apartmentIQData) {
+        const data = property.apartmentIQData;
+        if (data && typeof data === 'object') {
+          // treat as the expected ApartmentIQData at runtime
+          const typedData = data as unknown as Parameters<typeof mlIntelligence.generateMLPricingModel>[0];
+
           // Fetch competitor data
-          const competitors = await mlIntelligence.fetchCompetitorData(property.apartmentIQData);
+          const competitors = await mlIntelligence.fetchCompetitorData(typedData);
           newCompetitorData.set(property.id, competitors);
 
           // Generate ML pricing model
-          const mlModel = await mlIntelligence.generateMLPricingModel(property.apartmentIQData);
+          const mlModel = await mlIntelligence.generateMLPricingModel(typedData);
           newMlModels.set(property.id, mlModel);
 
           // Generate risk assessment
           const riskAssessment = mlIntelligence.generateRiskAssessment(
-            property.apartmentIQData, 
+            typedData, 
             competitors
           );
           newRiskAssessments.set(property.id, riskAssessment);
@@ -125,9 +116,9 @@ export const EnhancedPricingDashboard: React.FC<EnhancedPricingDashboardProps> =
     } finally {
       setRefreshing(false);
     }
-  };
+  }, [mlIntelligence, properties]);
 
-  const initializeAutomationRules = () => {
+  const initializeAutomationRules = useCallback(() => {
     const defaultRules: AutomationRule[] = [
       {
         id: 'urgent-reduction',
@@ -183,7 +174,20 @@ export const EnhancedPricingDashboard: React.FC<EnhancedPricingDashboardProps> =
     defaultRules.forEach(rule => {
       mlIntelligence.addAutomationRule(rule);
     });
-  };
+  }, [mlIntelligence]);
+
+  useEffect(() => {
+    if (mlEnabled && properties.length > 0) {
+      initializeMLFeatures();
+    }
+  }, [mlEnabled, properties, initializeMLFeatures]);
+
+  // Initialize automation rules
+  useEffect(() => {
+    if (automationEnabled) {
+      initializeAutomationRules();
+    }
+  }, [automationEnabled, initializeAutomationRules]);
 
   if (loading) {
     return (

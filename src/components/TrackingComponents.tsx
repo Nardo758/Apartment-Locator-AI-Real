@@ -35,7 +35,7 @@ interface ClickTrackingProps {
   onClick?: () => void;
   children: React.ReactNode;
   trackingId: string;
-  trackingData?: any;
+  trackingData?: Record<string, unknown>;
 }
 
 export const ClickTracking: React.FC<ClickTrackingProps> = ({
@@ -47,7 +47,7 @@ export const ClickTracking: React.FC<ClickTrackingProps> = ({
   const { trackButtonClick } = useUserTracking();
 
   const handleClick = () => {
-    trackButtonClick(trackingId, trackingData);
+    trackButtonClick(trackingId, trackingData ?? {});
     onClick?.();
   };
 

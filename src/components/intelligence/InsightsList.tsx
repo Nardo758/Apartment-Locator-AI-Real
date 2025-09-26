@@ -102,7 +102,7 @@ export const InsightsList: React.FC<InsightsListProps> = ({ insights, className 
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="font-medium text-foreground text-sm">{insight.title}</h4>
                   <Badge 
-                    variant={getSeverityVariant(insight.severity) as any}
+                    variant={getSeverityVariant(insight.severity)}
                     className="text-xs"
                   >
                     {insight.severity} impact
@@ -110,7 +110,7 @@ export const InsightsList: React.FC<InsightsListProps> = ({ insights, className 
                 </div>
                 <div className="flex items-center gap-2 mb-2">
                   <Badge 
-                    variant={getInsightTypeVariant(insight.insightType) as any}
+                    variant={getInsightTypeVariant(insight.insightType)}
                     className="text-xs"
                   >
                     {formatInsightType(insight.insightType)}

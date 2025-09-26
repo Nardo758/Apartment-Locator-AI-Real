@@ -109,6 +109,33 @@ export interface MLPricingModel {
   };
 }
 
+// Lightweight types used by ML and risk functions
+export interface MarketContext {
+  marketGrowth?: number;
+  inventoryLevels?: number;
+  priceVolatility?: number;
+  unemploymentRate?: number;
+  interestRates?: number;
+  inflationRate?: number;
+  marketStats?: Record<string, unknown> | undefined;
+  comparableUnits?: unknown[] | undefined;
+}
+
+export interface MLFeatures {
+  marketTrend: number;
+  seasonality: number;
+  competitorActivity: number;
+  demandSignal: number;
+  supplyConstraint: number;
+}
+
+export interface RiskFactors {
+  marketVolatility: number;
+  competitorPressure: number;
+  seasonalRisk: number;
+  economicIndicators: number;
+}
+
 export interface CompetitorData {
   propertyId: string;
   distance: number;
@@ -209,7 +236,7 @@ export class PricingEngine {
     low: 0.0           // No adjustment for low urgency
   };
 
-  generateRecommendation(unitData: ApartmentIQData, marketContext?: any): PricingRecommendation {
+  generateRecommendation(unitData: ApartmentIQData, marketContext?: Record<string, unknown> | undefined): PricingRecommendation {
     const baseRent = unitData.currentRent;
     let suggestedRent = baseRent;
     const reasoning: string[] = [];
@@ -337,7 +364,7 @@ export class PricingEngine {
     return 0.20; // Maximum penalty for very long days on market
   }
 
-  private calculateConfidence(unitData: ApartmentIQData, marketContext?: any): number {
+  private calculateConfidence(unitData: ApartmentIQData, marketContext?: MarketContext): number {
     let confidence = 0.7; // Base confidence
     
     // Increase confidence with more market data
@@ -363,7 +390,7 @@ export class PricingEngine {
     return Math.min(1.0, Math.max(0.0, confidence));
   }
 
-  private calculateEnhancedConfidence(unitData: ApartmentIQData, marketContext?: any): number {
+  private calculateEnhancedConfidence(unitData: ApartmentIQData, marketContext?: MarketContext): number {
     let confidence = 0.6; // Base confidence
     
     // Data quality factors
@@ -376,7 +403,7 @@ export class PricingEngine {
     // Market data availability
     if (marketContext && marketContext.marketStats) {
       confidence += 0.1;
-      if (marketContext.comparableUnits && marketContext.comparableUnits.length > 5) {
+      if (Array.isArray(marketContext.comparableUnits) && marketContext.comparableUnits.length > 5) {
         confidence += 0.05;
       }
     }
@@ -413,7 +440,7 @@ export class PricingEngine {
     }
   }
 
-  private assessMarketTiming(unitData: ApartmentIQData, marketContext?: any): 'optimal' | 'good' | 'fair' | 'poor' {
+  private assessMarketTiming(unitData: ApartmentIQData, marketContext?: Record<string, unknown> | undefined): 'optimal' | 'good' | 'fair' | 'poor' {
     let score = 0;
     
     // Good timing factors
@@ -733,7 +760,7 @@ export class MLPricingIntelligence {
   }
 
   // ML-Based Price Prediction
-  async generateMLPricingModel(unitData: ApartmentIQData, marketContext?: any): Promise<MLPricingModel> {
+  async generateMLPricingModel(unitData: ApartmentIQData, marketContext?: MarketContext): Promise<MLPricingModel> {
     const features = this.extractMLFeatures(unitData, marketContext);
     const prediction = await this.runMLPrediction(features, unitData);
     
@@ -742,9 +769,15 @@ export class MLPricingIntelligence {
       features,
       prediction
     };
+    
+    return {
+      confidence: this.calculateMLConfidence(features, unitData),
+      features,
+      prediction
+    };
   }
 
-  private extractMLFeatures(unitData: ApartmentIQData, marketContext?: any) {
+  private extractMLFeatures(unitData: ApartmentIQData, marketContext?: MarketContext): MLFeatures {
     const currentMonth = new Date().getMonth();
     const seasonalityScore = this.calculateSeasonality(currentMonth);
     
@@ -757,13 +790,13 @@ export class MLPricingIntelligence {
     };
   }
 
-  private async runMLPrediction(features: any, unitData: ApartmentIQData) {
-    // Simulated ML model prediction (in production, this would call actual ML service)
+  private async runMLPrediction(features: MLFeatures, unitData: ApartmentIQData) {
     const basePrice = unitData.currentRent;
-    const marketMultiplier = 1 + (features.marketTrend * 0.1);
-    const seasonalMultiplier = 1 + (features.seasonality * 0.05);
-    const demandMultiplier = 1 + (features.demandSignal * 0.08);
-    const supplyMultiplier = 1 - (features.supplyConstraint * 0.06);
+    const f = (k: string, factor = 0) => (typeof features[k] === 'number' ? (features[k] as number) : factor);
+    const marketMultiplier = 1 + (f('marketTrend', 0) * 0.1);
+    const seasonalMultiplier = 1 + (f('seasonality', 0) * 0.05);
+    const demandMultiplier = 1 + (f('demandSignal', 0) * 0.08);
+    const supplyMultiplier = 1 - (f('supplyConstraint', 0) * 0.06);
     
     const optimalPrice = basePrice * marketMultiplier * seasonalMultiplier * demandMultiplier * supplyMultiplier;
     const variance = basePrice * 0.15; // 15% variance
@@ -780,8 +813,8 @@ export class MLPricingIntelligence {
   }
 
   // Risk Assessment Engine
-  generateRiskAssessment(unitData: ApartmentIQData, competitors: CompetitorData[], marketContext?: any): RiskAssessment {
-    const riskFactors = {
+  generateRiskAssessment(unitData: ApartmentIQData, competitors: CompetitorData[], marketContext?: MarketContext): RiskAssessment {
+    const riskFactors: RiskFactors = {
       marketVolatility: this.assessMarketVolatility(unitData, marketContext),
       competitorPressure: this.assessCompetitorPressure(unitData, competitors),
       seasonalRisk: this.assessSeasonalRisk(),
@@ -894,14 +927,17 @@ export class MLPricingIntelligence {
   }
 
   // Helper methods for calculations
-  private calculateMarketTrend(unitData: ApartmentIQData, marketContext?: any): number {
+  private calculateMarketTrend(unitData: ApartmentIQData, marketContext?: MarketContext): number {
     let trend = 0;
     
     if (unitData.rentTrend === 'increasing') trend += 0.5;
     else if (unitData.rentTrend === 'decreasing') trend -= 0.5;
     
-    if (marketContext?.marketGrowth > 0.03) trend += 0.3;
-    else if (marketContext?.marketGrowth < -0.02) trend -= 0.3;
+    // guard numeric values from marketContext
+    if (marketContext && typeof marketContext.marketGrowth === 'number') {
+      if (marketContext.marketGrowth > 0.03) trend += 0.3;
+      else if (marketContext.marketGrowth < -0.02) trend -= 0.3;
+    }
     
     return Math.max(-1, Math.min(1, trend));
   }
@@ -937,16 +973,18 @@ export class MLPricingIntelligence {
     return Math.max(0, Math.min(1, demand));
   }
 
-  private calculateSupplyConstraint(unitData: ApartmentIQData, marketContext?: any): number {
+  private calculateSupplyConstraint(unitData: ApartmentIQData, marketContext?: MarketContext): number {
     let constraint = 0.5; // Base constraint
     
-    if (marketContext?.inventoryLevels < 0.05) constraint += 0.3; // Low inventory
-    else if (marketContext?.inventoryLevels > 0.15) constraint -= 0.3; // High inventory
+    if (marketContext && typeof marketContext.inventoryLevels === 'number') {
+      if (marketContext.inventoryLevels < 0.05) constraint += 0.3; // Low inventory
+      else if (marketContext.inventoryLevels > 0.15) constraint -= 0.3; // High inventory
+    }
     
     return Math.max(0, Math.min(1, constraint));
   }
 
-  private calculateMLConfidence(features: any, unitData: ApartmentIQData): number {
+  private calculateMLConfidence(features: MLFeatures, unitData: ApartmentIQData): number {
     let confidence = 0.7; // Base confidence
     
     // Increase confidence with better data quality
@@ -954,13 +992,13 @@ export class MLPricingIntelligence {
     if (unitData.daysOnMarket > 14) confidence += 0.1; // More market data
     
     // Feature quality adjustments
-    const featureQuality = (Math.abs(features.marketTrend) + Math.abs(features.demandSignal)) / 2;
+  const featureQuality = (Math.abs(Number(features.marketTrend) || 0) + Math.abs(Number(features.demandSignal) || 0)) / 2;
     confidence += featureQuality * 0.1;
     
     return Math.max(0.3, Math.min(0.95, confidence));
   }
 
-  private estimateLeaseTime(features: any, unitData: ApartmentIQData): number {
+  private estimateLeaseTime(features: MLFeatures, unitData: ApartmentIQData): number {
     const baseDays = {
       'hot': 7,
       'normal': 14,
@@ -970,32 +1008,32 @@ export class MLPricingIntelligence {
 
     // Adjust based on ML features
     let adjustment = 1.0;
-    adjustment *= (1 - features.demandSignal * 0.3); // Higher demand = faster lease
-    adjustment *= (1 + features.supplyConstraint * 0.2); // More supply = slower lease
+    adjustment *= (1 - (Number(features.demandSignal) || 0) * 0.3); // Higher demand = faster lease
+    adjustment *= (1 + (Number(features.supplyConstraint) || 0) * 0.2); // More supply = slower lease
     
     return Math.max(3, Math.round(baseDays * adjustment));
   }
 
-  private calculateRiskScore(features: any, unitData: ApartmentIQData): number {
+  private calculateRiskScore(features: MLFeatures, unitData: ApartmentIQData): number {
     let risk = 0.5; // Base risk
     
-    risk += features.competitorActivity * 0.3;
-    risk += (1 - features.demandSignal) * 0.2;
-    risk -= features.seasonality * 0.1;
+    risk += (Number(features.competitorActivity) || 0) * 0.3;
+    risk += (1 - (Number(features.demandSignal) || 0)) * 0.2;
+    risk -= (Number(features.seasonality) || 0) * 0.1;
     
     if (unitData.daysOnMarket > 30) risk += 0.2;
     
     return Math.max(0, Math.min(1, risk));
   }
 
-  private assessMarketVolatility(unitData: ApartmentIQData, marketContext?: any): number {
+  private assessMarketVolatility(unitData: ApartmentIQData, marketContext?: MarketContext): number {
     let volatility = 0.5;
     
     if (unitData.rentChangePercent && Math.abs(unitData.rentChangePercent) > 10) {
       volatility += 0.3;
     }
     
-    if (marketContext?.priceVolatility > 0.15) {
+    if (marketContext && typeof marketContext.priceVolatility === 'number' && marketContext.priceVolatility > 0.15) {
       volatility += 0.2;
     }
     
@@ -1025,12 +1063,12 @@ export class MLPricingIntelligence {
     return seasonalRisk[month] || 0.5;
   }
 
-  private assessEconomicRisk(marketContext?: any): number {
+  private assessEconomicRisk(marketContext?: MarketContext): number {
     let risk = 0.4; // Base economic risk
     
-    if (marketContext?.unemploymentRate > 0.06) risk += 0.2;
-    if (marketContext?.interestRates > 0.07) risk += 0.1;
-    if (marketContext?.inflationRate > 0.05) risk += 0.1;
+    if (marketContext && typeof marketContext.unemploymentRate === 'number' && marketContext.unemploymentRate > 0.06) risk += 0.2;
+    if (marketContext && typeof marketContext.interestRates === 'number' && marketContext.interestRates > 0.07) risk += 0.1;
+    if (marketContext && typeof marketContext.inflationRate === 'number' && marketContext.inflationRate > 0.05) risk += 0.1;
     
     return Math.max(0, Math.min(1, risk));
   }
@@ -1042,7 +1080,7 @@ export class MLPricingIntelligence {
     return 'critical';
   }
 
-  private generateMitigationStrategies(riskFactors: any, overallRisk: string): string[] {
+  private generateMitigationStrategies(riskFactors: RiskFactors, overallRisk: string): string[] {
     const strategies: string[] = [];
     
     if (riskFactors.marketVolatility > 0.6) {
@@ -1068,7 +1106,7 @@ export class MLPricingIntelligence {
     return strategies;
   }
 
-  private generateRiskActions(riskFactors: any, unitData: ApartmentIQData): string[] {
+  private generateRiskActions(riskFactors: RiskFactors, unitData: ApartmentIQData): string[] {
     const actions: string[] = [];
     
     if (unitData.daysOnMarket > 45) {

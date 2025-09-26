@@ -64,6 +64,10 @@ interface GeographicOpportunity {
   reasonCode: string;
 }
 
+// Raw row/data types used while parsing external TSV sources
+type RawRow = Record<string, unknown>;
+type RawData = RawRow[];
+
 // Main Scraper Class
 class RedfinRentalScraper {
   private readonly baseUrls = {
@@ -78,7 +82,7 @@ class RedfinRentalScraper {
   };
 
   private readonly rentalApiBase = 'https://www.redfin.com/stingray/api/gis-csv';
-  private cache: Map<string, any> = new Map();
+  private cache: Map<string, RentalMarketMetrics[]> = new Map();
   private cacheExpiry: Map<string, Date> = new Map();
 
   // Core scraping methods
@@ -108,32 +112,32 @@ class RedfinRentalScraper {
     }
   }
 
-  async downloadAndParseData(dataType: string): Promise<any[]> {
+  async downloadAndParseData(dataType: string): Promise<RawData> {
     // For Lovable environment, external APIs are restricted, so we'll use mock data
     console.log(`Using mock data for ${dataType} due to CORS restrictions`);
     // Return raw data that will be processed by processRawDataToMetrics
     return this.generateRawMockData();
   }
 
-  private parseTSVData(tsvText: string): any[] {
+  private parseTSVData(tsvText: string): RawData {
     const lines = tsvText.split('\n').filter(line => line.trim());
     if (lines.length === 0) return [];
 
     const headers = lines[0].split('\t');
-    const data = [];
+    const data: RawData = [];
 
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split('\t');
-      const row: any = {};
+      const row: RawRow = {};
       
       headers.forEach((header, index) => {
         const value = values[index]?.trim();
-        
+
         // Convert numeric values
         if (value && !isNaN(Number(value))) {
-          row[header] = Number(value);
+          (row as Record<string, unknown>)[header] = Number(value);
         } else {
-          row[header] = value || null;
+          (row as Record<string, unknown>)[header] = (value as string) || null;
         }
       });
       
@@ -143,14 +147,14 @@ class RedfinRentalScraper {
     return data;
   }
 
-  private filterByLocation(data: any[], location: string): any[] {
+  private filterByLocation(data: RawData, location: string): RawData {
     const locationLower = location.toLowerCase();
     
     return data.filter(row => {
-      const cityName = row.city?.toLowerCase() || '';
-      const regionName = row.region_name?.toLowerCase() || '';
-      const stateName = row.state?.toLowerCase() || '';
-      const metroName = row.metro?.toLowerCase() || '';
+      const cityName = typeof row.city === 'string' ? row.city.toLowerCase() : '';
+      const regionName = typeof row.region_name === 'string' ? row.region_name.toLowerCase() : '';
+      const stateName = typeof row.state === 'string' ? row.state.toLowerCase() : '';
+      const metroName = typeof row.metro === 'string' ? row.metro.toLowerCase() : '';
       
       return cityName.includes(locationLower) || 
              regionName.includes(locationLower) ||
@@ -159,36 +163,36 @@ class RedfinRentalScraper {
     });
   }
 
-  private processRawDataToMetrics(rawData: any[]): RentalMarketMetrics[] {
+  private processRawDataToMetrics(rawData: RawData): RentalMarketMetrics[] {
     return rawData.map(row => ({
-      location: row.region_name || row.city || row.metro || 'Unknown',
+      location: (typeof row.region_name === 'string' ? row.region_name : row.city || row.metro) as string || 'Unknown',
       locationLevel: this.determineLocationLevel(row),
-      timestamp: new Date(row.period_end || Date.now()),
+      timestamp: new Date((row.period_end as string) || Date.now()),
       
       // Core Rental Metrics
-      medianRent: row.median_list_price || row.median_sale_price || 0,
-      rentYoYChange: row.median_list_price_yoy || 0,
-      rentMoMChange: row.median_list_price_mm || 0,
+      medianRent: Number(row.median_list_price || row.median_sale_price || 0),
+      rentYoYChange: Number(row.median_list_price_yoy || 0),
+      rentMoMChange: Number(row.median_list_price_mm || 0),
       
       // Market Leverage Indicators  
-      inventoryLevel: row.active_listing_count || 0,
-      daysOnMarket: row.median_days_on_market || 0,
-      newListings: row.new_listing_count || 0,
-      priceDropPercentage: row.price_drop_count_yoy || 0,
+      inventoryLevel: Number(row.active_listing_count || 0),
+      daysOnMarket: Number(row.median_days_on_market || 0),
+      newListings: Number(row.new_listing_count || 0),
+      priceDropPercentage: Number(row.price_drop_count_yoy || 0),
       
       // Competition Metrics
-      aboveListPricePercentage: row.sold_above_list_pct || 0,
+      aboveListPricePercentage: Number(row.sold_above_list_pct || 0),
       listToSoldRatio: this.calculateListToSoldRatio(row),
-      tourDemand: row.tours_per_listing || 0,
+      tourDemand: Number(row.tours_per_listing || 0),
       
       // Seasonal & Timing Data
-      seasonalIndex: this.calculateSeasonalIndex(new Date(row.period_end)),
-      quarterEndPressure: this.isQuarterEnd(new Date(row.period_end)),
-      monthEndPressure: this.isMonthEnd(new Date(row.period_end)),
+      seasonalIndex: this.calculateSeasonalIndex(new Date((row.period_end as string) || Date.now())),
+      quarterEndPressure: this.isQuarterEnd(new Date((row.period_end as string) || Date.now())),
+      monthEndPressure: this.isMonthEnd(new Date((row.period_end as string) || Date.now())),
       
       // Quality metrics
       dataQuality: this.assessDataQuality(row),
-      sampleSize: row.property_count || 0,
+      sampleSize: Number(row.property_count || 0),
       lastUpdated: new Date(),
       dataSource: 'fallback_realistic' as const,
       isRealData: false
@@ -452,7 +456,7 @@ class RedfinRentalScraper {
     return { currentSeason, leverage };
   }
 
-  private determineLocationLevel(row: any): 'national' | 'metro' | 'state' | 'county' | 'city' | 'zip' | 'neighborhood' {
+  private determineLocationLevel(row: RawRow): 'national' | 'metro' | 'state' | 'county' | 'city' | 'zip' | 'neighborhood' {
     if (row.zip_code) return 'zip';
     if (row.neighborhood) return 'neighborhood';
     if (row.city) return 'city';
@@ -462,14 +466,14 @@ class RedfinRentalScraper {
     return 'national';
   }
 
-  private calculateListToSoldRatio(row: any): number {
-    const listed = row.new_listing_count || 0;
-    const sold = row.sold_count || 0;
-    return sold > 0 ? listed / sold : 0;
+  private calculateListToSoldRatio(row: RawRow): number {
+    const listed = Number((row.new_listing_count as unknown) || 0);
+    const sold = Number((row.sold_count as unknown) || 0);
+    return sold > 0 ? Math.max(0, Math.min(1, listed / sold)) : 0;
   }
 
-  private assessDataQuality(row: any): 'high' | 'medium' | 'low' {
-    const hasKey = (key: string) => row[key] !== null && row[key] !== undefined;
+  private assessDataQuality(row: RawRow): 'high' | 'medium' | 'low' {
+    const hasKey = (key: string) => (row as Record<string, unknown>)[key] !== null && (row as Record<string, unknown>)[key] !== undefined;
     
     const keyMetrics = [
       'median_list_price', 'active_listing_count', 'median_days_on_market',
@@ -526,7 +530,7 @@ class RedfinRentalScraper {
     return mockData;
   }
 
-  private generateRawMockData(): any[] {
+  private generateRawMockData(): RawData {
     const locations = ['Austin, TX', 'Dallas, TX', 'Houston, TX'];
     const mockData = [];
     const baseDate = new Date();
@@ -556,11 +560,11 @@ class RedfinRentalScraper {
           sold_count: Math.round(80 + Math.random() * 80),
           tours_per_listing: 1.5 + Math.random() * 3,
           property_count: Math.round(400 + Math.random() * 300)
-        });
+        } as RawRow);
       }
     });
     
-    return mockData;
+    return mockData as RawData;
   }
 }
 

@@ -1,6 +1,6 @@
 // This file is generated but safe to edit: it initializes the Supabase client
 import { createClient } from '@supabase/supabase-js'
-import type { Database } from './types'
+import type { SupabaseUser, Database } from '@/../supabase/types'
 
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -20,15 +20,14 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
 })
 
 // Helper function to get current user
-export const getCurrentUser = async () => {
+export const getCurrentUser = async (): Promise<SupabaseUser | null> => {
   const { data, error } = await supabase.auth.getUser()
   if (error) {
-     
     console.error('Error getting user:', error)
     return null
   }
-  // data has shape { user?: User }
-  return (data as any).user || null
+  // data has shape { user?: User | null }
+  return data?.user ?? null
 }
 
 // Helper to return current user id (or null)

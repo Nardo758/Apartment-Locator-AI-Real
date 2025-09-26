@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -46,7 +46,7 @@ export const RentVsBuyAnalyzer: React.FC<RentVsBuyAnalyzerProps> = ({
   const [downPaymentPercent, setDownPaymentPercent] = useState([20]);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
 
-  const calculateAnalysis = (): AnalysisResult => {
+  const calculateAnalysis = useCallback((): AnalysisResult => {
     const downPayment = propertyValue * (downPaymentPercent[0] / 100);
     const loanAmount = propertyValue - downPayment;
     const interestRate = 0.07; // 7% mortgage rate
@@ -108,11 +108,11 @@ export const RentVsBuyAnalyzer: React.FC<RentVsBuyAnalyzerProps> = ({
       upfrontCost,
       netWorthDifference
     };
-  };
+  }, [propertyValue, currentRent, timeframe, downPaymentPercent]);
 
   useEffect(() => {
     setAnalysis(calculateAnalysis());
-  }, [propertyValue, currentRent, timeframe, downPaymentPercent]);
+  }, [calculateAnalysis]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 export interface NavigationOptions {
   replace?: boolean;
-  state?: any;
+  state?: unknown;
   preventLoss?: boolean; // Prevent navigation if data loss would occur
 }
 

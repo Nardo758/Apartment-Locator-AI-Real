@@ -50,7 +50,7 @@ interface ModernApartmentCardProps {
     };
     poiDistances?: { [key: string]: { distance: string; driveTime: number } };
   };
-  pointsOfInterest?: any[];
+  pointsOfInterest?: { id: string; name?: string; distance?: string; driveTime?: number }[];
   onSave?: (id: string) => void;
   onViewDetails?: (id: string) => void;
   onMakeOffer?: (id: string) => void;

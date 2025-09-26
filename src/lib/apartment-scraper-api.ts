@@ -50,7 +50,7 @@ interface UnitTracking {
   }>;
 }
 
-interface MarketInsights {
+export interface MarketInsights {
   zip_codes: string[];
   average_rent: number;
   median_rent: number;

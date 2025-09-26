@@ -275,7 +275,7 @@ export const usePropertyAnalysis = () => {
   const [analytics] = useState(new AlgorithmAnalyticsTracker());
   const [analyticsService] = useState(new AnalyticsService());
 
-  const analyzeProperty = useCallback(async (propertyId: string, userProfile: any) => {
+  const analyzeProperty = useCallback(async (propertyId: string, userProfile: unknown) => {
     setLoading(true);
     
     try {
@@ -354,7 +354,7 @@ export class DataPipelineManager {
     // Based on the fallback strategies in DATA_PIPELINE_MAPPINGS
   }
 
-  private validateAndTransformPropertyData(rawData: any): PropertyData {
+  private validateAndTransformPropertyData(rawData: unknown): PropertyData {
     // Implement data validation and transformation
     // Apply quality requirements from DATA_PIPELINE_MAPPINGS
   }

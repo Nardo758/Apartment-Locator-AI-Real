@@ -54,7 +54,7 @@ const GenerateOffer = () => {
   const [offerSubmitted, setOfferSubmitted] = useState(false);
   
   // Enhanced AI suggestions with property-specific data
-  const [aiSuggestions, setAiSuggestions] = useState<any>({
+  const [aiSuggestions, setAiSuggestions] = useState<Record<string, unknown>>({
     recommendedOffer: {
       suggestedRent: property?.effectivePrice ? `$${property.effectivePrice.toLocaleString()}` : '$2,850',
       strategy: 'Competitive pricing based on AI analysis',
