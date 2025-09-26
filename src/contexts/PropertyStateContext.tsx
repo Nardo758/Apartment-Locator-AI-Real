@@ -1,6 +1,7 @@
-/* eslint-disable react-refresh/only-export-components */
 import { PropertyStateProvider } from './PropertyStateProvider'
-import { usePropertyState } from './property-state-hook'
 
-// This file re-exports the provider and hook for consumer convenience.
-export { PropertyStateProvider, usePropertyState };
+// Component-only entrypoint to preserve fast-refresh behavior during development.
+// Hooks and helper re-exports live in `src/contexts/index.ts` so consumer code can
+// import both from '@/contexts' without exposing non-component symbols here.
+
+export { PropertyStateProvider };
