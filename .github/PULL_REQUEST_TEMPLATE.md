@@ -1,14 +1,22 @@
-## What this PR does
-
-Describe the changes included in this pull request.
-
 ---
+## Pull Request Checklist
 
-### Deployment checklist
-Before merging, ensure the following are configured for the deployment environment:
+Please fill out and ensure the following before requesting a merge:
 
-- [ ] Vercel project secrets set: `REACT_APP_SUPABASE_URL`, `REACT_APP_SUPABASE_ANON_KEY`, `VERCEL_TOKEN` (if using Vercel Action)
-- [ ] GitHub repository secrets set if using Actions: `REACT_APP_SUPABASE_URL`, `REACT_APP_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (if server-only functionality is required)
-- [ ] Netlify env vars set if deploying there: `REACT_APP_SUPABASE_URL`, `REACT_APP_SUPABASE_ANON_KEY`
+- [ ] Description: Clear summary of changes and rationale
+- [ ] Tests: New/updated tests added or manual test steps documented
 
-If this PR adds server-side functions that rely on Supabase service role keys, mark it explicitly and ensure a secret has been created.
+### Deployment and Secrets
+If this PR affects deployment, server functions, or authentication, confirm the following:
+
+- [ ] Client environment variables are set in the deployment platform (Vercel/Netlify/GitHub):
+	- `REACT_APP_SUPABASE_URL`
+	- `REACT_APP_SUPABASE_ANON_KEY`
+- [ ] If this PR adds or modifies server-side code that requires elevated DB access, confirm `SUPABASE_SERVICE_ROLE_KEY` is stored as a GitHub secret and NOT included in the repo
+- [ ] If using Vercel deploy action, `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` are configured in repository secrets
+
+### Server side changes
+- [ ] Any server-side example or function added includes guidance on where to store `SUPABASE_SERVICE_ROLE_KEY`
+- [ ] RLS policies and migrations (if needed) are documented or included in the PR
+
+If any of the above items are not applicable, mark them `N/A` and explain in the PR description.
