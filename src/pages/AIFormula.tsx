@@ -73,7 +73,7 @@ const AIFormula: React.FC = () => {
         </div>
 
         {/* AI Formula Component */}
-        <div className={`${designSystem.animations.entrance}`} style={{ animationDelay: '200ms' }}>
+        <div className={`${designSystem.animations.entrance}`} >
           <AIFormulaExplainer />
         </div>
       </ModernPageLayout>
