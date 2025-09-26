@@ -1,0 +1,41 @@
+chore(deps/codmod): accessibility fixes, inline-style removal, Vercel workflow update
+
+Summary
+- This PR applies a set of conservative repository-wide improvements:
+  - Ran and applied a conservative codemod to replace trivial inline styles (cursor/animationDelay) with classes where safe.
+  - Reworked the property progress bar to avoid inline-style usage and removed an `any` cast.
+  - Accessibility improvements to `Breadcrumb` and other components (aria attributes, title attributes for truncated labels).
+  - Consolidated minor CSS issues and improved keyframes (safer fallback for progress animation).
+  - Updated GitHub Actions Vercel workflow to use `vercel-token`, added `vercel-org-id` and `vercel-project-id` inputs, and set `vercel-args: '--prod --yes'`.
+
+Files changed (high level)
+- `src/components/PropertyCard.tsx` — replaced CSS-variable inline style pattern with discrete Tailwind width classes mapped from success rate, removed `any` cast.
+- `src/components/Breadcrumb.tsx` — added `aria-label`, `aria-hidden` to decorative icons, and `title` on truncated labels.
+- `src/index.css` — removed duplicate `@layer base` block and made `@keyframes progressFill` fallback-safe.
+- `.github/workflows/deploy-vercel.yml` — modernized Vercel action inputs: `vercel-token`, `vercel-org-id`, `vercel-project-id`, `vercel-args: '--prod --yes'`.
+
+Why these changes
+- Reduce ESLint noise and remove inline styles that are prohibited by lint rules.
+- Improve accessibility and keyboard/assistive tech support for breadcrumbs and buttons.
+- Simplify CI deploy workflow and avoid deprecated `zeit-token`.
+- Keep codemod conservative to avoid risky AST-driven changes; follow-up manual review may be required for complex dynamic styles.
+
+Checklist (required before merge)
+- [x] All unit/smoke tests pass locally (`npm run test:ci`).
+- [x] TypeScript checks pass (`npx tsc --noEmit`).
+- [ ] ESLint reported warnings cleaned up (run `npm run lint` and address any remaining warnings).
+- [ ] Dev server smoke-tested (optional).
+- [x] Vercel secrets added to repo (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID).
+
+Testing notes (how to validate)
+- Run unit tests: `npm run test:ci`
+- Run type checks: `npx tsc --noEmit`
+- Run lint: `npm run lint`
+- Optional: start dev server and open the app `npm run dev` then visit http://localhost:5173 and navigate to a property card to inspect the progress bar and breadcrumb.
+
+Notes / follow-ups
+- The codemod is conservative. Some complex inline styles were left for manual review.
+- If you prefer exact progress-width percentages (not discretized), we can either add a Tailwind safelist for more width classes or use a ref+effect that sets a CSS variable at runtime and add a targeted lint exception.
+
+Branch: chore/deps/audit-fix-force
+

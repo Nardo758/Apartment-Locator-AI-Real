@@ -24,16 +24,12 @@ jobs:
           if [ -z "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" ]; then echo "SUPABASE_SERVICE_ROLE_KEY is missing"; missing=1; fi
           if [ "$missing" -eq 1 ]; then exit 1; fi
 
-      - name: Vercel Action
+      - name: Deploy to Vercel
         uses: amondnet/vercel-action@v20
         with:
-          # Primary token (required)
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          # Optional: set these if you prefer to pin org/project (recommended for monorepos)
-          # vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          # vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          # The action metadata still lists `zeit-token` as required by some consumers; set it to the same token
-          zeit-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-args: --prod
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod --yes'
           working-directory: .
         # Using the Vercel GitHub Action for deploys
