@@ -251,6 +251,11 @@
   .progress-poor {
     @apply bg-red-500;
   }
+
+  /* Progress fill using CSS variable */
+  .progress-fill {
+    width: var(--progress-width, 0%);
+  }
 }
 
 @keyframes gradientShift {
