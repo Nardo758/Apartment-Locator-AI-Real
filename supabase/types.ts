@@ -1,355 +1,581 @@
-// Centralized Supabase types used across the repo
-// Minimal Database placeholder — extend with generated types if available
-
-import type { User } from '@supabase/supabase-js'
-
-export type SupabaseUser = User
+// Manual Supabase Database Types (generated from code analysis)
+// These interfaces are based on the tables found in your codebase
 
 export interface Database {
-  // Manually-maintained `public` schema mapping for the most-used tables in the app.
   public: {
-    user_preferences: {
-      Row: {
-        id: string
-        user_id: string
-        key: string
-        value: string | null
-        created_at: string | null
+    Tables: {
+      users: {
+        Row: {
+          id: string
+          email: string
+          full_name: string | null
+          avatar_url: string | null
+          phone: string | null
+          password_hash: string | null
+          email_verified: boolean
+          is_active: boolean
+          last_login: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          email: string
+          full_name?: string | null
+          avatar_url?: string | null
+          phone?: string | null
+          password_hash?: string | null
+          email_verified?: boolean
+          is_active?: boolean
+          last_login?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          full_name?: string | null
+          avatar_url?: string | null
+          phone?: string | null
+          password_hash?: string | null
+          email_verified?: boolean
+          is_active?: boolean
+          last_login?: string | null
+          created_at?: string
+          updated_at?: string
+        }
       }
-      Insert: {
-        id?: string
-        user_id: string
-        key: string
-        value?: string | null
+      user_preferences: {
+        Row: {
+          id: string
+          user_id: string
+          budget_min: number | null
+          budget_max: number | null
+          bedrooms: number | null
+          bathrooms: number | null
+          search_radius: number
+          drive_time_max: number | null
+          preferred_locations: any // JSONB
+          amenities: any // JSONB
+          deal_breakers: any // JSONB
+          pet_friendly: boolean | null
+          parking_required: boolean | null
+          furnished: boolean | null
+          lease_duration_months: number | null
+          move_in_date: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          budget_min?: number | null
+          budget_max?: number | null
+          bedrooms?: number | null
+          bathrooms?: number | null
+          search_radius?: number
+          drive_time_max?: number | null
+          preferred_locations?: any
+          amenities?: any
+          deal_breakers?: any
+          pet_friendly?: boolean | null
+          parking_required?: boolean | null
+          furnished?: boolean | null
+          lease_duration_months?: number | null
+          move_in_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          budget_min?: number | null
+          budget_max?: number | null
+          bedrooms?: number | null
+          bathrooms?: number | null
+          search_radius?: number
+          drive_time_max?: number | null
+          preferred_locations?: any
+          amenities?: any
+          deal_breakers?: any
+          pet_friendly?: boolean | null
+          parking_required?: boolean | null
+          furnished?: boolean | null
+          lease_duration_months?: number | null
+          move_in_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
       }
-      Update: {
-        value?: string | null
+      user_profiles: {
+        Row: {
+          id: string
+          user_id: string
+          financial_info: any // JSONB
+          employment_info: any // JSONB
+          emergency_contact: any // JSONB
+          bank_verification_status: string
+          bank_verification_data: any // JSONB
+          document_verification: any // JSONB
+          background_check_status: string
+          preferences_completed: boolean
+          profile_completion_percentage: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          financial_info?: any
+          employment_info?: any
+          emergency_contact?: any
+          bank_verification_status?: string
+          bank_verification_data?: any
+          document_verification?: any
+          background_check_status?: string
+          preferences_completed?: boolean
+          profile_completion_percentage?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          financial_info?: any
+          employment_info?: any
+          emergency_contact?: any
+          bank_verification_status?: string
+          bank_verification_data?: any
+          document_verification?: any
+          background_check_status?: string
+          preferences_completed?: boolean
+          profile_completion_percentage?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      user_activities: {
+        Row: {
+          id: string
+          user_id: string
+          session_id: string | null
+          activity_type: string
+          page_name: string | null
+          component_name: string | null
+          action_name: string | null
+          action_details: any // JSONB
+          before_state: any // JSONB
+          after_state: any // JSONB
+          metadata: any // JSONB
+          ip_address: string | null
+          user_agent: string | null
+          referrer: string | null
+          duration_ms: number | null
+          success: boolean
+          error_details: any // JSONB
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          session_id?: string | null
+          activity_type: string
+          page_name?: string | null
+          component_name?: string | null
+          action_name?: string | null
+          action_details?: any
+          before_state?: any
+          after_state?: any
+          metadata?: any
+          ip_address?: string | null
+          user_agent?: string | null
+          referrer?: string | null
+          duration_ms?: number | null
+          success?: boolean
+          error_details?: any
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          session_id?: string | null
+          activity_type?: string
+          page_name?: string | null
+          component_name?: string | null
+          action_name?: string | null
+          action_details?: any
+          before_state?: any
+          after_state?: any
+          metadata?: any
+          ip_address?: string | null
+          user_agent?: string | null
+          referrer?: string | null
+          duration_ms?: number | null
+          success?: boolean
+          error_details?: any
+          created_at?: string
+        }
+      }
+      search_history: {
+        Row: {
+          id: string
+          user_id: string
+          search_query: string | null
+          search_parameters: any // JSONB
+          search_location: any // JSONB
+          radius: number | null
+          results_count: number
+          results_viewed: number
+          saved_search: boolean
+          search_name: string | null
+          alert_frequency: string | null
+          last_alert_sent: string | null
+          search_duration_ms: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          search_query?: string | null
+          search_parameters?: any
+          search_location?: any
+          radius?: number | null
+          results_count?: number
+          results_viewed?: number
+          saved_search?: boolean
+          search_name?: string | null
+          alert_frequency?: string | null
+          last_alert_sent?: string | null
+          search_duration_ms?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          search_query?: string | null
+          search_parameters?: any
+          search_location?: any
+          radius?: number | null
+          results_count?: number
+          results_viewed?: number
+          saved_search?: boolean
+          search_name?: string | null
+          alert_frequency?: string | null
+          last_alert_sent?: string | null
+          search_duration_ms?: number | null
+          created_at?: string
+        }
+      }
+      saved_apartments: {
+        Row: {
+          id: string
+          user_id: string
+          apartment_id: string
+          saved_type: string
+          notes: string | null
+          user_rating: number | null
+          pros: any // JSONB
+          cons: any // JSONB
+          visit_date: string | null
+          application_date: string | null
+          application_status: string | null
+          priority: number
+          alert_preferences: any // JSONB
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          apartment_id: string
+          saved_type?: string
+          notes?: string | null
+          user_rating?: number | null
+          pros?: any
+          cons?: any
+          visit_date?: string | null
+          application_date?: string | null
+          application_status?: string | null
+          priority?: number
+          alert_preferences?: any
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          apartment_id?: string
+          saved_type?: string
+          notes?: string | null
+          user_rating?: number | null
+          pros?: any
+          cons?: any
+          visit_date?: string | null
+          application_date?: string | null
+          application_status?: string | null
+          priority?: number
+          alert_preferences?: any
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      apartments: {
+        Row: {
+          id: string
+          external_id: string
+          source: string
+          url: string | null
+          title: string
+          description: string | null
+          address: string
+          city: string
+          state: string
+          zip_code: string | null
+          country: string
+          latitude: number | null
+          longitude: number | null
+          rent_min: number | null
+          rent_max: number | null
+          deposit: number | null
+          application_fee: number | null
+          bedrooms: number | null
+          bathrooms: number | null
+          square_feet: number | null
+          lot_size: number | null
+          year_built: number | null
+          property_type: string | null
+          lease_terms: any // JSONB
+          available_date: string | null
+          pet_policy: any // JSONB
+          parking_info: any // JSONB
+          amenities: any // JSONB
+          utilities_included: any // JSONB
+          images: any // JSONB
+          floor_plans: any // JSONB
+          contact_info: any // JSONB
+          tour_info: any // JSONB
+          application_requirements: any // JSONB
+          neighborhood_info: any // JSONB
+          commute_data: any // JSONB
+          price_history: any // JSONB
+          availability_status: string
+          data_quality_score: number
+          is_active: boolean
+          is_verified: boolean
+          scraped_at: string
+          last_verified: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          external_id: string
+          source: string
+          url?: string | null
+          title: string
+          description?: string | null
+          address: string
+          city: string
+          state: string
+          zip_code?: string | null
+          country?: string
+          latitude?: number | null
+          longitude?: number | null
+          rent_min?: number | null
+          rent_max?: number | null
+          deposit?: number | null
+          application_fee?: number | null
+          bedrooms?: number | null
+          bathrooms?: number | null
+          square_feet?: number | null
+          lot_size?: number | null
+          year_built?: number | null
+          property_type?: string | null
+          lease_terms?: any
+          available_date?: string | null
+          pet_policy?: any
+          parking_info?: any
+          amenities?: any
+          utilities_included?: any
+          images?: any
+          floor_plans?: any
+          contact_info?: any
+          tour_info?: any
+          application_requirements?: any
+          neighborhood_info?: any
+          commute_data?: any
+          price_history?: any
+          availability_status?: string
+          data_quality_score?: number
+          is_active?: boolean
+          is_verified?: boolean
+          scraped_at?: string
+          last_verified?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          external_id?: string
+          source?: string
+          url?: string | null
+          title?: string
+          description?: string | null
+          address?: string
+          city?: string
+          state?: string
+          zip_code?: string | null
+          country?: string
+          latitude?: number | null
+          longitude?: number | null
+          rent_min?: number | null
+          rent_max?: number | null
+          deposit?: number | null
+          application_fee?: number | null
+          bedrooms?: number | null
+          bathrooms?: number | null
+          square_feet?: number | null
+          lot_size?: number | null
+          year_built?: number | null
+          property_type?: string | null
+          lease_terms?: any
+          available_date?: string | null
+          pet_policy?: any
+          parking_info?: any
+          amenities?: any
+          utilities_included?: any
+          images?: any
+          floor_plans?: any
+          contact_info?: any
+          tour_info?: any
+          application_requirements?: any
+          neighborhood_info?: any
+          commute_data?: any
+          price_history?: any
+          availability_status?: string
+          data_quality_score?: number
+          is_active?: boolean
+          is_verified?: boolean
+          scraped_at?: string
+          last_verified?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      user_exports: {
+        Row: {
+          id: string
+          user_id: string
+          export_type: string
+          export_format: string
+          export_filters: any // JSONB
+          file_name: string | null
+          file_path: string | null
+          file_size: number | null
+          download_url: string | null
+          export_status: string
+          error_details: any // JSONB
+          expires_at: string | null
+          downloaded_at: string | null
+          download_count: number
+          processing_time_ms: number | null
+          created_at: string
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          export_type: string
+          export_format: string
+          export_filters?: any
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          download_url?: string | null
+          export_status?: string
+          error_details?: any
+          expires_at?: string | null
+          downloaded_at?: string | null
+          download_count?: number
+          processing_time_ms?: number | null
+          created_at?: string
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          export_type?: string
+          export_format?: string
+          export_filters?: any
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          download_url?: string | null
+          export_status?: string
+          error_details?: any
+          expires_at?: string | null
+          downloaded_at?: string | null
+          download_count?: number
+          processing_time_ms?: number | null
+          created_at?: string
+          completed_at?: string | null
+        }
       }
     }
-    saved_apartments: {
-      Row: {
-        id: string
-        user_id: string
-        property_id: string
-        created_at: string | null
-        metadata?: Record<string, unknown> | null
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      search_apartments: {
+        Args: {
+          p_user_id?: string
+          p_city?: string
+          p_state?: string
+          p_latitude?: number
+          p_longitude?: number
+          p_radius?: number
+          p_rent_min?: number
+          p_rent_max?: number
+          p_bedrooms?: number[]
+          p_bathrooms?: number
+          p_amenities?: string[]
+          p_pet_friendly?: boolean
+          p_available_date?: string
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          apartment_data: any
+          distance_miles: number
+          match_score: number
+        }[]
       }
-      Insert: {
-        id?: string
-        user_id: string
-        property_id: string
-        metadata?: Record<string, unknown> | null
-      }
-      Update: {
-        metadata?: Record<string, unknown> | null
+      export_user_data: {
+        Args: {
+          p_user_id: string
+          p_export_type?: string
+          p_date_from?: string
+          p_date_to?: string
+        }
+        Returns: any // JSONB
       }
     }
-    search_history: {
-      Row: {
-        id: string
-        user_id: string
-        query: string
-        filters?: string | null
-        created_at: string | null
-      }
-      Insert: {
-        id?: string
-        user_id: string
-        query: string
-        filters?: string | null
-      }
-      Update: {
-        query?: string
-        filters?: string | null
-      }
-    }
-    user_profiles: {
-      Row: {
-        id: string
-        user_id: string
-        full_name?: string | null
-        email?: string | null
-        avatar_url?: string | null
-        created_at?: string | null
-        updated_at?: string | null
-        [key: string]: unknown
-      }
-      Insert: {
-        id?: string
-        user_id: string
-        full_name?: string | null
-        email?: string | null
-        avatar_url?: string | null
-      }
-      Update: {
-        full_name?: string | null
-        email?: string | null
-        avatar_url?: string | null
-      }
-    }
-    data_export_requests: {
-      Row: {
-        id: string
-        user_id: string
-        export_type: string | null
-        status: string | null
-        created_at: string | null
-        options?: Record<string, unknown> | null
-      }
-      Insert: {
-        id?: string
-        user_id: string
-        export_type?: string | null
-        status?: string | null
-        options?: Record<string, unknown> | null
-      }
-      Update: {
-        status?: string | null
-        options?: Record<string, unknown> | null
-      }
-    }
-    user_activity_logs: {
-      Row: {
-        id: string
-        user_id?: string | null
-        activity_type?: string | null
-        payload?: Record<string, unknown> | null
-        created_at?: string | null
-      }
-      Insert: {
-        id?: string
-        user_id?: string | null
-        activity_type?: string | null
-        payload?: Record<string, unknown> | null
-      }
-      Update: {
-        activity_type?: string | null
-        payload?: Record<string, unknown> | null
-      }
-    }
-    user_content_logs: {
-      Row: {
-        id: string
-        user_id?: string | null
-        content_type?: string | null
-        content?: Record<string, unknown> | null
-        created_at?: string | null
-      }
-      Insert: {
-        id?: string
-        user_id?: string | null
-        content_type?: string | null
-        content?: Record<string, unknown> | null
-      }
-      Update: {
-        content_type?: string | null
-        content?: Record<string, unknown> | null
-      }
-    }
-    user_sessions: {
-      Row: {
-        id: string
-        user_id?: string | null
-        session_data?: Record<string, unknown> | null
-        created_at?: string | null
-      }
-      Insert: {
-        id?: string
-        user_id?: string | null
-        session_data?: Record<string, unknown> | null
-      }
-      Update: {
-        session_data?: Record<string, unknown> | null
-      }
-    }
-    orders: {
-      Row: {
-        id: string
-        user_id?: string | null
-        amount?: number | null
-        currency?: string | null
-        status?: string | null
-        created_at?: string | null
-      }
-      Insert: {
-        id?: string
-        user_id?: string | null
-        amount?: number | null
-        currency?: string | null
-      }
-      Update: {
-        amount?: number | null
-        currency?: string | null
-        status?: string | null
-      }
-    }
-    rental_offers: {
-      Row: {
-        id: string
-        user_id?: string | null
-        property_id?: string | null
-        offer_amount?: number | null
-        status?: string | null
-        created_at?: string | null
-      }
-      Insert: {
-        id?: string
-        user_id?: string | null
-        property_id?: string | null
-        offer_amount?: number | null
-      }
-      Update: {
-        offer_amount?: number | null
-        status?: string | null
-      }
-    }
-    subscribers: {
-      Row: {
-        id: string
-        email: string
-        created_at?: string | null
-        status?: string | null
-      }
-      Insert: {
-        id?: string
-        email: string
-      }
-      Update: {
-        status?: string | null
-      }
-    }
-    access_tokens: {
-      Row: {
-        id: string
-        user_id?: string | null
-        token?: string | null
-        used?: boolean | null
-        created_at?: string | null
-      }
-      Insert: {
-        id?: string
-        user_id?: string | null
-        token?: string | null
-      }
-      Update: {
-        used?: boolean | null
-      }
-    }
-    server_logs: {
-      Row: {
-        id: string
-        message?: string | null
-        created_at?: string | null
-      }
-      Insert: {
-        id?: string
-        message?: string | null
-      }
-      Update: {
-        message?: string | null
-      }
+    Enums: {
+      [_ in never]: never
     }
   }
 }
 
-// --- Common table shapes used by serverless functions ---
-export interface UserProfile {
-  id?: string
-  user_id?: string
-  email?: string | null
-  [key: string]: unknown
-}
+// Helper types for common operations
+export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
+export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T]
 
-export interface ActivityItem {
-  activity_type?: string
-  created_at?: string
-  [key: string]: unknown
-}
-
-export interface ContentItem {
-  content_type?: string
-  created_at?: string
-  [key: string]: unknown
-}
-
-export interface SessionItem {
-  created_at?: string
-  [key: string]: unknown
-}
-
-export interface OrderItem {
-  id?: string
-  plan_type?: string
-  amount?: number
-  currency?: string
-  status?: string
-  created_at?: string
-  [key: string]: unknown
-}
-
-export interface ExportRequest {
-  exportId: string
-  user_id?: string
-  user_email?: string
-  data_categories?: string[]
-  date_range_start?: string
-  date_range_end?: string
-  export_format?: 'json' | 'csv' | 'xml'
-  export_type?: string
-}
-
-export interface UserData {
-  profile?: UserProfile | null
-  activity: ActivityItem[]
-  content: ContentItem[]
-  sessions: SessionItem[]
-  orders: OrderItem[]
-}
-
-export interface ExportInfo {
-  user_id?: string
-  export_date?: string
-  export_type?: string
-  data_range?: {
-    start?: string
-    end?: string
-  }
-  categories?: string[]
-  total_records?: Record<string, number>
-}
-
-export interface AISuggestionConcession {
-  type?: string
-  description?: string
-  likelihood?: string
-}
-
-export interface AISuggestions {
-  recommendedOffer?: {
-    suggestedRent?: number
-    strategy?: string
-    reasoning?: string
-  }
-  marketAnalysis?: {
-    marketPosition?: string
-    demandLevel?: string
-    competitiveAnalysis?: string
-  }
-  potentialConcessions?: AISuggestionConcession[]
-  timingRecommendations?: {
-    bestTimeToApply?: string
-    reasoning?: string
-  }
-  [key: string]: unknown
-}
-
-export interface OfferEmailRequest {
-  userEmail: string
-  moveInDate: string
-  leaseTerm: number
-  monthlyBudget: number
-  notes?: string
-  propertyId: string
-  propertyDetails?: Record<string, unknown>
-  aiSuggestions?: AISuggestions
-}
+// Specific table types for easier usage
+export type User = Tables<'users'>
+export type UserPreferences = Tables<'user_preferences'>
+export type UserProfile = Tables<'user_profiles'>
+export type UserActivity = Tables<'user_activities'>
+export type SearchHistory = Tables<'search_history'>
+export type SavedApartment = Tables<'saved_apartments'>
+export type Apartment = Tables<'apartments'>
+export type UserExport = Tables<'user_exports'>
