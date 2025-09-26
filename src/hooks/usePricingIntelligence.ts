@@ -1,23 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  PricingEngine, 
-  PortfolioAnalyzer,
-  type PricingRecommendation, 
-  type ApartmentIQData,
-  type PortfolioImpactSummary 
-} from '@/lib/pricing-engine';
+import { PricingEngine, PortfolioAnalyzer } from '@/lib/pricing-engine';
+import type { PricingRecommendation, ApartmentIQData, PortfolioImpactSummary } from '@/lib/pricing-engine';
+import type { Property as MockProperty } from '@/data/mockData';
 
-interface Property {
-  id: string;
-  apartmentIQData?: ApartmentIQData;
-  // Legacy support
-  price?: number;
-  daysOnMarket?: number;
-  marketVelocity?: 'hot' | 'normal' | 'slow' | 'stale';
-  concessionUrgency?: 'none' | 'standard' | 'aggressive' | 'desperate';
+function inferMarketVelocity(daysVacant?: number): 'hot' | 'normal' | 'slow' | 'stale' {
+  if (!daysVacant) return 'normal';
+  if (daysVacant <= 7) return 'hot';
+  if (daysVacant <= 21) return 'normal';
+  if (daysVacant <= 45) return 'slow';
+  return 'stale';
 }
 
-export const usePricingIntelligence = (properties: Property[]) => {
+export const usePricingIntelligence = (properties: MockProperty[]) => {
   const [recommendations, setRecommendations] = useState<Record<string, PricingRecommendation>>({});
   const [portfolioSummary, setPortfolioSummary] = useState<PortfolioImpactSummary | null>(null);
   const [loading, setLoading] = useState(false);
@@ -35,33 +29,34 @@ export const usePricingIntelligence = (properties: Property[]) => {
       const newRecommendations: Record<string, PricingRecommendation> = {};
       
       for (const property of properties) {
-        if (property.apartmentIQData) {
-          // Use comprehensive ApartmentIQ data
-          const recommendation = engine.generateRecommendation(property.apartmentIQData);
+        if (property.apartmentIQData && typeof property.apartmentIQData === 'object') {
+          // Use comprehensive ApartmentIQ data (narrowed at runtime)
+          const typed = property.apartmentIQData as ApartmentIQData;
+          const recommendation = engine.generateRecommendation(typed);
           newRecommendations[property.id] = recommendation;
-        } else if (property.price && property.daysOnMarket !== undefined && property.marketVelocity) {
-          // Fallback to legacy data structure
+        } else if (property.aiPrice !== undefined && property.daysVacant !== undefined) {
+          // Fallback to legacy data structure using MockProperty fields
           const legacyData: ApartmentIQData = {
             unitId: property.id,
-            propertyName: 'Unknown Property',
+            propertyName: property.name || 'Unknown Property',
             unitNumber: 'Unknown',
-            address: 'Unknown Address',
-            zipCode: 'Unknown',
-            currentRent: property.price,
-            originalRent: property.price,
-            effectiveRent: property.price,
-            rentPerSqft: 0,
-            bedrooms: 1,
-            bathrooms: 1,
-            sqft: 800,
+            address: property.address || 'Unknown Address',
+            zipCode: property.zip || '00000',
+            currentRent: property.aiPrice,
+            originalRent: property.aiPrice,
+            effectiveRent: property.effectivePrice ?? property.aiPrice,
+            rentPerSqft: property.effectivePrice && property.sqft ? property.effectivePrice / property.sqft : 0,
+            bedrooms: property.bedrooms || 1,
+            bathrooms: property.bathrooms || 1,
+            sqft: property.sqft || 800,
             floor: 1,
             floorPlan: 'Unknown',
-            daysOnMarket: property.daysOnMarket,
+            daysOnMarket: property.daysVacant,
             firstSeen: new Date().toISOString(),
-            marketVelocity: property.marketVelocity,
+            marketVelocity: inferMarketVelocity(property.daysVacant),
             concessionValue: 0,
             concessionType: 'none',
-            concessionUrgency: property.concessionUrgency || 'none',
+            concessionUrgency: 'none',
             rentTrend: 'stable',
             rentChangePercent: 0,
             concessionTrend: 'none',
