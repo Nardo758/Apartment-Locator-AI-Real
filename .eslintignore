@@ -1,8 +1,0 @@
-node_modules/
-dist/
-public/
-**/*.md
-supabase/**/*.md
-docs/**
-*.log
-*.lock
