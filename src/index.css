@@ -278,7 +278,7 @@
     width: 0%;
   }
   to {
-    width: var(--progress-width);
+    width: var(--progress-width, 0%);
   }
 }
 
@@ -337,12 +337,4 @@
   background: var(--gradient-secondary);
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-  }
-}
+/* Duplicate @layer base removed (consolidated earlier in the file). */
