@@ -102,6 +102,8 @@ const Profile: React.FC = () => {
     });
   }, [checkAuth]);
 
+  // The `checkAuth` and `loadProfile` functions are declared above using useCallback.
+  // Keep those implementations (for stable references) and avoid redeclaring them here.
 
   const handleSave = async () => {
     if (!user) return;
