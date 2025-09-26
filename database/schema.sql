@@ -1,4 +1,4 @@
--- Apartment Scraping Framework Database Schema for Hetzner PostgreSQL
+-- Apartment Scraping Framework Database Schema for PostgreSQL
 -- Optimized for high-performance apartment data storage and analytics
 
 -- Enable extensions

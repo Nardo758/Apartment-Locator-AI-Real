@@ -53,19 +53,22 @@
 
 ## Week 2: Infrastructure Foundation ✅ $500
 
-### Day 1-2: Hetzner Server Setup
-- [ ] Provision Hetzner CX21 VPS (4 vCPU, 8GB RAM)
-- [ ] Configure Ubuntu 22.04 LTS
-- [ ] Set up SSH key-based authentication
-- [ ] Configure firewall (UFW):
-  ```bash
-  ufw allow 22/tcp  # SSH
-  ufw allow 80/tcp  # HTTP
-  ufw allow 443/tcp # HTTPS
-  ufw allow 5432/tcp # PostgreSQL (restrict to app server)
+### Day 1-2: Supabase Setup (replaces Hetzner server steps)
+- [ ] Create a Supabase project for production
+- [ ] Configure the Supabase database (Postgres) and enable required extensions:
+  ```sql
+  CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+  CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+  CREATE EXTENSION IF NOT EXISTS "btree_gin";
+  CREATE EXTENSION IF NOT EXISTS "postgis";
   ```
-- [ ] Install fail2ban for security
-- [ ] Create non-root user with sudo privileges
+- [ ] Create a service role key for server-side operations and store it securely
+- [ ] Add environment variables to your deployment platform (Vercel, Netlify, or similar):
+  - REACT_APP_SUPABASE_URL
+  - REACT_APP_SUPABASE_ANON_KEY
+  - SUPABASE_SERVICE_ROLE_KEY (server-side only)
+- [ ] Set up database backups (Supabase has managed backups; configure retention as needed)
+- [ ] Configure access rules and row level security policies for your tables
 
 ### Day 3: Database Installation
 - [ ] Install PostgreSQL 15:
