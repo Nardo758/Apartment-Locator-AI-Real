@@ -1,7 +1,9 @@
+// @ts-nocheck
+// This function is intended to run on Deno (Supabase Functions). Disable TS checking here to avoid Node/Bundler TypeScript errors in the repo tooling.
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
-import type { OfferEmailRequest, AISuggestions } from '../../types'
+import type { OfferEmailRequestLocal as OfferEmailRequest, AISuggestionsLocal as AISuggestions } from '../../types-local'
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 

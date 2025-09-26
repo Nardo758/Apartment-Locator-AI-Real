@@ -90,13 +90,14 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
           <h4 className="text-foreground text-lg font-semibold">{property.address}</h4>
           <button
             onClick={handleFavorite}
+            aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
             className={`p-1.5 rounded-lg transition-all duration-200 ${
               isFavorited 
                 ? 'text-red-500 bg-red-500/10 border border-red-500/20' 
                 : 'text-muted-foreground hover:text-red-500 hover:bg-red-500/5'
             }`}
           >
-            <Heart size={16} className={isFavorited ? 'fill-current' : ''} />
+            <Heart size={16} className={isFavorited ? 'fill-current' : ''} aria-hidden="true" />
           </button>
         </div>
         <div className="text-red-400 text-sm font-medium">

@@ -264,7 +264,7 @@ const RenterIntelligence = () => {
       </div>
 
       {/* Renter Dashboard Component */}
-      <div className={`${designSystem.animations.entrance}`} style={{ animationDelay: '300ms' }}>
+  <div className={`${designSystem.animations.entrance} delay-300`}>
         <RenterDashboard 
           properties={mockApartmentData}
         />
