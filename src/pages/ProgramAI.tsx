@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { usePropertyState } from '@/contexts/PropertyStateContext';
+import { usePropertyState } from '@/contexts';
 import { Brain, MapPin, Target, Clock, Home, DollarSign, Heart, X, Plus, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import Header from '@/components/Header';

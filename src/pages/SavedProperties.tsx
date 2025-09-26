@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Search, ArrowLeft, Star, MapPin } from 'lucide-react';
-import { usePropertyState } from '@/contexts/PropertyStateContext';
+import { usePropertyState } from '@/contexts';
 import { mockProperties } from '@/data/mockData';
 import PropertyCard from '@/components/PropertyCard';
 import { Button } from '@/components/ui/button';

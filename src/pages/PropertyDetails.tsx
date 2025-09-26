@@ -34,7 +34,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { mockProperties, type Property } from '@/data/mockData';
-import { usePropertyState } from '@/contexts/PropertyStateContext';
+import { usePropertyState } from '@/contexts';
 import { ApartmentIQAI, SampleDataFactory } from '@/lib/apartmentiq-ai';
 import { AlgorithmAnalyticsTracker } from '@/lib/analytics-architecture-audit';
 import { toast } from '@/hooks/use-toast';
