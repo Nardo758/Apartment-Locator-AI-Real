@@ -19,6 +19,8 @@ jobs:
         run: |
           missing=0
           if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then echo "VERCEL_TOKEN is missing"; missing=1; fi
+          if [ -z "${{ secrets.VERCEL_ORG_ID }}" ]; then echo "VERCEL_ORG_ID is missing"; missing=1; fi
+          if [ -z "${{ secrets.VERCEL_PROJECT_ID }}" ]; then echo "VERCEL_PROJECT_ID is missing"; missing=1; fi
           if [ -z "${{ secrets.REACT_APP_SUPABASE_URL }}" ]; then echo "REACT_APP_SUPABASE_URL is missing"; missing=1; fi
           if [ -z "${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}" ]; then echo "REACT_APP_SUPABASE_ANON_KEY is missing"; missing=1; fi
           if [ -z "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" ]; then echo "SUPABASE_SERVICE_ROLE_KEY is missing"; missing=1; fi
