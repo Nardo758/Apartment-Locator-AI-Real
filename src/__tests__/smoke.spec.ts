@@ -1,8 +1,13 @@
-import fetch from 'node-fetch'
+const http = require('http')
 
-test('index serves HTML', async () => {
-  const res = await fetch('http://localhost:8080/')
-  expect(res.status).toBe(200)
-  const text = await res.text()
-  expect(text).toMatch(/<html/i)
+test('index serves HTML', (done) => {
+  http.get('http://localhost:8080/', (res) => {
+    expect(res.statusCode).toBe(200)
+    let data = ''
+    res.on('data', (chunk) => { data += chunk })
+    res.on('end', () => {
+      expect(/<html/i.test(data)).toBeTruthy()
+      done()
+    })
+  }).on('error', (err) => { done(err) })
 })
