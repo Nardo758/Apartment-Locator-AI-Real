@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
-import { usePropertyState } from '@/contexts/PropertyStateContext';
+import { usePropertyState } from '@/contexts';
 
 interface BreadcrumbItem {
   label: string;
