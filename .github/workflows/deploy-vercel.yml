@@ -32,8 +32,6 @@ jobs:
           # Optional: set these if you prefer to pin org/project (recommended for monorepos)
           # vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           # vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          # The action metadata still lists `zeit-token` as required by some consumers; set it to the same token
-          zeit-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-args: --prod
+          vercel-args: '--prod'
           working-directory: .
         # Using the Vercel GitHub Action for deploys
