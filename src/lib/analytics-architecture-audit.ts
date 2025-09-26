@@ -480,7 +480,7 @@ export class UsageMetricsTracker {
 
   updateMetrics(event: AnalyticsEvent): void {
     switch (event.event_name) {
-      case 'algorithm_decision':
+      case 'algorithm_decision': {
         const decision = event as AlgorithmDecisionEvent;
         this.metrics.total_analyses_performed++;
         this.metrics.average_opportunity_score = 
@@ -491,8 +491,8 @@ export class UsageMetricsTracker {
           this.metrics.high_confidence_predictions++;
         }
         break;
-        
-      case 'user_interaction':
+      }
+      case 'user_interaction': {
         const interaction = event as UserInteractionEvent;
         if (interaction.properties.action === 'view_property') {
           this.metrics.properties_viewed++;
@@ -502,6 +502,7 @@ export class UsageMetricsTracker {
           this.metrics.negotiations_initiated++;
         }
         break;
+      }
     }
   }
 
