@@ -28,20 +28,23 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Link Vercel project (ensure correct scope)
+      - name: Configure Vercel project linkage
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          npx vercel link --yes -t "$VERCEL_TOKEN"
-          test -f .vercel/project.json && cat .vercel/project.json | sed 's/\("token"\s*:\s*\)".*"/\1"***"/' || true
+          mkdir -p .vercel
+          cat > .vercel/project.json <<'JSON'
+          {
+            "orgId": "${{ secrets.VERCEL_ORG_ID }}",
+            "projectId": "${{ secrets.VERCEL_PROJECT_ID }}"
+          }
+          JSON
+          cat .vercel/project.json | sed 's/\("orgId"\s*:\s*\)".*"/\1"***"/; s/\("projectId"\s*:\s*\)".*"/\1"***"/'
 
       - name: Deploy to Vercel (prod)
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          npx vercel --prod --yes -t "$VERCEL_TOKEN" --scope "$VERCEL_ORG_ID" | cat
+          npx vercel --prod --yes -t "$VERCEL_TOKEN" | cat
 
