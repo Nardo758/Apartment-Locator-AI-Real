@@ -52,7 +52,7 @@ export const ClickTracking: React.FC<ClickTrackingProps> = ({
   };
 
   return (
-    <div onClick={handleClick} style={{ cursor: 'pointer' }}>
+    <div onClick={handleClick} className="cursor-pointer">
       {children}
     </div>
   );

@@ -309,3 +309,58 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Utility classes for inline style replacements */
+@layer utilities {
+  .cursor-pointer {
+    cursor: pointer;
+  }
+  
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+  
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+  
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+  
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+  
+  .animation-delay-600 {
+    animation-delay: 600ms;
+  }
+
+  /* Dynamic width utilities for progress bars */
+  .progress-bar {
+    transition: width 0.3s ease-in-out;
+  }
+
+  /* Complex background patterns for map components */
+  .map-grid-pattern {
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(148, 163, 184, 0.15) 1px, transparent 0),
+      linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px, 20px 20px, 20px 20px;
+  }
+
+  .tooltip-top-position {
+    transform: translate(-50%, -100%);
+    margin-top: -8px;
+  }
+
+  .connector-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.3), transparent);
+  }
+}

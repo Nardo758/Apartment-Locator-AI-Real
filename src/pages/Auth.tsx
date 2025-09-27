@@ -220,7 +220,7 @@ const Auth = () => {
           </div>
 
           {/* Right Side - Auth Form */}
-          <div className={`${designSystem.animations.entrance}`} style={{ animationDelay: '300ms' }}>
+          <div className={`${designSystem.animations.entrance} animation-delay-300`}>
             <ModernCard className="max-w-md mx-auto">
               <div className="text-center mb-6">
                 <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">

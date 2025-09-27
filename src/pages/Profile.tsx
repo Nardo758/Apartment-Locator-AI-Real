@@ -53,19 +53,21 @@ const Profile: React.FC = () => {
       }
 
       if (data) {
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        const typedData = data as any;
         setProfile({
           email: (user && user.email) || '',
-          location: data.location || 'Austin, TX',
-          bio: data.bio || '',
-          gross_income: data.budget?.toString() || '',
-          employment_type: data.lifestyle || '',
+          location: typedData.location || 'Austin, TX',
+          bio: typedData.bio || '',
+          gross_income: typedData.budget?.toString() || '',
+          employment_type: typedData.lifestyle || '',
           employer_name: '',
           employment_duration: '',
           job_title: '',
-          current_rent: data.budget?.toString() || '',
+          current_rent: typedData.budget?.toString() || '',
           credit_score: '',
-          bank_verified: data.has_completed_ai_programming || false,
-          income_verified: data.has_completed_ai_programming || false,
+          bank_verified: typedData.has_completed_ai_programming || false,
+          income_verified: typedData.has_completed_ai_programming || false,
           plaid_account_id: '',
           plaid_access_token: ''
         });
@@ -126,7 +128,8 @@ const Profile: React.FC = () => {
     });
     
     try {
-      const { error } = await supabase
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      const { error } = await (supabase as any)
         .from('user_preferences')
         .upsert({
           user_id: user.id,

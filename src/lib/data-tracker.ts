@@ -86,7 +86,8 @@ class DataTracker {
     if (!this.userId) return;
 
     try {
-      await supabase.from('user_sessions').insert({
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      await (supabase as any).from('user_sessions').insert({
         user_id: this.userId,
         session_id: this.sessionId,
         device_info: this.deviceInfo,
@@ -101,7 +102,8 @@ class DataTracker {
     if (!this.userId) return;
 
     try {
-      await supabase
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      await (supabase as any)
         .from('user_sessions')
         .update({
           logout_time: new Date().toISOString(),
@@ -117,7 +119,8 @@ class DataTracker {
     if (!this.userId) return;
 
     try {
-      await supabase.from('user_activity_logs').insert({
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      await (supabase as any).from('user_activity_logs').insert({
         user_id: this.userId,
         session_id: this.sessionId,
         activity_type: data.activityType,
@@ -166,7 +169,8 @@ class DataTracker {
     if (!this.userId) return;
 
     try {
-      await supabase.from('user_content_logs').insert({
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      await (supabase as any).from('user_content_logs').insert({
         session_id: this.sessionId,
         content_type: data.contentType,
         content_id: data.contentId,
