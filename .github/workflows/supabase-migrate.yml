@@ -26,6 +26,8 @@ jobs:
         run: |
           curl -fsSL https://github.com/supabase/cli/raw/main/install.sh | sh
           echo "$HOME/.supabase/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.supabase/bin:$PATH"
+          supabase --version
 
       - name: Confirm and apply migrations
         env:
@@ -33,5 +35,6 @@ jobs:
           REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
         run: |
           if [ "${{ github.event.inputs.confirm }}" != "YES" ]; then echo "Migration not confirmed. Re-run and set confirm=YES to apply."; exit 1; fi
+          export PATH="$HOME/.supabase/bin:$PATH"
           supabase --version
           supabase db push --yes
