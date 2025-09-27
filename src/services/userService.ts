@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/supabase/types';
+import type { Database } from '../../supabase/types';
 
 export class UserService {
   async saveUserPreferences(userId: string, preferences: Record<string, unknown>) {
@@ -9,7 +9,7 @@ export class UserService {
         user_id: userId,
         ...preferences,
         updated_at: new Date().toISOString()
-      })
+      } as Database['public']['Tables']['user_preferences']['Insert'])
       .select()
       .single();
 

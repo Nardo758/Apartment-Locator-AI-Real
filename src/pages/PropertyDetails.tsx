@@ -553,7 +553,7 @@ const PropertyDetails: React.FC = () => {
               >
                 <div className="text-center mb-6">
                   <div className="text-4xl font-bold text-blue-600 mb-2">
-                    {Math.round(aiAnalysis.opportunityScore || 0)}%
+                    {Math.round(aiAnalysis.opportunityScore)}%
                   </div>
                   <div className="text-sm text-muted-foreground mb-3">Opportunity Score</div>
                   <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
@@ -564,9 +564,9 @@ const PropertyDetails: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
                     <span>Success Rate</span>
-                    <span className="font-medium">{Math.round((aiAnalysis.successRate || 0) * 100)}%</span>
+                    <span className="font-medium">{Math.round(aiAnalysis.successRate * 100)}%</span>
                   </div>
-                  <Progress value={(aiAnalysis.successRate || 0) * 100} className="h-3" />
+                  <Progress value={aiAnalysis.successRate * 100} className="h-3" />
                 </div>
                 
                 <div className="mt-4 p-4 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
