@@ -22,12 +22,12 @@ jobs:
         
     - name: Install Supabase CLI
       run: |
-        # Use the same installer approach already used in the repo's other workflows
-        # This installs under $HOME/.supabase/bin and is portable on the hosted runner
-        curl -fsSL https://github.com/supabase/cli/raw/main/install.sh | sh
-        echo "$HOME/.supabase/bin" >> $GITHUB_PATH
-        export PATH="$HOME/.supabase/bin:$PATH"
-        supabase --version
+        set -e
+        echo "Try installing Supabase CLI locally via npm"
+        npm install supabase@latest --no-save
+        # Add local node_modules bin to PATH for subsequent steps
+        echo "$(pwd)/node_modules/.bin" >> $GITHUB_PATH
+        npx supabase --version
         
     - name: Deploy migrations
       env:
