@@ -9,6 +9,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
+    "lint:ci": "eslint . --max-warnings=0",
+    "ci": "npm run lint:ci && npm run typecheck",
     "preview": "vite preview",
     "test": "jest",
     "test:ci": "jest --runInBand --reporters=default",
