@@ -1,19 +1,22 @@
 import { supabase } from "@/integrations/supabase/client"
 import type { Database } from '@/supabase/types';
+import { exportRequestsTable, type ExportRequestRow, type ExportRequestInsert, type ExportRequestUpdate } from '@/lib/supabase-types'
 
 export class UserDataExportService {
   async exportUserData(userId: string, exportType: string, format: string) {
     // Create export record
-    const { data: exportRecord, error: exportError } = await (supabase as any)
-      .from('data_export_requests')
-      .insert({
+    const insertPayload: ExportRequestInsert = {
         user_id: userId,
         export_type: exportType,
         export_format: format,
         status: 'processing',
         delivery_method: 'download',
         data_categories: [exportType]
-      })
+    }
+
+    const { data: exportRecord, error: exportError } = await supabase
+      .from(exportRequestsTable)
+      .insert(insertPayload)
       .select()
       .single()
 
@@ -47,28 +50,30 @@ export class UserDataExportService {
       const fileName = `user_export_${exportType}_${Date.now()}.${format}`
 
       // Update export record
-      await (supabase as any)
-        .from('data_export_requests')
-        .update({
+      const updatePayload: ExportRequestUpdate = {
           status: 'completed',
           file_url: fileName,
           progress_percentage: 100,
           updated_at: new Date().toISOString()
-        })
-        .eq('id', (exportRecord as any).id)
+      }
+      await supabase
+        .from(exportRequestsTable)
+        .update(updatePayload)
+        .eq('id', (exportRecord as ExportRequestRow).id)
 
-      return { fileName, fileContent, exportId: (exportRecord as any).id }
+      return { fileName, fileContent, exportId: (exportRecord as ExportRequestRow).id }
 
     } catch (error) {
       // Mark export as failed
-      await (supabase as any)
-        .from('data_export_requests')
-        .update({ 
+      const failPayload: ExportRequestUpdate = { 
           status: 'failed',
           error_message: error instanceof Error ? error.message : 'Export failed',
           updated_at: new Date().toISOString()
-        })
-        .eq('id', (exportRecord as any).id)
+      }
+      await supabase
+        .from(exportRequestsTable)
+        .update(failPayload)
+        .eq('id', (exportRecord as ExportRequestRow).id)
       throw error
     }
   }

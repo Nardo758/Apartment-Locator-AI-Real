@@ -3,7 +3,7 @@ import type { Database } from '@/supabase/types';
 
 export class UserService {
   async saveUserPreferences(userId: string, preferences: Record<string, unknown>) {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('user_preferences')
       .upsert({
         user_id: userId,
@@ -29,7 +29,7 @@ export class UserService {
   }
 
   async saveUserProfile(userId: string, profile: Record<string, unknown>) {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('user_preferences') // Using user_preferences instead of user_profiles
       .upsert({
         user_id: userId,

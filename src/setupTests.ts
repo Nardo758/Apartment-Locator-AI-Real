@@ -28,30 +28,24 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-// Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
-  observe() {
-    return null;
-  }
-  disconnect() {
-    return null;
-  }
-  unobserve() {
-    return null;
-  }
-};
+// Mock IntersectionObserver (typed)
+class MockIntersectionObserver implements IntersectionObserver {
+  readonly root: Element | Document | null = null;
+  readonly rootMargin: string = '';
+  readonly thresholds: ReadonlyArray<number> = [];
+  constructor(_: IntersectionObserverCallback, __?: IntersectionObserverInit) {}
+  disconnect(): void {}
+  observe(_: Element): void {}
+  takeRecords(): IntersectionObserverEntry[] { return []; }
+  unobserve(_: Element): void {}
+}
+(global as unknown as { IntersectionObserver: typeof IntersectionObserver }).IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
 
-// Mock ResizeObserver
-global.ResizeObserver = class ResizeObserver {
-  constructor() {}
-  observe() {
-    return null;
-  }
-  disconnect() {
-    return null;
-  }
-  unobserve() {
-    return null;
-  }
-};
+// Mock ResizeObserver (typed)
+class MockResizeObserver implements ResizeObserver {
+  constructor(_: ResizeObserverCallback) {}
+  disconnect(): void {}
+  observe(_: Element, __?: ResizeObserverOptions): void {}
+  unobserve(_: Element): void {}
+}
+(global as unknown as { ResizeObserver: typeof ResizeObserver }).ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
