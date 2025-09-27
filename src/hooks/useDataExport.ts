@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from '@/supabase/types'
 import { useToast } from '@/hooks/use-toast';
 
 export interface ExportRequest {
@@ -44,12 +45,13 @@ export const useDataExport = () => {
         throw new Error('User must be authenticated to request data export');
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_export_requests')
         .insert([{
           user_id: session.user.id,
           export_type: request.exportType,
           export_format: request.exportFormat,
+          status: 'processing',
           data_categories: request.dataCategories,
           date_range_start: request.dateRangeStart,
           date_range_end: request.dateRangeEnd,
@@ -67,7 +69,7 @@ export const useDataExport = () => {
 
       // Trigger background processing
       await supabase.functions.invoke('process-data-export', {
-        body: { exportId: data.id }
+        body: { exportId: (data as Database['public']['Tables']['data_export_requests']['Row']).id }
       });
 
       return data;
@@ -85,13 +87,13 @@ export const useDataExport = () => {
 
   const getExportHistory = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_export_requests')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setExports((data || []) as ExportStatus[]);
+      setExports(((data || []) as unknown) as ExportStatus[]);
       return data;
     } catch (error) {
       toast({
@@ -105,7 +107,7 @@ export const useDataExport = () => {
 
   const getExportStatus = async (exportId: string) => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_export_requests')
         .select('*')
         .eq('id', exportId)
@@ -125,7 +127,7 @@ export const useDataExport = () => {
 
   const downloadExport = async (exportId: string) => {
     try {
-      const status = await getExportStatus(exportId);
+      const status = await getExportStatus(exportId) as Database['public']['Tables']['data_export_requests']['Row'] | null;
       if (!status?.file_url) {
         throw new Error('Export file not available');
       }
@@ -153,7 +155,7 @@ export const useDataExport = () => {
 
   const deleteExport = async (exportId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('data_export_requests')
         .delete()
         .eq('id', exportId);

@@ -13,12 +13,14 @@ interface DropdownMenuTriggerProps {
 interface DropdownMenuContentProps {
   children: React.ReactNode;
   className?: string;
+  align?: 'start' | 'end' | 'center';
 }
 
 interface DropdownMenuItemProps {
   children: React.ReactNode;
   onClick?: () => void;
   className?: string;
+  asChild?: boolean;
 }
 
 interface DropdownMenuSeparatorProps {
@@ -100,13 +102,24 @@ const DropdownMenuContent: React.FC<DropdownMenuContentProps> = ({ children, cla
   );
 };
 
-const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({ children, onClick, className }) => {
+const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({ children, onClick, className, asChild }) => {
   const { setIsOpen } = React.useContext(DropdownMenuContext);
 
   const handleClick = () => {
     onClick?.();
     setIsOpen(false);
   };
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement, {
+      onClick: handleClick,
+      className: cn(
+        "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+        (children as any).props?.className,
+        className
+      )
+    });
+  }
 
   return (
     <div

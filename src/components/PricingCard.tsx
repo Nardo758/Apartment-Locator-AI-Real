@@ -38,12 +38,12 @@ export const PricingCard: React.FC<PricingCardProps> = ({
       });
 
       if (error) {
-        throw error;
+        throw error as Error;
       }
 
       if (data?.url) {
         // Redirect to Stripe Checkout
-        window.location.href = data.url;
+        window.location.href = data.url as string;
       } else {
         throw new Error('No checkout URL received');
       }
@@ -52,7 +52,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
       toast({
         variant: "destructive",
         title: "Payment Error",
-        description: error.message || "Failed to create checkout session. Please try again."
+        description: (error instanceof Error ? error.message : String(error)) || "Failed to create checkout session. Please try again."
       });
     } finally {
       setIsLoading(false);

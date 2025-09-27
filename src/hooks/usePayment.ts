@@ -47,19 +47,19 @@ export const usePayment = () => {
       });
 
       if (error) {
-        throw error;
+        throw error as Error;
       }
 
       if (data?.url) {
         // Open Stripe checkout in a new tab
-        window.open(data.url, '_blank');
+        window.open(data.url as string, '_blank');
         
         toast({
           title: "Payment Started",
           description: "You've been redirected to our secure payment page."
         });
         
-        return data.url;
+        return data.url as string;
       } else {
         throw new Error('No checkout URL received');
       }
@@ -68,7 +68,7 @@ export const usePayment = () => {
       toast({
         variant: "destructive",
         title: "Payment Error",
-        description: error.message || "Failed to create payment session. Please try again."
+        description: (error instanceof Error ? error.message : String(error)) || "Failed to create payment session. Please try again."
       });
       return null;
     } finally {
