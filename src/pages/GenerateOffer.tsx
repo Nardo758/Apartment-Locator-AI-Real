@@ -466,8 +466,8 @@ const GenerateOffer = () => {
                                   />
                                 </FormControl>
                                 <div>
-                                  <FormLabel className="text-sm font-medium text-foreground">First Month Free</FormLabel>
-                                  <p className="text-xs text-muted-foreground">Waive first month rent ($2,850 value)</p>
+                                  <FormLabel htmlFor="firstMonthFree" className="text-sm font-medium text-foreground">First Month Free</FormLabel>
+                                  <p id="firstMonthFree-description" className="text-xs text-muted-foreground">Waive first month rent ($2,850 value)</p>
                                 </div>
                               </div>
                               <span className="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/20">
@@ -493,7 +493,7 @@ const GenerateOffer = () => {
                                   />
                                 </FormControl>
                                 <div>
-                                  <FormLabel className="text-sm font-medium text-foreground">Reduced Security Deposit</FormLabel>
+                                  <FormLabel htmlFor="reducedDeposit" className="text-sm font-medium text-foreground">Reduced Security Deposit</FormLabel>
                                   <p className="text-xs text-muted-foreground">Lower deposit to $500 from standard $1,000</p>
                                 </div>
                               </div>
@@ -520,8 +520,8 @@ const GenerateOffer = () => {
                                   />
                                 </FormControl>
                                 <div>
-                                  <FormLabel className="text-sm font-medium text-foreground">Waived Application Fee</FormLabel>
-                                  <p className="text-xs text-muted-foreground">Application processing fee waived ($200 value)</p>
+                                  <FormLabel htmlFor="waiveAppFee" className="text-sm font-medium text-foreground">Waived Application Fee</FormLabel>
+                                  <p id="waiveAppFee-description" className="text-xs text-muted-foreground">Application processing fee waived ($200 value)</p>
                                 </div>
                               </div>
                               <span className="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full border border-green-500/20">

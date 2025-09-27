@@ -19,7 +19,7 @@ import { ModernPageLayout } from '@/components/modern/ModernPageLayout';
 import { designSystem } from '@/lib/design-system';
 import EnhancedSearchSettings, { SearchSettings } from '@/components/LocationIntelligence/EnhancedSearchSettings';
 import { dataTracker } from '@/lib/data-tracker';
-import { Json } from '@/integrations/supabase/types';
+import { Json } from '../../supabase/types';
 
 interface AIPreferences {
   // Housing
@@ -309,7 +309,8 @@ const ProgramAI = () => {
         return;
       }
 
-        const { error } = await supabase
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        const { error } = await (supabase as any)
           .from('user_preferences')
           .upsert({
             user_id: user.id,

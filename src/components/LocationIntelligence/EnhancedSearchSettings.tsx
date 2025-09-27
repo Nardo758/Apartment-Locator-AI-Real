@@ -11,7 +11,7 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { dataTracker } from '@/lib/data-tracker';
-import type { Json } from '@/integrations/supabase/types';
+import type { Json } from '../../../supabase/types';
 
 interface SearchSettingsProps {
   onSettingsChange?: (settings: SearchSettings) => void;

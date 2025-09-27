@@ -7,8 +7,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/supabase/*": ["./supabase/*"]
     },
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "noUnusedParameters": false,
     "skipLibCheck": true,

@@ -42,19 +42,20 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             {/* Property Image */}
             <div className="relative">
                 <img 
-                    src={property.image} 
-                    alt={property.title}
+                    src={property.images?.[0] || '/placeholder.svg'} 
+                    alt={property.name}
                     className="w-full h-48 object-cover"
                 />
                 <button
                     onClick={handleFavorite}
                     className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
+                    aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
                 >
                     <Heart 
                         className={`w-5 h-5 ${isFavorited ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
                     />
                 </button>
-                {property.isAvailableSoon && (
+                {property.availabilityType === 'soon' && (
                     <div className="absolute top-3 left-3 bg-blue-500 text-white px-2 py-1 rounded text-sm font-medium">
                         Available Soon
                     </div>
@@ -64,23 +65,23 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             {/* Property Details */}
             <div className="p-4">
                 <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">{property.title}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">{property.name}</h3>
                     <span className="text-xl font-bold text-green-600">
-                        ${property.price.toLocaleString()}
+                        ${property.aiPrice.toLocaleString()}
                     </span>
                 </div>
 
                 <div className="flex items-center text-gray-600 mb-2">
                     <MapPin className="w-4 h-4 mr-1" />
-                    <span className="text-sm">{property.location}</span>
+                    <span className="text-sm">{property.address}</span>
                 </div>
 
                 <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
                     <div className="flex items-center">
                         <Clock className="w-4 h-4 mr-1" />
-                        <span>{property.availableDate}</span>
+                        <span>{property.availability}</span>
                     </div>
-                    {property.instantBookable && (
+                    {property.features?.includes('instant-book') && (
                         <div className="flex items-center text-green-600">
                             <Zap className="w-4 h-4 mr-1" />
                             <span>Instant Book</span>
@@ -91,9 +92,20 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                 {/* Expandable Content */}
                 {isExpanded && (
                     <div className="mt-4 border-t pt-4">
-                        <p className="text-gray-700 mb-4">{property.description}</p>
+                        <div className="text-gray-700 mb-4">
+                            <p><strong>Bedrooms:</strong> {property.bedrooms}</p>
+                            <p><strong>Bathrooms:</strong> {property.bathrooms}</p>
+                            <p><strong>Square Feet:</strong> {property.sqft?.toLocaleString()}</p>
+                        </div>
                         
-                        <PricingBreakdown property={property} />
+                        <PricingBreakdown 
+                            originalPrice={property.originalPrice}
+                            aiPrice={property.aiPrice}
+                            effectivePrice={property.effectivePrice}
+                            concessions={0}
+                            successRate={property.successRate}
+                            monthlySavings={property.savings}
+                        />
                         
                         <button
                             onClick={handleViewDetails}
