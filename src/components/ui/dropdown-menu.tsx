@@ -55,7 +55,7 @@ const DropdownMenuTrigger: React.FC<DropdownMenuTriggerProps> = ({ children, asC
   };
 
   if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children, {
+    return React.cloneElement(children as React.ReactElement, {
       onClick: handleClick,
     });
   }
@@ -111,11 +111,12 @@ const DropdownMenuItem: React.FC<DropdownMenuItemProps> = ({ children, onClick, 
   };
 
   if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement, {
+    const child = children as React.ReactElement<{ className?: string; onClick?: () => void }>;
+    return React.cloneElement(child, {
       onClick: handleClick,
       className: cn(
         "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-        (children as any).props?.className,
+        child.props.className,
         className
       )
     });

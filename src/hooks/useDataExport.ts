@@ -45,7 +45,7 @@ export const useDataExport = () => {
         throw new Error('User must be authenticated to request data export');
       }
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('data_export_requests')
         .insert([{
           user_id: session.user.id,
@@ -87,7 +87,7 @@ export const useDataExport = () => {
 
   const getExportHistory = async () => {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('data_export_requests')
         .select('*')
         .order('created_at', { ascending: false });
@@ -107,7 +107,7 @@ export const useDataExport = () => {
 
   const getExportStatus = async (exportId: string) => {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('data_export_requests')
         .select('*')
         .eq('id', exportId)
@@ -155,7 +155,7 @@ export const useDataExport = () => {
 
   const deleteExport = async (exportId: string) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('data_export_requests')
         .delete()
         .eq('id', exportId);
