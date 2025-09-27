@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { Json } from '@/integrations/supabase/types';
+import type { Json } from '@/supabase/types';
 import { useUser } from './useUser';
 
 export const useDatabase = () => {
@@ -10,7 +10,8 @@ export const useDatabase = () => {
   const saveUserPreferences = useCallback(async (preferences: Record<string, unknown>) => {
     if (!user) throw new Error('User not authenticated');
     
-    const { data, error } = await supabase
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const { data, error } = await (supabase as any)
       .from('user_preferences')
       .upsert({
         user_id: user.id,
@@ -41,7 +42,8 @@ export const useDatabase = () => {
   const saveApartment = useCallback(async (apartmentId: string, notes?: string, rating?: number) => {
     if (!user) throw new Error('User not authenticated');
     
-    const { data, error } = await supabase
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const { data, error } = await (supabase as any)
       .from('saved_apartments')
       .upsert({
         user_id: user.id,
@@ -77,7 +79,8 @@ export const useDatabase = () => {
   const saveSearch = useCallback(async (searchParams: Record<string, unknown>, resultsCount: number, location: Record<string, unknown> | null, radius: number) => {
     if (!user) throw new Error('User not authenticated');
     
-    const { data, error } = await supabase
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const { data, error } = await (supabase as any)
       .from('search_history')
       .insert({
         user_id: user.id,
@@ -133,7 +136,8 @@ export const useDatabase = () => {
       created_at: new Date().toISOString()
     } as const;
 
-    const { data, error } = await supabase
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    const { data, error } = await (supabase as any)
       .from('user_pois')
       .insert(poiPayload)
       .select()

@@ -1,6 +1,6 @@
 // This file is generated but safe to edit: it initializes the Supabase client
 import { createClient } from '@supabase/supabase-js'
-import type { SupabaseUser, Database } from '@/../supabase/types'
+import type { SupabaseUser, Database } from '@/supabase/types'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.REACT_APP_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''

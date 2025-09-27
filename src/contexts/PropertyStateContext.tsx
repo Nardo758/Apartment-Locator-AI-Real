@@ -7,8 +7,7 @@ import { PropertyStateContext } from './property-state-context'
 import { PropertyStateContextType } from './PropertyStateContextTypes'
 
 // Component-only entrypoint to preserve fast-refresh behavior during development.
-// Hooks and helper re-exports live in `src/contexts/index.ts` so consumer code can
-// import both from '@/contexts' without exposing non-component symbols here.
+// For hooks, import from '@/contexts' or '@/contexts/PropertyState' instead.
 
 export const PropertyStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);

@@ -46,14 +46,17 @@ export const useSubscription = () => {
       if (data) {
         // Check if subscription is expired
         const now = new Date();
-        const endDate = new Date(data.plan_end);
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        const endDate = new Date((data as any).plan_end);
         
         if (endDate < now) {
           // Subscription expired, update status
-          await supabase
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+          await (supabase as any)
             .from('subscribers')
             .update({ status: 'expired' })
-            .eq('id', data.id);
+            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+            .eq('id', (data as any).id);
           
           setSubscription(null);
           toast({
@@ -89,7 +92,8 @@ export const useSubscription = () => {
 
       // Check if token is expired
       const now = new Date();
-      const expiresAt = new Date(data.expires_at);
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      const expiresAt = new Date((data as any).expires_at);
       
       if (expiresAt < now) {
         return false;

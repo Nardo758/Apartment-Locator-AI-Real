@@ -24,6 +24,13 @@ jobs:
           if [ -z "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" ]; then echo "SUPABASE_SERVICE_ROLE_KEY is missing"; missing=1; fi
           if [ "$missing" -eq 1 ]; then exit 1; fi
 
+      - name: Install Supabase CLI
+        run: |
+          curl -fsSL https://github.com/supabase/cli/raw/main/install.sh | sh
+          echo "$HOME/.supabase/bin" >> $GITHUB_PATH
+
+      # Supabase migrations have been moved to a manual workflow (supabase-migrate.yml).
+
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v20
         with:
@@ -32,4 +39,6 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod --yes'
           working-directory: .
-        # Using the Vercel GitHub Action for deploys
+        env:
+          REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}

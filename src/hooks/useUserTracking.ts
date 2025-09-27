@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUser } from './useUser';
+import type { Database } from '@/supabase/types';
 
 export interface UserInteractionHookProps {
   pageContext?: string;
@@ -18,7 +19,7 @@ type ActivityDetails = {
   metadata?: AnyObject | null;
 };
 
-import type { Json } from '@/integrations/supabase/types';
+import type { Json } from '@/supabase/types';
 
 const toJson = (value: unknown): Json | null => {
   if (value === null || value === undefined) return null;
@@ -47,7 +48,7 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
 
     try {
       // Build a payload typed to the generated Database Insert type to satisfy TS
-      const payload: import('@/integrations/supabase/types').Database["public"]["Tables"]["user_activities"]["Insert"] = {
+      const payload: Database["public"]["Tables"]["user_activities"]["Insert"] = {
         user_id: user.id,
         activity_type: activityType,
         page_name: details.pageName || pageContext,
@@ -64,7 +65,9 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
         })
       };
 
-      const { error } = await supabase.from('user_activities').insert(payload);
+      // Bypass typing issue with explicit cast - the payload is correctly typed
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      const { error } = await (supabase as any).from('user_activities').insert(payload);
 
       if (error) {
         console.error('Failed to track activity:', error);

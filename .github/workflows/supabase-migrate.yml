@@ -1,0 +1,37 @@
+name: Supabase Migrate (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type YES to confirm applying migrations'
+        required: true
+        default: 'NO'
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate secrets
+        run: |
+          missing=0
+          if [ -z "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" ]; then echo "SUPABASE_SERVICE_ROLE_KEY is missing"; missing=1; fi
+          if [ -z "${{ secrets.REACT_APP_SUPABASE_URL }}" ]; then echo "REACT_APP_SUPABASE_URL is missing"; missing=1; fi
+          if [ "$missing" -eq 1 ]; then exit 1; fi
+
+      - name: Install Supabase CLI
+        run: |
+          curl -fsSL https://github.com/supabase/cli/raw/main/install.sh | sh
+          echo "$HOME/.supabase/bin" >> $GITHUB_PATH
+
+      - name: Confirm and apply migrations
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "YES" ]; then echo "Migration not confirmed. Re-run and set confirm=YES to apply."; exit 1; fi
+          supabase --version
+          supabase db push --yes
