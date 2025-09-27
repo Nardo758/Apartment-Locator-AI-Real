@@ -10,9 +10,6 @@ on:
 jobs:
   deploy-database:
     runs-on: ubuntu-latest
-    env:
-      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
     
     steps:
     - name: Checkout code
@@ -25,16 +22,35 @@ jobs:
         
     - name: Install Supabase CLI
       run: |
-        # Install via npm which is available on the runner
-        npm install -g supabase
-        # verify
+        set -e
+        echo "Attempting to download supabase CLI binary from GitHub Releases"
+        # try several likely binary names (some releases use different names)
+        URL_BASE="https://github.com/supabase/cli/releases/latest/download"
+        CANDIDATES=("supabase-linux-x64" "supabase-linux-amd64" "supabase")
+        FOUND=""
+        for name in "${CANDIDATES[@]}"; do
+          url="$URL_BASE/$name"
+          echo "Trying $url"
+          if curl -fsSL --head "$url" >/dev/null 2>&1; then
+            echo "Downloading $url"
+            curl -fsSL -o supabase "$url"
+            FOUND="yes"
+            break
+          fi
+        done
+        if [ -z "$FOUND" ]; then
+          echo "Could not find supabase CLI binary at releases; exiting"
+          exit 1
+        fi
+        chmod +x supabase
+        sudo mv supabase /usr/local/bin/supabase
         supabase --version
         
     - name: Deploy migrations
+      env:
+        SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+        SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       run: |
-        # set shell variables from Secrets
-        SUPABASE_PROJECT_ID="${{ secrets.SUPABASE_PROJECT_ID }}"
-        SUPABASE_ACCESS_TOKEN="${{ secrets.SUPABASE_ACCESS_TOKEN }}"
         echo "Linking to Supabase project: $SUPABASE_PROJECT_ID"
         supabase link --project-ref "$SUPABASE_PROJECT_ID"
         supabase db push --yes
