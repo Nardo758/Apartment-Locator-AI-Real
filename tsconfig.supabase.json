@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2020"],
+    "target": "es2020",
+    "module": "es2020",
+    "moduleResolution": "bundler",
+    "types": ["deno.ns"],
+    "strict": true,
+    "noEmit": true
+  },
+  "include": [
+    "supabase/functions/**/*.ts",
+    "supabase/functions/**/*.js",
+    "supabase/**/*.d.ts"
+  ],
+  "exclude": [
+    "src/**/*",
+    "node_modules",
+    "dist"
+  ]
+}

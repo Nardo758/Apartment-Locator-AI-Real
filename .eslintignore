@@ -1,0 +1,11 @@
+# Ignore Supabase server-side functions (Deno types, Response, Request, etc.)
+supabase/functions/**
+
+# Build output
+/dist
+
+# Types generated artifacts
+supabase/types-generated.ts
+
+# Node temporary files
+node_modules
