@@ -5,7 +5,7 @@ export class UserDataExportService {
   async exportUserData(userId: string, exportType: string, format: string) {
     // Create export record
     const { data: exportRecord, error: exportError } = await supabase
-      .from<Database['public']['Tables']['data_export_requests']['Insert']>('data_export_requests')
+      .from('data_export_requests')
       .insert({
         user_id: userId,
         export_type: exportType,
