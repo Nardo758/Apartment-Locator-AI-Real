@@ -22,28 +22,11 @@ jobs:
         
     - name: Install Supabase CLI
       run: |
-        set -e
-        echo "Attempting to download supabase CLI binary from GitHub Releases"
-        # try several likely binary names (some releases use different names)
-        URL_BASE="https://github.com/supabase/cli/releases/latest/download"
-        CANDIDATES=("supabase-linux-x64" "supabase-linux-amd64" "supabase")
-        FOUND=""
-        for name in "${CANDIDATES[@]}"; do
-          url="$URL_BASE/$name"
-          echo "Trying $url"
-          if curl -fsSL --head "$url" >/dev/null 2>&1; then
-            echo "Downloading $url"
-            curl -fsSL -o supabase "$url"
-            FOUND="yes"
-            break
-          fi
-        done
-        if [ -z "$FOUND" ]; then
-          echo "Could not find supabase CLI binary at releases; exiting"
-          exit 1
-        fi
-        chmod +x supabase
-        sudo mv supabase /usr/local/bin/supabase
+        # Use the same installer approach already used in the repo's other workflows
+        # This installs under $HOME/.supabase/bin and is portable on the hosted runner
+        curl -fsSL https://github.com/supabase/cli/raw/main/install.sh | sh
+        echo "$HOME/.supabase/bin" >> $GITHUB_PATH
+        export PATH="$HOME/.supabase/bin:$PATH"
         supabase --version
         
     - name: Deploy migrations
