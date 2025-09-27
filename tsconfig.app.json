@@ -27,5 +27,6 @@
       "@/supabase/*": ["./supabase/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["supabase/functions/**"]
 }

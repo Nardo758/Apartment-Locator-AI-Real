@@ -1,18 +1,19 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from '@/../supabase/types'
 
-export type JsonObject = Record<string, unknown>;
+export type JsonObject = Json
 
 export interface ActivityData {
   activityType: string;
   pageUrl?: string;
   elementClicked?: string;
-  activityData?: JsonObject;
+  activityData?: Json;
   sessionId: string;
 }
 
 export interface SessionData {
   sessionId: string;
-  deviceInfo: JsonObject;
+  deviceInfo: Json;
   ipAddress?: string;
   userAgent?: string;
 }
@@ -20,7 +21,7 @@ export interface SessionData {
 export interface ContentData {
   contentType: string;
   contentId?: string;
-  contentData?: JsonObject;
+  contentData?: Json;
   action: 'create' | 'update' | 'delete' | 'view';
 }
 
@@ -90,7 +91,7 @@ class DataTracker {
       await (supabase as any).from('user_sessions').insert({
         user_id: this.userId,
         session_id: this.sessionId,
-        device_info: this.deviceInfo,
+        device_info: this.deviceInfo as Json,
         user_agent: navigator.userAgent
       });
     } catch (error) {
@@ -126,8 +127,8 @@ class DataTracker {
         activity_type: data.activityType,
         page_url: data.pageUrl || window.location.href,
         element_clicked: data.elementClicked,
-        activity_data: data.activityData || {},
-        device_info: this.deviceInfo
+        activity_data: (data.activityData || {}) as Json,
+        device_info: this.deviceInfo as Json
       });
     } catch (error) {
       console.error('Failed to track activity:', error);
@@ -160,8 +161,8 @@ class DataTracker {
       activityData: {
         query: payload.query,
         results_count: Array.isArray(payload.results) ? payload.results.length : 0,
-        results: Array.isArray(payload.results) ? payload.results : []
-      }
+        results: Array.isArray(payload.results) ? (payload.results as unknown[]) : []
+      } as Json
     });
   }
 
@@ -174,7 +175,7 @@ class DataTracker {
         session_id: this.sessionId,
         content_type: data.contentType,
         content_id: data.contentId,
-        content_data: data.contentData || {},
+        content_data: (data.contentData || {}) as Json,
         action: data.action
       });
     } catch (error) {
@@ -185,11 +186,11 @@ class DataTracker {
   async trackInteraction(type: string, target: string, data?: JsonObject) {
     await this.trackActivity({
       activityType: 'interaction',
-      activityData: {
+      activityData: ({
         interaction_type: type,
         target,
-        ...data
-      }
+        ...(data as Record<string, unknown>)
+      } as unknown) as Json
     });
   }
 

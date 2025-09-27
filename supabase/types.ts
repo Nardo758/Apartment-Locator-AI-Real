@@ -1,3 +1,4 @@
+
 // Centralized Supabase types used across the repo
 // Generated from database schema and code usage analysis
 
@@ -517,69 +518,48 @@ export interface OrderItem {
   [key: string]: unknown
 }
 
+// Additional types for edge functions - keeping both comprehensive Database interface above
+// and these minimal stubs for edge function compatibility
 export interface ExportRequest {
-  exportId: string
-  user_id?: string
-  user_email?: string
-  data_categories?: string[]
-  date_range_start?: string
-  date_range_end?: string
-  export_format?: 'json' | 'csv' | 'xml'
-  export_type?: string
+  exportId?: string;
+  user_id?: string;
+  user_email?: string;
+  data_categories?: string[];
+  date_range_start?: string;
+  date_range_end?: string;
+  export_type?: string;
+  export_format?: string;
 }
 
+// UserProfile interface is defined above in the comprehensive Database interface
+export interface ActivityItem { [key: string]: any }
+export interface ContentItem { [key: string]: any }
+export interface SessionItem { [key: string]: any }
+export interface OrderItem { [key: string]: any }
+
 export interface UserData {
-  profile?: UserProfile | null
-  activity: ActivityItem[]
-  content: ContentItem[]
-  sessions: SessionItem[]
-  orders: OrderItem[]
+  profile: UserProfile | null;
+  activity: ActivityItem[];
+  content: ContentItem[];
+  sessions: SessionItem[];
+  orders: OrderItem[];
 }
 
 export interface ExportInfo {
-  user_id?: string
-  export_date?: string
-  export_type?: string
-  data_range?: {
-    start?: string
-    end?: string
-  }
-  categories?: string[]
-  total_records?: Record<string, number>
+  user_id?: string;
+  export_date?: string;
+  export_type?: string;
+  data_range?: { start?: string; end?: string };
+  categories?: string[];
+  total_records?: Record<string, number>;
 }
 
-export interface AISuggestionConcession {
-  type?: string
-  description?: string
-  likelihood?: string
-}
-
-export interface AISuggestions {
-  recommendedOffer?: {
-    suggestedRent?: number
-    strategy?: string
-    reasoning?: string
-  }
-  marketAnalysis?: {
-    marketPosition?: string
-    demandLevel?: string
-    competitiveAnalysis?: string
-  }
-  potentialConcessions?: AISuggestionConcession[]
-  timingRecommendations?: {
-    bestTimeToApply?: string
-    reasoning?: string
-  }
-  [key: string]: unknown
-}
-
-export interface OfferEmailRequest {
-  userEmail: string
-  moveInDate: string
-  leaseTerm: number
-  monthlyBudget: number
-  notes?: string
-  propertyId: string
-  propertyDetails?: Record<string, unknown>
-  aiSuggestions?: AISuggestions
-}
+export default {} as const;
+// Bridge module: re-export the generated supabase types and provide small
+// helpers used across the codebase. The authoritative generated types live
+// Compatibility aliases for existing code
+export type User = SupabaseUser
+export type UserPreferences = Database['public']['Tables']['user_preferences']['Row']
+export type UserActivity = Database['public']['Tables']['user_activities']['Row']  
+export type SearchHistory = Database['public']['Tables']['search_history']['Row']
+export type SavedApartment = Database['public']['Tables']['saved_apartments']['Row']

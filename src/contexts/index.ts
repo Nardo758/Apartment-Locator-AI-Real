@@ -1,5 +1,6 @@
-export { PropertyStateProvider } from './PropertyStateProvider'
-export { usePropertyState } from './property-state-hook'
-export * from './PropertyState'
-
-// Central context entrypoint. Import from '@/contexts' for both provider and hooks.
+// Central contexts re-exports. Keep non-component exports here so that
+// component-only files (which are used for fast-refresh) don't expose hooks
+// or other runtime-only symbols.
+export { PropertyStateProvider } from './PropertyStateContext';
+export { usePropertyState } from './property-state-hook';
+export * from './PropertyState';

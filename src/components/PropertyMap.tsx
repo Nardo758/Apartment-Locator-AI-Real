@@ -63,8 +63,7 @@ const PropertyMap: React.FC = () => {
             style={{
               left: `${((poi.lng + 97.8) * 100)}%`,
               top: `${(100 - (poi.lat - 30.2) * 1000)}%`
-            }}
-            title={poi.name}
+            }}title={poi.name}
           >
             <div className="text-2xl hover:scale-110 transition-transform">
               {poi.emoji}
@@ -80,8 +79,7 @@ const PropertyMap: React.FC = () => {
             style={{
               left: `${((property.lng + 97.8) * 100)}%`,
               top: `${(100 - (property.lat - 30.2) * 1000)}%`
-            }}
-            onClick={() => setSelectedProperty(property.id === selectedProperty ? null : property.id)}
+            }}onClick={() => setSelectedProperty(property.id === selectedProperty ? null : property.id)}
           >
             <div className={`w-6 h-6 rounded-full ${getMatchScoreColor(property.matchScore)} border-2 border-background hover:scale-110 transition-transform flex items-center justify-center`}>
               <MapPin size={12} className="text-primary-foreground" />

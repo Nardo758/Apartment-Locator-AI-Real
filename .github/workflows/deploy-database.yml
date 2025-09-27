@@ -1,0 +1,36 @@
+name: Deploy Database
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+  REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install Supabase CLI
+      run: |
+        curl -fsSL https://github.com/supabase/cli/raw/main/install.sh | sh
+        echo "$HOME/.supabase/bin" >> $GITHUB_PATH
+        
+    - name: Verify installation
+      run: supabase --version
+      
+    - name: Login to Supabase
+      run: supabase login --token ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      
+    - name: Link project
+      run: supabase link --project-ref jdymvpasjsdbryatscux
+      
+    - name: Deploy database
+      run: supabase db push

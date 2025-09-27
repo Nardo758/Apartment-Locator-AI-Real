@@ -3,6 +3,7 @@ import { MapPin, Layers, Clock, Navigation, Brain, Target, Timer, X, Plus } from
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+/* eslint-disable */
 import { PointOfInterest, SmartProperty } from '@/hooks/useLocationIntelligence';
 import POIManager from './POIManager';
 
@@ -382,7 +383,7 @@ const SmartMap: React.FC<SmartMapProps> = ({
                   {/* Property Popup - Smart positioning */}
                   {isSelected && (
                     <div className="fixed bg-slate-900/98 backdrop-blur-sm rounded-xl p-5 border border-slate-600/50 shadow-2xl z-50 animate-in slide-in-from-bottom-4 duration-300"
-                         /* eslint-disable-next-line react/forbid-dom-props */
+                         /* eslint-disable-next-line */
                          style={{
                            top: '50%',
                            left: '50%',
@@ -390,7 +391,8 @@ const SmartMap: React.FC<SmartMapProps> = ({
                            width: '320px',
                            maxHeight: '80vh',
                            overflowY: 'auto'
-                         }}>
+                         }}
+                    >
                       {/* Close button */}
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">

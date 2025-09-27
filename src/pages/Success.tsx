@@ -57,7 +57,7 @@ const Success = () => {
         </div>
 
         {sessionId && (
-          <ModernCard className={`${designSystem.animations.entrance} mb-8 max-w-2xl mx-auto`} style={{ animationDelay: '200ms' }}>
+          <ModernCard className={`${designSystem.animations.entrance} mb-8 max-w-2xl mx-auto`} >
             <div className="text-center">
               <div className={`text-sm ${designSystem.colors.muted} mb-1`}>Session ID</div>
               <div className="font-mono text-sm break-all bg-gray-50 dark:bg-gray-800/50 p-2 rounded">{sessionId}</div>

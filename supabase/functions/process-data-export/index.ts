@@ -1,6 +1,8 @@
+// @ts-nocheck
+// This function is intended to run on Deno (Supabase Functions). Disable TS checking here to avoid Node/Bundler TypeScript errors in the repo tooling.
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import type { ExportRequest, UserData, UserProfile, ActivityItem, ContentItem, SessionItem, OrderItem, ExportInfo } from '../../types'
+import type { ExportRequestLocal as ExportRequest, UserDataLocal as UserData, UserProfileLocal as UserProfile, ActivityItemLocal as ActivityItem, ContentItemLocal as ContentItem, SessionItemLocal as SessionItem, OrderItemLocal as OrderItem, ExportInfoLocal as ExportInfo } from '../../types-local'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',

@@ -115,8 +115,7 @@ const Pricing = () => {
           <div
             key={plan.title}
             className={designSystem.animations.entrance}
-            style={{ animationDelay: `${index * 100}ms` }}
-          >
+            style={{ animationDelay: `${index * 100}ms` }}>
             <PricingCard
               title={plan.title}
               price={plan.price}

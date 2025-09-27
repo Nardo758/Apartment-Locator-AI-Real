@@ -134,8 +134,7 @@ const SavedProperties: React.FC = () => {
                 <div
                   key={property.id}
                   className={designSystem.animations.entrance}
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
+                  style={{ animationDelay: `${index * 100}ms` }}>
                   <PropertyCard property={property} />
                 </div>
               ))}

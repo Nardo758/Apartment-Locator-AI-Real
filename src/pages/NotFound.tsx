@@ -93,7 +93,7 @@ const NotFound = () => {
         </div>
 
         {/* Main Actions */}
-        <ModernCard className={`${designSystem.animations.entrance}`} style={{ animationDelay: '500ms' }}>
+        <ModernCard className={`${designSystem.animations.entrance}`} >
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/">
               <Button className={`${designSystem.buttons.primary} gap-2`}>

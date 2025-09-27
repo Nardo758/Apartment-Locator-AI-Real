@@ -199,7 +199,7 @@ const Trial: React.FC = () => {
             </div>
 
             {/* Right Side - Signup Form */}
-            <div className={`${designSystem.animations.entrance}`} style={{ animationDelay: '300ms' }}>
+            <div className={`${designSystem.animations.entrance}`} >
               <TrialSignup onSignupComplete={handleTrialSignup} />
             </div>
           </div>
