@@ -84,11 +84,10 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({ isOpen, onClos
                   <div className="flex items-center space-x-2">
                     <input 
                       type="radio" 
-                      aria-label="Complete export"
+                      aria-label="Complete Export - All your data across all categories"
                       checked={exportType === 'complete'} 
                       onChange={() => setExportType('complete')}
                       className="text-primary"
-                      aria-label="Complete Export - All your data across all categories"
                     />
                     <div>
                       <div className="font-medium">Complete Export</div>
@@ -106,11 +105,10 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({ isOpen, onClos
                   <div className="flex items-center space-x-2">
                     <input 
                       type="radio" 
-                      aria-label="Selective export"
+                      aria-label="Category Export - Select specific data categories"
                       checked={exportType === 'category'} 
                       onChange={() => setExportType('category')}
                       className="text-primary"
-                      aria-label="Category Export - Select specific data categories"
                     />
                     <div>
                       <div className="font-medium">Selective Export</div>

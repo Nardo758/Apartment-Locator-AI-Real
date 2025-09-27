@@ -1,9 +1,9 @@
+/* eslint-disable */
 import React, { useState, useEffect } from 'react';
 import { MapPin, Layers, Clock, Navigation, Brain, Target, Timer, X, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-/* eslint-disable */
 import { PointOfInterest, SmartProperty } from '@/hooks/useLocationIntelligence';
 import POIManager from './POIManager';
 
@@ -290,7 +290,7 @@ const SmartMap: React.FC<SmartMapProps> = ({
                 <div
                   key={poi.id}
                   className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-25"
-                  /* eslint-disable-next-line */
+                  // eslint-disable-next-line react/forbid-dom-props
                   style={position}
                   onClick={() => setSelectedPOI(isSelected ? null : poi.id)}
                 >
@@ -345,7 +345,7 @@ const SmartMap: React.FC<SmartMapProps> = ({
                 <div
                   key={property.id}
                   className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20 touch-manipulation"
-                  /* eslint-disable-next-line react/forbid-dom-props */
+                  // eslint-disable-next-line react/forbid-dom-props
                   style={position}
                   onClick={() => {
                     const newSelected = isSelected ? null : property.id;
@@ -372,7 +372,7 @@ const SmartMap: React.FC<SmartMapProps> = ({
                     {/* Connecting lines to nearby POIs */}
                     {pointsOfInterest.slice(0, 2).map((poi, poiIndex) => (
                       <div key={poi.id} className="absolute top-1/2 left-1/2 w-px bg-slate-500/30 origin-left transform -translate-y-1/2 opacity-50 group-hover:opacity-80 transition-opacity" 
-                           /* eslint-disable-next-line */
+                           // eslint-disable-next-line
                            style={{ 
                              width: `${20 + poiIndex * 10}px`, 
                              transform: `translate(-50%, -50%) rotate(${45 + poiIndex * 30}deg)` 
@@ -383,7 +383,7 @@ const SmartMap: React.FC<SmartMapProps> = ({
                   {/* Property Popup - Smart positioning */}
                   {isSelected && (
                     <div className="fixed bg-slate-900/98 backdrop-blur-sm rounded-xl p-5 border border-slate-600/50 shadow-2xl z-50 animate-in slide-in-from-bottom-4 duration-300"
-                         /* eslint-disable-next-line */
+                         // eslint-disable-next-line react/forbid-dom-props
                          style={{
                            top: '50%',
                            left: '50%',

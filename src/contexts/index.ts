@@ -3,4 +3,3 @@
 // or other runtime-only symbols.
 export { PropertyStateProvider } from './PropertyStateContext';
 export { usePropertyState } from './property-state-hook';
-export * from './PropertyState';

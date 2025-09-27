@@ -457,13 +457,45 @@ export interface Database {
       data_export_requests: {
         Row: {
           id?: string
+          user_id: string
+          export_type: string
+          export_format: string
+          status: string
+          delivery_method: string
+          data_categories: string[]
+          file_url?: string
+          progress_percentage?: number
+          error_message?: string
+          created_at?: string
+          updated_at?: string
           [key: string]: any
         }
         Insert: {
           id?: string
+          user_id: string
+          export_type: string
+          export_format: string
+          status: string
+          delivery_method: string
+          data_categories: string[]
+          file_url?: string
+          progress_percentage?: number
+          error_message?: string
+          created_at?: string
+          updated_at?: string
           [key: string]: any
         }
         Update: {
+          user_id?: string
+          export_type?: string
+          export_format?: string
+          status?: string
+          delivery_method?: string
+          data_categories?: string[]
+          file_url?: string
+          progress_percentage?: number
+          error_message?: string
+          updated_at?: string
           [key: string]: any
         }
       }
@@ -494,18 +526,15 @@ export interface UserProfile {
 export interface ActivityItem {
   activity_type?: string
   created_at?: string
-  [key: string]: unknown
 }
 
 export interface ContentItem {
   content_type?: string
   created_at?: string
-  [key: string]: unknown
 }
 
 export interface SessionItem {
   created_at?: string
-  [key: string]: unknown
 }
 
 export interface OrderItem {
@@ -515,7 +544,6 @@ export interface OrderItem {
   currency?: string
   status?: string
   created_at?: string
-  [key: string]: unknown
 }
 
 // Additional types for edge functions - keeping both comprehensive Database interface above
@@ -532,10 +560,7 @@ export interface ExportRequest {
 }
 
 // UserProfile interface is defined above in the comprehensive Database interface
-export interface ActivityItem { [key: string]: any }
-export interface ContentItem { [key: string]: any }
-export interface SessionItem { [key: string]: any }
-export interface OrderItem { [key: string]: any }
+// ActivityItem, ContentItem, SessionItem, and OrderItem interfaces are defined above with specific properties
 
 export interface UserData {
   profile: UserProfile | null;
@@ -558,7 +583,7 @@ export default {} as const;
 // Bridge module: re-export the generated supabase types and provide small
 // helpers used across the codebase. The authoritative generated types live
 // Compatibility aliases for existing code
-export type User = SupabaseUser
+// Use SupabaseUser directly instead of re-exporting as User to avoid naming conflict
 export type UserPreferences = Database['public']['Tables']['user_preferences']['Row']
 export type UserActivity = Database['public']['Tables']['user_activities']['Row']  
 export type SearchHistory = Database['public']['Tables']['search_history']['Row']
