@@ -1,10 +1,9 @@
 import { supabase } from "@/integrations/supabase/client"
-import type { Database } from '@/supabase/types';
 
 export class UserDataExportService {
   async exportUserData(userId: string, exportType: string, format: string) {
     // Create export record
-    const { data: exportRecord, error: exportError } = await (supabase as any)
+    const { data: exportRecord, error: exportError } = await supabase
       .from('data_export_requests')
       .insert({
         user_id: userId,
@@ -47,7 +46,7 @@ export class UserDataExportService {
       const fileName = `user_export_${exportType}_${Date.now()}.${format}`
 
       // Update export record
-      await (supabase as any)
+      await supabase
         .from('data_export_requests')
         .update({
           status: 'completed',
@@ -55,20 +54,20 @@ export class UserDataExportService {
           progress_percentage: 100,
           updated_at: new Date().toISOString()
         })
-        .eq('id', (exportRecord as any).id)
+        .eq('id', exportRecord.id)
 
-      return { fileName, fileContent, exportId: (exportRecord as any).id }
+      return { fileName, fileContent, exportId: exportRecord.id }
 
     } catch (error) {
       // Mark export as failed
-      await (supabase as any)
+      await supabase
         .from('data_export_requests')
         .update({ 
           status: 'failed',
           error_message: error instanceof Error ? error.message : 'Export failed',
           updated_at: new Date().toISOString()
         })
-        .eq('id', (exportRecord as any).id)
+        .eq('id', exportRecord.id)
       throw error
     }
   }

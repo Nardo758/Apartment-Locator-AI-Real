@@ -80,7 +80,7 @@ const GenerateOffer = () => {
     ],
     timingRecommendations: {
       bestTimeToApply: 'Within 48 hours',
-      reasoning: (property?.daysVacant && property.daysVacant > 30) ? 'Property has been vacant for extended period - landlord motivated' : 'End of quarter - landlords motivated to fill units before reporting period'
+      reasoning: property?.daysVacant > 30 ? 'Property has been vacant for extended period - landlord motivated' : 'End of quarter - landlords motivated to fill units before reporting period'
     },
     importantTerms: [
       { term: 'Lease Term', detail: '12 months with option to renew' },

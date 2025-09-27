@@ -92,7 +92,7 @@ class RedfinRentalScraper {
       
       // Check cache first
       if (this.isCacheValid(cacheKey)) {
-        return this.cache.get(cacheKey) || [];
+        return this.cache.get(cacheKey);
       }
 
       // Fetch fresh data
@@ -495,7 +495,7 @@ class RedfinRentalScraper {
 
   // Mock data for development/testing
   private generateMockData(location: string): RentalMarketMetrics[] {
-    const mockData: RentalMarketMetrics[] = [];
+    const mockData = [];
     const baseDate = new Date();
     
     for (let i = 0; i < 6; i++) {
@@ -532,7 +532,7 @@ class RedfinRentalScraper {
 
   private generateRawMockData(): RawData {
     const locations = ['Austin, TX', 'Dallas, TX', 'Houston, TX'];
-    const mockData: RawRow[] = [];
+    const mockData = [];
     const baseDate = new Date();
     
     locations.forEach((location, locIndex) => {
