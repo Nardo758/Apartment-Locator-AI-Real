@@ -25,8 +25,9 @@ jobs:
         
     - name: Install Supabase CLI
       run: |
-        curl -fsSL https://github.com/supabase/cli/raw/main/install.sh | sh
-        sudo ln -s /home/runner/.supabase/bin/supabase /usr/local/bin/supabase
+        # Install via npm which is available on the runner
+        npm install -g supabase
+        # verify
         supabase --version
         
     - name: Deploy migrations
