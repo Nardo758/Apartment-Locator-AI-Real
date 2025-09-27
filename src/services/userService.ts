@@ -1,15 +1,15 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '../../supabase/types';
+import type { Database } from '@/supabase/types';
 
 export class UserService {
   async saveUserPreferences(userId: string, preferences: Record<string, unknown>) {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('user_preferences')
       .upsert({
         user_id: userId,
         ...preferences,
         updated_at: new Date().toISOString()
-      } as Database['public']['Tables']['user_preferences']['Insert'])
+      })
       .select()
       .single();
 
@@ -29,7 +29,7 @@ export class UserService {
   }
 
   async saveUserProfile(userId: string, profile: Record<string, unknown>) {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('user_preferences') // Using user_preferences instead of user_profiles
       .upsert({
         user_id: userId,

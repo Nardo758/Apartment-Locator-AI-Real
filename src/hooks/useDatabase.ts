@@ -3,6 +3,17 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/supabase/types';
 import { useUser } from './useUser';
 
+// Types for database operations
+export interface POIInput {
+  address: string;
+  category: string;
+  latitude: number;
+  longitude: number;
+  name: string;
+  notes?: string | null;
+  priority?: number | null;
+}
+
 export const useDatabase = () => {
   const { user } = useUser();
 
@@ -111,15 +122,6 @@ export const useDatabase = () => {
   }, [user]);
 
   // Points of Interest
-  interface POIInput {
-    address: string;
-    category: string;
-    latitude: number;
-    longitude: number;
-    name: string;
-    notes?: string | null;
-    priority?: number | null;
-  }
 
   const savePOI = useCallback(async (poiData: POIInput) => {
     if (!user) throw new Error('User not authenticated');

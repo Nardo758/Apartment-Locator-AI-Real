@@ -31,7 +31,7 @@ const SmartMap: React.FC<SmartMapProps> = ({
   selectedPropertyId,
   onPropertySelect
 }) => {
-  const [selectedProperty, setSelectedProperty] = useState<string | null>(selectedPropertyId);
+  const [selectedProperty, setSelectedProperty] = useState<string | null>(selectedPropertyId || null);
   const [selectedPOI, setSelectedPOI] = useState<string | null>(null);
   const [showIsochrones, setShowIsochrones] = useState(true);
   const [showLayers, setShowLayers] = useState(true);
@@ -42,7 +42,7 @@ const SmartMap: React.FC<SmartMapProps> = ({
 
   // Sync with parent selection
   useEffect(() => {
-    setSelectedProperty(selectedPropertyId);
+    setSelectedProperty(selectedPropertyId || null);
   }, [selectedPropertyId]);
 
   // Check if AI preferences are active
@@ -372,7 +372,6 @@ const SmartMap: React.FC<SmartMapProps> = ({
                     {/* Connecting lines to nearby POIs */}
                     {pointsOfInterest.slice(0, 2).map((poi, poiIndex) => (
                       <div key={poi.id} className="absolute top-1/2 left-1/2 w-px bg-slate-500/30 origin-left transform -translate-y-1/2 opacity-50 group-hover:opacity-80 transition-opacity" 
-                           // eslint-disable-next-line
                            style={{ 
                              width: `${20 + poiIndex * 10}px`, 
                              transform: `translate(-50%, -50%) rotate(${45 + poiIndex * 30}deg)` 

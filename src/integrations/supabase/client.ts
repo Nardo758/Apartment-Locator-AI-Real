@@ -1,23 +1,20 @@
-// This file is generated but safe to edit: it initializes the Supabase client
-import { createClient } from '@supabase/supabase-js'
-import type { SupabaseUser, Database } from '../../../supabase/types'
+// src/integrations/supabase/client.ts - VITE VERSION
+import { createClient } from '@supabase/supabase-js';
+import type { SupabaseUser, Database } from '../../../supabase/types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.REACT_APP_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  // In local dev, it's fine to log; in production you should ensure env vars are set
-   
-  console.warn('Supabase URL or ANON key is not set. Check your environment variables.')
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: typeof window !== 'undefined' ? localStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
-  },
-})
+  }
+});
 
 // Helper function to get current user
 export const getCurrentUser = async (): Promise<SupabaseUser | null> => {
