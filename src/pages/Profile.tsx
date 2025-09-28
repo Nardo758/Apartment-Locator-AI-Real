@@ -204,12 +204,10 @@ const Profile: React.FC = () => {
 
   return (
     <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
-      <Header />
-      
       <ModernPageLayout
         title="Profile Settings"
         subtitle="Manage your account information and preferences"
-        showHeader={false}
+        showHeader={true}
         headerContent={
           <Button 
             onClick={handleSave}

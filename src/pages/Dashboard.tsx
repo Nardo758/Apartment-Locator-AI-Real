@@ -57,7 +57,7 @@ const Dashboard = () => {
     <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
       <Header />
 
-      <div className="container mx-auto px-4 py-8 min-h-screen space-y-8">
+      <div className="container mx-auto px-4 pt-24 pb-8 min-h-screen space-y-8">
         {/* System Connection Status */}
         <div className={`${designSystem.animations.entrance} w-full`}>
           <TestConnection />

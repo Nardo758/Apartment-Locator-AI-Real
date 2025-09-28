@@ -121,12 +121,10 @@ const OffersMade: React.FC = () => {
 
   return (
     <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
-      <Header />
-      
       <ModernPageLayout
         title="Offers Made"
         subtitle="Track the status of your rental applications and AI-generated offers"
-        showHeader={false}
+        showHeader={true}
         headerContent={
           <div className="flex gap-3">
             <Link to="/dashboard">

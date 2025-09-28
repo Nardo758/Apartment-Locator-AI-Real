@@ -239,12 +239,10 @@ const GenerateOffer = () => {
 
   return (
     <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
-      <Header />
-      
       <ModernPageLayout
         title="Generate AI Offer"
         subtitle={property ? `Create a compelling offer for ${property.name}` : "Create a data-driven rental offer"}
-        showHeader={false}
+        showHeader={true}
         headerContent={
           <Link to="/dashboard">
             <Button variant="outline" size="sm" className="gap-2">
