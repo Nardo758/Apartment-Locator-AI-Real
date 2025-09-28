@@ -41,6 +41,7 @@ import { EnhancedPricingDashboard } from "./components/EnhancedPricingDashboard"
 import MarketIntelRevamped from "./pages/MarketIntelRevamped";
 import DataExport from "./pages/DataExport";
 import ComponentDemo from "./pages/ComponentDemo";
+import AdvancedFeaturesDemo from "./pages/AdvancedFeaturesDemo";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
@@ -90,6 +91,7 @@ const App = () => (
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/data-export" element={<DataExport />} />
             <Route path="/component-demo" element={<ComponentDemo />} />
+            <Route path="/advanced-features" element={<AdvancedFeaturesDemo />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

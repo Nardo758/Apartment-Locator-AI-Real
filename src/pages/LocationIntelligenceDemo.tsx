@@ -7,6 +7,8 @@ import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import ModernCard from '@/components/modern/ModernCard';
 import Header from '@/components/Header';
 import LocationIntelligence from '@/components/LocationIntelligence';
+import { MarketIntelligenceDashboard } from '@/components/MarketIntelligenceDashboard';
+import { PropertySearchExample } from '@/components/PropertySearchExample';
 
 // Mock user profile for demo
 const mockUserProfile = {
@@ -128,6 +130,16 @@ const LocationIntelligenceDemo = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Market Intelligence Dashboard */}
+        <div className={`${designSystem.animations.entrance} ${designSystem.spacing.marginLarge}`}>
+          <MarketIntelligenceDashboard defaultLocation="Atlanta, GA" />
+        </div>
+
+        {/* Property Search Example */}
+        <div className={`${designSystem.animations.entrance} ${designSystem.spacing.marginLarge}`}>
+          <PropertySearchExample />
         </div>
 
         {/* Location Intelligence Component */}
