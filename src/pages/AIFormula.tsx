@@ -10,12 +10,10 @@ import AIFormulaExplainer from '@/components/AIFormulaExplainer';
 const AIFormula: React.FC = () => {
   return (
     <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
-      <Header />
-      
       <ModernPageLayout
         title="AI Formula & Intelligence"
         subtitle="Discover how our advanced AI system identifies opportunities and calculates savings with 87% accuracy"
-        showHeader={false}
+        showHeader={true}
         headerContent={
           <Link to="/dashboard">
             <Button variant="outline" size="sm" className="gap-2">

@@ -54,12 +54,10 @@ const mockUserProfile = {
 const LocationIntelligenceDemo = () => {
   return (
     <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
-      <Header />
-
       <ModernPageLayout
         title="Location Intelligence Demo"
         subtitle="Experience AI-powered location analysis and apartment discovery"
-        showHeader={false}
+        showHeader={true}
         headerContent={
           <div className={`${designSystem.layouts.flex} ${designSystem.spacing.gapMedium}`}>
             <Link to="/">

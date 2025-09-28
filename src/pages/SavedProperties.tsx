@@ -19,12 +19,10 @@ const SavedProperties: React.FC = () => {
 
   return (
     <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
-      <Header />
-      
       <ModernPageLayout
         title="Saved Properties"
         subtitle={`${savedPropertiesList.length} ${savedPropertiesList.length === 1 ? 'property' : 'properties'} saved`}
-        showHeader={false}
+        showHeader={true}
         headerContent={
           <Link to="/dashboard">
             <Button variant="outline" size="sm" className="gap-2">

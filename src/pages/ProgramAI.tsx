@@ -425,12 +425,10 @@ const ProgramAI = () => {
 
   return (
     <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
-      <Header />
-      
       <ModernPageLayout
         title="Program Your AI"
         subtitle="Customize your AI assistant to find the perfect rental with personalized preferences and smart filters"
-        showHeader={false}
+        showHeader={true}
         headerContent={
           <Button 
             onClick={handleSave}
