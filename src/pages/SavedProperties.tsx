@@ -9,6 +9,7 @@ import { designSystem } from '@/lib/design-system';
 import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import ModernCard from '@/components/modern/ModernCard';
 import Header from '@/components/Header';
+import { PropertySearchExample } from '@/components/PropertySearchExample';
 
 const SavedProperties: React.FC = () => {
   const { favoriteProperties } = usePropertyState();
@@ -61,6 +62,10 @@ const SavedProperties: React.FC = () => {
         ) : (
           // Properties Grid
           <div className={designSystem.spacing.content}>
+            {/* Property Search Example */}
+            <div className="mb-8">
+              <PropertySearchExample />
+            </div>
             {/* Stats Overview */}
             <div className={`${designSystem.layouts.gridThree} mb-8`}>
               <ModernCard 

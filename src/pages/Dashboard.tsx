@@ -6,6 +6,8 @@ import { designSystem } from '@/lib/design-system';
 import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import Header from '@/components/Header';
 import LocationIntelligence from '@/components/LocationIntelligence';
+import { TestConnection } from '@/components/TestConnection';
+import { PropertySearchExample } from '@/components/PropertySearchExample';
 
 // Mock user profile for the dashboard
 const mockUserProfile = {
@@ -55,7 +57,17 @@ const Dashboard = () => {
     <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
       <Header />
 
-      <div className="container mx-auto px-4 pt-24 pb-8 min-h-screen">
+      <div className="container mx-auto px-4 pt-24 pb-8 min-h-screen space-y-8">
+        {/* System Connection Status */}
+        <div className={`${designSystem.animations.entrance} w-full`}>
+          <TestConnection />
+        </div>
+
+        {/* Property Search */}
+        <div className={`${designSystem.animations.entrance} w-full`}>
+          <PropertySearchExample />
+        </div>
+
         {/* Location Intelligence Component */}
         <div className={`${designSystem.animations.entrance} w-full`}>
           <LocationIntelligence userProfile={mockUserProfile} />
