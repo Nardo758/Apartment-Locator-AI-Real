@@ -68,7 +68,7 @@ export const usePayment = () => {
       toast({
         variant: "destructive",
         title: "Payment Error",
-        description: error.message || "Failed to create payment session. Please try again."
+        description: error instanceof Error ? error.message : "Failed to create payment session. Please try again."
       });
       return null;
     } finally {
