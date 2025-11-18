@@ -242,6 +242,13 @@ export type Database = {
             referencedRelation: "properties"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "price_history_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       properties: {
@@ -427,6 +434,13 @@ export type Database = {
             referencedRelation: "properties"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "property_concessions_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       rental_offers: {
@@ -483,6 +497,13 @@ export type Database = {
             referencedRelation: "properties"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "rental_offers_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       saved_apartments: {
@@ -516,6 +537,13 @@ export type Database = {
             columns: ["apartment_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_apartments_apartment_id_fkey"
+            columns: ["apartment_id"]
+            isOneToOne: false
+            referencedRelation: "properties_public"
             referencedColumns: ["id"]
           },
         ]
@@ -875,6 +903,135 @@ export type Database = {
           f_table_schema?: unknown
           srid?: number | null
           type?: string | null
+        }
+        Relationships: []
+      }
+      properties_public: {
+        Row: {
+          address: string | null
+          ai_description: string | null
+          ai_tags: Json | null
+          amenities: Json | null
+          bathrooms_max: number | null
+          bathrooms_min: number | null
+          bedrooms_max: number | null
+          bedrooms_min: number | null
+          city: string | null
+          description: string | null
+          external_id: string | null
+          features: Json | null
+          first_scraped: string | null
+          id: string | null
+          images: Json | null
+          is_active: boolean | null
+          last_seen: string | null
+          last_updated: string | null
+          latitude: number | null
+          listing_url: string | null
+          longitude: number | null
+          management_company: string | null
+          max_price: number | null
+          min_price: number | null
+          name: string | null
+          parking: Json | null
+          pet_policy: Json | null
+          price_range: string | null
+          property_type: string | null
+          sentiment_score: number | null
+          source: string | null
+          square_feet_max: number | null
+          square_feet_min: number | null
+          state: string | null
+          units_count: number | null
+          utilities: Json | null
+          virtual_tour_url: string | null
+          website: string | null
+          year_built: number | null
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          ai_description?: string | null
+          ai_tags?: Json | null
+          amenities?: Json | null
+          bathrooms_max?: number | null
+          bathrooms_min?: number | null
+          bedrooms_max?: number | null
+          bedrooms_min?: number | null
+          city?: string | null
+          description?: string | null
+          external_id?: string | null
+          features?: Json | null
+          first_scraped?: string | null
+          id?: string | null
+          images?: Json | null
+          is_active?: boolean | null
+          last_seen?: string | null
+          last_updated?: string | null
+          latitude?: number | null
+          listing_url?: string | null
+          longitude?: number | null
+          management_company?: string | null
+          max_price?: number | null
+          min_price?: number | null
+          name?: string | null
+          parking?: Json | null
+          pet_policy?: Json | null
+          price_range?: string | null
+          property_type?: string | null
+          sentiment_score?: number | null
+          source?: string | null
+          square_feet_max?: number | null
+          square_feet_min?: number | null
+          state?: string | null
+          units_count?: number | null
+          utilities?: Json | null
+          virtual_tour_url?: string | null
+          website?: string | null
+          year_built?: number | null
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          ai_description?: string | null
+          ai_tags?: Json | null
+          amenities?: Json | null
+          bathrooms_max?: number | null
+          bathrooms_min?: number | null
+          bedrooms_max?: number | null
+          bedrooms_min?: number | null
+          city?: string | null
+          description?: string | null
+          external_id?: string | null
+          features?: Json | null
+          first_scraped?: string | null
+          id?: string | null
+          images?: Json | null
+          is_active?: boolean | null
+          last_seen?: string | null
+          last_updated?: string | null
+          latitude?: number | null
+          listing_url?: string | null
+          longitude?: number | null
+          management_company?: string | null
+          max_price?: number | null
+          min_price?: number | null
+          name?: string | null
+          parking?: Json | null
+          pet_policy?: Json | null
+          price_range?: string | null
+          property_type?: string | null
+          sentiment_score?: number | null
+          source?: string | null
+          square_feet_max?: number | null
+          square_feet_min?: number | null
+          state?: string | null
+          units_count?: number | null
+          utilities?: Json | null
+          virtual_tour_url?: string | null
+          website?: string | null
+          year_built?: number | null
+          zip_code?: string | null
         }
         Relationships: []
       }
