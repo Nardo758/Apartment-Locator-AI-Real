@@ -6,7 +6,6 @@ import { designSystem } from '@/lib/design-system';
 import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import Header from '@/components/Header';
 import LocationIntelligence from '@/components/LocationIntelligence';
-import { PropertySearchExample } from '@/components/PropertySearchExample';
 
 // Mock user profile for the dashboard
 const mockUserProfile = {
@@ -65,11 +64,6 @@ const Dashboard = () => {
               Manage Database
             </Button>
           </Link>
-        </div>
-
-        {/* Property Search */}
-        <div className={`${designSystem.animations.entrance} w-full`}>
-          <PropertySearchExample />
         </div>
 
         {/* Location Intelligence Component */}
