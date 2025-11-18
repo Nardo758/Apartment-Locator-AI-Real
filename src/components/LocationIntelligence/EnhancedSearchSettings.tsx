@@ -20,7 +20,6 @@ interface SearchSettingsProps {
 export interface SearchSettings {
   budgetRange: [number, number];
   searchRadius: number;
-  maxDriveTime: number;
   bedrooms: string[];
   petPolicy: string;
   parkingRequired: boolean;
@@ -32,7 +31,6 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
   const [settings, setSettings] = useState<SearchSettings>({
     budgetRange: [2000, 2500],
     searchRadius: 25,
-    maxDriveTime: 30,
     bedrooms: ['1'],
     petPolicy: 'any',
     parkingRequired: true,
@@ -108,7 +106,6 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
     const defaultSettings: SearchSettings = {
       budgetRange: [1500, 3000],
       searchRadius: 25,
-      maxDriveTime: 30,
       bedrooms: [],
       petPolicy: 'any',
       parkingRequired: false,
@@ -121,7 +118,6 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
       previous_settings: {
         budgetRange: settings.budgetRange,
         searchRadius: settings.searchRadius,
-        maxDriveTime: settings.maxDriveTime,
         bedrooms: settings.bedrooms,
         petPolicy: settings.petPolicy,
         parkingRequired: settings.parkingRequired,
@@ -131,7 +127,6 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
       reset_to: {
         budgetRange: defaultSettings.budgetRange,
         searchRadius: defaultSettings.searchRadius,
-        maxDriveTime: defaultSettings.maxDriveTime,
         bedrooms: defaultSettings.bedrooms,
         petPolicy: defaultSettings.petPolicy,
         parkingRequired: defaultSettings.parkingRequired,
@@ -187,29 +182,6 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
               <span>${settings.budgetRange[1].toLocaleString()}</span>
             </div>
           </div>
-        </div>
-
-        {/* Max Drive Time */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-orange-400" />
-            <label className="text-sm font-medium text-foreground">Max Drive Time</label>
-          </div>
-          <Select 
-            value={settings.maxDriveTime.toString()} 
-            onValueChange={(value) => updateSettings({ maxDriveTime: Number(value) })}
-          >
-            <SelectTrigger className="bg-slate-700/50 border-slate-600">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-600">
-              <SelectItem value="15">⏱️ 15 minutes</SelectItem>
-              <SelectItem value="20">⏱️ 20 minutes</SelectItem>
-              <SelectItem value="30">⏱️ 30 minutes</SelectItem>
-              <SelectItem value="45">⏱️ 45 minutes</SelectItem>
-              <SelectItem value="60">⏱️ 60 minutes</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
 
         {/* Bedrooms */}
