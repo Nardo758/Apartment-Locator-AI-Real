@@ -8,18 +8,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { Search, Loader2 } from "lucide-react";
 
 export function ZillowSearchPanel() {
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
+  const [zipCode, setZipCode] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [minBedrooms, setMinBedrooms] = useState("");
+  const [maxResults, setMaxResults] = useState("5");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleSearch = async () => {
-    if (!city || !state) {
+    if (!zipCode) {
       toast({
         title: "Missing Information",
-        description: "Please enter both city and state",
+        description: "Please enter a zip code",
         variant: "destructive",
       });
       return;
@@ -30,10 +30,10 @@ export function ZillowSearchPanel() {
     try {
       const { data, error } = await supabase.functions.invoke('fetch-zillow-rentals', {
         body: {
-          city,
-          state,
+          zipCode,
           maxPrice: maxPrice ? parseInt(maxPrice) : undefined,
           minBedrooms: minBedrooms ? parseInt(minBedrooms) : undefined,
+          maxResults: parseInt(maxResults),
         }
       });
 
@@ -41,12 +41,11 @@ export function ZillowSearchPanel() {
 
       toast({
         title: "Search Complete",
-        description: `Found ${data.count} properties in ${city}, ${state}`,
+        description: `Added ${data.count} properties from zip code ${zipCode}`,
       });
 
       // Reset form
-      setCity("");
-      setState("");
+      setZipCode("");
       setMaxPrice("");
       setMinBedrooms("");
     } catch (error) {
@@ -66,36 +65,37 @@ export function ZillowSearchPanel() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Search className="h-5 w-5" />
-          Zillow Rental Search
+          Zillow Rental Search (Test Mode)
         </CardTitle>
         <CardDescription>
-          Search for rental properties and add them to your database
+          Search by zip code to add rental properties to your database
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="city">City</Label>
-            <Input
-              id="city"
-              placeholder="San Francisco"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="state">State</Label>
-            <Input
-              id="state"
-              placeholder="CA"
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-              maxLength={2}
-            />
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="zipCode">Zip Code</Label>
+          <Input
+            id="zipCode"
+            placeholder="78701"
+            value={zipCode}
+            onChange={(e) => setZipCode(e.target.value)}
+            maxLength={5}
+          />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="maxResults">Max Results</Label>
+            <Input
+              id="maxResults"
+              type="number"
+              placeholder="5"
+              value={maxResults}
+              onChange={(e) => setMaxResults(e.target.value)}
+              min="1"
+              max="20"
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="maxPrice">Max Price (optional)</Label>
             <Input

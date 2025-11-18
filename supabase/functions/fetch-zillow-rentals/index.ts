@@ -12,16 +12,16 @@ serve(async (req) => {
   }
 
   try {
-    const { city, state, maxPrice, minBedrooms } = await req.json();
+    const { zipCode, maxPrice, minBedrooms, maxResults = 5 } = await req.json();
 
-    if (!city || !state) {
+    if (!zipCode) {
       return new Response(
-        JSON.stringify({ error: "City and state are required" }),
+        JSON.stringify({ error: "Zip code is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`Fetching Zillow rentals for ${city}, ${state}`);
+    console.log(`Fetching Zillow rentals for zip code ${zipCode}, max results: ${maxResults}`);
 
     // Create Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -30,7 +30,7 @@ serve(async (req) => {
 
     // In production, you'd use a proper scraping API like ScraperAPI or Bright Data
     // For now, we'll create mock data based on the search criteria
-    const mockListings = generateMockListings(city, state, maxPrice, minBedrooms);
+    const mockListings = generateMockListings(zipCode, maxPrice, minBedrooms, maxResults);
 
     // Insert properties into database
     const insertedProperties = [];
@@ -94,11 +94,20 @@ serve(async (req) => {
   }
 });
 
-function generateMockListings(city: string, state: string, maxPrice?: number, minBedrooms?: number) {
+function generateMockListings(zipCode: string, maxPrice?: number, minBedrooms?: number, maxResults: number = 5) {
   const listings = [];
-  const count = 5;
+  
+  // Derive city/state from zip code (simplified mock)
+  const zipToLocation: Record<string, { city: string; state: string }> = {
+    '78701': { city: 'Austin', state: 'TX' },
+    '94102': { city: 'San Francisco', state: 'CA' },
+    '10001': { city: 'New York', state: 'NY' },
+    '90001': { city: 'Los Angeles', state: 'CA' },
+  };
+  
+  const location = zipToLocation[zipCode] || { city: 'Unknown', state: 'XX' };
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < Math.min(maxResults, 20); i++) {
     const bedrooms = Math.max(minBedrooms || 1, Math.floor(Math.random() * 3) + 1);
     const bathrooms = Math.floor(Math.random() * 2) + 1;
     const sqft = 600 + (bedrooms * 400) + Math.floor(Math.random() * 300);
@@ -106,12 +115,12 @@ function generateMockListings(city: string, state: string, maxPrice?: number, mi
     const price = Math.floor(basePrice + (Math.random() * 500));
 
     listings.push({
-      external_id: `zillow_${city}_${Date.now()}_${i}`,
-      name: `${["Modern", "Luxury", "Spacious", "Cozy", "Updated"][i]} ${bedrooms}BR Apartment`,
-      address: `${Math.floor(Math.random() * 9999)} ${["Main", "Oak", "Maple", "Pine", "Elm"][i]} St`,
-      city,
-      state,
-      zip_code: `${Math.floor(Math.random() * 90000) + 10000}`,
+      external_id: `zillow_${zipCode}_${Date.now()}_${i}`,
+      name: `${["Modern", "Luxury", "Spacious", "Cozy", "Updated", "Renovated", "Contemporary", "Classic"][i % 8]} ${bedrooms}BR Apartment`,
+      address: `${Math.floor(Math.random() * 9999)} ${["Main", "Oak", "Maple", "Pine", "Elm", "Cedar", "Birch", "Ash"][i % 8]} St`,
+      city: location.city,
+      state: location.state,
+      zip_code: zipCode,
       latitude: 37.7749 + (Math.random() - 0.5) * 0.1,
       longitude: -122.4194 + (Math.random() - 0.5) * 0.1,
       min_price: price,
