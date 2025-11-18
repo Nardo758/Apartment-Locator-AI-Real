@@ -1,1 +1,4 @@
-project_id = "rjbaplyjtfkynflqwsts"
+project_id = "jdymvpasjsdbryatscux"
+
+[functions.fetch-zillow-rentals]
+verify_jwt = false
