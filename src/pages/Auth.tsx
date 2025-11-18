@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Mail, Lock, User, ArrowLeft, AlertCircle, Loader2, Shield, Zap, CheckCircle } from 'lucide-react';
 import { designSystem } from '@/lib/design-system';
 import ModernCard from '@/components/modern/ModernCard';
+import { z } from 'zod';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -47,8 +48,21 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
+    
+    // Validation schema
+    const signUpSchema = z.object({
+      email: z.string().email("Invalid email format").max(255),
+      password: z.string().min(8, "Password must be at least 8 characters").max(100),
+      confirmPassword: z.string()
+    }).refine((data) => data.password === data.confirmPassword, {
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    });
+
+    const validation = signUpSchema.safeParse({ email, password, confirmPassword });
+    
+    if (!validation.success) {
+      setError(validation.error.errors[0].message);
       return;
     }
 
@@ -97,6 +111,20 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation schema
+    const signInSchema = z.object({
+      email: z.string().email("Invalid email format").max(255),
+      password: z.string().min(1, "Password is required")
+    });
+
+    const validation = signInSchema.safeParse({ email, password });
+    
+    if (!validation.success) {
+      setError(validation.error.errors[0].message);
+      return;
+    }
+
     setLoading(true);
     setError('');
 

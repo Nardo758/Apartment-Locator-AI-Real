@@ -17,6 +17,8 @@ import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import ModernCard from '@/components/modern/ModernCard';
 import Breadcrumb from '@/components/Breadcrumb';
 import Header from '../components/Header';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 interface OfferFormData {
   userEmail: string;
@@ -40,6 +42,36 @@ interface OfferFormData {
   employmentHistory: string;
   rentalHistory: string;
 }
+
+// Validation schema
+const offerFormSchema = z.object({
+  userEmail: z.string().email("Invalid email format").max(255),
+  moveInDate: z.string().min(1, "Move-in date is required"),
+  leaseTerm: z.string().regex(/^\d+$/, "Lease term must be a number").refine((val) => {
+    const num = parseInt(val);
+    return num >= 1 && num <= 36;
+  }, "Lease term must be between 1 and 36 months"),
+  monthlyBudget: z.string().regex(/^\d+$/, "Monthly budget must be a number").refine((val) => {
+    const num = parseInt(val);
+    return num >= 100 && num <= 50000;
+  }, "Monthly budget must be between $100 and $50,000"),
+  creditScore: z.string().regex(/^\d{3}$/, "Credit score must be 3 digits").refine((val) => {
+    const num = parseInt(val);
+    return num >= 300 && num <= 850;
+  }, "Credit score must be between 300 and 850").optional().or(z.literal('')),
+  securityDeposit: z.string(),
+  notes: z.string().max(1000, "Notes must be less than 1000 characters").optional(),
+  petPolicy: z.string().optional(),
+  utilities: z.string().optional(),
+  parking: z.string().optional(),
+  trash: z.string().optional(),
+  firstMonthFree: z.boolean().optional(),
+  reducedDeposit: z.boolean().optional(),
+  waiveAppFee: z.boolean().optional(),
+  monthlyIncome: z.string().optional(),
+  employmentHistory: z.string().optional(),
+  rentalHistory: z.string().optional()
+});
 
 const GenerateOffer = () => {
   const navigate = useNavigate();
@@ -93,6 +125,7 @@ const GenerateOffer = () => {
   });
 
   const form = useForm<OfferFormData>({
+    resolver: zodResolver(offerFormSchema),
     defaultValues: {
   ...(ctxOffer as Partial<OfferFormData>),
   userEmail: ctxOffer.userEmail || '',

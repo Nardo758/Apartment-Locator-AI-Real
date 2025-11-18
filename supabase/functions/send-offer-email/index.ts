@@ -3,6 +3,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import type { OfferEmailRequestLocal as OfferEmailRequest, AISuggestionsLocal as AISuggestions } from '../../types-local'
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
@@ -22,7 +23,32 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const offerData: OfferEmailRequest = await req.json();
+    // Validation schema
+    const offerSchema = z.object({
+      userEmail: z.string().email("Invalid email format").max(255),
+      propertyId: z.string().uuid("Invalid property ID"),
+      moveInDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
+      leaseTerm: z.string().regex(/^\d+$/, "Lease term must be a number"),
+      monthlyBudget: z.string().regex(/^\d+$/, "Monthly budget must be a number"),
+      notes: z.string().max(1000).optional(),
+      aiSuggestions: z.any().optional(),
+      propertyDetails: z.any().optional()
+    });
+
+    const body = await req.json();
+    const validation = offerSchema.safeParse(body);
+    
+    if (!validation.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Invalid input", 
+          details: validation.error.issues 
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const offerData: OfferEmailRequest = validation.data as OfferEmailRequest;
     console.log("Received offer data:", offerData);
 
     // Initialize Supabase client

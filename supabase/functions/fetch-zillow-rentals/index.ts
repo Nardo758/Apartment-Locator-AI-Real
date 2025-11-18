@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,14 +13,27 @@ serve(async (req) => {
   }
 
   try {
-    const { zipCode, maxPrice, minBedrooms, maxResults = 5 } = await req.json();
+    const requestSchema = z.object({
+      zipCode: z.string().regex(/^\d{5}$/, "Invalid zip code format"),
+      maxPrice: z.number().min(0).max(50000).optional(),
+      minBedrooms: z.number().int().min(0).max(10).optional(),
+      maxResults: z.number().int().min(1).max(100).default(5)
+    });
 
-    if (!zipCode) {
+    const body = await req.json();
+    const validation = requestSchema.safeParse(body);
+    
+    if (!validation.success) {
       return new Response(
-        JSON.stringify({ error: "Zip code is required" }),
+        JSON.stringify({ 
+          error: "Invalid input", 
+          details: validation.error.issues 
+        }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    const { zipCode, maxPrice, minBedrooms, maxResults } = validation.data;
 
     console.log(`Fetching Zillow rentals for zip code ${zipCode}, max results: ${maxResults}`);
 
