@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import UnifiedSearchPanel from './LocationIntelligence/UnifiedSearchPanel';
-import { SearchSettings } from './LocationIntelligence/UnifiedSearchPanel';
+import ModernPOIManager from './LocationIntelligence/ModernPOIManager';
 import SmartMap from './LocationIntelligence/SmartMap';
 import SmartResults from './LocationIntelligence/SmartResults';
+import EnhancedSearchSettings from './LocationIntelligence/EnhancedSearchSettings';
+import { SearchSettings } from './LocationIntelligence/EnhancedSearchSettings';
 import ApartmentResults from './LocationIntelligence/ApartmentResults';
 import { useLocationIntelligence } from '@/hooks/useLocationIntelligence';
 import CompactPropertyCard from '@/components/modern/CompactPropertyCard';
@@ -21,6 +22,7 @@ interface LocationIntelligenceProps {
 const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile = null }) => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  const [showPOIModal, setShowPOIModal] = useState(false);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
   const [searchSettings, setSearchSettings] = useState<SearchSettings | null>(null);
   
@@ -72,15 +74,37 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
         </div>
       </div>
 
-      {/* Unified Search Panel */}
-      <div className="w-full">
-        <UnifiedSearchPanel
-          pointsOfInterest={pointsOfInterest}
-          onAddPOI={addPOI}
-          onRemovePOI={removePOI}
-          onUpdatePriority={updatePOIPriority}
-          onSettingsChange={setSearchSettings}
-        />
+      {/* POI Management and Search Settings */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        {/* POI Management Panel */}
+        <div className="flex flex-col">
+          <ModernPOIManager
+            pointsOfInterest={pointsOfInterest}
+            onAddPOI={addPOI}
+            onRemovePOI={removePOI}
+            onUpdatePriority={updatePOIPriority}
+            showModal={showPOIModal}
+            setShowModal={setShowPOIModal}
+          />
+        </div>
+
+        {/* Search Settings Section */}
+        <div className="flex flex-col">
+          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-full">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Settings className="w-5 h-5 text-blue-400" />
+                Search Settings
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">Configure your apartment search criteria and preferences</p>
+            </CardHeader>
+            <CardContent>
+              <EnhancedSearchSettings 
+                onSettingsChange={setSearchSettings}
+              />
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Live Market Intel - Compact Version */}
