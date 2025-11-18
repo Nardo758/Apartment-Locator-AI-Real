@@ -14,7 +14,6 @@ const mockUserProfile = {
   email: 'user@example.com',
   location: 'Austin, TX',
   search_radius: 25,
-  max_drive_time: 30,
   points_of_interest: [
     {
       id: '1',
