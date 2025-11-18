@@ -1,12 +1,21 @@
-import type { ExportJobRow, ExportJobInsert, ExportJobUpdate } from './supabase'
-
-export type { ExportJobRow, ExportJobInsert, ExportJobUpdate }
-
-export interface ExportJob extends ExportJobRow {
-  // Additional client-side fields if needed
-  progress?: number
-  estimated_completion_time?: string
+// Export types based on data_export_requests table
+export interface ExportJob {
+  id: string;
+  user_id: string;
+  export_type: string;
+  export_format: string;
+  status: string;
+  progress_percentage: number | null;
+  file_url: string | null;
+  error_message: string | null;
+  created_at: string | null;
+  completed_at: string | null;
+  expires_at: string | null;
 }
+
+export type ExportJobRow = ExportJob;
+export type ExportJobInsert = Omit<ExportJob, 'id' | 'created_at'>;
+export type ExportJobUpdate = Partial<ExportJobInsert>;
 
 export interface ExportFilters {
   property_ids?: string[]

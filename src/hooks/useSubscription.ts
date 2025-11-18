@@ -114,6 +114,10 @@ export const useSubscription = () => {
       return false;
     }
 
+    if (!subscription.plan_end) {
+      return true; // No expiration date means unlimited access
+    }
+
     const now = new Date();
     const endDate = new Date(subscription.plan_end);
     

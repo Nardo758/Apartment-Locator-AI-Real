@@ -85,7 +85,7 @@ export const DataExportHistory: React.FC = () => {
                       {exportItem.export_type.charAt(0).toUpperCase() + exportItem.export_type.slice(1)} Export
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {formatDistanceToNow(new Date(exportItem.created_at), { addSuffix: true })}
+                      {exportItem.created_at && formatDistanceToNow(new Date(exportItem.created_at), { addSuffix: true })}
                     </div>
                   </div>
                 </div>
@@ -111,34 +111,27 @@ export const DataExportHistory: React.FC = () => {
               )}
 
               {/* Details */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                 <div>
-                  <span className="font-medium">Categories:</span>
-                  <div className="text-muted-foreground">
-                    {Array.isArray(exportItem.data_categories) 
-                      ? exportItem.data_categories.join(', ') 
-                      : 'All'
-                    }
-                  </div>
-                </div>
-                <div>
-                  <span className="font-medium">Size:</span>
-                  <div className="text-muted-foreground">
-                    {formatFileSize(exportItem.file_size)}
-                  </div>
-                </div>
-                <div>
-                  <span className="font-medium">Delivery:</span>
+                  <span className="font-medium">Type:</span>
                   <div className="text-muted-foreground capitalize">
-                    {exportItem.delivery_method}
+                    {exportItem.export_type}
                   </div>
                 </div>
                 <div>
-                  <span className="font-medium">Expires:</span>
-                  <div className="text-muted-foreground">
-                    {formatDistanceToNow(new Date(exportItem.expires_at), { addSuffix: true })}
+                  <span className="font-medium">Format:</span>
+                  <div className="text-muted-foreground uppercase">
+                    {exportItem.export_format}
                   </div>
                 </div>
+                {exportItem.expires_at && (
+                  <div>
+                    <span className="font-medium">Expires:</span>
+                    <div className="text-muted-foreground">
+                      {formatDistanceToNow(new Date(exportItem.expires_at), { addSuffix: true })}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Error Message */}

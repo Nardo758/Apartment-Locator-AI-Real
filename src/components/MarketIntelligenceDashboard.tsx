@@ -189,10 +189,10 @@ export const MarketIntelligenceDashboard: React.FC<MarketIntelligenceDashboardPr
               <div className="space-y-4">
                 <h4 className="font-medium text-foreground">Key Insights</h4>
                 <div className="space-y-2">
-                  {intelligence.recommendation.reasons.slice(0, 3).map((reason, index) => (
+                  {intelligence.recommendation.keyTactics?.map((tactic, index) => (
                     <div key={index} className="flex items-start gap-2 text-sm">
                       <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-muted-foreground">{reason}</span>
+                      <span className="text-muted-foreground">{tactic}</span>
                     </div>
                   ))}
                 </div>

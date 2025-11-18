@@ -81,8 +81,8 @@ export const SubscriptionStatus: React.FC = () => {
     return diffDays;
   };
 
-  const daysRemaining = getDaysRemaining(subscription.plan_end);
-  const isExpiringSoon = daysRemaining <= 7;
+  const daysRemaining = subscription.plan_end ? getDaysRemaining(subscription.plan_end) : null;
+  const isExpiringSoon = daysRemaining !== null && daysRemaining <= 7;
 
   return (
     <Card className="w-full">
@@ -96,18 +96,20 @@ export const SubscriptionStatus: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-2 text-sm">
-          <CalendarDays className="w-4 h-4 text-muted-foreground" />
-          <span className="text-muted-foreground">Expires:</span>
-          <span className={isExpiringSoon ? 'text-destructive font-medium' : 'text-foreground'}>
-            {formatDate(subscription.plan_end)}
-          </span>
-          {isExpiringSoon && (
-            <Badge variant="destructive" className="text-xs">
-              {daysRemaining} days left
-            </Badge>
-          )}
-        </div>
+        {subscription.plan_end && (
+          <div className="flex items-center gap-2 text-sm">
+            <CalendarDays className="w-4 h-4 text-muted-foreground" />
+            <span className="text-muted-foreground">Expires:</span>
+            <span className={isExpiringSoon ? 'text-destructive font-medium' : 'text-foreground'}>
+              {formatDate(subscription.plan_end)}
+            </span>
+            {isExpiringSoon && daysRemaining !== null && (
+              <Badge variant="destructive" className="text-xs">
+                {daysRemaining} days left
+              </Badge>
+            )}
+          </div>
+        )}
 
         {subscription.name && (
           <div className="text-sm">
