@@ -43,6 +43,7 @@ import DataExport from "./pages/DataExport";
 import ComponentDemo from "./pages/ComponentDemo";
 import AdvancedFeaturesDemo from "./pages/AdvancedFeaturesDemo";
 import DataManagement from "./pages/DataManagement";
+import Admin from "./pages/Admin";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
@@ -94,6 +95,7 @@ const App = () => (
             <Route path="/data-management" element={<DataManagement />} />
             <Route path="/component-demo" element={<ComponentDemo />} />
             <Route path="/advanced-features" element={<AdvancedFeaturesDemo />} />
+            <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

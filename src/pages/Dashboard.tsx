@@ -6,7 +6,6 @@ import { designSystem } from '@/lib/design-system';
 import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import Header from '@/components/Header';
 import LocationIntelligence from '@/components/LocationIntelligence';
-import { TestConnection } from '@/components/TestConnection';
 import { PropertySearchExample } from '@/components/PropertySearchExample';
 
 // Mock user profile for the dashboard
@@ -66,11 +65,6 @@ const Dashboard = () => {
               Manage Database
             </Button>
           </Link>
-        </div>
-
-        {/* System Connection Status */}
-        <div className={`${designSystem.animations.entrance} w-full`}>
-          <TestConnection />
         </div>
 
         {/* Property Search */}
