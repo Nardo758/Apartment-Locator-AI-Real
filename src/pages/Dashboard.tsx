@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Zap } from 'lucide-react';
+import { ArrowLeft, Zap, Database } from 'lucide-react';
 import { designSystem } from '@/lib/design-system';
 import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import Header from '@/components/Header';
@@ -58,6 +58,16 @@ const Dashboard = () => {
       <Header />
 
       <div className="container mx-auto px-4 pt-24 pb-8 min-h-screen space-y-8">
+        {/* Quick Actions */}
+        <div className="flex gap-4 flex-wrap">
+          <Link to="/data-management">
+            <Button variant="outline" className="gap-2">
+              <Database className="h-4 w-4" />
+              Manage Database
+            </Button>
+          </Link>
+        </div>
+
         {/* System Connection Status */}
         <div className={`${designSystem.animations.entrance} w-full`}>
           <TestConnection />
