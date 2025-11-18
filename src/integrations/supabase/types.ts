@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_tokens: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          last_used_at: string | null
+          service: string
+          token_name: string
+          token_value: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          service: string
+          token_name: string
+          token_value: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          service?: string
+          token_name?: string
+          token_value?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      data_export_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          error_message: string | null
+          expires_at: string | null
+          export_format: string
+          export_type: string
+          file_url: string | null
+          id: string
+          progress_percentage: number | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          export_format: string
+          export_type: string
+          file_url?: string | null
+          id?: string
+          progress_percentage?: number | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          export_format?: string
+          export_type?: string
+          file_url?: string | null
+          id?: string
+          progress_percentage?: number | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       market_predictions: {
         Row: {
           best_time_to_rent: string | null
@@ -354,6 +429,62 @@ export type Database = {
           },
         ]
       }
+      rental_offers: {
+        Row: {
+          created_at: string | null
+          id: string
+          lease_term_months: number
+          move_in_date: string
+          offer_amount: number
+          property_id: string | null
+          response_at: string | null
+          response_message: string | null
+          special_terms: string | null
+          status: string
+          submitted_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          lease_term_months: number
+          move_in_date: string
+          offer_amount: number
+          property_id?: string | null
+          response_at?: string | null
+          response_message?: string | null
+          special_terms?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          lease_term_months?: number
+          move_in_date?: string
+          offer_amount?: number
+          property_id?: string | null
+          response_at?: string | null
+          response_message?: string | null
+          special_terms?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_offers_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_apartments: {
         Row: {
           apartment_id: string
@@ -574,6 +705,48 @@ export type Database = {
           proj4text?: string | null
           srid?: number
           srtext?: string | null
+        }
+        Relationships: []
+      }
+      subscribers: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          plan_end: string | null
+          plan_start: string | null
+          plan_type: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          plan_end?: string | null
+          plan_start?: string | null
+          plan_type: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          plan_end?: string | null
+          plan_start?: string | null
+          plan_type?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
