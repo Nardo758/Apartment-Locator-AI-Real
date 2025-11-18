@@ -8,6 +8,7 @@ import Header from '@/components/Header';
 import LocationIntelligence from '@/components/LocationIntelligence';
 import { TestConnection } from '@/components/TestConnection';
 import { PropertySearchExample } from '@/components/PropertySearchExample';
+import { ZillowSearchPanel } from '@/components/ZillowSearchPanel';
 
 // Mock user profile for the dashboard
 const mockUserProfile = {
@@ -61,6 +62,11 @@ const Dashboard = () => {
         {/* System Connection Status */}
         <div className={`${designSystem.animations.entrance} w-full`}>
           <TestConnection />
+        </div>
+
+        {/* Zillow Search */}
+        <div className={`${designSystem.animations.entrance} w-full`}>
+          <ZillowSearchPanel />
         </div>
 
         {/* Property Search */}
