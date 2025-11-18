@@ -132,7 +132,7 @@ function generateMockListings(zipCode: string, maxPrice?: number, minBedrooms?: 
       bathrooms_max: bathrooms,
       square_feet_min: sqft,
       square_feet_max: sqft,
-      description: `Beautiful ${bedrooms} bedroom, ${bathrooms} bathroom apartment in ${city}. Features include hardwood floors, stainless steel appliances, and in-unit laundry.`,
+      description: `Beautiful ${bedrooms} bedroom, ${bathrooms} bathroom apartment in ${location.city}. Features include hardwood floors, stainless steel appliances, and in-unit laundry.`,
       amenities: {
         parking: Math.random() > 0.5,
         laundry: Math.random() > 0.3,
@@ -151,7 +151,7 @@ function generateMockListings(zipCode: string, maxPrice?: number, minBedrooms?: 
         `https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800`,
         `https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800`,
       ],
-      listing_url: `https://zillow.com/homedetails/${city}-${state}-${Math.floor(Math.random() * 999999)}`,
+      listing_url: `https://zillow.com/homedetails/${location.city}-${location.state}-${Math.floor(Math.random() * 999999)}`,
       property_type: 'apartment',
     });
   }
