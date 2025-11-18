@@ -52,7 +52,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
       toast({
         variant: "destructive",
         title: "Payment Error",
-        description: error.message || "Failed to create checkout session. Please try again."
+        description: error instanceof Error ? error.message : "Failed to create checkout session. Please try again."
       });
     } finally {
       setIsLoading(false);

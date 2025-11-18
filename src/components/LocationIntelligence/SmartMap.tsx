@@ -31,7 +31,7 @@ const SmartMap: React.FC<SmartMapProps> = ({
   selectedPropertyId,
   onPropertySelect
 }) => {
-  const [selectedProperty, setSelectedProperty] = useState<string | null>(selectedPropertyId);
+  const [selectedProperty, setSelectedProperty] = useState<string | null>(selectedPropertyId || null);
   const [selectedPOI, setSelectedPOI] = useState<string | null>(null);
   const [showIsochrones, setShowIsochrones] = useState(true);
   const [showLayers, setShowLayers] = useState(true);
@@ -42,7 +42,7 @@ const SmartMap: React.FC<SmartMapProps> = ({
 
   // Sync with parent selection
   useEffect(() => {
-    setSelectedProperty(selectedPropertyId);
+    setSelectedProperty(selectedPropertyId || null);
   }, [selectedPropertyId]);
 
   // Check if AI preferences are active

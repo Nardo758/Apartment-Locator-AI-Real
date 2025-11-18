@@ -6,7 +6,7 @@ interface Subscription {
   id: string;
   plan_type: string;
   status: string;
-  plan_end: string;
+  plan_end: string | null;
   access_token?: string;
   name?: string;
 }

@@ -13,21 +13,17 @@ export interface ExportRequest {
 
 export interface ExportStatus {
   id: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  progress_percentage: number;
-  file_url?: string;
+  status: string;
+  progress_percentage: number | null;
+  file_url?: string | null;
   file_size?: number;
-  error_message?: string;
-  created_at: string;
-  expires_at: string;
-  export_type: 'complete' | 'partial' | 'category';
-  export_format: 'json' | 'csv' | 'pdf' | 'xml';
-  data_categories: string[];
-  delivery_method: 'download' | 'email';
-  date_range_start?: string;
-  date_range_end?: string;
+  error_message?: string | null;
+  created_at: string | null;
+  expires_at: string | null;
+  export_type: string;
+  export_format: string;
+  completed_at?: string | null;
   user_id: string;
-  updated_at: string;
 }
 
 export const useDataExport = () => {
