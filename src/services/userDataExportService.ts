@@ -73,14 +73,12 @@ export class UserDataExportService {
   }
 
   private async exportActivityData(userId: string) {
-    const { data, error } = await supabase
-      .from('user_activities')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data || []
+    // user_activities table doesn't exist in new database
+    // Return empty data for now
+    return {
+      activities: [],
+      total: 0
+    }
   }
 
   private async exportProfileData(userId: string) {

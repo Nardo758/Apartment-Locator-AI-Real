@@ -90,7 +90,7 @@ export const FeatureGate: React.FC<FeatureGateProps> = ({
           Upgrade to {plan.name} - {plan.price}
         </PaymentButton>
 
-        {subscription && (
+        {subscription && subscription.plan_end && (
           <div className="text-xs text-muted-foreground mt-4">
             Current plan: {subscription.plan_type} (expires {new Date(subscription.plan_end).toLocaleDateString()})
           </div>
