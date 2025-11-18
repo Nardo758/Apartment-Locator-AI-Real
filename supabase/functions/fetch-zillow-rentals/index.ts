@@ -99,6 +99,7 @@ function generateMockListings(zipCode: string, maxPrice?: number, minBedrooms?: 
   
   // Derive city/state from zip code (simplified mock)
   const zipToLocation: Record<string, { city: string; state: string }> = {
+    '30024': { city: 'Suwanee', state: 'GA' },
     '78701': { city: 'Austin', state: 'TX' },
     '94102': { city: 'San Francisco', state: 'CA' },
     '10001': { city: 'New York', state: 'NY' },
