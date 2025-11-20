@@ -146,14 +146,14 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
   return (
     <div className="space-y-6">
       
-      <CardContent className="space-y-6">
+      <div className="space-y-4">
         {/* Budget Range */}
         <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-2xl">💰</span>
-            <label className="text-sm font-medium text-foreground">Budget Range</label>
+          <div className="flex items-center gap-1.5 mb-2">
+            <span className="text-lg">💰</span>
+            <label className="text-xs font-medium text-foreground">Budget Range</label>
           </div>
-          <div className="relative mb-2">
+          <div className="relative mb-1.5">
             <div className="absolute inset-0 h-1.5 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 rounded-full" />
             <Slider
               value={[settings.budgetRange]}
@@ -172,15 +172,16 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
 
         {/* Bedrooms */}
         <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-2xl">🛏️</span>
-            <label className="text-sm font-medium text-foreground">Bedrooms</label>
+          <div className="flex items-center gap-1.5 mb-2">
+            <span className="text-lg">🛏️</span>
+            <label className="text-xs font-medium text-foreground">Bedrooms</label>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             <Button
               variant={settings.bedrooms.includes(0) ? 'default' : 'secondary'}
               onClick={() => toggleBedroom(0)}
-              className={`h-12 ${
+              size="sm"
+              className={`h-10 text-sm ${
                 settings.bedrooms.includes(0) 
                   ? 'bg-slate-500 hover:bg-slate-600' 
                   : 'bg-slate-300 hover:bg-slate-400 text-slate-700'
@@ -191,7 +192,8 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
             <Button
               variant={settings.bedrooms.includes(1) ? 'default' : 'secondary'}
               onClick={() => toggleBedroom(1)}
-              className={`h-12 ${
+              size="sm"
+              className={`h-10 text-sm ${
                 settings.bedrooms.includes(1) 
                   ? 'bg-primary hover:bg-primary/90' 
                   : 'bg-muted hover:bg-muted/80 text-muted-foreground'
@@ -202,7 +204,8 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
             <Button
               variant={settings.bedrooms.includes(2) ? 'default' : 'secondary'}
               onClick={() => toggleBedroom(2)}
-              className={`h-12 ${
+              size="sm"
+              className={`h-10 text-sm ${
                 settings.bedrooms.includes(2) 
                   ? 'bg-primary hover:bg-primary/90' 
                   : 'bg-muted hover:bg-muted/80 text-muted-foreground'
@@ -213,7 +216,8 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
             <Button
               variant={settings.bedrooms.includes(3) ? 'default' : 'secondary'}
               onClick={() => toggleBedroom(3)}
-              className={`h-12 ${
+              size="sm"
+              className={`h-10 text-sm ${
                 settings.bedrooms.includes(3) 
                   ? 'bg-primary hover:bg-primary/90' 
                   : 'bg-muted hover:bg-muted/80 text-muted-foreground'
@@ -224,7 +228,7 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
           </div>
         </div>
 
-      </CardContent>
+      </div>
 
     </div>
   );

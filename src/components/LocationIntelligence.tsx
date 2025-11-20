@@ -45,60 +45,61 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   return (
     <div id="location-intelligence" className="w-full">
       {/* Main Container */}
-      <div className="bg-background rounded-3xl p-6 md:p-8 shadow-xl border border-border">
+      <div className="bg-background rounded-3xl p-4 md:p-5 shadow-xl border border-border">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-primary-foreground">
-              <MapPin className="w-6 h-6" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-primary-foreground">
+              <MapPin className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-foreground">Apartment Search Settings</h2>
-              <p className="text-sm text-muted-foreground">Configure your search criteria, budget, and important locations</p>
+              <h2 className="text-lg font-semibold text-foreground">Apartment Search Settings</h2>
+              <p className="text-xs text-muted-foreground">Configure your search criteria, budget, and important locations</p>
             </div>
           </div>
           <Button 
             onClick={() => setShowPOIModal(true)}
             className="bg-primary hover:bg-primary/90 shadow-md"
+            size="sm"
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4 mr-1" />
             Add Location
           </Button>
         </div>
 
         {/* Location Search Section */}
-        <div className="bg-muted/40 rounded-xl p-5 mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-green-500 flex items-center justify-center text-white">
-              <MapPin className="w-5 h-5" />
+        <div className="bg-muted/40 rounded-xl p-3 mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center text-white">
+              <MapPin className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-foreground">Location Search</h3>
+              <h3 className="text-sm font-semibold text-foreground">Location Search</h3>
               <p className="text-xs text-muted-foreground">Search by city, neighborhood, or specific address</p>
             </div>
           </div>
-          <div className="relative mb-3">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <div className="relative mb-2">
+            <MapPin className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <Input 
               placeholder="30024" 
               defaultValue="30024"
-              className="pl-10 border-2 focus:border-green-500"
+              className="pl-9 h-9 text-sm border-2 focus:border-green-500"
             />
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Zap className="w-3 h-3" />
             <span>AI will find apartments optimized for your search area and POIs</span>
           </div>
         </div>
 
         {/* Search Settings Section */}
-        <div className="bg-muted/30 rounded-xl p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="bg-muted/30 rounded-xl p-4 mb-5">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Settings className="w-5 h-5 text-primary" />
-              <h3 className="text-base font-semibold text-foreground">Search Settings</h3>
+              <Settings className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">Search Settings</h3>
             </div>
-            <Button variant="outline" size="sm">Reset</Button>
+            <Button variant="outline" size="sm" className="h-7 text-xs">Reset</Button>
           </div>
           
           <EnhancedSearchSettings 
