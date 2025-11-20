@@ -43,67 +43,139 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   console.log('🎯 Location Intelligence loaded:', { userProfile, preferencesCount, hasAIPreferences });
 
   return (
-    <div id="location-intelligence" className="w-full space-y-6">
-      {/* Section Header */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl p-4 md:p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
-              <Target className="w-6 h-6 text-blue-400" />
+    <div id="location-intelligence" className="w-full">
+      {/* Main Container */}
+      <div className="bg-background rounded-3xl p-6 md:p-8 shadow-xl border border-border">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-primary-foreground">
+              <MapPin className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-foreground">Location Intelligence</h2>
-              <p className="text-muted-foreground text-lg">AI-powered apartment recommendations based on your lifestyle and location preferences</p>
+              <h2 className="text-xl font-semibold text-foreground">Apartment Search Settings</h2>
+              <p className="text-sm text-muted-foreground">Configure your search criteria, budget, and important locations</p>
             </div>
           </div>
-          
-          <div className="flex items-center gap-4">
-            {/* AI Status Indicator */}
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
-              <div className={`w-2 h-2 rounded-full ${hasAIPreferences ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
-              <Badge 
-                variant={hasAIPreferences ? "default" : "outline"}
-                className={hasAIPreferences ? "bg-green-500/20 text-green-400 border-green-500/30" : ""}
-              >
-                <Brain className="w-3 h-3 mr-1" />
-                {hasAIPreferences ? `AI Preferences Active (${preferencesCount})` : 'Setup AI Preferences'}
-              </Badge>
-            </div>
-
-          </div>
+          <Button 
+            onClick={() => setShowPOIModal(true)}
+            className="bg-primary hover:bg-primary/90 shadow-md"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Location
+          </Button>
         </div>
-      </div>
 
-      {/* POI Management and Search Settings */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-        {/* POI Management Panel */}
-        <div className="flex flex-col">
-          <ModernPOIManager
-            pointsOfInterest={pointsOfInterest}
-            onAddPOI={addPOI}
-            onRemovePOI={removePOI}
-            onUpdatePriority={updatePOIPriority}
-            showModal={showPOIModal}
-            setShowModal={setShowPOIModal}
-          />
+        {/* Location Search Section */}
+        <div className="bg-muted/40 rounded-xl p-5 mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-green-500 flex items-center justify-center text-white">
+              <MapPin className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold text-foreground">Location Search</h3>
+              <p className="text-xs text-muted-foreground">Search by city, neighborhood, or specific address</p>
+            </div>
+          </div>
+          <div className="relative mb-3">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input 
+              placeholder="30024" 
+              defaultValue="30024"
+              className="pl-10 border-2 focus:border-green-500"
+            />
+          </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Zap className="w-3 h-3" />
+            <span>AI will find apartments optimized for your search area and POIs</span>
+          </div>
         </div>
 
         {/* Search Settings Section */}
-        <div className="flex flex-col">
-          <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 h-full">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Settings className="w-5 h-5 text-blue-400" />
-                Search Settings
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">Configure your apartment search criteria and preferences</p>
-            </CardHeader>
-            <CardContent>
-              <EnhancedSearchSettings 
-                onSettingsChange={setSearchSettings}
-              />
-            </CardContent>
-          </Card>
+        <div className="bg-muted/30 rounded-xl p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Settings className="w-5 h-5 text-primary" />
+              <h3 className="text-base font-semibold text-foreground">Search Settings</h3>
+            </div>
+            <Button variant="outline" size="sm">Reset</Button>
+          </div>
+          
+          <EnhancedSearchSettings 
+            onSettingsChange={setSearchSettings}
+          />
+        </div>
+
+        {/* Points of Interest Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {pointsOfInterest.map((poi) => (
+            <Card key={poi.id} className={`border-t-4 ${
+              poi.priority === 'high' ? 'border-t-blue-500' : 
+              poi.priority === 'medium' ? 'border-t-orange-500' : 
+              'border-t-gray-400'
+            } hover:shadow-lg transition-all`}>
+              <CardContent className="p-5">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-white ${
+                    poi.category === 'work' ? 'bg-blue-500' : 
+                    poi.category === 'gym' ? 'bg-green-500' : 
+                    'bg-purple-500'
+                  }`}>
+                    {poi.category === 'work' ? '🏢' : poi.category === 'gym' ? '🏋️' : '📍'}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-base font-semibold text-foreground mb-1">{poi.name}</h3>
+                    <p className="text-xs text-muted-foreground mb-1">{poi.address.substring(0, 20)}...</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                      {poi.category === 'work' ? 'WORK & OFFICE' : poi.category === 'gym' ? 'FITNESS & GYM' : poi.category.toUpperCase()}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between mb-3">
+                  <Badge variant={poi.priority === 'high' ? 'destructive' : 'secondary'} className={
+                    poi.priority === 'high' ? 'bg-red-50 text-red-600 border-red-200' : 
+                    'bg-orange-50 text-orange-600 border-orange-200'
+                  }>
+                    {poi.priority === 'high' ? 'High Priority' : poi.priority === 'medium' ? 'Medium Priority' : 'Low Priority'}
+                  </Badge>
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Navigation className="w-4 h-4" />
+                    <span>{poi.maxTime} min</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                  <Navigation className="w-3 h-3" />
+                  <span className="capitalize">{poi.transportMode}</span>
+                </div>
+
+                <Select 
+                  value={poi.priority}
+                  onValueChange={(value) => updatePOIPriority(poi.id, value as 'high' | 'medium' | 'low')}
+                >
+                  <SelectTrigger className="w-full text-sm">
+                    <SelectValue placeholder="Change Priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high">High Priority</SelectItem>
+                    <SelectItem value="medium">Medium Priority</SelectItem>
+                    <SelectItem value="low">Low Priority</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removePOI(poi.id)}
+                  className="w-full mt-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Remove
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
 

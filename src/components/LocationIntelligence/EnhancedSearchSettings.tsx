@@ -3,6 +3,7 @@ import { Settings, DollarSign, MapPin, Clock, Home, Car, Calendar, X } from 'luc
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,9 +19,9 @@ interface SearchSettingsProps {
 }
 
 export interface SearchSettings {
-  budgetRange: [number, number];
+  budgetRange: number;
   searchRadius: number;
-  bedrooms: string[];
+  bedrooms: number[];
   petPolicy: string;
   parkingRequired: boolean;
   amenities: string[];
@@ -29,9 +30,9 @@ export interface SearchSettings {
 
 const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChange }) => {
   const [settings, setSettings] = useState<SearchSettings>({
-    budgetRange: [2000, 2500],
+    budgetRange: 2250,
     searchRadius: 25,
-    bedrooms: ['1'],
+    bedrooms: [1],
     petPolicy: 'any',
     parkingRequired: true,
     amenities: ['Pool', 'Gym'],
@@ -61,10 +62,10 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
   };
 
   const bedroomOptions = [
-    { value: 'studio', label: 'Studio', icon: '🏠' },
-    { value: '1', label: '1 BR', icon: '🛏️' },
-    { value: '2', label: '2 BR', icon: '🛏️🛏️' },
-    { value: '3+', label: '3+ BR', icon: '🏘️' }
+    { value: 0, label: 'Studio', icon: '🏠' },
+    { value: 1, label: '1 BR', icon: '🛏️' },
+    { value: 2, label: '2 BR', icon: '🛏️🛏️' },
+    { value: 3, label: '3+ BR', icon: '🏘️' }
   ];
 
   const amenityOptions = [
@@ -72,13 +73,13 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
     'Air Conditioning', 'Dishwasher', 'Walk-in Closet', 'Elevator'
   ];
 
-  const toggleBedroom = (bedroom: string) => {
+  const toggleBedroom = (bedroom: number) => {
     const newBedrooms = settings.bedrooms.includes(bedroom)
       ? settings.bedrooms.filter(b => b !== bedroom)
       : [...settings.bedrooms, bedroom];
     
     // Track bedroom filter change
-    dataTracker.trackInteraction('toggle_bedroom_filter', bedroom, {
+    dataTracker.trackInteraction('toggle_bedroom_filter', bedroom.toString(), {
       action: settings.bedrooms.includes(bedroom) ? 'remove' : 'add',
       current_bedrooms: settings.bedrooms,
       new_bedrooms: newBedrooms
@@ -104,7 +105,7 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
 
   const resetFilters = () => {
     const defaultSettings: SearchSettings = {
-      budgetRange: [1500, 3000],
+      budgetRange: 2250,
       searchRadius: 25,
       bedrooms: [],
       petPolicy: 'any',
@@ -143,75 +144,89 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
   };
 
   return (
-    <Card className="bg-slate-800/30 border border-slate-700/30 w-full flex flex-col h-full">
-      <CardHeader className="pb-3 flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Settings className="w-5 h-5 text-blue-400" />
-            Search Settings
-          </CardTitle>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={resetFilters}
-            className="text-xs hover:bg-slate-700/50"
-          >
-            Reset
-          </Button>
-        </div>
-      </CardHeader>
+    <div className="space-y-6">
       
-      <CardContent className="flex-1 space-y-6 overflow-y-auto">
+      <CardContent className="space-y-6">
         {/* Budget Range */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-green-400" />
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-2xl">💰</span>
             <label className="text-sm font-medium text-foreground">Budget Range</label>
           </div>
-          <div className="px-3">
+          <div className="relative mb-2">
+            <div className="absolute inset-0 h-1.5 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 rounded-full" />
             <Slider
-              value={settings.budgetRange}
-              onValueChange={(value) => updateSettings({ budgetRange: value as [number, number] })}
-              min={500}
-              max={5000}
+              value={[settings.budgetRange]}
+              onValueChange={(value) => updateSettings({ budgetRange: value[0] })}
+              min={2000}
+              max={2500}
               step={50}
-              className="w-full"
+              className="relative z-10"
             />
-            <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-              <span>${settings.budgetRange[0].toLocaleString()}</span>
-              <span>${settings.budgetRange[1].toLocaleString()}</span>
-            </div>
+          </div>
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>$2,000</span>
+            <span>${settings.budgetRange.toLocaleString()}</span>
           </div>
         </div>
 
         {/* Bedrooms */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Home className="w-4 h-4 text-purple-400" />
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-2xl">🛏️</span>
             <label className="text-sm font-medium text-foreground">Bedrooms</label>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            {bedroomOptions.map((option) => (
-              <Button
-                key={option.value}
-                variant={settings.bedrooms.includes(option.value) ? "default" : "outline"}
-                size="sm"
-                onClick={() => toggleBedroom(option.value)}
-                className={`h-12 flex-col gap-1 transition-all duration-200 ${
-                  settings.bedrooms.includes(option.value)
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-500'
-                    : 'bg-slate-700/30 hover:bg-slate-600/50 border-slate-600/50'
-                }`}
-              >
-                <span className="text-sm">{option.icon}</span>
-                <span className="text-xs">{option.label}</span>
-              </Button>
-            ))}
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant={settings.bedrooms.includes(0) ? 'default' : 'secondary'}
+              onClick={() => toggleBedroom(0)}
+              className={`h-12 ${
+                settings.bedrooms.includes(0) 
+                  ? 'bg-slate-500 hover:bg-slate-600' 
+                  : 'bg-slate-300 hover:bg-slate-400 text-slate-700'
+              }`}
+            >
+              Studio
+            </Button>
+            <Button
+              variant={settings.bedrooms.includes(1) ? 'default' : 'secondary'}
+              onClick={() => toggleBedroom(1)}
+              className={`h-12 ${
+                settings.bedrooms.includes(1) 
+                  ? 'bg-primary hover:bg-primary/90' 
+                  : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+              }`}
+            >
+              1 BR
+            </Button>
+            <Button
+              variant={settings.bedrooms.includes(2) ? 'default' : 'secondary'}
+              onClick={() => toggleBedroom(2)}
+              className={`h-12 ${
+                settings.bedrooms.includes(2) 
+                  ? 'bg-primary hover:bg-primary/90' 
+                  : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+              }`}
+            >
+              2 BR
+            </Button>
+            <Button
+              variant={settings.bedrooms.includes(3) ? 'default' : 'secondary'}
+              onClick={() => toggleBedroom(3)}
+              className={`h-12 ${
+                settings.bedrooms.includes(3) 
+                  ? 'bg-primary hover:bg-primary/90' 
+                  : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+              }`}
+            >
+              3+ BR
+            </Button>
           </div>
         </div>
 
       </CardContent>
-    </Card>
+
+    </div>
   );
 };
 
