@@ -1,20 +1,13 @@
-import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
-import { Icon, DivIcon } from 'leaflet';
+import React, { useState, useEffect, useRef } from 'react';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { 
   TrendingUp, 
-  Home, 
-  Calendar, 
-  Users, 
   Handshake, 
-  Clock, 
-  MapPin,
   Briefcase,
   Dumbbell,
   ShoppingCart,
   Star,
-  DollarSign,
   Bed,
   Bath,
   Maximize
@@ -110,79 +103,127 @@ const marketIntel = {
   bestWindow: 'Next 2wks'
 };
 
-// Create custom marker icons
-const createPropertyIcon = (score: number, isSelected: boolean) => {
-  const color = score >= 90 ? '#22c55e' : score >= 80 ? '#eab308' : score >= 70 ? '#f97316' : '#ef4444';
-  const size = isSelected ? 44 : 36;
-  
-  return new DivIcon({
-    className: 'custom-marker',
-    html: `
-      <div style="
-        width: ${size}px;
-        height: ${size}px;
-        background: ${color};
-        border: 3px solid white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: ${isSelected ? '14px' : '12px'};
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        transition: all 0.2s;
-      ">
-        ${score}
-      </div>
-    `,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2]
-  });
-};
-
-const createLocationIcon = (type: string) => {
-  const colors: Record<string, string> = {
-    work: '#ef4444',
-    gym: '#f97316', 
-    grocery: '#22c55e'
-  };
-  const icons: Record<string, string> = {
-    work: '💼',
-    gym: '🏋️',
-    grocery: '🛒'
-  };
-  
-  return new DivIcon({
-    className: 'location-marker',
-    html: `
-      <div style="
-        width: 32px;
-        height: 32px;
-        background: white;
-        border: 3px solid ${colors[type] || '#667eea'};
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-      ">
-        ${icons[type] || '📍'}
-      </div>
-    `,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16]
-  });
-};
-
 const SearchDashboardDemo: React.FC = () => {
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
   const [budgetRange, setBudgetRange] = useState([2000, 2500]);
   const [bedrooms, setBedrooms] = useState('1+');
   const [sortBy, setSortBy] = useState('score');
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.Marker[]>([]);
 
   const selectedPropertyData = sampleProperties.find(p => p.id === selectedProperty);
+
+  // Initialize Leaflet map
+  useEffect(() => {
+    if (!mapRef.current || mapInstanceRef.current) return;
+
+    // Create map
+    const map = L.map(mapRef.current).setView([30.2672, -97.7431], 13);
+    
+    // Add CartoDB Voyager tiles (cleaner look)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+    }).addTo(map);
+
+    mapInstanceRef.current = map;
+
+    // Add user location markers
+    userLocations.forEach((loc) => {
+      const colors: Record<string, string> = { work: '#ef4444', gym: '#f97316', grocery: '#22c55e' };
+      const icons: Record<string, string> = { work: '💼', gym: '🏋️', grocery: '🛒' };
+      
+      const icon = L.divIcon({
+        className: 'location-marker',
+        html: `
+          <div style="
+            width: 32px;
+            height: 32px;
+            background: white;
+            border: 3px solid ${colors[loc.type] || '#667eea'};
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+          ">
+            ${icons[loc.type] || '📍'}
+          </div>
+        `,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+
+      L.marker([loc.coordinates.lat, loc.coordinates.lng], { icon })
+        .addTo(map)
+        .bindPopup(`<b>${loc.name}</b><br/>${loc.type} • ${loc.priority} priority`);
+
+      // Add radius circle for high priority
+      if (loc.priority === 'high') {
+        L.circle([loc.coordinates.lat, loc.coordinates.lng], {
+          radius: 1500,
+          color: '#ef4444',
+          fillColor: '#ef4444',
+          fillOpacity: 0.08,
+          weight: 1,
+          dashArray: '5, 5'
+        }).addTo(map);
+      }
+    });
+
+    // Add property markers
+    sampleProperties.forEach((property) => {
+      const color = property.score >= 90 ? '#22c55e' : property.score >= 80 ? '#eab308' : '#f97316';
+      
+      const icon = L.divIcon({
+        className: 'property-marker',
+        html: `
+          <div style="
+            width: 36px;
+            height: 36px;
+            background: ${color};
+            border: 3px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            cursor: pointer;
+          ">
+            ${property.score}
+          </div>
+        `,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18]
+      });
+
+      const marker = L.marker([property.coordinates.lat, property.coordinates.lng], { icon })
+        .addTo(map)
+        .bindPopup(`
+          <div style="min-width: 180px;">
+            <b>${property.name}</b><br/>
+            <span style="color: #667eea; font-weight: bold; font-size: 16px;">$${property.rent}/mo</span><br/>
+            <small>${property.bedrooms}bd • ${property.bathrooms}ba • ${property.sqft} sqft</small>
+            ${property.savings ? `<br/><small style="color: #22c55e;">💰 Save ${property.savings}</small>` : ''}
+          </div>
+        `);
+
+      marker.on('click', () => {
+        setSelectedProperty(property.id);
+      });
+
+      markersRef.current.push(marker);
+    });
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+    };
+  }, []);
 
   return (
     <div className="h-screen w-full flex overflow-hidden bg-muted">
@@ -446,76 +487,7 @@ const SearchDashboardDemo: React.FC = () => {
 
       {/* Right Panel - Map */}
       <div className="flex-1 relative">
-        <MapContainer
-          center={[30.2672, -97.7431]}
-          zoom={13}
-          className="h-full w-full"
-          zoomControl={false}
-        >
-          {/* Enhanced tile layer - CartoDB Voyager for cleaner look */}
-          <TileLayer
-            attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          />
-
-          {/* User Location Markers */}
-          {userLocations.map((loc) => (
-            <React.Fragment key={loc.id}>
-              {/* Radius circle for high priority */}
-              {loc.priority === 'high' && (
-                <Circle
-                  center={[loc.coordinates.lat, loc.coordinates.lng]}
-                  radius={1500}
-                  pathOptions={{
-                    color: '#ef4444',
-                    fillColor: '#ef4444',
-                    fillOpacity: 0.08,
-                    weight: 1,
-                    dashArray: '5, 5'
-                  }}
-                />
-              )}
-              <Marker
-                position={[loc.coordinates.lat, loc.coordinates.lng]}
-                icon={createLocationIcon(loc.type)}
-              >
-                <Popup>
-                  <div className="text-sm">
-                    <div className="font-semibold">{loc.name}</div>
-                    <div className="text-muted-foreground capitalize">{loc.type} • {loc.priority} priority</div>
-                  </div>
-                </Popup>
-              </Marker>
-            </React.Fragment>
-          ))}
-
-          {/* Property Markers */}
-          {sampleProperties.map((property) => (
-            <Marker
-              key={property.id}
-              position={[property.coordinates.lat, property.coordinates.lng]}
-              icon={createPropertyIcon(property.score, selectedProperty === property.id)}
-              eventHandlers={{
-                click: () => setSelectedProperty(property.id)
-              }}
-            >
-              <Popup>
-                <div className="text-sm min-w-[200px]">
-                  <div className="font-semibold">{property.name}</div>
-                  <div className="text-primary font-bold text-lg">${property.rent}/mo</div>
-                  <div className="text-muted-foreground text-xs">
-                    {property.bedrooms}bd • {property.bathrooms}ba • {property.sqft} sqft
-                  </div>
-                  {property.savings && (
-                    <div className="text-green-600 text-xs mt-1">
-                      💰 Save {property.savings}
-                    </div>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
+        <div ref={mapRef} className="h-full w-full" />
 
         {/* Map Legend Overlay */}
         <div className="absolute bottom-6 left-6 bg-background/95 backdrop-blur-sm rounded-lg p-4 border shadow-lg z-[1000]">
