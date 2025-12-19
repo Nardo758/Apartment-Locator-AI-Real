@@ -44,6 +44,7 @@ import ComponentDemo from "./pages/ComponentDemo";
 import AdvancedFeaturesDemo from "./pages/AdvancedFeaturesDemo";
 import DataManagement from "./pages/DataManagement";
 import Admin from "./pages/Admin";
+import SearchDashboardDemo from "./components/demo/SearchDashboardDemo";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="/original" element={<Landing />} />
             <Route path="/about" element={<About />} />
             <Route path="/demo" element={<LocationIntelligenceDemo />} />
+            <Route path="/search-demo" element={<SearchDashboardDemo />} />
             <Route path="/renter-intelligence" element={<RenterIntelligence />} />
             <Route path="/auth" element={<AuthModern />} />
             <Route path="/auth-original" element={<Auth />} />
