@@ -1,28 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, CheckCircle, TrendingUp, Users, DollarSign, Clock, Zap, Target, BarChart, Brain, Search, Mail, Star, Building, MapPin, Calendar } from 'lucide-react';
-// Placeholder for hero images - using placeholder URLs for now
 const heroImage = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80';
 const successStory1 = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80';
 const successStory2 = 'https://images.unsplash.com/photo-1494790108755-2616b612b77c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80';
 
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
 import { PaymentButton } from '@/components/PaymentButton';
+import { useUser } from '@/hooks/useUser';
 
 const Landing = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, loading } = useUser();
 
-  // Check if user is already authenticated
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        navigate('/dashboard');
-      }
-    };
-    checkAuth();
-  }, [navigate]);
+    if (!loading && isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, loading, navigate]);
   const [currentDemo, setCurrentDemo] = useState(0);
 
   useEffect(() => {
@@ -128,6 +123,16 @@ const Landing = () => {
               >
                 Contact
               </a>
+            </li>
+            <li>
+              <Link 
+                to="/auth" 
+                className="text-white font-medium relative transition-all duration-300"
+                style={{ textDecoration: 'none' }}
+                data-testid="link-signin"
+              >
+                Sign In
+              </Link>
             </li>
           </ul>
           <Link to="/trial">

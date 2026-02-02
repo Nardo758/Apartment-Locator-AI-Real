@@ -78,8 +78,31 @@ const LandingSSRSafe = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Navigation Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Building className="w-8 h-8 text-blue-600" />
+            <span className="text-xl font-bold text-gray-900">Apartment Locator AI</span>
+          </div>
+          <div className="flex items-center gap-6">
+            <Link to="/demo" className="text-gray-600 hover:text-gray-900 transition-colors" data-testid="link-demo">
+              Demo
+            </Link>
+            <Link to="/auth" data-testid="link-signin">
+              <Button variant="outline">Sign In</Button>
+            </Link>
+            <Link to="/auth" data-testid="link-signup">
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                Get Started
+              </Button>
+            </Link>
+          </div>
+        </nav>
+      </header>
+
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 overflow-hidden pt-20">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
