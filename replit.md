@@ -11,8 +11,9 @@ An AI-powered apartment locator application that helps users find apartments, an
 ## Recent Changes (February 2026)
 - **Migration to Replit Fullstack**: Migrated from Lovable/Supabase to Replit's fullstack environment with PostgreSQL
 - **Backend**: Express server with Drizzle ORM for database operations
-- **Database**: PostgreSQL with tables for properties, saved apartments, search history, user preferences, and market snapshots
-- **API Routes**: RESTful endpoints for properties, saved apartments, search history, preferences, and market data
+- **Database**: PostgreSQL with tables for properties, saved apartments, search history, user preferences, market snapshots, users, and user POIs
+- **Authentication**: JWT-based auth with bcrypt password hashing (signup, signin, /me endpoints)
+- **API Routes**: RESTful endpoints for properties, saved apartments, search history, preferences, market data, auth, and payments
 
 ## Project Architecture
 
@@ -42,16 +43,26 @@ An AI-powered apartment locator application that helps users find apartments, an
 ```
 
 ### Database Schema
+- **users**: User accounts with email, password hash, subscription tier/status
 - **properties**: Property listings with details, amenities, pricing
 - **saved_apartments**: User-saved properties with notes and ratings
 - **search_history**: User search parameter history
 - **user_preferences**: User notification and filter preferences
 - **market_snapshots**: Market analytics and trends by city
+- **user_pois**: User points of interest (custom locations)
 
 ### API Endpoints
+**Authentication**
+- `POST /api/auth/signup` - Create new user account
+- `POST /api/auth/signin` - Sign in existing user
+- `GET /api/auth/me` - Get current user (requires auth token)
+
+**Properties**
 - `GET /api/properties` - Search properties with filters
 - `GET /api/properties/:id` - Get property details
 - `POST /api/properties` - Create property
+
+**User Data**
 - `GET /api/saved-apartments/:userId` - Get user's saved apartments
 - `POST /api/saved-apartments` - Save an apartment
 - `DELETE /api/saved-apartments/:userId/:apartmentId` - Remove saved apartment
@@ -59,8 +70,18 @@ An AI-powered apartment locator application that helps users find apartments, an
 - `POST /api/search-history` - Add search entry
 - `GET /api/preferences/:userId` - Get user preferences
 - `POST /api/preferences` - Create/update preferences
+- `GET /api/pois/:userId` - Get user POIs
+- `POST /api/pois` - Create POI
+- `DELETE /api/pois/:userId/:poiId` - Delete POI
+
+**Market Data**
 - `GET /api/market-snapshots/:city/:state` - Get market data
 - `POST /api/market-snapshots` - Create market snapshot
+
+**Payments**
+- `POST /api/payments/create-checkout` - Create payment checkout session (stub - needs Stripe config)
+
+**Health**
 - `GET /api/health` - Health check
 
 ## Development Commands
@@ -69,7 +90,19 @@ An AI-powered apartment locator application that helps users find apartments, an
 - `npm run db:push` - Push schema changes to database
 - `npm run db:studio` - Open Drizzle Studio for database management
 
-## Migration Notes
-- The application still contains Supabase client code in `src/integrations/supabase/` that needs to be migrated to use the new Express API
-- Supabase edge functions in `supabase/functions/` need to be migrated to Express routes
-- Authentication needs to be implemented (was previously using Supabase Auth)
+## Migration Status
+
+### Completed
+- Database schema migrated to PostgreSQL with Drizzle ORM
+- Authentication system with JWT tokens and bcrypt password hashing
+- Auth pages (Auth.tsx, AuthModern.tsx) using new Express API
+- useUser hook calling Express auth endpoints
+- Payment checkout endpoint stub (returns placeholder URLs)
+- All core CRUD operations for properties, saved apartments, search history, preferences, POIs, market data
+
+### Remaining (Future Phases)
+- Some pages still reference Supabase client (Landing, Profile, etc.) - need UI updates to call Express API
+- Full Stripe integration for payments (add STRIPE_SECRET_KEY when ready)
+- Data export functionality migration
+- User tracking migration
+- Legacy Supabase files in `src/integrations/supabase/` can be removed once all pages migrated
