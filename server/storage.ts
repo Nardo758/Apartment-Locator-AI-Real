@@ -6,16 +6,19 @@ import {
   searchHistory,
   userPreferences,
   marketSnapshots,
+  userPois,
   type Property,
   type SavedApartment,
   type SearchHistory,
   type UserPreferences,
   type MarketSnapshot,
+  type UserPoi,
   type InsertProperty,
   type InsertSavedApartment,
   type InsertSearchHistory,
   type InsertUserPreferences,
   type InsertMarketSnapshot,
+  type InsertUserPoi,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -43,6 +46,10 @@ export interface IStorage {
   
   getMarketSnapshots(city: string, state: string, limit?: number): Promise<MarketSnapshot[]>;
   createMarketSnapshot(data: InsertMarketSnapshot): Promise<MarketSnapshot>;
+  
+  getUserPois(userId: string): Promise<UserPoi[]>;
+  createUserPoi(data: InsertUserPoi): Promise<UserPoi>;
+  deleteUserPoi(userId: string, poiId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -168,6 +175,26 @@ export class DatabaseStorage implements IStorage {
   async createMarketSnapshot(data: InsertMarketSnapshot): Promise<MarketSnapshot> {
     const [created] = await db.insert(marketSnapshots).values(data).returning();
     return created;
+  }
+
+  async getUserPois(userId: string): Promise<UserPoi[]> {
+    return db.select()
+      .from(userPois)
+      .where(eq(userPois.userId, userId))
+      .orderBy(desc(userPois.priority));
+  }
+
+  async createUserPoi(data: InsertUserPoi): Promise<UserPoi> {
+    const [created] = await db.insert(userPois).values(data).returning();
+    return created;
+  }
+
+  async deleteUserPoi(userId: string, poiId: string): Promise<void> {
+    await db.delete(userPois)
+      .where(and(
+        eq(userPois.userId, userId),
+        eq(userPois.id, poiId)
+      ));
   }
 }
 

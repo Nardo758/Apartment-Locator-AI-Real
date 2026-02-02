@@ -81,6 +81,19 @@ export const userPreferences = pgTable("user_preferences", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const userPois = pgTable("user_pois", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  address: varchar("address", { length: 500 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  latitude: decimal("latitude", { precision: 10, scale: 8 }).notNull(),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }).notNull(),
+  notes: text("notes"),
+  priority: integer("priority"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const marketSnapshots = pgTable("market_snapshots", {
   id: uuid("id").primaryKey().defaultRandom(),
   city: varchar("city", { length: 100 }).notNull(),
@@ -109,15 +122,18 @@ export const insertSavedApartmentSchema = createInsertSchema(savedApartments).om
 export const insertSearchHistorySchema = createInsertSchema(searchHistory).omit({ id: true, createdAt: true });
 export const insertUserPreferencesSchema = createInsertSchema(userPreferences).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMarketSnapshotSchema = createInsertSchema(marketSnapshots).omit({ id: true, createdAt: true });
+export const insertUserPoiSchema = createInsertSchema(userPois).omit({ id: true, createdAt: true });
 
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
 export type InsertSavedApartment = z.infer<typeof insertSavedApartmentSchema>;
 export type InsertSearchHistory = z.infer<typeof insertSearchHistorySchema>;
 export type InsertUserPreferences = z.infer<typeof insertUserPreferencesSchema>;
 export type InsertMarketSnapshot = z.infer<typeof insertMarketSnapshotSchema>;
+export type InsertUserPoi = z.infer<typeof insertUserPoiSchema>;
 
 export type Property = typeof properties.$inferSelect;
 export type SavedApartment = typeof savedApartments.$inferSelect;
 export type SearchHistory = typeof searchHistory.$inferSelect;
 export type UserPreferences = typeof userPreferences.$inferSelect;
 export type MarketSnapshot = typeof marketSnapshots.$inferSelect;
+export type UserPoi = typeof userPois.$inferSelect;

@@ -1,10 +1,12 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PropertyStateProvider } from "./contexts";
 import { OnboardingFlowProvider } from "./contexts/OnboardingFlowContext";
+import { UserProvider } from "./hooks/useUser";
 import Landing from "./pages/Landing";
 import TestLanding from "./pages/TestLanding";
 import LandingFixed from "./pages/LandingFixed";
@@ -48,12 +50,11 @@ import SearchDashboardDemo from "./components/demo/SearchDashboardDemo";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
-const queryClient = new QueryClient();
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <PropertyStateProvider>
-      <TooltipProvider>
+    <UserProvider>
+      <PropertyStateProvider>
+        <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
@@ -103,8 +104,9 @@ const App = () => (
           </Routes>
           </OnboardingFlowProvider>
         </BrowserRouter>
-      </TooltipProvider>
-    </PropertyStateProvider>
+        </TooltipProvider>
+      </PropertyStateProvider>
+    </UserProvider>
   </QueryClientProvider>
 );
 

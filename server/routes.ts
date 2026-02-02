@@ -6,6 +6,7 @@ import {
   insertSearchHistorySchema,
   insertUserPreferencesSchema,
   insertMarketSnapshotSchema,
+  insertUserPoiSchema,
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<void> {
@@ -181,6 +182,43 @@ export async function registerRoutes(app: Express): Promise<void> {
     } catch (error) {
       console.error("Error creating market snapshot:", error);
       res.status(500).json({ error: "Failed to create market snapshot" });
+    }
+  });
+
+  app.get("/api/pois/:userId", async (req, res) => {
+    try {
+      const pois = await storage.getUserPois(req.params.userId);
+      res.json(pois);
+    } catch (error) {
+      console.error("Error fetching POIs:", error);
+      res.status(500).json({ error: "Failed to fetch POIs" });
+    }
+  });
+
+  app.post("/api/pois", async (req, res) => {
+    try {
+      const parseResult = insertUserPoiSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid POI data", 
+          details: parseResult.error.errors 
+        });
+      }
+      const poi = await storage.createUserPoi(parseResult.data);
+      res.status(201).json(poi);
+    } catch (error) {
+      console.error("Error creating POI:", error);
+      res.status(500).json({ error: "Failed to create POI" });
+    }
+  });
+
+  app.delete("/api/pois/:userId/:poiId", async (req, res) => {
+    try {
+      await storage.deleteUserPoi(req.params.userId, req.params.poiId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting POI:", error);
+      res.status(500).json({ error: "Failed to delete POI" });
     }
   });
 
