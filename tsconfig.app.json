@@ -25,9 +25,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
+      "@shared/*": ["./shared/*"],
       "@/supabase/*": ["./supabase/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "shared"],
   "exclude": ["supabase/functions/**"]
 }

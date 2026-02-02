@@ -8,6 +8,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
+      "@shared/*": ["./shared/*"],
       "@/supabase/*": ["./supabase/*"]
     },
     "strict": true,
