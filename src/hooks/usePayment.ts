@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useUser } from '@/hooks/useUser';
 
 interface PaymentData {
   plan: 'basic' | 'pro' | 'premium';
@@ -13,6 +13,7 @@ export const usePayment = () => {
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [pendingPlan, setPendingPlan] = useState<'basic' | 'pro' | 'premium' | null>(null);
   const { toast } = useToast();
+  const { user, isAuthenticated } = useUser();
 
   const processPayment = useCallback(async (
     plan: 'basic' | 'pro' | 'premium',
@@ -22,16 +23,13 @@ export const usePayment = () => {
     try {
       setIsLoading(true);
       
-      // Get current session (if user is logged in)
-      const { data: { session } } = await supabase.auth.getSession();
-
-      // Prepare headers and body
+      const token = localStorage.getItem('auth_token');
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
       
-      if (session) {
-        headers.Authorization = `Bearer ${session.access_token}`;
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
       }
 
       const body: PaymentData = {
@@ -40,18 +38,20 @@ export const usePayment = () => {
         ...(guestName && { guestName })
       };
 
-      // Call the create-checkout-session edge function
-      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+      const res = await fetch('/api/payments/create-checkout', {
+        method: 'POST',
         headers,
-        body
+        body: JSON.stringify(body)
       });
 
-      if (error) {
-        throw error;
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to create checkout session');
       }
 
+      const data = await res.json();
+
       if (data?.url) {
-        // Open Stripe checkout in a new tab
         window.open(data.url, '_blank');
         
         toast({
@@ -81,19 +81,14 @@ export const usePayment = () => {
     guestEmail?: string,
     guestName?: string
   ) => {
-    // Get current session (if user is logged in)
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    // If no session and no guest email, show guest modal
-    if (!session && !guestEmail) {
+    if (!isAuthenticated && !guestEmail) {
       setPendingPlan(plan);
       setShowGuestModal(true);
       return null;
     }
 
-    // Process payment directly
     return processPayment(plan, guestEmail, guestName);
-  }, [processPayment]);
+  }, [isAuthenticated, processPayment]);
 
   const handleGuestSubmit = useCallback((email: string, name: string) => {
     if (pendingPlan) {

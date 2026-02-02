@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { storage } from "./storage";
 import {
   insertPropertySchema,
@@ -8,8 +8,115 @@ import {
   insertMarketSnapshotSchema,
   insertUserPoiSchema,
 } from "@shared/schema";
+import { 
+  createUser, 
+  authenticateUser, 
+  generateToken, 
+  verifyToken, 
+  getUserById,
+  getUserByEmail,
+  type AuthUser 
+} from "./auth";
+import { z } from "zod";
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: AuthUser;
+    }
+  }
+}
+
+const signUpSchema = z.object({
+  email: z.string().email().max(255),
+  password: z.string().min(8).max(100),
+  name: z.string().max(255).optional(),
+});
+
+const signInSchema = z.object({
+  email: z.string().email().max(255),
+  password: z.string().min(1),
+});
+
+async function authMiddleware(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+
+  const token = authHeader.slice(7);
+  const payload = verifyToken(token);
+  
+  if (!payload) {
+    return res.status(401).json({ error: "Invalid or expired token" });
+  }
+
+  const user = await getUserById(payload.userId);
+  if (!user) {
+    return res.status(401).json({ error: "User not found" });
+  }
+
+  req.user = user;
+  next();
+}
 
 export async function registerRoutes(app: Express): Promise<void> {
+  app.post("/api/auth/signup", async (req, res) => {
+    try {
+      const parseResult = signUpSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid data", 
+          details: parseResult.error.errors 
+        });
+      }
+
+      const { email, password, name } = parseResult.data;
+      
+      const existingUser = await getUserByEmail(email);
+      if (existingUser) {
+        return res.status(409).json({ error: "Email already registered" });
+      }
+
+      const user = await createUser(email, password, name);
+      const token = generateToken(user);
+
+      res.status(201).json({ user, token });
+    } catch (error) {
+      console.error("Signup error:", error);
+      res.status(500).json({ error: "Failed to create account" });
+    }
+  });
+
+  app.post("/api/auth/signin", async (req, res) => {
+    try {
+      const parseResult = signInSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid data", 
+          details: parseResult.error.errors 
+        });
+      }
+
+      const { email, password } = parseResult.data;
+      const user = await authenticateUser(email, password);
+
+      if (!user) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
+
+      const token = generateToken(user);
+      res.json({ user, token });
+    } catch (error) {
+      console.error("Signin error:", error);
+      res.status(500).json({ error: "Failed to sign in" });
+    }
+  });
+
+  app.get("/api/auth/me", authMiddleware, (req, res) => {
+    res.json({ user: req.user });
+  });
+
   app.get("/api/properties", async (req, res) => {
     try {
       const { city, state, minPrice, maxPrice, bedrooms, limit } = req.query;

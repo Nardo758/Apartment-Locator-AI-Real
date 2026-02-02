@@ -1,9 +1,12 @@
 import { useState, useEffect, createContext, useContext, type ReactNode } from 'react';
+import { api, type AuthUser } from '@/lib/api';
 
 export interface User {
   id: string;
   email: string;
-  name?: string;
+  name?: string | null;
+  subscriptionTier?: string | null;
+  subscriptionStatus?: string | null;
 }
 
 interface UserContextType {
@@ -17,45 +20,44 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | null>(null);
 
+const TOKEN_KEY = 'auth_token';
+
 export const UserProvider = ({ children }: { children: ReactNode }): ReactNode => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch {
-        localStorage.removeItem('user');
+    const loadUser = async () => {
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (token) {
+        try {
+          const { user: currentUser } = await api.getMe(token);
+          setUser(currentUser);
+        } catch {
+          localStorage.removeItem(TOKEN_KEY);
+          setUser(null);
+        }
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+    loadUser();
   }, []);
 
-  const login = async (email: string, _password: string) => {
-    const newUser: User = {
-      id: crypto.randomUUID(),
-      email,
-      name: email.split('@')[0],
-    };
-    setUser(newUser);
-    localStorage.setItem('user', JSON.stringify(newUser));
+  const login = async (email: string, password: string) => {
+    const { user: loggedInUser, token } = await api.signIn(email, password);
+    localStorage.setItem(TOKEN_KEY, token);
+    setUser(loggedInUser);
   };
 
   const logout = () => {
+    localStorage.removeItem(TOKEN_KEY);
     setUser(null);
-    localStorage.removeItem('user');
   };
 
-  const register = async (email: string, _password: string, name?: string) => {
-    const newUser: User = {
-      id: crypto.randomUUID(),
-      email,
-      name: name || email.split('@')[0],
-    };
+  const register = async (email: string, password: string, name?: string) => {
+    const { user: newUser, token } = await api.signUp(email, password, name);
+    localStorage.setItem(TOKEN_KEY, token);
     setUser(newUser);
-    localStorage.setItem('user', JSON.stringify(newUser));
   };
 
   return (

@@ -1,5 +1,18 @@
 import { apiRequest } from "./queryClient";
 
+export interface AuthUser {
+  id: string;
+  email: string;
+  name?: string | null;
+  subscriptionTier?: string | null;
+  subscriptionStatus?: string | null;
+}
+
+export interface AuthResponse {
+  user: AuthUser;
+  token: string;
+}
+
 export interface Property {
   id: string;
   externalId: string;
@@ -116,6 +129,25 @@ export interface MarketSnapshot {
 }
 
 export const api = {
+  async signUp(email: string, password: string, name?: string): Promise<AuthResponse> {
+    const res = await apiRequest("POST", "/api/auth/signup", { email, password, name });
+    return res.json();
+  },
+
+  async signIn(email: string, password: string): Promise<AuthResponse> {
+    const res = await apiRequest("POST", "/api/auth/signin", { email, password });
+    return res.json();
+  },
+
+  async getMe(token: string): Promise<{ user: AuthUser }> {
+    const res = await fetch("/api/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Failed to get user");
+    return res.json();
+  },
+
+
   async getProperties(filters?: {
     city?: string;
     state?: string;

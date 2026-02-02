@@ -1,59 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Mail, Lock, User, ArrowLeft, AlertCircle, Loader2, Building } from 'lucide-react';
+import { Mail, Lock, ArrowLeft, AlertCircle, Loader2, Building } from 'lucide-react';
 import { designSystem } from '@/lib/design-system';
 import { ModernLoading } from '@/components/modern/ModernLoading';
+import { useUser } from '@/hooks/useUser';
 
 const AuthModern = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, loading: userLoading, login, register } = useUser();
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
-  // Check if user is already authenticated
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          navigate('/dashboard');
-          return;
-        }
-      } catch (error) {
-        console.log('Auth check failed:', error);
-      } finally {
-        setInitialLoading(false);
-      }
-    };
-    checkAuth();
-  }, [navigate]);
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
-  // Clean up auth state utility
-  const cleanupAuthState = () => {
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-        localStorage.removeItem(key);
-      }
-    });
-    Object.keys(sessionStorage || {}).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-        sessionStorage.removeItem(key);
-      }
-    });
-  };
-
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -64,36 +38,13 @@ const AuthModern = () => {
     setError('');
 
     try {
-      // Clean up any existing auth state
-      cleanupAuthState();
-      
-      // Attempt global sign out first
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        // Continue even if this fails
-      }
-
-      const redirectUrl = `${window.location.origin}/dashboard`;
-      
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl
-        }
-      });
-
-      if (error) throw error;
-
-      if (data.user) {
-        toast.success('Account created successfully! Please check your email to verify your account.');
-        setIsSignUp(false);
-      }
+      await register(email, password, email.split('@')[0]);
+      toast.success('Account created successfully!');
+      navigate('/dashboard');
     } catch (error: unknown) {
       console.error('Sign up error:', error);
       const message = error instanceof Error ? error.message : String(error);
-      if (message.includes('already registered')) {
+      if (message.includes('already registered') || message.includes('409')) {
         setError('This email is already registered. Please sign in instead.');
       } else {
         setError(message || 'Failed to create account');
@@ -103,41 +54,20 @@ const AuthModern = () => {
     }
   };
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      // Clean up existing state
-      cleanupAuthState();
-      
-      // Attempt global sign out
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        // Continue even if this fails
-      }
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      if (data.user) {
-        toast.success('Welcome back!');
-        // Navigate to dashboard using react-router
-        navigate('/dashboard');
-      }
+      await login(email, password);
+      toast.success('Welcome back!');
+      navigate('/dashboard');
     } catch (error: unknown) {
       console.error('Sign in error:', error);
       const message = error instanceof Error ? error.message : String(error);
-      if (message.includes('Invalid login credentials')) {
+      if (message.includes('Invalid') || message.includes('401')) {
         setError('Invalid email or password. Please try again.');
-      } else if (message.includes('Email not confirmed')) {
-        setError('Please check your email and click the verification link before signing in.');
       } else {
         setError(message || 'Failed to sign in');
       }
@@ -158,7 +88,7 @@ const AuthModern = () => {
     resetForm();
   };
 
-  if (initialLoading) {
+  if (userLoading) {
     return (
       <ModernLoading 
         title="Apartment Locator AI"
@@ -299,14 +229,6 @@ const AuthModern = () => {
                 </p>
               </div>
 
-              {/* Email confirmation notice */}
-              {isSignUp && (
-                <div className={`p-4 ${designSystem.backgrounds.section} border border-blue-200 rounded-lg ${designSystem.animations.entrance}`}>
-                  <p className={`${designSystem.typography.caption} text-blue-700 text-center`}>
-                    📧 After signing up, please check your email and click the verification link to activate your account.
-                  </p>
-                </div>
-              )}
 
               {/* Demo Link */}
               <div className="pt-2">
