@@ -3,7 +3,7 @@
 // Side-by-side comparison of all apartments
 // ============================================
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, Fragment } from 'react';
 import { 
   ArrowUpDown, 
   TrendingDown, 
@@ -188,7 +188,7 @@ export function CostComparisonTable({
               const isBest = apt.savingsRank === 1;
               
               return (
-                <React.Fragment key={apt.apartmentId}>
+                <Fragment key={apt.apartmentId}>
                   <tr 
                     className={`border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer ${
                       isBest ? 'bg-emerald-500/5' : ''
@@ -348,7 +348,7 @@ export function CostComparisonTable({
                       </td>
                     </tr>
                   )}
-                </React.Fragment>
+                </Fragment>
               );
             })}
           </tbody>

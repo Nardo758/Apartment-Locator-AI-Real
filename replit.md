@@ -9,6 +9,11 @@ An AI-powered apartment locator application that helps users find apartments, an
 - Saved apartment tracking
 
 ## Recent Changes (February 2026)
+- **Location Cost Model**: New "True Monthly Cost" calculator that factors in commute, parking, groceries, and gym costs
+  - `/location-intelligence` page with lifestyle inputs form
+  - Components: LifestyleInputsForm, TrueCostCard, TrueCostBadge, CostComparisonTable, LocationCostWidget
+  - LocationCostContext for state management with localStorage persistence
+  - Service layer with calculation logic for cost analysis
 - **Migration to Replit Fullstack**: Migrated to Replit's fullstack environment with PostgreSQL
 - **Backend**: Express server with Drizzle ORM for database operations
 - **Database**: PostgreSQL with tables for properties, saved apartments, search history, user preferences, market snapshots, users, and user POIs
@@ -36,8 +41,12 @@ An AI-powered apartment locator application that helps users find apartments, an
 │   └── schema.ts        # Drizzle schema definitions
 ├── src/                 # React frontend
 │   ├── components/      # UI components
+│   │   └── location-cost/ # Location Cost Calculator components
+│   ├── contexts/        # React contexts (LocationCostContext)
 │   ├── pages/           # Page components
-│   ├── hooks/           # Custom hooks
+│   ├── hooks/           # Custom hooks (useLocationCost)
+│   ├── services/        # Business logic (locationCostService)
+│   ├── types/           # TypeScript types (locationCost.types)
 │   └── lib/             # Utilities
 └── supabase/            # Legacy Supabase functions (being migrated)
 ```
