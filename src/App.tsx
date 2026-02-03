@@ -27,6 +27,7 @@ import ProgramAI from "./pages/ProgramAI";
 import Trial from "./pages/Trial";
 import LocationIntelligenceDemo from "./pages/LocationIntelligenceDemo";
 import Dashboard from "./pages/Dashboard";
+import UnifiedDashboard from "./pages/UnifiedDashboard";
 import RenterIntelligence from "./pages/RenterIntelligence";
 import Profile from "./pages/Profile";
 import Billing from "./pages/Billing";
@@ -74,7 +75,8 @@ const App = () => (
             <Route path="/auth-original" element={<Auth />} />
             <Route path="/signup" element={<Trial />} />
             <Route path="/program-ai" element={<ProgramAI />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<UnifiedDashboard />} />
+            <Route path="/dashboard-old" element={<Dashboard />} />
             <Route path="/ai-formula" element={<AIFormula />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
             <Route path="/generate-offer" element={<GenerateOffer />} />
