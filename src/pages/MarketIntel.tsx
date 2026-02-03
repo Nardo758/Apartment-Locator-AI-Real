@@ -33,7 +33,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Header from '@/components/Header';
 import { useUnifiedRentalIntelligence } from '@/hooks/useUnifiedRentalIntelligence';
 import { RentVsBuyAnalyzer, type RentVsBuyResult } from '@/lib/rent-vs-buy-analysis';
-import { MarketIntelligenceDashboard } from '@/components/MarketIntelligenceDashboard';
 
 const MarketIntel: React.FC = () => {
   const [selectedRegion, setSelectedRegion] = useState('austin');
@@ -213,11 +212,6 @@ const MarketIntel: React.FC = () => {
               ))}
             </div>
           )}
-        </div>
-
-        {/* Market Intelligence Dashboard */}
-        <div className="mb-8">
-          <MarketIntelligenceDashboard defaultLocation="Atlanta, GA" />
         </div>
 
         {/* Main Content Tabs */}
