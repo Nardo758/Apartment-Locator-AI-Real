@@ -316,15 +316,16 @@ async function calculateGymCost(
   // If user has a specific gym, calculate distance to it
   // Otherwise, find nearest gym
   if (!gymLocation) {
-    nearestGym = await findNearestPlace(
+    const foundGym = await findNearestPlace(
       apartmentCoords,
       'gym',
       undefined,
       apiKey
     );
     
-    if (nearestGym) {
-      gymLocation = { lat: nearestGym.distanceMiles, lng: 0 }; // placeholder
+    if (foundGym) {
+      nearestGym = foundGym;
+      gymLocation = { lat: foundGym.distanceMiles, lng: 0 }; // placeholder
     }
   }
   
