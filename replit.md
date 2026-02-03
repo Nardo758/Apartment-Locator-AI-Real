@@ -9,7 +9,7 @@ An AI-powered apartment locator application that helps users find apartments, an
 - Saved apartment tracking
 
 ## Recent Changes (February 2026)
-- **Migration to Replit Fullstack**: Migrated from Lovable/Supabase to Replit's fullstack environment with PostgreSQL
+- **Migration to Replit Fullstack**: Migrated to Replit's fullstack environment with PostgreSQL
 - **Backend**: Express server with Drizzle ORM for database operations
 - **Database**: PostgreSQL with tables for properties, saved apartments, search history, user preferences, market snapshots, users, and user POIs
 - **Authentication**: JWT-based auth with bcrypt password hashing (signup, signin, /me endpoints)

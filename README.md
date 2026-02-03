@@ -1,77 +1,67 @@
-# Welcome to your Lovable project
+# Apartment Locator AI
 
-## Project info
+An AI-powered apartment locator application that helps users find apartments, analyze market trends, and make informed rental decisions.
 
-**URL**: https://lovable.dev/projects/fb762271-8489-477a-bf4f-cdbd9763bc5a
+## Features
 
-## How can I edit this code?
+- **Apartment Search** - Search properties with advanced filtering by price, bedrooms, location, and amenities
+- **AI-Powered Recommendations** - Get personalized property suggestions based on your preferences
+- **Market Intelligence** - Access analytics and trends for rental markets
+- **Save & Track** - Save favorite apartments and track their status
+- **User Preferences** - Set up alerts for price drops and new listings
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend**: React 18 with Vite, TailwindCSS, Shadcn/UI
+- **Backend**: Express 5.x with TypeScript
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: JWT-based auth with bcrypt password hashing
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/fb762271-8489-477a-bf4f-cdbd9763bc5a) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js 18+ and npm
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Development
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Install dependencies
+npm install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Push database schema
+npm run db:push
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at `http://localhost:5000`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Project Structure
 
-**Use GitHub Codespaces**
+```
+├── client/src/          # Frontend source
+├── server/              # Express backend
+│   ├── index.ts         # Server entry point
+│   ├── routes.ts        # API routes
+│   ├── storage.ts       # Database layer
+│   └── db.ts            # Database connection
+├── shared/              # Shared types and schemas
+│   └── schema.ts        # Drizzle schema definitions
+└── src/                 # React frontend components
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## API Endpoints
 
-## What technologies are used for this project?
+- `POST /api/auth/signup` - Create account
+- `POST /api/auth/signin` - Sign in
+- `GET /api/auth/me` - Get current user
+- `GET /api/properties` - Search properties
+- `GET/POST /api/saved-apartments/:userId` - Manage saved apartments
+- `GET/POST /api/preferences/:userId` - User preferences
+- `GET /api/market-snapshots/:city/:state` - Market data
 
-This project is built with:
+## Deployment
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/fb762271-8489-477a-bf4f-cdbd9763bc5a) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
-
-## Supabase
-
-This project uses Supabase for managed Postgres and auth. See `supabase/README.md` for environment variables, helper usage, and security notes.
+This project is configured for deployment on Replit. Click the "Deploy" button to publish your app.
