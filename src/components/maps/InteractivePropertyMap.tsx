@@ -6,11 +6,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { Coordinates } from '@/types/locationCost.types';
 
+type POICategory = 'work' | 'gym' | 'grocery' | 'daycare' | 'school' | 'medical' | 'pet' | 'religious' | 'dining' | 'nightlife' | 'entertainment' | 'library' | 'coworking' | 'park' | 'beach' | 'coffee' | 'other';
+
 interface POI {
   id: string;
   name: string;
   address: string;
-  category: 'work' | 'gym' | 'grocery' | 'other';
+  category: POICategory;
   coordinates: Coordinates;
   priority?: 'high' | 'medium' | 'low';
 }
@@ -56,7 +58,27 @@ const mapOptions: google.maps.MapOptions = {
   ],
 };
 
-const POI_COLORS: Record<string, string> = {
+const POI_COLORS: Record<POICategory, string> = {
+  work: '#ef4444',
+  gym: '#3b82f6',
+  grocery: '#22c55e',
+  daycare: '#ec4899',
+  school: '#eab308',
+  medical: '#14b8a6',
+  pet: '#f97316',
+  religious: '#a855f7',
+  dining: '#f59e0b',
+  nightlife: '#6366f1',
+  entertainment: '#d946ef',
+  library: '#06b6d4',
+  coworking: '#64748b',
+  park: '#10b981',
+  beach: '#0ea5e9',
+  coffee: '#78716c',
+  other: '#6b7280',
+};
+
+const POI_COLORS_LEGACY: Record<string, string> = {
   work: '#ef4444',
   gym: '#3b82f6',
   grocery: '#22c55e',

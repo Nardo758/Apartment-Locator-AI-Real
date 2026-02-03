@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Header from '@/components/Header';
 import MarketIntelBar from '@/components/dashboard/MarketIntelBar';
-import LeftPanelSidebar from '@/components/dashboard/LeftPanelSidebar';
+import LeftPanelSidebar, { type LifestyleInputs, type CostCategory, type POICategory } from '@/components/dashboard/LeftPanelSidebar';
 import InteractivePropertyMap from '@/components/maps/InteractivePropertyMap';
 import { useLocationCostContext } from '@/contexts/LocationCostContext';
 import { calculateApartmentCosts, formatCurrency } from '@/services/locationCostService';
@@ -18,7 +18,7 @@ interface POI {
   id: string;
   name: string;
   address: string;
-  category: 'work' | 'gym' | 'grocery' | 'other';
+  category: POICategory;
   coordinates: { lat: number; lng: number };
 }
 
@@ -77,16 +77,7 @@ export default function UnifiedDashboard() {
     { id: '1', name: 'My Office', address: '123 Main St, Orlando, FL', category: 'work', coordinates: { lat: 28.5383, lng: -81.3792 } },
   ]);
   
-  const [lifestyleInputs, setLifestyleInputs] = useState<{
-    workAddress: string;
-    commuteDays: number;
-    commuteMode: 'driving' | 'transit' | 'bicycling' | 'walking';
-    vehicleMpg: number;
-    groceryTrips: number;
-    preferredStore: string;
-    hasGym: boolean;
-    gymVisits: number;
-  }>({
+  const [lifestyleInputs, setLifestyleInputs] = useState<LifestyleInputs>({
     workAddress: '',
     commuteDays: 5,
     commuteMode: 'driving',
@@ -95,6 +86,7 @@ export default function UnifiedDashboard() {
     preferredStore: 'Any nearby store',
     hasGym: false,
     gymVisits: 3,
+    customCategories: [],
   });
   
   const [filters, setFilters] = useState<{
