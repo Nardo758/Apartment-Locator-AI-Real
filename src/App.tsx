@@ -7,7 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PropertyStateProvider } from "./contexts";
 import { OnboardingFlowProvider } from "./contexts/OnboardingFlowContext";
 import { UserProvider } from "./hooks/useUser";
+import { LocationCostProvider } from "./contexts/LocationCostContext";
 import Landing from "./pages/Landing";
+import LocationIntelligence from "./pages/LocationIntelligence";
 import TestLanding from "./pages/TestLanding";
 import LandingFixed from "./pages/LandingFixed";
 import LandingSSRSafe from "./pages/LandingSSRSafe";
@@ -53,6 +55,7 @@ import "./lib/data-tracker"; // Initialize data tracking
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <UserProvider>
+      <LocationCostProvider>
       <PropertyStateProvider>
         <TooltipProvider>
         <Toaster />
@@ -99,6 +102,7 @@ const App = () => (
             <Route path="/component-demo" element={<ComponentDemo />} />
             <Route path="/advanced-features" element={<AdvancedFeaturesDemo />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/location-intelligence" element={<LocationIntelligence />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
@@ -106,6 +110,7 @@ const App = () => (
         </BrowserRouter>
         </TooltipProvider>
       </PropertyStateProvider>
+      </LocationCostProvider>
     </UserProvider>
   </QueryClientProvider>
 );
