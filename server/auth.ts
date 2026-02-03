@@ -67,18 +67,11 @@ export async function authenticateUser(email: string, password: string): Promise
     .from(users)
     .where(eq(users.email, email.toLowerCase()));
 
-  console.log("Auth attempt for:", email.toLowerCase(), "Found user:", !!user);
-  
   if (!user) {
     return null;
   }
 
-  console.log("Password hash from DB:", user.passwordHash);
-  console.log("Password hash length:", user.passwordHash?.length);
-  
   const isValid = await verifyPassword(password, user.passwordHash);
-  console.log("Password valid:", isValid);
-  
   if (!isValid) {
     return null;
   }
