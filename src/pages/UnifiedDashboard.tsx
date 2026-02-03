@@ -1,5 +1,4 @@
 import { useState, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +11,7 @@ import MarketIntelBar from '@/components/dashboard/MarketIntelBar';
 import LeftPanelSidebar from '@/components/dashboard/LeftPanelSidebar';
 import InteractivePropertyMap from '@/components/maps/InteractivePropertyMap';
 import { useLocationCostContext } from '@/contexts/LocationCostContext';
-import { calculateApartmentCosts, createComparison, formatCurrency } from '@/services/locationCostService';
+import { calculateApartmentCosts, formatCurrency } from '@/services/locationCostService';
 import type { ApartmentLocationCost } from '@/types/locationCost.types';
 
 interface POI {
@@ -55,8 +54,19 @@ const MOCK_MARKET_DATA = {
 type SortField = 'trueCost' | 'baseRent' | 'commute';
 type ViewMode = 'map' | 'list';
 
+const GROCERY_STORE_MAP: Record<string, 'walmart' | 'wholefoods' | 'traderjoes' | 'kroger' | 'costco' | undefined> = {
+  'Any nearby store': undefined,
+  'Walmart': 'walmart',
+  'Target': undefined,
+  'Whole Foods': 'wholefoods',
+  'H-E-B': undefined,
+  'Kroger': 'kroger',
+  "Trader Joe's": 'traderjoes',
+  'Costco': 'costco',
+  'Aldi': undefined,
+};
+
 export default function UnifiedDashboard() {
-  const navigate = useNavigate();
   const { inputs, gasPrice, isCalculating, setIsCalculating } = useLocationCostContext();
   
   const [viewMode, setViewMode] = useState<ViewMode>('map');
@@ -118,7 +128,7 @@ export default function UnifiedDashboard() {
           commuteMode: lifestyleInputs.commuteMode,
           vehicleMpg: lifestyleInputs.vehicleMpg,
           groceryFrequency: lifestyleInputs.groceryTrips,
-          preferredGroceryChain: lifestyleInputs.preferredStore === 'Any nearby store' ? undefined : lifestyleInputs.preferredStore as 'walmart' | 'wholefoods' | 'traderjoes' | 'kroger' | 'costco' | undefined,
+          preferredGroceryChain: GROCERY_STORE_MAP[lifestyleInputs.preferredStore],
           hasGymMembership: lifestyleInputs.hasGym,
           gymVisitsPerWeek: lifestyleInputs.gymVisits,
         },
