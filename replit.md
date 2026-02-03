@@ -9,9 +9,15 @@ An AI-powered apartment locator application that helps users find apartments, an
 - Saved apartment tracking
 
 ## Recent Changes (February 2026)
-- **Location Cost Model**: New "True Monthly Cost" calculator that factors in commute, parking, groceries, and gym costs
-  - `/location-intelligence` page with lifestyle inputs form
-  - Components: LifestyleInputsForm, TrueCostCard, TrueCostBadge, CostComparisonTable, LocationCostWidget
+- **Unified Dashboard**: Single dashboard at `/dashboard` integrating apartment search, True Cost calculator, and market intelligence
+  - Interactive Google Maps with property markers (purple) and user POIs (red=work, blue=gym, green=grocery)
+  - Polylines connecting apartments to POIs showing relationships
+  - MarketIntelBar: Live market metrics (median rent, days on market, inventory, leverage score, AI recommendation)
+  - LeftPanelSidebar: Collapsible sections for locations, True Cost inputs, and filters
+  - Map/List toggle view with sorting by True Cost, Base Rent, or Commute Time
+  - Cost Comparison table highlighting best deals with potential monthly savings
+- **Location Cost Model**: "True Monthly Cost" calculator that factors in commute, parking, groceries, and gym costs
+  - Components: InteractivePropertyMap, MarketIntelBar, LeftPanelSidebar
   - LocationCostContext for state management with localStorage persistence
   - Service layer with calculation logic for cost analysis
 - **Migration to Replit Fullstack**: Migrated to Replit's fullstack environment with PostgreSQL
@@ -41,9 +47,11 @@ An AI-powered apartment locator application that helps users find apartments, an
 │   └── schema.ts        # Drizzle schema definitions
 ├── src/                 # React frontend
 │   ├── components/      # UI components
+│   │   ├── dashboard/   # Dashboard components (MarketIntelBar, LeftPanelSidebar)
+│   │   ├── maps/        # Map components (InteractivePropertyMap)
 │   │   └── location-cost/ # Location Cost Calculator components
 │   ├── contexts/        # React contexts (LocationCostContext)
-│   ├── pages/           # Page components
+│   ├── pages/           # Page components (UnifiedDashboard, etc.)
 │   ├── hooks/           # Custom hooks (useLocationCost)
 │   ├── services/        # Business logic (locationCostService)
 │   ├── types/           # TypeScript types (locationCost.types)
