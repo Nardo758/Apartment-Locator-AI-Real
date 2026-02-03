@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { User, ChevronDown, Settings, HelpCircle, CreditCard, LogOut, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ interface HeaderProps {
   onSignOut?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSignOut }) => {
+const Header = ({ onSignOut }: HeaderProps) => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

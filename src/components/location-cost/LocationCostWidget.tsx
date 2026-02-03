@@ -25,10 +25,10 @@ interface LocationCostWidgetProps {
   className?: string;
 }
 
-export const LocationCostWidget: React.FC<LocationCostWidgetProps> = ({
+export const LocationCostWidget = ({
   onViewFullAnalysis,
   className = '',
-}) => {
+}: LocationCostWidgetProps) => {
   const [workAddress, setWorkAddress] = useState('');
   const [hasCalculated, setHasCalculated] = useState(false);
 
