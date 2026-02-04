@@ -44,7 +44,7 @@ const AIFormula: React.FC = () => {
                 Our proprietary AI combines multiple data sources, behavioral analysis, and market trends to identify rental opportunities that traditional search platforms miss.
               </p>
               <div className="flex gap-4">
-                <Link to="/trial">
+                <Link to="/auth?type=renter&mode=signup">
                   <Button className={`${designSystem.buttons.primary} gap-2`}>
                     <Calculator size={16} />
                     Try AI Analysis

@@ -98,7 +98,7 @@ const Landing = () => {
               </Link>
             </li>
           </ul>
-          <Link to="/trial">
+          <Link to="/auth?type=renter&mode=signup">
             <button 
               className="text-white px-6 py-3 border-0 rounded-full font-semibold transition-all duration-300 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg hover:-translate-y-0.5"
             >
@@ -519,7 +519,7 @@ const Landing = () => {
               <h4 className="text-white font-semibold mb-4">Product</h4>
               <ul className="space-y-2">
                 <li><Link to="/how-it-works" className="text-muted-foreground hover:text-primary transition-colors">How It Works</Link></li>
-                <li><Link to="/trial" className="text-muted-foreground hover:text-primary transition-colors">Start Free Trial</Link></li>
+                <li><Link to="/auth?type=renter&mode=signup" className="text-muted-foreground hover:text-primary transition-colors">Start Free Trial</Link></li>
                 <li><Link to="/auth" className="text-muted-foreground hover:text-primary transition-colors">Sign In</Link></li>
               </ul>
             </div>
