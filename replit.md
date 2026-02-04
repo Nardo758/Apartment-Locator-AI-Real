@@ -112,6 +112,16 @@ An AI-powered apartment locator application that helps users find apartments, an
 **Health**
 - `GET /api/health` - Health check
 
+## Environment Variables (Required)
+The following secrets must be configured in Replit Secrets:
+- **JWT_SECRET** - Secure random string for signing authentication tokens (required - server will not start without it)
+- **ADMIN_EMAIL** - Email address for admin account bootstrap
+- **ADMIN_PASSWORD** - Password for admin account bootstrap
+- **VITE_GOOGLE_MAPS_API_KEY** - Google Maps API key for map features
+
+Optional (for future features):
+- STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET - For payment processing
+
 ## Development Commands
 - `npm run dev` - Start development server (Express + Vite)
 - `npm run build` - Build for production
