@@ -24,6 +24,10 @@ An AI-powered apartment locator application that helps users find apartments, an
 - **Backend**: Express server with Drizzle ORM for database operations
 - **Database**: PostgreSQL with tables for properties, saved apartments, search history, user preferences, market snapshots, users, and user POIs
 - **Authentication**: JWT-based auth with bcrypt password hashing (signup, signin, /me endpoints)
+  - Header component integrates with useUser hook for dynamic auth state display
+  - Shows "Sign In" button when not authenticated, user dropdown menu when logged in
+  - Sign Out option available in both desktop dropdown and mobile menu
+  - ProtectedRoute component available for securing authenticated-only pages
 - **API Routes**: RESTful endpoints for properties, saved apartments, search history, preferences, market data, auth, and payments
 
 ## Project Architecture
