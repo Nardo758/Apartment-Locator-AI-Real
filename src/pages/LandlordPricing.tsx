@@ -165,46 +165,46 @@ export default function LandlordPricing() {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-blue-900/20 border-b border-white/10">
+      <div className="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <Badge variant="primary" size="lg" className="mb-6">
             <Building className="w-4 h-4 mr-2" />
             For Property Managers & Landlords
           </Badge>
           
-          <h1 className="text-5xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
             Never Lose Money to Vacancy Again
           </h1>
           
-          <p className="text-xl text-white/70 max-w-3xl mx-auto mb-8">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
             Monitor your properties, track competitors, optimize pricing, and maximize renewals - all in one platform.
           </p>
 
-          <div className="flex items-center justify-center gap-6 text-sm text-white/60 mb-8">
+          <div className="flex items-center justify-center gap-6 text-sm text-gray-500 mb-8">
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-green-400" />
+              <CheckCircle className="w-5 h-5 text-green-500" />
               <span>14-day free trial</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-green-400" />
+              <CheckCircle className="w-5 h-5 text-green-500" />
               <span>No credit card required</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-green-400" />
+              <CheckCircle className="w-5 h-5 text-green-500" />
               <span>Cancel anytime</span>
             </div>
           </div>
 
           {/* Billing Toggle */}
-          <div className="inline-flex items-center gap-4 p-2 rounded-xl bg-white/5 border border-white/10">
+          <div className="inline-flex items-center gap-4 p-2 rounded-xl bg-white border border-gray-200 shadow-sm">
             <button
               onClick={() => setBillingPeriod('monthly')}
               className={`px-6 py-2 rounded-lg font-medium transition-all ${
                 billingPeriod === 'monthly'
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-                  : 'text-white/60 hover:text-white'
+                  : 'text-gray-500 hover:text-gray-900'
               }`}
             >
               Monthly
@@ -214,7 +214,7 @@ export default function LandlordPricing() {
               className={`px-6 py-2 rounded-lg font-medium transition-all relative ${
                 billingPeriod === 'annual'
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-                  : 'text-white/60 hover:text-white'
+                  : 'text-gray-500 hover:text-gray-900'
               }`}
             >
               Annual
@@ -246,30 +246,30 @@ export default function LandlordPricing() {
               <div className="p-8">
                 {/* Header */}
                 <div className="mb-6">
-                  <h3 className="text-2xl font-bold text-white mb-2">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
                     {plan.name}
                   </h3>
-                  <p className="text-white/60 text-sm mb-4">
+                  <p className="text-gray-500 text-sm mb-4">
                     {plan.description}
                   </p>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-bold text-white">
+                    <span className="text-4xl font-bold text-gray-900">
                       ${billingPeriod === 'monthly' ? plan.price : Math.round(plan.priceAnnual / 12)}
                     </span>
-                    <span className="text-white/60">/month</span>
+                    <span className="text-gray-500">/month</span>
                   </div>
                   {billingPeriod === 'annual' && (
-                    <p className="text-sm text-green-400 mt-2">
+                    <p className="text-sm text-green-600 mt-2">
                       ${plan.priceAnnual}/year - Save ${(plan.price * 12) - plan.priceAnnual}!
                     </p>
                   )}
                 </div>
 
                 {/* Properties Limit */}
-                <div className="p-4 rounded-lg bg-white/5 border border-white/10 mb-6">
+                <div className="p-4 rounded-lg bg-gray-50 border border-gray-200 mb-6">
                   <div className="flex items-center justify-between">
-                    <span className="text-white/70 text-sm">Properties</span>
-                    <span className="text-white font-bold">
+                    <span className="text-gray-600 text-sm">Properties</span>
+                    <span className="text-gray-900 font-bold">
                       {plan.maxProperties ? `Up to ${plan.maxProperties}` : 'Unlimited'}
                     </span>
                   </div>
@@ -294,19 +294,19 @@ export default function LandlordPricing() {
                 <div className="space-y-3 mb-6">
                   {plan.features.map((feature, idx) => (
                     <div key={idx} className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-white/80 text-sm">{feature}</span>
+                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700 text-sm">{feature}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* Not Included */}
                 {plan.notIncluded.length > 0 && (
-                  <div className="pt-6 border-t border-white/10 space-y-3">
+                  <div className="pt-6 border-t border-gray-200 space-y-3">
                     {plan.notIncluded.map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-3">
-                        <X className="w-5 h-5 text-white/30 flex-shrink-0 mt-0.5" />
-                        <span className="text-white/40 text-sm">{feature}</span>
+                        <X className="w-5 h-5 text-gray-300 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-400 text-sm">{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -319,24 +319,24 @@ export default function LandlordPricing() {
         {/* Feature Highlights */}
         <div className="mb-20">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Why Landlords Love Us
             </h2>
-            <p className="text-white/60 text-lg">
+            <p className="text-gray-600 text-lg">
               Tools that pay for themselves by preventing just one vacancy
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, idx) => (
-              <Card key={idx} variant="glass" hover className="p-6 text-center">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center mx-auto mb-4">
+              <Card key={idx} variant="elevated" hover className="p-6 text-center">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center mx-auto mb-4">
                   {feature.icon}
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-white/60 text-sm">
+                <p className="text-gray-600 text-sm">
                   {feature.description}
                 </p>
               </Card>
@@ -347,7 +347,7 @@ export default function LandlordPricing() {
         {/* Testimonials */}
         <div className="mb-20">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Real Results from Real Landlords
             </h2>
           </div>
@@ -360,18 +360,18 @@ export default function LandlordPricing() {
                     {testimonial.name.charAt(0)}
                   </div>
                   <div>
-                    <div className="font-semibold text-white">
+                    <div className="font-semibold text-gray-900">
                       {testimonial.name}
                     </div>
-                    <div className="text-sm text-white/60">
+                    <div className="text-sm text-gray-500">
                       {testimonial.role} • {testimonial.properties} properties
                     </div>
                   </div>
                 </div>
-                <p className="text-white/80 mb-4 italic">
+                <p className="text-gray-700 mb-4 italic">
                   "{testimonial.quote}"
                 </p>
-                <div className="flex items-center gap-2 text-green-400 font-semibold">
+                <div className="flex items-center gap-2 text-green-600 font-semibold">
                   <DollarSign className="w-4 h-4" />
                   <span>{testimonial.savings} saved</span>
                 </div>
@@ -381,30 +381,30 @@ export default function LandlordPricing() {
         </div>
 
         {/* ROI Calculator */}
-        <Card variant="highlighted" className="p-12 mb-20 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
+        <Card variant="elevated" className="p-12 mb-20 text-center bg-gradient-to-br from-purple-50 to-blue-50">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
             The Math is Simple
           </h2>
-          <p className="text-white/70 text-lg mb-8">
+          <p className="text-gray-600 text-lg mb-8">
             One prevented vacancy pays for 12+ months of service
           </p>
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <div className="p-6 rounded-xl bg-white/5 border border-white/10">
-              <div className="text-4xl font-bold text-red-400 mb-2">
+            <div className="p-6 rounded-xl bg-white border border-gray-200 shadow-sm">
+              <div className="text-4xl font-bold text-red-500 mb-2">
                 $1,200+
               </div>
-              <div className="text-white/60">
+              <div className="text-gray-600">
                 Cost of one vacancy (turnover + lost rent)
               </div>
             </div>
             <div className="flex items-center justify-center">
-              <ArrowRight className="w-8 h-8 text-white/40" />
+              <ArrowRight className="w-8 h-8 text-gray-400" />
             </div>
-            <div className="p-6 rounded-xl bg-gradient-to-br from-green-900/30 to-emerald-900/30 border border-green-500/30">
-              <div className="text-4xl font-bold text-green-400 mb-2">
+            <div className="p-6 rounded-xl bg-green-50 border border-green-200">
+              <div className="text-4xl font-bold text-green-600 mb-2">
                 $49-199
               </div>
-              <div className="text-white/60">
+              <div className="text-gray-600">
                 Monthly subscription cost
               </div>
             </div>
@@ -414,18 +414,18 @@ export default function LandlordPricing() {
         {/* FAQ */}
         <div>
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Frequently Asked Questions
             </h2>
           </div>
 
           <div className="max-w-3xl mx-auto space-y-4">
             {faqs.map((faq, idx) => (
-              <Card key={idx} variant="glass" className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-2">
+              <Card key={idx} variant="elevated" className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   {faq.question}
                 </h3>
-                <p className="text-white/70">
+                <p className="text-gray-600">
                   {faq.answer}
                 </p>
               </Card>
@@ -435,7 +435,7 @@ export default function LandlordPricing() {
 
         {/* Final CTA */}
         <div className="mt-20 text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">
             Ready to Optimize Your Portfolio?
           </h2>
           <Link to="/auth?type=landlord&mode=signup&plan=professional">
@@ -444,7 +444,7 @@ export default function LandlordPricing() {
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </Link>
-          <p className="text-white/50 mt-4">
+          <p className="text-gray-500 mt-4">
             Join 500+ landlords maximizing their rental income
           </p>
         </div>
