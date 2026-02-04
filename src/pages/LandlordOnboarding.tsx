@@ -88,21 +88,21 @@ export default function LandlordOnboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] py-12">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Progress Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-gray-900">
               Get Started
             </h1>
-            <Badge variant="primary">
+            <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
               Step {currentStepIndex + 1} of {steps.length}
             </Badge>
           </div>
 
           {/* Progress Bar */}
-          <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300"
               style={{ width: `${progress}%` }}
@@ -110,12 +110,12 @@ export default function LandlordOnboarding() {
           </div>
 
           {/* Step Labels */}
-          <div className="flex items-center justify-between mt-3 text-xs text-white/50">
+          <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
             {steps.map((s, idx) => (
               <div
                 key={s}
                 className={`${
-                  idx <= currentStepIndex ? 'text-blue-400 font-semibold' : ''
+                  idx <= currentStepIndex ? 'text-blue-600 font-semibold' : ''
                 }`}
               >
                 {stepTitles[s]}
@@ -125,16 +125,16 @@ export default function LandlordOnboarding() {
         </div>
 
         {/* Step Content */}
-        <Card variant="elevated" className="p-8">
+        <Card className="p-8 bg-white shadow-lg border border-gray-200">
           {/* Step 1: Add Properties & Monitoring */}
           {step === 'properties' && (
             <div>
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-2">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     Add Your Properties (Optional)
                   </h2>
-                  <p className="text-white/60">
+                  <p className="text-gray-600">
                     We'll monitor market conditions for each property. You can add these later.
                   </p>
                 </div>
@@ -142,6 +142,7 @@ export default function LandlordOnboarding() {
                   variant="outline"
                   size="sm"
                   onClick={addProperty}
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Another
@@ -150,15 +151,15 @@ export default function LandlordOnboarding() {
 
               <div className="space-y-6 mb-6">
                 {properties.map((property, idx) => (
-                  <Card key={property.id} variant="glass" className="p-6">
+                  <Card key={property.id} className="p-6 bg-gray-50 border border-gray-200">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-white">
+                      <h3 className="text-lg font-semibold text-gray-900">
                         Property {idx + 1}
                       </h3>
                       {properties.length > 1 && (
                         <button
                           onClick={() => removeProperty(property.id)}
-                          className="p-2 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors"
+                          className="p-2 rounded-lg hover:bg-red-100 text-red-600 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -167,53 +168,56 @@ export default function LandlordOnboarding() {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
-                        <label className="label mb-2">Street Address</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
                         <Input
                           placeholder="1234 Main St, Unit 205"
                           value={property.address}
                           onChange={(e) => updateProperty(property.id, 'address', e.target.value)}
+                          className="bg-white border-gray-300 text-gray-900"
                         />
                       </div>
 
                       <div>
-                        <label className="label mb-2">City</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                         <Input
                           placeholder="Austin"
                           value={property.city}
                           onChange={(e) => updateProperty(property.id, 'city', e.target.value)}
+                          className="bg-white border-gray-300 text-gray-900"
                         />
                       </div>
 
                       <div>
-                        <label className="label mb-2">ZIP Code</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
                         <Input
                           placeholder="78701"
                           value={property.zipCode}
                           onChange={(e) => updateProperty(property.id, 'zipCode', e.target.value)}
+                          className="bg-white border-gray-300 text-gray-900"
                         />
                       </div>
 
                       <div>
-                        <label className="label mb-2">Current Rent</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Current Rent</label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60">$</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                           <Input
                             type="number"
                             placeholder="2000"
                             value={property.currentRent}
                             onChange={(e) => updateProperty(property.id, 'currentRent', e.target.value)}
-                            className="pl-8"
+                            className="pl-8 bg-white border-gray-300 text-gray-900"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="label mb-2">Bedrooms</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
                           <select
                             value={property.bedrooms}
                             onChange={(e) => updateProperty(property.id, 'bedrooms', e.target.value)}
-                            className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/20 text-white"
+                            className="w-full h-11 px-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           >
                             <option value="studio">Studio</option>
                             <option value="1">1</option>
@@ -223,11 +227,11 @@ export default function LandlordOnboarding() {
                           </select>
                         </div>
                         <div>
-                          <label className="label mb-2">Bathrooms</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
                           <select
                             value={property.bathrooms}
                             onChange={(e) => updateProperty(property.id, 'bathrooms', e.target.value)}
-                            className="w-full h-11 px-3 rounded-xl bg-white/5 border border-white/20 text-white"
+                            className="w-full h-11 px-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           >
                             <option value="1">1</option>
                             <option value="1.5">1.5</option>
@@ -243,12 +247,12 @@ export default function LandlordOnboarding() {
               </div>
 
               {/* Bulk Upload */}
-              <div className="p-6 rounded-xl border-2 border-dashed border-white/20 text-center mb-8">
-                <Upload className="w-8 h-8 text-white/40 mx-auto mb-3" />
-                <p className="text-white/60 text-sm mb-2">
+              <div className="p-6 rounded-xl border-2 border-dashed border-gray-300 text-center mb-8 bg-gray-50/50">
+                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-600 text-sm mb-2">
                   Have many properties? Upload a CSV file
                 </p>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="border-gray-300 text-gray-700 hover:bg-gray-100">
                   Upload CSV
                 </Button>
               </div>
@@ -256,13 +260,13 @@ export default function LandlordOnboarding() {
               {/* Monitoring Areas */}
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     Which areas should we monitor? (Optional)
                   </h3>
-                  <p className="text-white/60 text-sm mb-4">
+                  <p className="text-gray-600 text-sm mb-4">
                     We'll track competitor activity and market trends
                   </p>
-                  <label className="label mb-2 flex items-center gap-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
                     Additional ZIP Codes to Monitor
                   </label>
@@ -270,8 +274,9 @@ export default function LandlordOnboarding() {
                     placeholder="78701, 78702, 78703"
                     value={monitoringZips}
                     onChange={(e) => setMonitoringZips(e.target.value)}
+                    className="bg-white border-gray-300 text-gray-900"
                   />
-                  <p className="text-xs text-white/50 mt-2">
+                  <p className="text-xs text-gray-500 mt-2">
                     We'll automatically monitor areas where your properties are located
                   </p>
                 </div>
@@ -282,33 +287,33 @@ export default function LandlordOnboarding() {
           {/* Step 2: Complete */}
           {step === 'complete' && (
             <div>
-              <Card variant="highlighted" className="p-8 text-center mb-6">
-                <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold text-white mb-2">
+              <Card className="p-8 text-center mb-6 bg-gradient-to-br from-green-50 to-blue-50 border border-green-200">
+                <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
                   You're All Set!
                 </h3>
-                <p className="text-white/70 mb-6">
+                <p className="text-gray-600 mb-6">
                   Your 14-day free trial starts now. No credit card required.
                 </p>
-                <div className="p-4 rounded-lg bg-white/5 border border-white/10 mb-6 text-left">
+                <div className="p-4 rounded-lg bg-white/80 border border-gray-200 mb-6 text-left">
                   {properties.some(p => p.address) && (
                     <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="text-white/60">Properties added:</span>
-                      <span className="text-white font-semibold">
+                      <span className="text-gray-600">Properties added:</span>
+                      <span className="text-gray-900 font-semibold">
                         {properties.filter(p => p.address).length}
                       </span>
                     </div>
                   )}
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-white/60">Trial ends:</span>
-                    <span className="text-white font-semibold">
+                    <span className="text-gray-600">Trial ends:</span>
+                    <span className="text-gray-900 font-semibold">
                       {new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
                 <Button
                   size="lg"
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-md hover:shadow-lg transition-all"
                   onClick={() => navigate('/portfolio-dashboard')}
                 >
                   Go to Dashboard
@@ -316,7 +321,7 @@ export default function LandlordOnboarding() {
                 </Button>
               </Card>
 
-              <p className="text-xs text-white/50 text-center">
+              <p className="text-xs text-gray-500 text-center">
                 You can add properties, choose a plan, and add payment details later from your dashboard.
               </p>
             </div>
@@ -324,10 +329,11 @@ export default function LandlordOnboarding() {
 
           {/* Navigation Buttons */}
           {step !== 'complete' && (
-            <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/10">
+            <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
               <Button
                 variant="ghost"
                 onClick={() => navigate('/user-type')}
+                className="text-gray-700 hover:bg-gray-100"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
@@ -337,11 +343,13 @@ export default function LandlordOnboarding() {
                 <Button
                   variant="ghost"
                   onClick={() => setStep('complete')}
+                  className="text-gray-700 hover:bg-gray-100"
                 >
                   Skip for Now
                 </Button>
                 <Button
                   onClick={() => setStep('complete')}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-sm hover:shadow-md transition-all"
                 >
                   Continue
                   <ArrowRight className="w-4 h-4 ml-2" />

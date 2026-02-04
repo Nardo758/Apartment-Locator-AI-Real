@@ -6,6 +6,7 @@ export interface AuthUser {
   name?: string | null;
   subscriptionTier?: string | null;
   subscriptionStatus?: string | null;
+  userType?: 'renter' | 'landlord' | 'agent' | 'admin' | null;
 }
 
 export interface AuthResponse {

@@ -9,6 +9,8 @@ import { OnboardingFlowProvider } from "./contexts/OnboardingFlowContext";
 import { UserProvider } from "./hooks/useUser";
 import { LocationCostProvider } from "./contexts/LocationCostContext";
 import { UnifiedAIProvider } from "./contexts/UnifiedAIContext";
+import ErrorBoundary from "./components/ErrorBoundary";
+import ProtectedRoute from "./components/routing/ProtectedRoute";
 import LandingSSRSafe from "./pages/LandingSSRSafe";
 import About from "./pages/About";
 import AIFormulaNew from "./pages/AIFormulaNew";
@@ -48,71 +50,162 @@ import "./lib/data-tracker"; // Initialize data tracking
 
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <UserProvider>
-      <UnifiedAIProvider>
-        <LocationCostProvider>
-          <PropertyStateProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <UserProvider>
+        <UnifiedAIProvider>
+          <LocationCostProvider>
+            <PropertyStateProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
                 <OnboardingFlowProvider>
                   <Routes>
-                    {/* Main App Routes */}
+                    {/* Public Routes - No Authentication Required */}
                     <Route path="/" element={<LandingSSRSafe />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/pricing" element={<Pricing />} />
+                    <Route path="/landlord-pricing" element={<LandlordPricing />} />
+                    <Route path="/agent-pricing" element={<AgentPricing />} />
                     
                     {/* Auth Routes */}
                     <Route path="/auth" element={<AuthModern />} />
                     <Route path="/signup" element={<Trial />} />
                     <Route path="/trial" element={<Trial />} />
-                    <Route path="/user-type" element={<UserTypeSelection />} />
                     
-                    {/* Dashboard & Main Features */}
-                    <Route path="/dashboard" element={<UnifiedDashboard />} />
-                    <Route path="/program-ai" element={<ProgramAIUnified />} />
-                    <Route path="/ai-formula" element={<AIFormulaNew />} />
-                    <Route path="/market-intel" element={<MarketIntel />} />
-                    <Route path="/saved-properties" element={<SavedAndOffers />} />
-                    
-                    {/* Property & Offers */}
-                    <Route path="/property/:id" element={<PropertyDetails />} />
-                    <Route path="/generate-offer" element={<GenerateOffer />} />
-                    <Route path="/offers-made" element={<OffersMade />} />
-                    
-                    {/* User Account */}
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/billing" element={<Billing />} />
-                    <Route path="/data-export" element={<DataExport />} />
-                    <Route path="/data-management" element={<DataManagement />} />
-                    
-                    {/* Support & Legal */}
+                    {/* Support & Legal - Public Access */}
                     <Route path="/help" element={<Help />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/terms" element={<TermsOfService />} />
                     <Route path="/privacy" element={<PrivacyPolicy />} />
                     
-                    {/* Payment */}
-                    <Route path="/payment-success" element={<PaymentSuccess />} />
-                    <Route path="/success" element={<Success />} />
+                    {/* User Type Selection - Requires Auth */}
+                    <Route path="/user-type" element={
+                      <ProtectedRoute requireAuth>
+                        <UserTypeSelection />
+                      </ProtectedRoute>
+                    } />
                     
-                    {/* Landlord/Property Manager Routes */}
-                    <Route path="/landlord-pricing" element={<LandlordPricing />} />
-                    <Route path="/landlord-onboarding" element={<LandlordOnboarding />} />
-                    <Route path="/portfolio-dashboard" element={<PortfolioDashboard />} />
-                    <Route path="/email-templates" element={<EmailTemplates />} />
-                    <Route path="/renewal-optimizer" element={<RenewalOptimizer />} />
-                    <Route path="/verify-lease" element={<LeaseVerification />} />
+                    {/* Common Authenticated Routes - All User Types */}
+                    <Route path="/dashboard" element={
+                      <ProtectedRoute requireAuth>
+                        <UnifiedDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/profile" element={
+                      <ProtectedRoute requireAuth>
+                        <Profile />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/billing" element={
+                      <ProtectedRoute requireAuth>
+                        <Billing />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/data-export" element={
+                      <ProtectedRoute requireAuth>
+                        <DataExport />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/data-management" element={
+                      <ProtectedRoute requireAuth>
+                        <DataManagement />
+                      </ProtectedRoute>
+                    } />
                     
-                    {/* Agent/Broker Routes */}
-                    <Route path="/agent-onboarding" element={<AgentOnboarding />} />
-                    <Route path="/agent-dashboard" element={<AgentDashboard />} />
-                    <Route path="/agent-pricing" element={<AgentPricing />} />
+                    {/* Renter-Specific Routes */}
+                    <Route path="/program-ai" element={
+                      <ProtectedRoute allowedUserTypes={['renter']}>
+                        <ProgramAIUnified />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/ai-formula" element={
+                      <ProtectedRoute allowedUserTypes={['renter']}>
+                        <AIFormulaNew />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/market-intel" element={
+                      <ProtectedRoute allowedUserTypes={['renter']}>
+                        <MarketIntel />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/saved-properties" element={
+                      <ProtectedRoute allowedUserTypes={['renter']}>
+                        <SavedAndOffers />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/property/:id" element={
+                      <ProtectedRoute allowedUserTypes={['renter']}>
+                        <PropertyDetails />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/generate-offer" element={
+                      <ProtectedRoute allowedUserTypes={['renter']}>
+                        <GenerateOffer />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/offers-made" element={
+                      <ProtectedRoute allowedUserTypes={['renter']}>
+                        <OffersMade />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payment-success" element={
+                      <ProtectedRoute allowedUserTypes={['renter']}>
+                        <PaymentSuccess />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/success" element={
+                      <ProtectedRoute allowedUserTypes={['renter']}>
+                        <Success />
+                      </ProtectedRoute>
+                    } />
                     
-                    {/* Admin */}
-                    <Route path="/admin" element={<Admin />} />
+                    {/* Landlord-Specific Routes */}
+                    <Route path="/landlord-onboarding" element={
+                      <ProtectedRoute allowedUserTypes={['landlord']}>
+                        <LandlordOnboarding />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/portfolio-dashboard" element={
+                      <ProtectedRoute allowedUserTypes={['landlord']}>
+                        <PortfolioDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/email-templates" element={
+                      <ProtectedRoute allowedUserTypes={['landlord']}>
+                        <EmailTemplates />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/renewal-optimizer" element={
+                      <ProtectedRoute allowedUserTypes={['landlord']}>
+                        <RenewalOptimizer />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/verify-lease" element={
+                      <ProtectedRoute allowedUserTypes={['landlord']}>
+                        <LeaseVerification />
+                      </ProtectedRoute>
+                    } />
+                    
+                    {/* Agent-Specific Routes */}
+                    <Route path="/agent-onboarding" element={
+                      <ProtectedRoute allowedUserTypes={['agent']}>
+                        <AgentOnboarding />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/agent-dashboard" element={
+                      <ProtectedRoute allowedUserTypes={['agent']}>
+                        <AgentDashboard />
+                      </ProtectedRoute>
+                    } />
+                    
+                    {/* Admin Routes */}
+                    <Route path="/admin" element={
+                      <ProtectedRoute allowedUserTypes={['admin']}>
+                        <Admin />
+                      </ProtectedRoute>
+                    } />
                     
                     {/* 404 Catch-all */}
                     <Route path="*" element={<NotFound />} />
@@ -125,6 +218,7 @@ const App = () => (
       </UnifiedAIProvider>
     </UserProvider>
   </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

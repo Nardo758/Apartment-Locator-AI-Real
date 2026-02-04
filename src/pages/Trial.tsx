@@ -209,16 +209,16 @@ const Trial: React.FC = () => {
   }
 
   return (
-    <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Header */}
-      <header className={`border-b border-white/10 ${designSystem.backgrounds.card} backdrop-blur-md sticky top-0 z-50`}>
+      <header className="border-b border-gray-200 bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <div className={`${designSystem.layouts.container} py-4`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Link to="/" className={`text-2xl font-bold ${designSystem.typography.headingGradient}`}>
+              <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Apartment Locator AI
               </Link>
-              <span className={`text-sm px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-medium`}>
+              <span className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">
                 Free Trial
               </span>
             </div>
@@ -248,19 +248,19 @@ const Trial: React.FC = () => {
             <ModernCard 
               title="Your Trial Status" 
               icon={<Clock className="w-5 h-5 text-blue-600" />}
-              className="mt-6"
+              className="mt-6 bg-white"
             >
-              <div className={`${designSystem.spacing.small} text-sm`}>
+              <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className={designSystem.colors.muted}>Email:</span>
-                  <span className={designSystem.colors.dark}>{trialStatus.email}</span>
+                  <span className="text-gray-600">Email:</span>
+                  <span className="text-gray-900 font-medium">{trialStatus.email}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className={designSystem.colors.muted}>Searches Used:</span>
-                  <span className={designSystem.colors.dark}>{trialStatus.searchesUsed}/{trialStatus.searchesLimit}</span>
+                  <span className="text-gray-600">Searches Used:</span>
+                  <span className="text-gray-900 font-medium">{trialStatus.searchesUsed}/{trialStatus.searchesLimit}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className={designSystem.colors.muted}>Time Left:</span>
+                  <span className="text-gray-600">Time Left:</span>
                   <span className={`font-medium ${timeRemaining.hours > 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {timeRemaining.hours > 0 ? `${timeRemaining.hours} hours` : 'Expired'}
                   </span>
@@ -272,13 +272,13 @@ const Trial: React.FC = () => {
           {/* Right Column - Results */}
           <div className="lg:col-span-3">
             {loading && (
-              <ModernCard className="text-center p-8">
+              <ModernCard className="text-center p-8 bg-white">
                 <div className="animate-pulse space-y-4">
-                  <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full mx-auto flex items-center justify-center">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full mx-auto flex items-center justify-center">
                     <Search className="w-8 h-8 text-blue-600" />
                   </div>
-                  <h3 className={`${designSystem.typography.subheadingLarge} mb-2`}>Finding Apartments...</h3>
-                  <p className={designSystem.typography.body}>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Finding Apartments...</h3>
+                  <p className="text-gray-600">
                     Searching for apartments with negotiation advantages in your area
                   </p>
                 </div>
@@ -296,27 +296,27 @@ const Trial: React.FC = () => {
             )}
 
             {apartments.length === 0 && !loading && searchData && (
-              <ModernCard className="text-center p-8">
-                <h3 className={`${designSystem.typography.subheadingLarge} mb-2`}>No Apartments Found</h3>
-                <p className={designSystem.typography.body}>
+              <ModernCard className="text-center p-8 bg-white">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">No Apartments Found</h3>
+                <p className="text-gray-600">
                   Try adjusting your search criteria to find apartments with negotiation potential
                 </p>
               </ModernCard>
             )}
 
             {!searchData && !loading && (
-              <ModernCard className="text-center p-8">
+              <ModernCard className="text-center p-8 bg-white">
                 <div className="flex flex-col items-center space-y-4">
-                  <div className="p-4 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                  <div className="p-4 rounded-full bg-gradient-to-br from-blue-50 to-purple-50">
                     <Search className="w-8 h-8 text-blue-600" />
                   </div>
-                  <h3 className={`${designSystem.typography.subheadingLarge} mb-2`}>Ready to Find Apartments</h3>
-                  <p className={`${designSystem.typography.body} mb-4`}>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Ready to Find Apartments</h3>
+                  <p className="text-gray-600 mb-4">
                     Enter your search criteria to discover apartments with built-in negotiation advantages
                   </p>
                   <Button
                     onClick={handleManualUpgrade}
-                    className={`${designSystem.buttons.primary} gap-2`}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-sm hover:shadow-md transition-all duration-200 gap-2"
                   >
                     <Zap className="w-4 h-4" />
                     Upgrade for Unlimited Access

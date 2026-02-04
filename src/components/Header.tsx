@@ -34,12 +34,12 @@ const Header = ({ onSignOut }: HeaderProps) => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm">
       <div className="flex items-center justify-between px-6 py-4">
         {/* Logo */}
         <div className="flex items-center space-x-2">
           <img src="/lovable-uploads/10c9e4a0-b0e6-4896-884c-68dde07278eb.png" alt="Apartment Locator AI Logo" className="h-8 w-auto" />
-          <h1 className="text-xl font-bold gradient-text">Apartment Locator AI</h1>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Apartment Locator AI</h1>
         </div>
 
         {/* Desktop Navigation */}
@@ -50,8 +50,8 @@ const Header = ({ onSignOut }: HeaderProps) => {
               to={item.path}
               className={`px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
                 isActive(item.path)
-                  ? 'bg-primary/20 text-primary border border-primary/30'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                  ? 'bg-blue-50 text-blue-600 border border-blue-200'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               {item.label}
@@ -148,9 +148,9 @@ const Header = ({ onSignOut }: HeaderProps) => {
         <div className="flex items-center space-x-4">
           {/* Plan Badge - only show when authenticated */}
           {isAuthenticated && (
-            <div className="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full bg-secondary/20 border border-secondary/30">
-              <div className="w-2 h-2 bg-secondary rounded-full"></div>
-              <span className="text-sm font-medium text-secondary">
+            <div className="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200">
+              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+              <span className="text-sm font-medium text-blue-600">
                 {user?.subscriptionTier || 'Free Plan'}
               </span>
             </div>
@@ -160,11 +160,11 @@ const Header = ({ onSignOut }: HeaderProps) => {
             /* User Menu - Authenticated */
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2 px-2" data-testid="button-user-menu">
-                  <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
-                    <User size={16} className="text-primary-foreground" />
+                <Button variant="ghost" className="flex items-center gap-2 px-2 hover:bg-gray-100" data-testid="button-user-menu">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                    <User size={16} className="text-white" />
                   </div>
-                  <ChevronDown size={14} className="text-muted-foreground" />
+                  <ChevronDown size={14} className="text-gray-600" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">

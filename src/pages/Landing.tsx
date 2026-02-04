@@ -28,23 +28,23 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen text-white overflow-x-hidden" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", lineHeight: 1.6, color: '#ffffff', background: '#0a0a0a' }}>
-      {/* Animated Background */}
-      <div className="fixed top-0 left-0 w-full h-full z-[-1]" style={{ background: 'linear-gradient(45deg, #667eea 0%, #764ba2 100%)', opacity: 0.1 }}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 text-gray-900 overflow-x-hidden" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", lineHeight: 1.6 }}>
+      {/* Animated Background Pattern */}
+      <div className="fixed top-0 left-0 w-full h-full z-[-1] opacity-30">
         <div 
           className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%]" 
           style={{
-            background: 'repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(255, 255, 255, 0.03) 50px, rgba(255, 255, 255, 0.03) 51px)',
+            background: 'repeating-linear-gradient(45deg, transparent, transparent 50px, rgba(99, 102, 241, 0.03) 50px, rgba(99, 102, 241, 0.03) 51px)',
             animation: 'drift 20s linear infinite'
           }}/>
       </div>
 
       {/* Header */}
-      <header className="fixed top-0 w-full z-[1000] py-4" style={{ background: 'rgba(10, 10, 10, 0.95)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+      <header className="fixed top-0 w-full z-[1000] py-4 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200">
         <nav className="max-w-[1200px] mx-auto px-5 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <img src="/lovable-uploads/10c9e4a0-b0e6-4896-884c-68dde07278eb.png" alt="Apartment Locator AI Logo" className="h-8 w-auto" />
-            <div className="text-2xl font-extrabold" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <div className="text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Apartment Locator AI
             </div>
           </div>
@@ -52,16 +52,9 @@ const Landing = () => {
             <li>
               <a 
                 href="#features" 
-                className="text-white font-medium relative transition-all duration-300"
-                style={{ textDecoration: 'none' }}onClick={(e) => handleSmoothScroll(e, '#features')}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#667eea';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+                className="text-gray-700 font-medium relative transition-all duration-300 hover:text-blue-600"
+                style={{ textDecoration: 'none' }}
+                onClick={(e) => handleSmoothScroll(e, '#features')}
               >
                 Features
               </a>
@@ -69,16 +62,9 @@ const Landing = () => {
             <li>
               <a 
                 href="#pricing" 
-                className="text-white font-medium relative transition-all duration-300"
-                style={{ textDecoration: 'none' }}onClick={(e) => handleSmoothScroll(e, '#pricing')}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#667eea';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+                className="text-gray-700 font-medium relative transition-all duration-300 hover:text-blue-600"
+                style={{ textDecoration: 'none' }}
+                onClick={(e) => handleSmoothScroll(e, '#pricing')}
               >
                 Pricing
               </a>
@@ -86,15 +72,8 @@ const Landing = () => {
             <li>
               <a 
                 href="/about" 
-                className="text-white font-medium relative transition-all duration-300"
-                style={{ textDecoration: 'none' }}onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#667eea';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+                className="text-gray-700 font-medium relative transition-all duration-300 hover:text-blue-600"
+                style={{ textDecoration: 'none' }}
               >
                 About
               </a>
@@ -102,15 +81,8 @@ const Landing = () => {
             <li>
               <a 
                 href="/contact" 
-                className="text-white font-medium relative transition-all duration-300"
-                style={{ textDecoration: 'none' }}onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#667eea';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+                className="text-gray-700 font-medium relative transition-all duration-300 hover:text-blue-600"
+                style={{ textDecoration: 'none' }}
               >
                 Contact
               </a>
@@ -118,7 +90,7 @@ const Landing = () => {
             <li>
               <Link 
                 to="/auth" 
-                className="text-white font-medium relative transition-all duration-300"
+                className="text-gray-700 font-medium relative transition-all duration-300 hover:text-blue-600"
                 style={{ textDecoration: 'none' }}
                 data-testid="link-signin"
               >
@@ -128,19 +100,7 @@ const Landing = () => {
           </ul>
           <Link to="/trial">
             <button 
-              className="text-white px-6 py-3 border-0 rounded-[25px] font-semibold transition-all duration-300"
-              style={{ 
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
-                textDecoration: 'none'
-              }}onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-3px)';
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.6)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
-              }}
+              className="text-white px-6 py-3 border-0 rounded-full font-semibold transition-all duration-300 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg hover:-translate-y-0.5"
             >
               Start Free Trial
             </button>
@@ -153,71 +113,25 @@ const Landing = () => {
         <div className="max-w-[1200px] mx-auto px-5 z-10">
           <div className="grid md:grid-cols-2 gap-15 items-center">
             <div style={{ animation: 'slideInUp 1s ease-out' }}>
-              <h1 
-                className="text-6xl font-black leading-[1.1] mb-6"
-                style={{ 
-                  background: 'linear-gradient(135deg, #ffffff 0%, #667eea 50%, #764ba2 100%)',
-                  WebkitBackgroundClip: 'text',
-                  backgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}>
+              <h1 className="text-6xl font-black leading-[1.1] mb-6 bg-gradient-to-r from-gray-900 via-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Never Overpay for Rent Again
               </h1>
-              <p className="text-xl mb-8" style={{ color: '#b0b0b0' }}>
+              <p className="text-xl mb-8 text-gray-700">
                 Our AI discovers hidden rental opportunities and generates data-driven negotiation offers that save you an average of $312/month.
               </p>
               
               <div className="grid grid-cols-3 gap-5 mb-10" style={{ animation: 'slideInUp 1s ease-out 0.4s backwards' }}>
-                <div 
-                  className="text-center p-5 rounded-2xl border transition-all duration-300"
-                  style={{ 
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
-                  }}onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-5px)';
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                  }}
-                >
-                  <span className="text-2xl font-extrabold block" style={{ color: '#667eea' }}>73%</span>
-                  <span className="text-sm" style={{ color: '#888' }}>Success Rate</span>
+                <div className="text-center p-5 rounded-2xl bg-white border border-gray-200 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <span className="text-2xl font-extrabold block text-blue-600">73%</span>
+                  <span className="text-sm text-gray-600">Success Rate</span>
                 </div>
-                <div 
-                  className="text-center p-5 rounded-2xl border transition-all duration-300"
-                  style={{ 
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
-                  }}onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-5px)';
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                  }}
-                >
-                  <span className="text-2xl font-extrabold block" style={{ color: '#667eea' }}>$312</span>
-                  <span className="text-sm" style={{ color: '#888' }}>Avg. Monthly Savings</span>
+                <div className="text-center p-5 rounded-2xl bg-white border border-gray-200 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <span className="text-2xl font-extrabold block text-blue-600">$312</span>
+                  <span className="text-sm text-gray-600">Avg. Monthly Savings</span>
                 </div>
-                <div 
-                  className="text-center p-5 rounded-2xl border transition-all duration-300"
-                  style={{ 
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
-                  }}onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-5px)';
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                  }}
-                >
-                  <span className="text-2xl font-extrabold block" style={{ color: '#667eea' }}>15K+</span>
-                  <span className="text-sm" style={{ color: '#888' }}>Happy Renters</span>
+                <div className="text-center p-5 rounded-2xl bg-white border border-gray-200 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <span className="text-2xl font-extrabold block text-blue-600">15K+</span>
+                  <span className="text-sm text-gray-600">Happy Renters</span>
                 </div>
               </div>
               

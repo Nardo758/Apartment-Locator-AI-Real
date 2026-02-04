@@ -63,12 +63,14 @@ export default function UserTypeSelection() {
     }
   ];
 
+  const { setUserType } = useUser();
+
   const handleContinue = () => {
     if (!selectedType) return;
 
-    // Store user type in localStorage for now
+    // Store user type via context (which handles localStorage)
     // TODO: Save to database when backend is connected
-    localStorage.setItem('userType', selectedType);
+    setUserType(selectedType);
 
     // Navigate to appropriate dashboard
     const selectedOption = userTypes.find(t => t.type === selectedType);
@@ -107,9 +109,9 @@ export default function UserTypeSelection() {
               {/* Icon & Selection Badge */}
               <div className="flex items-start justify-between mb-4">
                 <div className={`
-                  p-3 rounded-xl transition-colors
+                  p-3 rounded-xl transition-all duration-200
                   ${selectedType === option.type 
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md' 
                     : 'bg-gray-100 text-gray-600'
                   }
                 `}>

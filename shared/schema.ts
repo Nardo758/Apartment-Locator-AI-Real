@@ -147,6 +147,51 @@ export const purchases = pgTable("purchases", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const subscriptions = pgTable("subscriptions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }).notNull().unique(),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).notNull(),
+  stripePriceId: varchar("stripe_price_id", { length: 255 }).notNull(),
+  stripeProductId: varchar("stripe_product_id", { length: 255 }),
+  status: varchar("status", { length: 50 }).notNull(), // active, past_due, canceled, unpaid, trialing
+  planType: varchar("plan_type", { length: 50 }).notNull(), // landlord_starter, landlord_pro, landlord_enterprise, agent_basic, agent_team, agent_brokerage
+  userType: varchar("user_type", { length: 50 }).notNull(), // renter, landlord, agent
+  amount: integer("amount").notNull(), // in cents
+  currency: varchar("currency", { length: 3 }).default("usd"),
+  interval: varchar("interval", { length: 20 }).notNull(), // month, year
+  currentPeriodStart: timestamp("current_period_start").notNull(),
+  currentPeriodEnd: timestamp("current_period_end").notNull(),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  canceledAt: timestamp("canceled_at"),
+  trialStart: timestamp("trial_start"),
+  trialEnd: timestamp("trial_end"),
+  metadata: json("metadata").$type<Record<string, unknown>>(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const invoices = pgTable("invoices", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id),
+  subscriptionId: uuid("subscription_id").references(() => subscriptions.id),
+  stripeInvoiceId: varchar("stripe_invoice_id", { length: 255 }).notNull().unique(),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).notNull(),
+  amount: integer("amount").notNull(), // in cents
+  amountPaid: integer("amount_paid").default(0),
+  currency: varchar("currency", { length: 3 }).default("usd"),
+  status: varchar("status", { length: 50 }).notNull(), // draft, open, paid, uncollectible, void
+  invoiceNumber: varchar("invoice_number", { length: 100 }),
+  hostedInvoiceUrl: text("hosted_invoice_url"),
+  invoicePdf: text("invoice_pdf"),
+  periodStart: timestamp("period_start"),
+  periodEnd: timestamp("period_end"),
+  dueDate: timestamp("due_date"),
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const leaseVerifications = pgTable("lease_verifications", {
   id: uuid("id").primaryKey().defaultRandom(),
   purchaseId: varchar("purchase_id", { length: 255 }).notNull(),
@@ -177,6 +222,8 @@ export const insertMarketSnapshotSchema = createInsertSchema(marketSnapshots).om
 export const insertUserPoiSchema = createInsertSchema(userPois).omit({ id: true, createdAt: true });
 export const insertPurchaseSchema = createInsertSchema(purchases).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertLeaseVerificationSchema = createInsertSchema(leaseVerifications).omit({ id: true, createdAt: true });
+export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertInvoiceSchema = createInsertSchema(invoices).omit({ id: true, createdAt: true, updatedAt: true });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
@@ -187,6 +234,8 @@ export type InsertMarketSnapshot = z.infer<typeof insertMarketSnapshotSchema>;
 export type InsertUserPoi = z.infer<typeof insertUserPoiSchema>;
 export type InsertPurchase = z.infer<typeof insertPurchaseSchema>;
 export type InsertLeaseVerification = z.infer<typeof insertLeaseVerificationSchema>;
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
+export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
 
 export type User = typeof users.$inferSelect;
 export type Property = typeof properties.$inferSelect;
@@ -197,3 +246,5 @@ export type SearchHistory = typeof searchHistory.$inferSelect;
 export type UserPreferences = typeof userPreferences.$inferSelect;
 export type MarketSnapshot = typeof marketSnapshots.$inferSelect;
 export type UserPoi = typeof userPois.$inferSelect;
+export type Subscription = typeof subscriptions.$inferSelect;
+export type Invoice = typeof invoices.$inferSelect;
