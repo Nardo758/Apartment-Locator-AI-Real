@@ -240,7 +240,7 @@ export default function LandlordPricing() {
             <Card
               key={plan.id}
               variant={plan.popular ? 'highlighted' : 'elevated'}
-              className={`relative ${plan.popular ? 'scale-105 z-10' : ''}`}
+              className={`relative border border-gray-200 ${plan.popular ? 'scale-105 z-10 border-purple-300 shadow-lg' : ''}`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
@@ -336,7 +336,7 @@ export default function LandlordPricing() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, idx) => (
-              <Card key={idx} variant="elevated" hover className="p-6 text-center">
+              <Card key={idx} variant="elevated" hover className="p-6 text-center border border-gray-200">
                 <div className={`w-12 h-12 rounded-full ${feature.iconBg} flex items-center justify-center mx-auto mb-4`}>
                   {feature.icon}
                 </div>
@@ -361,7 +361,7 @@ export default function LandlordPricing() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((testimonial, idx) => (
-              <Card key={idx} variant="elevated" className="p-6">
+              <Card key={idx} variant="elevated" className="p-6 border border-gray-200">
                 <div className="flex items-center gap-3 mb-4">
                   <div className={`w-12 h-12 rounded-full ${testimonial.avatarBg} flex items-center justify-center text-white font-bold`}>
                     {testimonial.name.charAt(0)}
@@ -428,7 +428,7 @@ export default function LandlordPricing() {
 
           <div className="max-w-3xl mx-auto space-y-4">
             {faqs.map((faq, idx) => (
-              <Card key={idx} variant="elevated" className="p-6">
+              <Card key={idx} variant="elevated" className="p-6 border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   {faq.question}
                 </h3>

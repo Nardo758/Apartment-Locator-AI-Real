@@ -215,8 +215,8 @@ export default function AgentPricing() {
             <Card
               key={plan.id}
               variant={plan.popular ? 'highlighted' : 'elevated'}
-              className={`relative ${
-                plan.popular ? 'border-2 border-purple-500/50 shadow-2xl shadow-purple-500/20' : ''
+              className={`relative border border-gray-200 ${
+                plan.popular ? 'border-2 border-purple-300 shadow-lg' : ''
               }`}
             >
               {plan.popular && (
@@ -363,7 +363,7 @@ export default function AgentPricing() {
             ].map((feature, idx) => {
               const Icon = feature.icon;
               return (
-                <Card key={idx} variant="elevated" hover>
+                <Card key={idx} variant="elevated" hover className="border border-gray-200">
                   <CardContent className="p-6">
                     <div className={`${feature.iconBg} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}>
                       <Icon className={`w-6 h-6 ${feature.iconColor}`} />
@@ -386,7 +386,7 @@ export default function AgentPricing() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {testimonials.map((testimonial, idx) => (
-              <Card key={idx} variant="elevated">
+              <Card key={idx} variant="elevated" className="border border-gray-200">
                 <CardContent className="p-6">
                   <div className="flex gap-1 mb-4">
                     {[...Array(5)].map((_, i) => (
@@ -468,7 +468,7 @@ export default function AgentPricing() {
                 a: 'Yes, we offer a 30-day money-back guarantee if you\'re not satisfied with the platform.'
               }
             ].map((faq, idx) => (
-              <Card key={idx} variant="elevated" hover>
+              <Card key={idx} variant="elevated" hover className="border border-gray-200">
                 <CardContent className="p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">{faq.q}</h3>
                   <p className="text-gray-600">{faq.a}</p>
