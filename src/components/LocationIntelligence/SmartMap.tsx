@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, { useState, useEffect } from 'react';
-import { MapPin, Layers, Clock, Navigation, Brain, Target, Timer, X, Plus } from 'lucide-react';
+import { MapPin, Layers, Clock, Navigation, Brain, Target, Timer, X, Plus, Briefcase, Dumbbell, ShoppingCart, Baby, GraduationCap, Stethoscope, Dog, Church, Utensils, Beer, Music, Book, Building, TreePine, Waves, Coffee } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -68,13 +68,26 @@ const SmartMap: React.FC<SmartMapProps> = ({
   };
 
   const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'work': return { icon: '💼', color: 'bg-blue-500/30 border-blue-400' };
-      case 'gym': return { icon: '🏋️', color: 'bg-green-500/30 border-green-400' };
-      case 'school': return { icon: '🎓', color: 'bg-orange-500/30 border-orange-400' };
-      case 'shopping': return { icon: '🛍️', color: 'bg-red-500/30 border-red-400' };
-      default: return { icon: '📍', color: 'bg-purple-500/30 border-purple-400' };
-    }
+    const configs: Record<string, { Icon: typeof MapPin; color: string; bgColor: string; shape: string; label: string }> = {
+      work: { Icon: Briefcase, color: 'border-red-500', bgColor: 'bg-red-500', shape: 'rounded-none', label: 'Work' }, // SQUARE
+      gym: { Icon: Dumbbell, color: 'border-blue-500', bgColor: 'bg-blue-500', shape: 'rounded-full', label: 'Gym' }, // CIRCLE
+      grocery: { Icon: ShoppingCart, color: 'border-green-500', bgColor: 'bg-green-500', shape: 'hexagon', label: 'Grocery' }, // HEXAGON
+      daycare: { Icon: Baby, color: 'border-pink-500', bgColor: 'bg-pink-500', shape: 'rounded-lg', label: 'Daycare' },
+      school: { Icon: GraduationCap, color: 'border-yellow-500', bgColor: 'bg-yellow-500', shape: 'rounded-lg', label: 'School' },
+      medical: { Icon: Stethoscope, color: 'border-teal-500', bgColor: 'bg-teal-500', shape: 'rounded-lg', label: 'Medical' },
+      pet: { Icon: Dog, color: 'border-orange-500', bgColor: 'bg-orange-500', shape: 'rounded-lg', label: 'Pet Services' },
+      religious: { Icon: Church, color: 'border-purple-500', bgColor: 'bg-purple-500', shape: 'rounded-lg', label: 'Religious' },
+      dining: { Icon: Utensils, color: 'border-amber-500', bgColor: 'bg-amber-500', shape: 'rounded-lg', label: 'Dining' },
+      nightlife: { Icon: Beer, color: 'border-indigo-500', bgColor: 'bg-indigo-500', shape: 'rounded-lg', label: 'Nightlife' },
+      entertainment: { Icon: Music, color: 'border-fuchsia-500', bgColor: 'bg-fuchsia-500', shape: 'rounded-lg', label: 'Entertainment' },
+      library: { Icon: Book, color: 'border-cyan-500', bgColor: 'bg-cyan-500', shape: 'rounded-lg', label: 'Library' },
+      coworking: { Icon: Building, color: 'border-slate-500', bgColor: 'bg-slate-500', shape: 'rounded-lg', label: 'Coworking' },
+      park: { Icon: TreePine, color: 'border-emerald-500', bgColor: 'bg-emerald-500', shape: 'rounded-lg', label: 'Park' },
+      beach: { Icon: Waves, color: 'border-sky-500', bgColor: 'bg-sky-500', shape: 'rounded-lg', label: 'Beach' },
+      coffee: { Icon: Coffee, color: 'border-stone-500', bgColor: 'bg-stone-500', shape: 'rounded-lg', label: 'Coffee' },
+      default: { Icon: MapPin, color: 'border-gray-500', bgColor: 'bg-gray-500', shape: 'rounded-full', label: 'Other' }
+    };
+    return configs[category] || configs.default;
   };
 
   const getPriorityRing = (priority: string) => {
@@ -304,9 +317,12 @@ const SmartMap: React.FC<SmartMapProps> = ({
                       </>
                     )}
                     
-                    {/* POI Marker */}
-                    <div className={`w-14 h-14 rounded-2xl ${categoryStyle.color} border-3 flex items-center justify-center text-2xl hover:scale-110 transition-all duration-300 ${priorityRing} ${isSelected ? 'scale-125 z-30' : ''} cursor-pointer shadow-xl`}>
-                      {categoryStyle.icon}
+                    {/* POI Marker with Distinctive Shape */}
+                    <div className={`w-14 h-14 ${categoryStyle.shape === 'hexagon' ? '' : categoryStyle.shape} ${categoryStyle.bgColor} ${categoryStyle.color} border-3 flex items-center justify-center hover:scale-110 transition-all duration-300 ${priorityRing} ${isSelected ? 'scale-125 z-30' : ''} cursor-pointer shadow-xl`}
+                      style={categoryStyle.shape === 'hexagon' ? {
+                        clipPath: 'polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)'
+                      } : undefined}>
+                      <categoryStyle.Icon className="w-6 h-6 text-white" />
                     </div>
 
                     {/* Distance/Time Badge */}

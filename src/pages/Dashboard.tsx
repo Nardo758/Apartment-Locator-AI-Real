@@ -1,73 +1,64 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Zap, Database } from 'lucide-react';
 import { designSystem } from '@/lib/design-system';
-import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import Header from '@/components/Header';
 import LocationIntelligence from '@/components/LocationIntelligence';
-
-// Mock user profile for the dashboard
-const mockUserProfile = {
-  id: 'dashboard-user',
-  user_id: 'dashboard-user',
-  email: 'user@example.com',
-  location: 'Austin, TX',
-  search_radius: 25,
-  points_of_interest: [
-    {
-      id: '1',
-      name: 'My Office',
-      address: '123 Main St, Austin, TX',
-      category: 'work',
-      priority: 'high',
-      coordinates: { lat: 30.2672, lng: -97.7431 },
-      maxTime: 25,
-      transportMode: 'driving'
-    },
-    {
-      id: '2', 
-      name: 'Local Gym',
-      address: '456 Fitness Ave, Austin, TX',
-      category: 'gym',
-      priority: 'medium',
-      coordinates: { lat: 30.2580, lng: -97.7642 },
-      maxTime: 15,
-      transportMode: 'driving'
-    }
-  ],
-  budget: 2500,
-  bedrooms: '1',
-  amenities: ['Pool', 'Gym', 'Parking', 'Pet-Friendly'],
-  deal_breakers: ['No Parking', 'No Pets'],
-  lifestyle: 'Active professional',
-  work_schedule: 'Standard 9-5',
-  priorities: ['Short Commute', 'Modern Amenities', 'Pet-Friendly'],
-  bio: 'Young professional looking for convenient living',
-  use_case: 'First apartment in Austin',
-  additional_notes: 'Looking for dog-friendly places',
-  has_completed_ai_programming: true
-};
+import SetupProgressBar from '@/components/dashboard/SetupProgressBar';
+import MarketIntelCard from '@/components/dashboard/MarketIntelCard';
+import ProfileSummaryCard from '@/components/dashboard/ProfileSummaryCard';
+import { useUnifiedAI } from '@/contexts/UnifiedAIContext';
 
 const Dashboard = () => {
+  const unifiedAI = useUnifiedAI();
+
+  // Convert UnifiedAI data to userProfile format for LocationIntelligence
+  const userProfile = {
+    id: 'unified-user',
+    user_id: 'unified-user',
+    email: 'user@example.com',
+    location: unifiedAI.location || unifiedAI.zipCode || '',
+    search_radius: 25,
+    points_of_interest: unifiedAI.pointsOfInterest.map(poi => ({
+      id: poi.id,
+      name: poi.name,
+      address: poi.address,
+      category: poi.category,
+      priority: poi.priority,
+      coordinates: poi.coordinates,
+      maxTime: poi.maxTime || 25,
+      transportMode: poi.transportMode || 'driving',
+    })),
+    budget: unifiedAI.budget,
+    bedrooms: unifiedAI.aiPreferences.bedrooms,
+    amenities: unifiedAI.aiPreferences.amenities,
+    deal_breakers: unifiedAI.aiPreferences.dealBreakers,
+    lifestyle: unifiedAI.aiPreferences.lifestyle || '',
+    work_schedule: unifiedAI.aiPreferences.workSchedule || '',
+    priorities: unifiedAI.aiPreferences.priorities,
+    bio: unifiedAI.aiPreferences.bio || '',
+    use_case: unifiedAI.aiPreferences.useCase || '',
+    additional_notes: unifiedAI.aiPreferences.additionalNotes || '',
+    has_completed_ai_programming: unifiedAI.hasCompletedSetup,
+  };
+
   return (
     <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
       <Header />
 
-      <div className="container mx-auto px-4 pt-24 pb-8 min-h-screen space-y-8">
-        {/* Quick Actions */}
-        <div className="flex gap-4 flex-wrap">
-          <Link to="/data-management">
-            <Button variant="outline" className="gap-2">
-              <Database className="h-4 w-4" />
-              Manage Database
-            </Button>
-          </Link>
+      <div className="container mx-auto px-4 pt-24 pb-8 min-h-screen space-y-6">
+        {/* Setup Progress Bar */}
+        <div className={designSystem.animations.entrance}>
+          <SetupProgressBar />
+        </div>
+
+        {/* Intelligence Cards: Market Intel + Profile Summary */}
+        <div className={`${designSystem.animations.entrance} grid md:grid-cols-2 gap-6`}>
+          <MarketIntelCard />
+          <ProfileSummaryCard />
         </div>
 
         {/* Location Intelligence Component */}
         <div className={`${designSystem.animations.entrance} w-full`}>
-          <LocationIntelligence userProfile={mockUserProfile} />
+          <LocationIntelligence userProfile={userProfile} />
         </div>
       </div>
     </div>

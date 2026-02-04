@@ -119,17 +119,17 @@ export function CostComparisonTable({
   
   if (data.length === 0) {
     return (
-      <div className="glass rounded-xl p-8 text-center">
-        <p className="text-slate-400">No apartments to compare yet.</p>
+      <div className="bg-white rounded-2xl shadow-2xl p-8 text-center border border-gray-200">
+        <p className="text-gray-600">No apartments to compare yet.</p>
       </div>
     );
   }
   
   return (
-    <div className="glass rounded-xl overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
       {/* Stats Header */}
       {stats && (
-        <div className="p-4 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border-b border-white/10">
+        <div className="p-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200">
           <div className="grid grid-cols-4 gap-4">
             <div>
               <p className="text-xs text-slate-400">Apartments</p>
@@ -190,8 +190,8 @@ export function CostComparisonTable({
               return (
                 <Fragment key={apt.apartmentId}>
                   <tr 
-                    className={`border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer ${
-                      isBest ? 'bg-emerald-500/5' : ''
+                    className={`border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer ${
+                      isBest ? 'bg-green-50 border-l-4 border-l-green-500' : ''
                     }`}
                     onClick={() => setExpandedRow(isExpanded ? null : apt.apartmentId)}
                   >
@@ -241,7 +241,7 @@ export function CostComparisonTable({
                     </td>
                     
                     <td className="px-4 py-4 text-right">
-                      <span className="text-lg font-bold gradient-text">
+                      <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
                         {formatCurrency(apt.trueMonthlyCost)}
                       </span>
                     </td>

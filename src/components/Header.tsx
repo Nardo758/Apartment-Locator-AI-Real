@@ -21,12 +21,9 @@ const Header = ({ onSignOut }: HeaderProps) => {
 
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', active: true },
-    { path: '/ai-formula', label: 'AI Formula' },
-    { path: '/program-ai', label: 'Program AI' },
-    { path: '/saved-properties', label: 'Saved Properties' },
     { path: '/market-intel', label: 'Market Intel' },
-    { path: '/offers-made', label: 'Offers Made' },
-    { path: '/profile', label: 'Profile' }
+    { path: '/saved-properties', label: 'Saved & Offers' },
+    { path: '/ai-formula', label: 'AI Formula' }
   ];
 
   const isActive = (path: string) => {
@@ -83,6 +80,13 @@ const Header = ({ onSignOut }: HeaderProps) => {
                 </Link>
               ))}
               <div className="border-t border-border pt-4 space-y-2">
+                <Link
+                  to="/program-ai"
+                  className="block px-3 py-2 text-muted-foreground hover:text-foreground font-semibold"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Program Your AI
+                </Link>
                 <Link
                   to="/billing"
                   className="block px-3 py-2 text-muted-foreground hover:text-foreground"
@@ -145,7 +149,14 @@ const Header = ({ onSignOut }: HeaderProps) => {
                 <ChevronDown size={14} className="text-muted-foreground" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem asChild>
+                <Link to="/program-ai" className="flex items-center gap-2">
+                  <Settings size={16} />
+                  Program Your AI
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link to="/billing" className="flex items-center gap-2">
                   <CreditCard size={16} />

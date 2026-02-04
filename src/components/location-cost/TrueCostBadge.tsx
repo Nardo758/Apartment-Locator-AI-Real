@@ -1,7 +1,7 @@
 // ============================================
-// TRUE COST BADGE
-// Small badge to show on PropertyCard
-// Shows True Cost and delta vs average
+// TRUE COST BADGE - Landing Page Style
+// Shows True Cost prominently with gradient
+// Matches LandingSSRSafe.tsx aesthetic
 // ============================================
 
 import { TrendingDown, TrendingUp, Sparkles, Calculator } from 'lucide-react';
@@ -37,10 +37,10 @@ export function TrueCostBadge({
     return (
       <button
         onClick={onClick}
-        className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-400 text-xs hover:bg-white/10 hover:text-white transition-all"
+        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 text-blue-600 text-sm hover:from-blue-100 hover:to-purple-100 transition-all"
       >
-        <Calculator className="w-3 h-3" />
-        <span>Calculate true cost</span>
+        <Calculator className="w-4 h-4" />
+        <span className="font-medium">Calculate True Cost</span>
       </button>
     );
   }
@@ -53,16 +53,37 @@ export function TrueCostBadge({
     return (
       <div 
         onClick={onClick}
-        className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium cursor-pointer transition-all hover:scale-105 ${
+        className={`inline-flex flex-col items-start px-3 py-2 rounded-lg cursor-pointer transition-all hover:scale-[1.02] bg-white shadow-md border ${
           isBestValue 
-            ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-400 border border-emerald-500/30' 
-            : isGoodValue
-              ? 'bg-emerald-500/10 text-emerald-400'
-              : 'bg-amber-500/10 text-amber-400'
+            ? 'border-green-500' 
+            : 'border-gray-200'
         }`}
       >
-        {isBestValue && <Sparkles className="w-3 h-3" />}
-        <span>True: {formatCurrency(trueCost)}</span>
+        {/* Base Rent - Small and muted */}
+        {baseRent && (
+          <div className="text-xs text-gray-500 line-through">
+            Base: {formatCurrency(baseRent)}
+          </div>
+        )}
+        
+        {/* TRUE COST - Large with gradient */}
+        <div className="flex items-baseline gap-1">
+          {isBestValue && <Sparkles className="w-4 h-4 text-green-500" />}
+          <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+            {formatCurrency(trueCost)}
+          </span>
+          <span className="text-sm text-gray-600">/mo</span>
+        </div>
+        
+        {/* Savings badge */}
+        {isGoodValue && delta && (
+          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 border border-green-200 mt-1">
+            <TrendingDown className="w-3 h-3 text-green-600" />
+            <span className="text-xs text-green-600 font-medium">
+              Saves {formatCurrency(Math.abs(delta))}/mo
+            </span>
+          </div>
+        )}
       </div>
     );
   }
@@ -70,45 +91,61 @@ export function TrueCostBadge({
   return (
     <div 
       onClick={onClick}
-      className={`p-3 rounded-lg cursor-pointer transition-all hover:scale-[1.02] ${
+      className={`p-6 rounded-2xl cursor-pointer transition-all hover:rotate-1 bg-white shadow-2xl ${
         isBestValue 
-          ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30' 
-          : 'bg-white/5 border border-white/10'
+          ? 'border-2 border-green-500' 
+          : 'border border-gray-200'
       }`}
     >
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-slate-400">True Monthly Cost</span>
-        {isBestValue && (
-          <span className="flex items-center gap-1 text-xs text-emerald-400">
-            <Sparkles className="w-3 h-3" />
-            Best
-          </span>
-        )}
+      {/* Best Value Badge */}
+      {isBestValue && (
+        <div className="flex items-center gap-1 text-sm text-green-600 font-medium mb-2">
+          <Sparkles className="w-4 h-4" />
+          Best Value
+        </div>
+      )}
+      
+      {/* Base Rent - Small */}
+      {baseRent && (
+        <div className="text-sm text-gray-500 line-through mb-1">
+          Base: {formatCurrency(baseRent)}/mo
+        </div>
+      )}
+      
+      {/* TRUE COST - HERO ELEMENT */}
+      <div className="mb-2">
+        <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+          {formatCurrency(trueCost)}
+        </div>
+        <div className="text-lg text-gray-600">/month</div>
       </div>
       
-      <div className="flex items-end justify-between">
-        <div>
-          <span className="text-lg font-bold text-white">{formatCurrency(trueCost)}</span>
-          {locationCosts > 0 && (
-            <span className="text-xs text-slate-500 ml-1">
-              (+{formatCurrency(locationCosts)} location)
-            </span>
-          )}
+      {/* Location Costs Breakdown */}
+      {locationCosts > 0 && (
+        <div className="text-sm text-gray-600 mb-3">
+          +{formatCurrency(locationCosts)} location costs
         </div>
-        
-        {delta !== undefined && delta !== 0 && (
-          <div className={`flex items-center gap-1 text-xs ${
-            delta < 0 ? 'text-emerald-400' : 'text-red-400'
-          }`}>
-            {delta < 0 ? (
-              <TrendingDown className="w-3 h-3" />
-            ) : (
-              <TrendingUp className="w-3 h-3" />
-            )}
-            <span>{delta < 0 ? '' : '+'}{formatCurrency(delta)}</span>
-          </div>
-        )}
-      </div>
+      )}
+      
+      {/* Savings Badge - Green */}
+      {isGoodValue && delta && (
+        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 border border-green-200">
+          <TrendingDown className="w-4 h-4 text-green-600" />
+          <span className="text-sm text-green-600 font-medium">
+            Saves {formatCurrency(Math.abs(delta))}/mo vs others
+          </span>
+        </div>
+      )}
+      
+      {/* Above Average Warning */}
+      {!isGoodValue && delta && delta > 0 && (
+        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200">
+          <TrendingUp className="w-4 h-4 text-amber-600" />
+          <span className="text-sm text-amber-600 font-medium">
+            {formatCurrency(delta)}/mo above average
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -117,17 +154,18 @@ export function TrueCostBadge({
 export function TrueCostBadgeSkeleton({ compact = false }: { compact?: boolean }) {
   if (compact) {
     return (
-      <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5 animate-pulse">
-        <div className="w-3 h-3 bg-white/10 rounded" />
-        <div className="w-16 h-3 bg-white/10 rounded" />
+      <div className="inline-flex flex-col items-start px-3 py-2 rounded-lg bg-white shadow-md animate-pulse">
+        <div className="w-20 h-3 bg-gray-200 rounded mb-1" />
+        <div className="w-24 h-6 bg-gradient-to-r from-blue-100 to-purple-100 rounded" />
       </div>
     );
   }
   
   return (
-    <div className="p-3 rounded-lg bg-white/5 border border-white/10 animate-pulse">
-      <div className="w-24 h-3 bg-white/10 rounded mb-2" />
-      <div className="w-20 h-5 bg-white/10 rounded" />
+    <div className="p-6 rounded-2xl bg-white shadow-2xl animate-pulse">
+      <div className="w-32 h-3 bg-gray-200 rounded mb-2" />
+      <div className="w-40 h-10 bg-gradient-to-r from-blue-100 to-purple-100 rounded mb-2" />
+      <div className="w-28 h-4 bg-gray-200 rounded" />
     </div>
   );
 }

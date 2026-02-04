@@ -18,15 +18,6 @@ const Landing = () => {
       navigate('/dashboard');
     }
   }, [isAuthenticated, loading, navigate]);
-  const [currentDemo, setCurrentDemo] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentDemo(prev => (prev + 1) % 2);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
@@ -267,17 +258,18 @@ const Landing = () => {
               </div>
               
               <div 
-                className={`rounded-2xl p-5 mb-4 border transition-all duration-300 relative z-10 ${currentDemo === 0 ? 'opacity-100' : 'opacity-50'}`}
+                className="rounded-2xl p-5 mb-4 border transition-all duration-300 relative z-10 opacity-100"
                 style={{ 
                   background: 'rgba(255, 255, 255, 0.08)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
-                  transform: currentDemo === 0 ? 'translateY(-3px)' : 'translateY(0)'
-                }}onMouseEnter={(e) => {
+                  transform: 'translateY(0)'
+                }}
+                onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-3px)';
                   e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = currentDemo === 0 ? 'translateY(-3px)' : 'translateY(0)';
+                  e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
                 }}
               >
@@ -311,17 +303,18 @@ const Landing = () => {
               </div>
               
               <div 
-                className={`rounded-2xl p-5 border transition-all duration-300 relative z-10 ${currentDemo === 1 ? 'opacity-100' : 'opacity-50'}`}
+                className="rounded-2xl p-5 border transition-all duration-300 relative z-10 opacity-100"
                 style={{ 
                   background: 'rgba(255, 255, 255, 0.08)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
-                  transform: currentDemo === 1 ? 'translateY(-3px)' : 'translateY(0)'
-                }}onMouseEnter={(e) => {
+                  transform: 'translateY(0)'
+                }}
+                onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-3px)';
                   e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = currentDemo === 1 ? 'translateY(-3px)' : 'translateY(0)';
+                  e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
                 }}
               >

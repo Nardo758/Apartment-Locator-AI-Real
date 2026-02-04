@@ -99,7 +99,7 @@ const ModernApartmentCard: React.FC<ModernApartmentCardProps> = ({
 
   return (
     <Card 
-      className="group relative overflow-hidden bg-gradient-to-br from-slate-800/40 via-slate-800/30 to-slate-900/40 border-0 shadow-2xl shadow-black/20 hover:shadow-3xl hover:shadow-blue-500/10 transition-all duration-500 backdrop-blur-xl"
+      className="group relative overflow-hidden bg-white rounded-2xl border border-gray-200 shadow-2xl hover:rotate-1 transition-all duration-300"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -193,8 +193,8 @@ const ModernApartmentCard: React.FC<ModernApartmentCardProps> = ({
 
         {/* Hero Pricing Section */}
         <div className="relative px-8 pb-6">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-700/20 via-slate-800/30 to-slate-900/40 border border-slate-600/20 backdrop-blur-sm">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-blue-500/5" />
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5" />
             
             <div className="relative p-6">
               <div className="flex items-center justify-between mb-4">
@@ -205,9 +205,10 @@ const ModernApartmentCard: React.FC<ModernApartmentCardProps> = ({
                         ${apartment.apartmentIQData.originalRent.toLocaleString()}
                       </div>
                     )}
-                    <div className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">
-                      ${apartment.price.toLocaleString()}/mo
+                    <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                      ${apartment.price.toLocaleString()}
                     </div>
+                    <span className="text-lg text-gray-600">/mo</span>
                   </div>
                   
                   {apartment.apartmentIQData?.concessions && apartment.apartmentIQData.concessions.length > 0 && (

@@ -90,14 +90,14 @@ export default function MarketIntelBar({
   };
 
   const statusBg = {
-    good: 'bg-green-500/10',
-    neutral: 'bg-yellow-500/10',
-    warning: 'bg-red-500/10',
+    good: 'bg-gradient-to-br from-green-50 to-emerald-50',
+    neutral: 'bg-gradient-to-br from-yellow-50 to-amber-50',
+    warning: 'bg-gradient-to-br from-red-50 to-orange-50',
   };
 
   return (
     <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-      <div className={`bg-card border border-border rounded-xl overflow-hidden ${className}`} data-testid="market-intel-bar">
+      <div className={`bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden ${className}`} data-testid="market-intel-bar">
         <CollapsibleTrigger asChild>
           <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover-elevate">
             <div className="flex items-center gap-3">
@@ -178,7 +178,7 @@ export default function MarketIntelBar({
               ))}
 
               <div 
-                className="p-3 rounded-lg bg-gradient-to-br from-purple-500/10 to-blue-500/10 border border-purple-500/20 md:col-span-2 lg:col-span-1"
+                className="p-3 rounded-lg bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200 md:col-span-2 lg:col-span-1"
                 data-testid="metric-ai-recommendation"
               >
                 <div className="flex items-center gap-2 mb-1">
