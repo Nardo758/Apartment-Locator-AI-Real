@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle, TrendingUp, Users, DollarSign, Clock, Zap, Target, BarChart, Brain, Search, Mail, Star, Building, MapPin, Calendar, Home, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { FreeSavingsCalculator } from '@/components/FreeSavingsCalculator';
 
 // SSR-Safe Landing Page - No external dependencies that could cause SSR issues
 const LandingSSRSafe = () => {
@@ -146,49 +145,17 @@ const LandingSSRSafe = () => {
         </div>
       </section>
 
-      {/* Free Savings Calculator Section */}
-      <section className="py-20 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 to-transparent"></div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-12">
-            <div className="inline-block px-4 py-2 bg-blue-500/20 rounded-full mb-4">
-              <span className="text-blue-300 font-semibold text-sm uppercase tracking-wide">Free Calculator</span>
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-              See How Much You Could Save
-            </h2>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              Get instant insights into your potential savings. Our AI analyzes market data to show you real opportunities - for free.
-            </p>
-          </div>
-          
-          <FreeSavingsCalculator />
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 bg-gray-50">
+      {/* Key Features */}
+      <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Powered by Advanced AI Technology
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our intelligent platform combines market data, user preferences, and AI algorithms to revolutionize apartment hunting.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
-              <div key={index} className="text-center group hover:transform hover:scale-105 transition-all duration-300">
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mb-4 group-hover:shadow-lg transition-shadow duration-300">
+              <div key={index} className="text-center">
+                <div className="inline-flex items-center justify-center mb-3">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
+                <p className="text-sm text-gray-600">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -307,19 +274,11 @@ const LandingSSRSafe = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Stats + CTA Section */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Trusted by Thousands of Renters
-            </h2>
-            <p className="text-xl text-blue-100">
-              Join the community that's revolutionizing apartment hunting
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-8">
+          {/* Stats */}
+          <div className="grid md:grid-cols-4 gap-8 mb-20">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="flex justify-center mb-4">
@@ -330,45 +289,43 @@ const LandingSSRSafe = () => {
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Find Your Perfect Apartment?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Join thousands of successful renters who've found their ideal homes with AI-powered intelligence.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-            <Link to="/signup">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold">
-                Start Your Free Trial
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
-            <Link to="/market-intel">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3 text-lg font-semibold">
-                View Market Intel
-              </Button>
-            </Link>
-          </div>
+          {/* CTA */}
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              Ready to Find Your Perfect Apartment?
+            </h2>
+            <p className="text-xl text-blue-100 mb-8">
+              Join thousands of successful renters who've found their ideal homes with AI-powered intelligence.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+              <Link to="/signup">
+                <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold">
+                  Start Your Free Trial
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+              <Link to="/market-intel">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3 text-lg font-semibold">
+                  View Market Intel
+                </Button>
+              </Link>
+            </div>
 
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-sm text-blue-100">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" />
-              <span>14-day free trial</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" />
-              <span>No credit card required</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" />
-              <span>Cancel anytime</span>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-sm text-blue-100">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4" />
+                <span>14-day free trial</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4" />
+                <span>No credit card required</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4" />
+                <span>Cancel anytime</span>
+              </div>
             </div>
           </div>
         </div>
