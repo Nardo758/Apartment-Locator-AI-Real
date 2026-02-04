@@ -19,6 +19,7 @@ import {
 } from "./auth";
 import { z } from "zod";
 import { registerPaymentRoutes } from "./routes/payments";
+import { registerLeaseVerificationRoutes } from "./routes/lease-verification";
 
 declare global {
   namespace Express {
@@ -336,4 +337,7 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Register payment routes
   registerPaymentRoutes(app);
+  
+  // Register lease verification routes
+  registerLeaseVerificationRoutes(app);
 }

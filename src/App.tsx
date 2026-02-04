@@ -57,6 +57,7 @@ import SearchDashboardDemo from "./components/demo/SearchDashboardDemo";
 import PortfolioDashboard from "./pages/PortfolioDashboard";
 import LandlordPricing from "./pages/LandlordPricing";
 import LandlordOnboarding from "./pages/LandlordOnboarding";
+import LeaseVerification from "./pages/LeaseVerification";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
@@ -121,6 +122,9 @@ const App = () => (
                     <Route path="/landlord-pricing" element={<LandlordPricing />} />
                     <Route path="/landlord-onboarding" element={<LandlordOnboarding />} />
                     <Route path="/portfolio-dashboard" element={<PortfolioDashboard />} />
+                    
+                    {/* Lease Verification & Refund */}
+                    <Route path="/verify-lease" element={<LeaseVerification />} />
                     
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />

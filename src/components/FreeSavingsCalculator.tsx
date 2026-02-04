@@ -26,6 +26,7 @@ export function FreeSavingsCalculator() {
     budget: '',
     bedrooms: '1',
     moveInDate: '',
+    currentLeaseExpires: '',
     email: '',
     name: ''
   });
@@ -250,6 +251,7 @@ export function FreeSavingsCalculator() {
             budget: formData.budget,
             bedrooms: formData.bedrooms,
             moveInDate: formData.moveInDate,
+            currentLeaseExpires: formData.currentLeaseExpires,
           }}
           onPaymentSuccess={() => {
             setShowPaywall(false);
@@ -345,6 +347,21 @@ export function FreeSavingsCalculator() {
               className="bg-white/5 border-white/20 text-white"
             />
             <p className="text-xs text-white/50 mt-1">Approximate date (optional)</p>
+          </div>
+
+          {/* Current Lease Expiration */}
+          <div>
+            <label className="label mb-2 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              When does your current lease expire?
+            </label>
+            <Input
+              type="date"
+              value={formData.currentLeaseExpires}
+              onChange={(e) => setFormData({ ...formData, currentLeaseExpires: e.target.value })}
+              className="bg-white/5 border-white/20 text-white"
+            />
+            <p className="text-xs text-white/50 mt-1">Helps us forecast demand & time your search (optional)</p>
           </div>
 
           {/* Submit */}

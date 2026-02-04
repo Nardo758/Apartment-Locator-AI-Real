@@ -147,6 +147,27 @@ export const purchases = pgTable("purchases", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const leaseVerifications = pgTable("lease_verifications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  purchaseId: varchar("purchase_id", { length: 255 }).notNull(),
+  guestEmail: varchar("guest_email", { length: 255 }),
+  propertyName: varchar("property_name", { length: 500 }),
+  finalRent: integer("final_rent").notNull(),
+  leaseSignedDate: timestamp("lease_signed_date"),
+  moveInDate: timestamp("move_in_date"),
+  leaseFileUrl: text("lease_file_url").notNull(),
+  status: varchar("status", { length: 50 }).notNull().default("pending"),
+  originalAskingRent: integer("original_asking_rent"),
+  predictedRent: integer("predicted_rent"),
+  actualSavings: integer("actual_savings"),
+  refundAmount: integer("refund_amount"),
+  refundTier: varchar("refund_tier", { length: 50 }),
+  submittedAt: timestamp("submitted_at").defaultNow(),
+  verifiedAt: timestamp("verified_at"),
+  refundedAt: timestamp("refunded_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPropertySchema = createInsertSchema(properties).omit({ id: true, lastSeen: true, firstScraped: true, lastUpdated: true });
 export const insertSavedApartmentSchema = createInsertSchema(savedApartments).omit({ id: true, createdAt: true });
@@ -155,6 +176,7 @@ export const insertUserPreferencesSchema = createInsertSchema(userPreferences).o
 export const insertMarketSnapshotSchema = createInsertSchema(marketSnapshots).omit({ id: true, createdAt: true });
 export const insertUserPoiSchema = createInsertSchema(userPois).omit({ id: true, createdAt: true });
 export const insertPurchaseSchema = createInsertSchema(purchases).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertLeaseVerificationSchema = createInsertSchema(leaseVerifications).omit({ id: true, createdAt: true });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
@@ -164,10 +186,12 @@ export type InsertUserPreferences = z.infer<typeof insertUserPreferencesSchema>;
 export type InsertMarketSnapshot = z.infer<typeof insertMarketSnapshotSchema>;
 export type InsertUserPoi = z.infer<typeof insertUserPoiSchema>;
 export type InsertPurchase = z.infer<typeof insertPurchaseSchema>;
+export type InsertLeaseVerification = z.infer<typeof insertLeaseVerificationSchema>;
 
 export type User = typeof users.$inferSelect;
 export type Property = typeof properties.$inferSelect;
 export type Purchase = typeof purchases.$inferSelect;
+export type LeaseVerification = typeof leaseVerifications.$inferSelect;
 export type SavedApartment = typeof savedApartments.$inferSelect;
 export type SearchHistory = typeof searchHistory.$inferSelect;
 export type UserPreferences = typeof userPreferences.$inferSelect;
