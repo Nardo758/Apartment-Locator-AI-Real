@@ -200,10 +200,10 @@ export default function LandlordOnboarding() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-2">
-                    Add Your Properties
+                    Add Your Properties (Optional)
                   </h2>
                   <p className="text-white/60">
-                    We'll monitor market conditions for each property
+                    We'll monitor market conditions for each property. You can add these later.
                   </p>
                 </div>
                 <Button
@@ -564,20 +564,32 @@ export default function LandlordOnboarding() {
               Back
             </Button>
 
-            <Button
-              onClick={() => {
-                const nextIndex = currentStepIndex + 1;
-                if (nextIndex < steps.length) {
-                  setStep(steps[nextIndex]);
-                }
-              }}
-              disabled={
-                (step === 'properties' && properties.some(p => !p.address || !p.city || !p.currentRent))
-              }
-            >
-              {step === 'payment' ? 'Complete Setup' : 'Continue'}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            <div className="flex items-center gap-3">
+              {step === 'properties' && (
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    const nextIndex = currentStepIndex + 1;
+                    if (nextIndex < steps.length) {
+                      setStep(steps[nextIndex]);
+                    }
+                  }}
+                >
+                  Skip for Now
+                </Button>
+              )}
+              <Button
+                onClick={() => {
+                  const nextIndex = currentStepIndex + 1;
+                  if (nextIndex < steps.length) {
+                    setStep(steps[nextIndex]);
+                  }
+                }}
+              >
+                {step === 'payment' ? 'Complete Setup' : 'Continue'}
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
           </div>
         </Card>
       </div>
