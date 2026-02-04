@@ -1,0 +1,68 @@
+
+I need you to check and connect all the backend endpoints that were just built for the Apartment Locator AI platform. Here's what needs to be done:
+
+## 1. Pull Latest Code
+- Pull the latest code from GitHub (commits: 9a78677, 08b2ef9, ab3552b, c3ffc0d)
+- These include: protected routes, Stripe integration, database connection fixes, landlord backend (24 endpoints), and agent backend (28 endpoints)
+
+## 2. Database Migrations
+Run all migration files in order:
+- database/migrations/004_add_user_type_to_users.sql (user type persistence)
+- database/migrations/005_landlord_dashboard_foundation.sql (landlord tables)
+- database/migrations/001_agent_dashboard_schema.sql (agent tables)
+- supabase/migrations/20260204000000_competition_sets.sql (competition sets)
+- supabase/migrations/20260204153623_add_pricing_alerts.sql (pricing alerts)
+- migrations/0003_add_agent_clients_tables.sql (agent clients)
+- server/migrations/add_landlord_fields.sql (landlord property fields)
+- server/migrations/add_agent_leads.sql (agent leads)
+
+## 3. Verify Database Schema
+Check that these tables exist:
+- users (with userType column)
+- properties (with landlord fields: owner_id, target_rent, occupancy_status, etc.)
+- competition_sets, competition_set_competitors
+- pricing_alerts, alert_preferences
+- agent_clients, agent_deals, agent_leads, agent_activities, agent_commission_templates
+
+## 4. Environment Variables
+Verify these are set in .env:
+- DATABASE_URL (PostgreSQL connection)
+- JWT_SECRET
+- STRIPE_PUBLISHABLE_KEY
+- STRIPE_SECRET_KEY
+- STRIPE_WEBHOOK_SECRET (optional, for production)
+
+## 5. TypeScript Compilation
+Run: npm run build
+Verify zero errors
+
+## 6. Test Server Startup
+Start the server and verify these endpoint groups work:
+- Auth endpoints: POST /api/auth/signup, POST /api/auth/signin, PATCH /api/auth/user-type
+- Landlord endpoints: GET /api/landlord/properties, POST /api/competition-sets, GET /api/alerts
+- Agent endpoints: GET /api/agent/clients, POST /api/agent/deals, POST /api/agent/leads
+
+## 7. Quick Smoke Tests
+Test one endpoint from each group:
+1. Create a test user with userType='landlord'
+2. Try GET /api/landlord/portfolio/summary (should return stats)
+3. Create a test user with userType='agent'
+4. Try GET /api/agent/dashboard/summary (should return stats)
+
+## 8. Check for Issues
+Look for:
+- Missing tables or columns
+- Authentication errors
+- Validation errors
+- TypeScript compilation errors
+- Missing environment variables
+
+## 9. Report Back
+Tell me:
+- Which migrations ran successfully
+- Which endpoints are working
+- Any errors or missing dependencies
+- Database connection status
+- Server startup status
+
+If anything fails, show me the specific error messages so we can fix them.
