@@ -28,6 +28,13 @@ An AI-powered apartment locator application that helps users find apartments, an
   - Shows "Sign In" button when not authenticated, user dropdown menu when logged in
   - Sign Out option available in both desktop dropdown and mobile menu
   - ProtectedRoute component available for securing authenticated-only pages
+- **User Type Flows**: Three user types (renter, landlord, agent) with dedicated flows
+  - Pricing pages link to `/auth?type={userType}&mode=signup&plan={planId}`
+  - Auth page reads URL params and shows user-type-specific UI (icons, badges, descriptions)
+  - After signup/login, redirects to appropriate destination:
+    - Renters → `/dashboard`
+    - Landlords → `/landlord-onboarding` → `/portfolio-dashboard`
+    - Agents → `/agent-onboarding` → `/agent-dashboard`
 - **API Routes**: RESTful endpoints for properties, saved apartments, search history, preferences, market data, auth, and payments
 
 ## Project Architecture
