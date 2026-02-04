@@ -3,10 +3,15 @@ import { users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { hashPassword } from "./auth";
 
-const ADMIN_EMAIL = "m.dixon5030@gmail.com";
-const ADMIN_PASSWORD = "Nova@$5030";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 export async function seedAdminUser(): Promise<void> {
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    console.log("Admin seeding skipped: ADMIN_EMAIL and ADMIN_PASSWORD env vars not set");
+    return;
+  }
+
   try {
     const existingAdmin = await db.select()
       .from(users)
