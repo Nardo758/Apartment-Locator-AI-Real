@@ -39,7 +39,7 @@ const mockTemplates: Template[] = [
 
 We hope you've enjoyed living at {{property_address}}! Your lease expires on {{lease_end}}, and we'd love to have you stay.
 
-We're offering to renew your lease at ${{offered_rent}}/month.
+We're offering to renew your lease at \${{offered_rent}}/month.
 
 Please let us know by {{response_deadline}} if you'd like to renew.
 
@@ -58,7 +58,7 @@ Best regards,
 
 As a valued tenant at {{property_address}}, we'd like to offer you a special renewal package:
 
-- Rent: ${{offered_rent}}/month
+- Rent: \${{offered_rent}}/month
 - {{incentive_description}}
 
 This offer is available until {{response_deadline}}.
@@ -79,7 +79,7 @@ Best,
 
 I'm interested in renting {{property_address}}. I'm a responsible tenant with excellent references and stable employment.
 
-I'd like to offer ${{offer_amount}}/month for a {{lease_length}} lease starting {{move_in_date}}.
+I'd like to offer \${{offer_amount}}/month for a {{lease_length}} lease starting {{move_in_date}}.
 
 I'm happy to provide:
 - Proof of income
@@ -102,9 +102,9 @@ Best regards,
     subject: 'Re: {{property_address}} - Counter Offer',
     body: `Hi {{landlord_name}},
 
-Thank you for your counter offer of ${{counter_amount}}/month.
+Thank you for your counter offer of \${{counter_amount}}/month.
 
-I'd like to propose meeting in the middle at ${{new_offer}}/month, or alternatively, accepting your price with {{concession_request}}.
+I'd like to propose meeting in the middle at \${{new_offer}}/month, or alternatively, accepting your price with {{concession_request}}.
 
 I'm ready to move forward quickly and can sign the lease this week.
 
