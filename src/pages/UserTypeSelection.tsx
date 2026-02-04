@@ -18,7 +18,7 @@ interface UserTypeOption {
 
 export default function UserTypeSelection() {
   const navigate = useNavigate();
-  const { user, updateUserType } = useUser();
+  const { user } = useUser();
   const [selectedType, setSelectedType] = useState<UserType | null>(null);
 
   const userTypes: UserTypeOption[] = [
@@ -63,13 +63,12 @@ export default function UserTypeSelection() {
     }
   ];
 
-  const handleContinue = async () => {
+  const handleContinue = () => {
     if (!selectedType) return;
 
-    // Update user type in database/context
-    if (updateUserType) {
-      await updateUserType(selectedType);
-    }
+    // Store user type in localStorage for now
+    // TODO: Save to database when backend is connected
+    localStorage.setItem('userType', selectedType);
 
     // Navigate to appropriate dashboard
     const selectedOption = userTypes.find(t => t.type === selectedType);

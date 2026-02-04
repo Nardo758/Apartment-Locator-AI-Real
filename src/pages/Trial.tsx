@@ -92,6 +92,8 @@ const Trial: React.FC = () => {
   // Handle trial signup
   const handleTrialSignup = (email: string) => {
     initializeTrial(email);
+    // Redirect to user type selection after signup
+    navigate('/user-type');
   };
 
   // Handle apartment click
