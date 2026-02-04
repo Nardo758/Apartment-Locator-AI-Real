@@ -69,7 +69,7 @@ const LandingSSRSafe = () => {
             <Link to="/auth" data-testid="link-signin">
               <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100">Sign In</Button>
             </Link>
-            <Link to="/auth" data-testid="link-signup">
+            <Link to="/signup" data-testid="link-signup">
               <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                 Get Started
               </Button>

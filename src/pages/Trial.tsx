@@ -11,11 +11,12 @@ import { useAutoUpgradeTriggers } from '@/hooks/useAutoUpgradeTriggers';
 import { mockApartments, filterApartments, sortApartments, ApartmentListing } from '@/data/mockApartments';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Zap, Search, TrendingUp, DollarSign, Clock } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { designSystem } from '@/lib/design-system';
 import ModernCard from '@/components/modern/ModernCard';
 
 const Trial: React.FC = () => {
+  const navigate = useNavigate();
   const {
     trialStatus,
     isExpired,

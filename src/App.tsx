@@ -42,6 +42,7 @@ import EmailTemplates from "./pages/EmailTemplates";
 import RenewalOptimizer from "./pages/RenewalOptimizer";
 import AgentDashboard from "./pages/AgentDashboard";
 import AgentPricing from "./pages/AgentPricing";
+import UserTypeSelection from "./pages/UserTypeSelection";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
@@ -66,6 +67,7 @@ const App = () => (
                     <Route path="/auth" element={<AuthModern />} />
                     <Route path="/signup" element={<Trial />} />
                     <Route path="/trial" element={<Trial />} />
+                    <Route path="/user-type" element={<UserTypeSelection />} />
                     
                     {/* Dashboard & Main Features */}
                     <Route path="/dashboard" element={<UnifiedDashboard />} />
