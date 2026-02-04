@@ -60,6 +60,7 @@ import LandlordOnboarding from "./pages/LandlordOnboarding";
 import LeaseVerification from "./pages/LeaseVerification";
 import SavedAndOffers from "./pages/SavedAndOffers";
 import EmailTemplates from "./pages/EmailTemplates";
+import RenewalOptimizer from "./pages/RenewalOptimizer";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
@@ -131,6 +132,9 @@ const App = () => (
                     
                     {/* Email Templates */}
                     <Route path="/email-templates" element={<EmailTemplates />} />
+                    
+                    {/* Renewal Optimizer */}
+                    <Route path="/renewal-optimizer" element={<RenewalOptimizer />} />
                     
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
