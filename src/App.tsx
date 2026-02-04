@@ -58,6 +58,7 @@ import PortfolioDashboard from "./pages/PortfolioDashboard";
 import LandlordPricing from "./pages/LandlordPricing";
 import LandlordOnboarding from "./pages/LandlordOnboarding";
 import LeaseVerification from "./pages/LeaseVerification";
+import SavedAndOffers from "./pages/SavedAndOffers";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
@@ -93,7 +94,8 @@ const App = () => (
                     <Route path="/property/:id" element={<PropertyDetails />} />
                     <Route path="/generate-offer" element={<GenerateOffer />} />
                     <Route path="/offers-made" element={<OffersMade />} />
-                    <Route path="/saved-properties" element={<SavedProperties />} />
+                    <Route path="/saved-properties" element={<SavedAndOffers />} />
+                    <Route path="/saved-properties-old" element={<SavedProperties />} />
                     <Route path="/market-intel" element={<MarketIntel />} />
                     <Route path="/market-intel-revamped" element={<MarketIntelRevamped />} />
                     <Route path="/trial" element={<Trial />} />
