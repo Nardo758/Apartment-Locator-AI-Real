@@ -54,6 +54,9 @@ import AdvancedFeaturesDemo from "./pages/AdvancedFeaturesDemo";
 import DataManagement from "./pages/DataManagement";
 import Admin from "./pages/Admin";
 import SearchDashboardDemo from "./components/demo/SearchDashboardDemo";
+import PortfolioDashboard from "./pages/PortfolioDashboard";
+import LandlordPricing from "./pages/LandlordPricing";
+import LandlordOnboarding from "./pages/LandlordOnboarding";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
@@ -113,6 +116,12 @@ const App = () => (
                     <Route path="/advanced-features" element={<AdvancedFeaturesDemo />} />
                     <Route path="/admin" element={<Admin />} />
                     <Route path="/location-intelligence" element={<LocationIntelligence />} />
+                    
+                    {/* Landlord/Property Manager Routes */}
+                    <Route path="/landlord-pricing" element={<LandlordPricing />} />
+                    <Route path="/landlord-onboarding" element={<LandlordOnboarding />} />
+                    <Route path="/portfolio-dashboard" element={<PortfolioDashboard />} />
+                    
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
