@@ -153,11 +153,11 @@ const Trial: React.FC = () => {
   // Show signup if no trial exists
   if (!trialStatus) {
     return (
-      <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark} flex items-center justify-center p-6`}>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-6">
         <div className="w-full max-w-6xl">
           {/* Back Link */}
           <div className="mb-8">
-            <Link to="/" className={`inline-flex items-center space-x-2 ${designSystem.colors.muted} hover:text-foreground ${designSystem.animations.transition} mb-6`}>
+            <Link to="/" className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors mb-6">
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Home</span>
             </Link>
@@ -165,44 +165,41 @@ const Trial: React.FC = () => {
 
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Side - Features */}
-            <div className={`${designSystem.animations.entrance} space-y-8`}>
+            <div className="space-y-8">
               <div>
-                <h1 className={`${designSystem.typography.hero} mb-4`}>
-                  Find <span className={designSystem.typography.heroGradient}>Smart Apartments</span>
+                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                  Find <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">Smart Apartments</span>
                 </h1>
-                <p className={`${designSystem.typography.bodyLarge} mb-8`}>
+                <p className="text-xl text-gray-600 mb-8">
                   Discover apartments with built-in negotiation advantages and savings potential. 
                   No credit card required.
                 </p>
               </div>
 
-              <div className={designSystem.spacing.content}>
+              <div className="space-y-4">
                 {trialFeatures.map((feature, index) => (
-                  <ModernCard
+                  <div
                     key={feature.title}
-                    animate
-                    animationDelay={index * 100}
-                    hover
-                    className="flex items-start gap-4"
+                    className="flex items-start gap-4 p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow"
                   >
-                    <div className="p-3 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                    <div className="p-3 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100">
                       <feature.icon className="w-6 h-6 text-blue-600" />
                     </div>
                     <div>
-                      <h3 className={`${designSystem.typography.subheadingLarge} mb-1`}>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
                         {feature.title}
                       </h3>
-                      <p className={designSystem.typography.body}>
+                      <p className="text-gray-600">
                         {feature.description}
                       </p>
                     </div>
-                  </ModernCard>
+                  </div>
                 ))}
               </div>
             </div>
 
             {/* Right Side - Signup Form */}
-            <div className={`${designSystem.animations.entrance}`} >
+            <div>
               <TrialSignup onSignupComplete={handleTrialSignup} />
             </div>
           </div>

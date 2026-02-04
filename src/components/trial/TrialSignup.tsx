@@ -43,16 +43,16 @@ export const TrialSignup: React.FC<TrialSignupProps> = ({ onSignupComplete, clas
 
   return (
     <div className={`max-w-md mx-auto ${className}`}>
-      <div className="glass-dark rounded-2xl p-8 border border-white/10">
+      <div className="bg-white rounded-2xl p-8 shadow-2xl border border-gray-200">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-primary flex items-center justify-center">
-            <Mail className="w-8 h-8 text-primary-foreground" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+            <Mail className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-foreground mb-2">
-            Start Finding <span className="gradient-text">Apartments</span>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            Start Finding <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">Apartments</span>
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-gray-600">
             Discover apartments with built-in negotiation advantages
           </p>
         </div>
@@ -60,22 +60,22 @@ export const TrialSignup: React.FC<TrialSignupProps> = ({ onSignupComplete, clas
         {/* Value Props */}
         <div className="space-y-3 mb-8">
           <div className="flex items-center space-x-3 text-sm">
-            <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center">
-              <span className="text-secondary-foreground font-bold text-xs">✓</span>
+            <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+              <span className="text-green-600 font-bold text-xs">✓</span>
             </div>
-            <span className="text-foreground">3 free apartment searches</span>
+            <span className="text-gray-700">14-day free trial</span>
           </div>
           <div className="flex items-center space-x-3 text-sm">
-            <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center">
-              <span className="text-secondary-foreground font-bold text-xs">✓</span>
+            <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+              <span className="text-green-600 font-bold text-xs">✓</span>
             </div>
-            <span className="text-foreground">72-hour trial period</span>
+            <span className="text-gray-700">No credit card required</span>
           </div>
           <div className="flex items-center space-x-3 text-sm">
-            <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center">
-              <span className="text-secondary-foreground font-bold text-xs">✓</span>
+            <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+              <span className="text-green-600 font-bold text-xs">✓</span>
             </div>
-            <span className="text-foreground">See negotiation savings potential</span>
+            <span className="text-gray-700">See negotiation savings potential</span>
           </div>
         </div>
 
@@ -87,11 +87,11 @@ export const TrialSignup: React.FC<TrialSignupProps> = ({ onSignupComplete, clas
               placeholder="Enter your email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-12 text-lg bg-muted/20 border-muted/40 focus:border-primary"
+              className="h-12 text-lg bg-gray-50 border-gray-300 focus:border-blue-500"
               disabled={loading}
             />
             {error && (
-              <p className="text-destructive text-sm mt-2">{error}</p>
+              <p className="text-red-600 text-sm mt-2">{error}</p>
             )}
           </div>
 
@@ -99,7 +99,7 @@ export const TrialSignup: React.FC<TrialSignupProps> = ({ onSignupComplete, clas
             type="submit"
             size="lg"
             disabled={loading}
-            className="w-full h-12 text-lg font-semibold bg-gradient-primary hover:opacity-90 transition-opacity"
+            className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
           >
             {loading ? (
               <>
@@ -113,18 +113,18 @@ export const TrialSignup: React.FC<TrialSignupProps> = ({ onSignupComplete, clas
         </form>
 
         {/* Trust indicators */}
-        <div className="mt-6 pt-6 border-t border-muted/20">
-          <div className="flex items-center justify-center space-x-6 text-xs text-muted-foreground">
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="flex items-center justify-center space-x-6 text-xs text-gray-500">
             <span className="flex items-center space-x-1">
-              <span className="w-2 h-2 bg-secondary rounded-full"></span>
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
               <span>15K+ users</span>
             </span>
             <span className="flex items-center space-x-1">
-              <span className="w-2 h-2 bg-secondary rounded-full"></span>
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
               <span>73% success rate</span>
             </span>
             <span className="flex items-center space-x-1">
-              <span className="w-2 h-2 bg-secondary rounded-full"></span>
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
               <span>$312 avg savings</span>
             </span>
           </div>
