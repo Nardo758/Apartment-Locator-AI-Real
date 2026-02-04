@@ -180,45 +180,45 @@ export default function SavedAndOffers() {
   const statusConfig = {
     pending: {
       icon: <Clock className="w-5 h-5" />,
-      color: 'text-yellow-400',
-      bgColor: 'bg-yellow-500/10',
-      borderColor: 'border-yellow-500/30',
+      color: 'text-yellow-600',
+      bgColor: 'bg-yellow-50',
+      borderColor: 'border-yellow-300',
       label: 'PENDING'
     },
     accepted: {
       icon: <CheckCircle className="w-5 h-5" />,
-      color: 'text-green-400',
-      bgColor: 'bg-green-500/10',
-      borderColor: 'border-green-500/30',
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-300',
       label: 'ACCEPTED'
     },
     declined: {
       icon: <XCircle className="w-5 h-5" />,
-      color: 'text-red-400',
-      bgColor: 'bg-red-500/10',
-      borderColor: 'border-red-500/30',
+      color: 'text-red-600',
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-300',
       label: 'DECLINED'
     },
     countered: {
       icon: <MessageSquare className="w-5 h-5" />,
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-500/10',
-      borderColor: 'border-blue-500/30',
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-300',
       label: 'COUNTER OFFER'
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-b border-white/10">
+      <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text mb-2">
                 Saved & Offers
               </h1>
-              <p className="text-white/60">
+              <p className="text-gray-600">
                 Track your favorite properties and negotiation progress
               </p>
             </div>
@@ -236,8 +236,8 @@ export default function SavedAndOffers() {
               onClick={() => setActiveTab('saved')}
               className={`px-6 py-3 rounded-lg font-semibold transition-all ${
                 activeTab === 'saved'
-                  ? 'bg-white/10 text-white border border-white/20'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >
               <Heart className="w-4 h-4 inline mr-2" />
@@ -247,8 +247,8 @@ export default function SavedAndOffers() {
               onClick={() => setActiveTab('offers')}
               className={`px-6 py-3 rounded-lg font-semibold transition-all ${
                 activeTab === 'offers'
-                  ? 'bg-white/10 text-white border border-white/20'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >
               <FileText className="w-4 h-4 inline mr-2" />
@@ -290,12 +290,12 @@ export default function SavedAndOffers() {
 
             {/* Property Grid */}
             {savedProperties.length === 0 ? (
-              <Card variant="glass" className="p-12 text-center">
-                <Heart className="w-12 h-12 text-white/30 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white/70 mb-2">
+              <Card className="p-12 text-center bg-white shadow-2xl">
+                <Heart className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">
                   No saved properties yet
                 </h3>
-                <p className="text-white/50 mb-4">
+                <p className="text-gray-500 mb-4">
                   Start saving properties you're interested in
                 </p>
                 <Button>Browse Properties</Button>
@@ -305,9 +305,8 @@ export default function SavedAndOffers() {
                 {savedProperties.map((property) => (
                   <Card
                     key={property.id}
-                    variant="elevated"
                     hover
-                    className={`overflow-hidden cursor-pointer ${
+                    className={`overflow-hidden cursor-pointer bg-white shadow-2xl ${
                       selectedProperties.includes(property.id) ? 'ring-2 ring-blue-500' : ''
                     }`}
                     onClick={() => handleSelectProperty(property.id)}
@@ -336,30 +335,30 @@ export default function SavedAndOffers() {
 
                     {/* Property Details */}
                     <div className="p-6">
-                      <h3 className="text-lg font-bold text-white mb-2">
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">
                         {property.name}
                       </h3>
-                      <div className="flex items-center text-white/60 text-sm mb-4">
+                      <div className="flex items-center text-gray-600 text-sm mb-4">
                         <MapPin className="w-4 h-4 mr-1" />
                         {property.address}
                       </div>
 
                       <div className="flex items-center justify-between mb-4">
                         <div>
-                          <div className="text-2xl font-bold text-white">
+                          <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
                             ${property.rent}
                           </div>
-                          <div className="text-xs text-white/50">per month</div>
+                          <div className="text-xs text-gray-500">per month</div>
                         </div>
                         <div className="text-right">
-                          <div className="text-sm text-white/60">TRUE COST</div>
-                          <div className="text-lg font-bold text-blue-400">
+                          <div className="text-sm text-gray-600">TRUE COST</div>
+                          <div className="text-lg font-bold text-blue-600">
                             ${property.trueCost}
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-4 text-sm text-white/60 mb-4">
+                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
                         <div className="flex items-center gap-1">
                           <Home className="w-4 h-4" />
                           {property.bedrooms}bd / {property.bathrooms}ba
@@ -371,7 +370,7 @@ export default function SavedAndOffers() {
                       </div>
 
                       {property.notes && (
-                        <div className="p-3 rounded-lg bg-white/5 border border-white/10 text-sm text-white/70 mb-4">
+                        <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-sm text-gray-700 mb-4">
                           {property.notes}
                         </div>
                       )}
@@ -384,7 +383,7 @@ export default function SavedAndOffers() {
                           Make Offer
                         </Button>
                         <Button variant="ghost" size="sm">
-                          <Trash2 className="w-4 h-4 text-red-400" />
+                          <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
                       </div>
                     </div>
@@ -399,12 +398,12 @@ export default function SavedAndOffers() {
         {activeTab === 'offers' && (
           <div className="space-y-6">
             {offers.length === 0 ? (
-              <Card variant="glass" className="p-12 text-center">
-                <FileText className="w-12 h-12 text-white/30 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white/70 mb-2">
+              <Card className="p-12 text-center bg-white shadow-2xl">
+                <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">
                   No offers made yet
                 </h3>
-                <p className="text-white/50 mb-4">
+                <p className="text-gray-500 mb-4">
                   Start negotiating on properties you're interested in
                 </p>
                 <Button>Browse Properties</Button>
@@ -415,12 +414,12 @@ export default function SavedAndOffers() {
                 const savings = offer.askingRent - offer.offerAmount;
 
                 return (
-                  <Card key={offer.id} variant="elevated" className={`border-l-4 ${status.borderColor}`}>
+                  <Card key={offer.id} className={`border-l-4 ${status.borderColor} bg-white shadow-2xl`}>
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-xl font-bold text-white">
+                            <h3 className="text-xl font-bold text-gray-900">
                               {offer.propertyName}
                             </h3>
                             <Badge
@@ -434,7 +433,7 @@ export default function SavedAndOffers() {
                               <span className="ml-2">{status.label}</span>
                             </Badge>
                           </div>
-                          <div className="flex items-center text-white/60 text-sm">
+                          <div className="flex items-center text-gray-600 text-sm">
                             <MapPin className="w-4 h-4 mr-1" />
                             {offer.address}, {offer.city}, {offer.state}
                           </div>
@@ -443,39 +442,39 @@ export default function SavedAndOffers() {
 
                       {/* Offer Details */}
                       <div className="grid md:grid-cols-4 gap-4 mb-4">
-                        <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                          <div className="text-white/60 text-sm mb-1">Asking Rent</div>
-                          <div className="text-2xl font-bold text-white">
+                        <div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
+                          <div className="text-gray-600 text-sm mb-1">Asking Rent</div>
+                          <div className="text-2xl font-bold text-gray-900">
                             ${offer.askingRent}
                           </div>
                         </div>
-                        <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
-                          <div className="text-blue-300 text-sm mb-1">Your Offer</div>
-                          <div className="text-2xl font-bold text-blue-400">
+                        <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
+                          <div className="text-blue-600 text-sm mb-1">Your Offer</div>
+                          <div className="text-2xl font-bold text-blue-600">
                             ${offer.offerAmount}
                           </div>
                         </div>
                         {offer.counterOffer && (
-                          <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/30">
-                            <div className="text-purple-300 text-sm mb-1">Counter Offer</div>
-                            <div className="text-2xl font-bold text-purple-400">
+                          <div className="p-4 rounded-lg bg-purple-50 border border-purple-200">
+                            <div className="text-purple-600 text-sm mb-1">Counter Offer</div>
+                            <div className="text-2xl font-bold text-purple-600">
                               ${offer.counterOffer}
                             </div>
                           </div>
                         )}
-                        <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30">
-                          <div className="text-green-300 text-sm mb-1">Potential Savings</div>
-                          <div className="text-2xl font-bold text-green-400">
+                        <div className="p-4 rounded-lg bg-green-50 border border-green-200">
+                          <div className="text-green-600 text-sm mb-1">Potential Savings</div>
+                          <div className="text-2xl font-bold text-green-600">
                             ${savings}/mo
                           </div>
-                          <div className="text-xs text-green-300 mt-1">
+                          <div className="text-xs text-green-600 mt-1">
                             ${savings * 12}/year
                           </div>
                         </div>
                       </div>
 
                       {/* Timeline */}
-                      <div className="flex items-center gap-4 text-sm text-white/60 mb-4">
+                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
                           <span>Sent: {offer.sentDate}</span>
@@ -493,14 +492,14 @@ export default function SavedAndOffers() {
 
                       {/* Landlord Response */}
                       {offer.landlordResponse && (
-                        <div className={`p-4 rounded-lg mb-4 ${status.bgColor} border ${status.borderColor}`}>
+                        <div className={`p-4 rounded-lg mb-4 ${status.bgColor.replace(/\/\d+/, '/20')} border ${status.borderColor}`}>
                           <div className="flex items-start gap-3">
-                            <MessageSquare className={`w-5 h-5 ${status.color} flex-shrink-0 mt-0.5`} />
+                            <MessageSquare className={`w-5 h-5 ${status.color.replace('400', '600')} flex-shrink-0 mt-0.5`} />
                             <div>
-                              <div className={`font-semibold ${status.color} mb-1`}>
+                              <div className={`font-semibold ${status.color.replace('400', '600')} mb-1`}>
                                 Landlord Response:
                               </div>
-                              <div className="text-white/80">
+                              <div className="text-gray-700">
                                 {offer.landlordResponse}
                               </div>
                             </div>
@@ -510,7 +509,7 @@ export default function SavedAndOffers() {
 
                       {/* Next Step */}
                       {offer.nextStep && (
-                        <div className="flex items-center gap-2 text-white/70 mb-4">
+                        <div className="flex items-center gap-2 text-gray-700 mb-4">
                           <TrendingUp className="w-4 h-4" />
                           <span className="font-semibold">Next Step:</span>
                           <span>{offer.nextStep}</span>
