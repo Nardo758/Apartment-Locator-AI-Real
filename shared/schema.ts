@@ -1,4 +1,5 @@
 import { pgTable, text, integer, boolean, timestamp, uuid, json, decimal, serial, varchar } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -12,6 +13,10 @@ export const users = pgTable("users", {
   subscriptionStatus: varchar("subscription_status", { length: 50 }).default("inactive"),
   stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
   emailVerified: boolean("email_verified").default(false),
+  avatarUrl: text("avatar_url"),
+  phoneNumber: varchar("phone_number", { length: 50 }),
+  companyName: varchar("company_name", { length: 255 }),
+  role: varchar("role", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -59,6 +64,17 @@ export const properties = pgTable("properties", {
   firstScraped: timestamp("first_scraped").defaultNow(),
   lastUpdated: timestamp("last_updated").defaultNow(),
   isActive: boolean("is_active").default(true),
+  // Landlord-specific fields
+  landlordId: uuid("landlord_id").references(() => users.id),
+  isLandlordOwned: boolean("is_landlord_owned").default(false),
+  occupancyStatus: varchar("occupancy_status", { length: 50 }).default("vacant"),
+  currentTenantId: uuid("current_tenant_id"),
+  leaseStartDate: timestamp("lease_start_date"),
+  leaseEndDate: timestamp("lease_end_date"),
+  daysVacant: integer("days_vacant").default(0),
+  lastOccupiedDate: timestamp("last_occupied_date"),
+  targetRent: decimal("target_rent", { precision: 10, scale: 2 }),
+  actualRent: decimal("actual_rent", { precision: 10, scale: 2 }),
 });
 
 export const savedApartments = pgTable("saved_apartments", {
@@ -129,6 +145,15 @@ export const marketSnapshots = pgTable("market_snapshots", {
   threeBrCount: integer("three_br_count").default(0),
   snapshotDate: timestamp("snapshot_date").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
+  // Landlord intelligence fields
+  inventoryLevel: decimal("inventory_level", { precision: 5, scale: 2 }),
+  leverageScore: integer("leverage_score"),
+  rentChange1m: decimal("rent_change_1m", { precision: 5, scale: 2 }),
+  rentChange3m: decimal("rent_change_3m", { precision: 5, scale: 2 }),
+  rentChange12m: decimal("rent_change_12m", { precision: 5, scale: 2 }),
+  supplyTrend: varchar("supply_trend", { length: 50 }),
+  demandTrend: varchar("demand_trend", { length: 50 }),
+  aiRecommendation: text("ai_recommendation"),
 });
 
 export const purchases = pgTable("purchases", {
@@ -214,6 +239,80 @@ export const leaseVerifications = pgTable("lease_verifications", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const pricingAlerts = pgTable("pricing_alerts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  setId: uuid("set_id").references(() => competitionSets.id, { onDelete: 'cascade' }),
+  propertyId: uuid("property_id").references(() => properties.id),
+  competitorId: uuid("competitor_id"),
+  alertType: varchar("alert_type", { length: 50 }).notNull(), // 'price_change' | 'concession' | 'vacancy_risk' | 'market_trend'
+  severity: varchar("severity", { length: 20 }).default("info"), // 'info' | 'warning' | 'critical'
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  metadata: json("metadata").$type<Record<string, unknown>>(),
+  actionUrl: text("action_url"),
+  isRead: boolean("is_read").default(false),
+  isDismissed: boolean("is_dismissed").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  readAt: timestamp("read_at"),
+  dismissedAt: timestamp("dismissed_at"),
+});
+
+export const alertPreferences = pgTable("alert_preferences", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().unique().references(() => users.id, { onDelete: 'cascade' }),
+  priceChanges: boolean("price_changes").default(true),
+  concessions: boolean("concessions").default(true),
+  vacancyRisk: boolean("vacancy_risk").default(true),
+  marketTrends: boolean("market_trends").default(true),
+  deliveryEmail: boolean("delivery_email").default(true),
+  deliverySms: boolean("delivery_sms").default(false),
+  deliveryInapp: boolean("delivery_inapp").default(true),
+  deliveryPush: boolean("delivery_push").default(false),
+  frequency: varchar("frequency", { length: 20 }).default("realtime"), // 'realtime' | 'daily' | 'weekly'
+  quietHoursStart: varchar("quiet_hours_start", { length: 5 }), // e.g., '22:00'
+  quietHoursEnd: varchar("quiet_hours_end", { length: 5 }), // e.g., '08:00'
+  priceThreshold: decimal("price_threshold", { precision: 10, scale: 2 }).default("50.00"),
+  vacancyThreshold: integer("vacancy_threshold").default(30),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const competitionSets = pgTable("competition_sets", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  ownPropertyIds: json("own_property_ids").$type<string[]>().notNull().default([]),
+  alertsEnabled: boolean("alerts_enabled").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const competitionSetCompetitors = pgTable("competition_set_competitors", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  setId: uuid("set_id").notNull().references(() => competitionSets.id, { onDelete: "cascade" }),
+  propertyId: uuid("property_id").references(() => properties.id),
+  address: varchar("address", { length: 500 }).notNull(),
+  latitude: decimal("latitude", { precision: 10, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  bedrooms: integer("bedrooms"),
+  bathrooms: decimal("bathrooms", { precision: 3, scale: 1 }),
+  squareFeet: integer("square_feet"),
+  currentRent: decimal("current_rent", { precision: 10, scale: 2 }),
+  amenities: json("amenities").$type<string[]>().default([]),
+  concessions: json("concessions").$type<Array<{
+    type: string;
+    description: string;
+    value: number;
+  }>>().default([]),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  source: varchar("source", { length: 50 }).default("manual"),
+  notes: text("notes"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPropertySchema = createInsertSchema(properties).omit({ id: true, lastSeen: true, firstScraped: true, lastUpdated: true });
 export const insertSavedApartmentSchema = createInsertSchema(savedApartments).omit({ id: true, createdAt: true });
@@ -225,6 +324,10 @@ export const insertPurchaseSchema = createInsertSchema(purchases).omit({ id: tru
 export const insertLeaseVerificationSchema = createInsertSchema(leaseVerifications).omit({ id: true, createdAt: true });
 export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertInvoiceSchema = createInsertSchema(invoices).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertPricingAlertSchema = createInsertSchema(pricingAlerts).omit({ id: true, createdAt: true, readAt: true, dismissedAt: true });
+export const insertAlertPreferencesSchema = createInsertSchema(alertPreferences).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertCompetitionSetSchema = createInsertSchema(competitionSets).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertCompetitionSetCompetitorSchema = createInsertSchema(competitionSetCompetitors).omit({ id: true, createdAt: true, lastUpdated: true });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
@@ -237,6 +340,10 @@ export type InsertPurchase = z.infer<typeof insertPurchaseSchema>;
 export type InsertLeaseVerification = z.infer<typeof insertLeaseVerificationSchema>;
 export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
+export type InsertPricingAlert = z.infer<typeof insertPricingAlertSchema>;
+export type InsertAlertPreferences = z.infer<typeof insertAlertPreferencesSchema>;
+export type InsertCompetitionSet = z.infer<typeof insertCompetitionSetSchema>;
+export type InsertCompetitionSetCompetitor = z.infer<typeof insertCompetitionSetCompetitorSchema>;
 
 export type User = typeof users.$inferSelect;
 export type Property = typeof properties.$inferSelect;
@@ -249,3 +356,126 @@ export type MarketSnapshot = typeof marketSnapshots.$inferSelect;
 export type UserPoi = typeof userPois.$inferSelect;
 export type Subscription = typeof subscriptions.$inferSelect;
 export type Invoice = typeof invoices.$inferSelect;
+export type PricingAlert = typeof pricingAlerts.$inferSelect;
+export type AlertPreferences = typeof alertPreferences.$inferSelect;
+export type CompetitionSet = typeof competitionSets.$inferSelect;
+export type CompetitionSetCompetitor = typeof competitionSetCompetitors.$inferSelect;
+
+// =====================================================
+// RELATIONS - Drizzle ORM Relations for Easy Querying
+// =====================================================
+
+// User Relations
+export const usersRelations = relations(users, ({ many, one }) => ({
+  ownedProperties: many(properties, { relationName: "landlordProperties" }),
+  savedApartments: many(savedApartments),
+  searchHistory: many(searchHistory),
+  preferences: one(userPreferences, {
+    fields: [users.id],
+    references: [userPreferences.userId],
+  }),
+  pois: many(userPois),
+  subscriptions: many(subscriptions),
+  invoices: many(invoices),
+  competitionSets: many(competitionSets),
+  pricingAlerts: many(pricingAlerts),
+  alertPreferences: one(alertPreferences, {
+    fields: [users.id],
+    references: [alertPreferences.userId],
+  }),
+}));
+
+// Property Relations
+export const propertiesRelations = relations(properties, ({ one, many }) => ({
+  landlord: one(users, {
+    fields: [properties.landlordId],
+    references: [users.id],
+    relationName: "landlordProperties",
+  }),
+  savedBy: many(savedApartments),
+  alerts: many(pricingAlerts),
+  competitorIn: many(competitionSetCompetitors),
+}));
+
+// Competition Set Relations
+export const competitionSetsRelations = relations(competitionSets, ({ one, many }) => ({
+  user: one(users, {
+    fields: [competitionSets.userId],
+    references: [users.id],
+  }),
+  competitors: many(competitionSetCompetitors),
+  alerts: many(pricingAlerts),
+}));
+
+// Competition Set Competitor Relations
+export const competitionSetCompetitorsRelations = relations(competitionSetCompetitors, ({ one }) => ({
+  competitionSet: one(competitionSets, {
+    fields: [competitionSetCompetitors.setId],
+    references: [competitionSets.id],
+  }),
+  property: one(properties, {
+    fields: [competitionSetCompetitors.propertyId],
+    references: [properties.id],
+  }),
+}));
+
+// Pricing Alert Relations
+export const pricingAlertsRelations = relations(pricingAlerts, ({ one }) => ({
+  user: one(users, {
+    fields: [pricingAlerts.userId],
+    references: [users.id],
+  }),
+  competitionSet: one(competitionSets, {
+    fields: [pricingAlerts.setId],
+    references: [competitionSets.id],
+  }),
+  property: one(properties, {
+    fields: [pricingAlerts.propertyId],
+    references: [properties.id],
+  }),
+}));
+
+// Alert Preferences Relations
+export const alertPreferencesRelations = relations(alertPreferences, ({ one }) => ({
+  user: one(users, {
+    fields: [alertPreferences.userId],
+    references: [users.id],
+  }),
+}));
+
+// Saved Apartments Relations
+export const savedApartmentsRelations = relations(savedApartments, ({ one }) => ({
+  apartment: one(properties, {
+    fields: [savedApartments.apartmentId],
+    references: [properties.id],
+  }),
+}));
+
+// User Preferences Relations
+export const userPreferencesRelations = relations(userPreferences, ({ one }) => ({
+  user: one(users, {
+    fields: [userPreferences.userId],
+    references: [users.id],
+  }),
+}));
+
+// Subscription Relations
+export const subscriptionsRelations = relations(subscriptions, ({ one, many }) => ({
+  user: one(users, {
+    fields: [subscriptions.userId],
+    references: [users.id],
+  }),
+  invoices: many(invoices),
+}));
+
+// Invoice Relations
+export const invoicesRelations = relations(invoices, ({ one }) => ({
+  user: one(users, {
+    fields: [invoices.userId],
+    references: [users.id],
+  }),
+  subscription: one(subscriptions, {
+    fields: [invoices.subscriptionId],
+    references: [subscriptions.id],
+  }),
+}));
