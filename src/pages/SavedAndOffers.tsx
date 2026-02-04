@@ -218,7 +218,7 @@ export default function SavedAndOffers() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text mb-2">
-                Saved & Offers
+                My Apartments
               </h1>
               <p className="text-gray-600">
                 Track your favorite properties and negotiation progress
