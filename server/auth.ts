@@ -11,6 +11,7 @@ export interface AuthUser {
   id: string;
   email: string;
   name?: string | null;
+  userType?: string | null;
   subscriptionTier?: string | null;
   subscriptionStatus?: string | null;
 }
@@ -57,6 +58,7 @@ export async function createUser(email: string, password: string, name?: string)
     id: user.id,
     email: user.email,
     name: user.name,
+    userType: user.userType,
     subscriptionTier: user.subscriptionTier,
     subscriptionStatus: user.subscriptionStatus,
   };
@@ -80,6 +82,7 @@ export async function authenticateUser(email: string, password: string): Promise
     id: user.id,
     email: user.email,
     name: user.name,
+    userType: user.userType,
     subscriptionTier: user.subscriptionTier,
     subscriptionStatus: user.subscriptionStatus,
   };
@@ -98,6 +101,7 @@ export async function getUserById(id: string): Promise<AuthUser | null> {
     id: user.id,
     email: user.email,
     name: user.name,
+    userType: user.userType,
     subscriptionTier: user.subscriptionTier,
     subscriptionStatus: user.subscriptionStatus,
   };
@@ -116,6 +120,30 @@ export async function getUserByEmail(email: string): Promise<AuthUser | null> {
     id: user.id,
     email: user.email,
     name: user.name,
+    userType: user.userType,
+    subscriptionTier: user.subscriptionTier,
+    subscriptionStatus: user.subscriptionStatus,
+  };
+}
+
+export async function updateUserType(userId: string, userType: string): Promise<AuthUser | null> {
+  const [user] = await db.update(users)
+    .set({ 
+      userType,
+      updatedAt: new Date()
+    })
+    .where(eq(users.id, userId))
+    .returning();
+
+  if (!user) {
+    return null;
+  }
+
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    userType: user.userType,
     subscriptionTier: user.subscriptionTier,
     subscriptionStatus: user.subscriptionStatus,
   };

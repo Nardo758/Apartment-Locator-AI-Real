@@ -7,6 +7,7 @@ export const users = pgTable("users", {
   email: varchar("email", { length: 255 }).notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   name: varchar("name", { length: 255 }),
+  userType: varchar("user_type", { length: 50 }).default("renter"),
   subscriptionTier: varchar("subscription_tier", { length: 50 }).default("free"),
   subscriptionStatus: varchar("subscription_status", { length: 50 }).default("inactive"),
   stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),

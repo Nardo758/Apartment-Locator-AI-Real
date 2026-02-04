@@ -17,7 +17,7 @@ interface UserContextType {
   loading: boolean;
   isAuthenticated: boolean;
   userType: UserType | null;
-  setUserType: (type: UserType) => void;
+  setUserType: (type: UserType) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (email: string, password: string, name?: string) => Promise<void>;
@@ -38,10 +38,22 @@ export const UserProvider = ({ children }: { children: ReactNode }): ReactNode =
       if (token) {
         try {
           const { user: currentUser } = await api.getMe(token);
-          // Get userType from localStorage (TODO: will come from backend in future)
+          // User type now comes from database
+          setUser(currentUser);
+          setUserTypeState(currentUser.userType || null);
+          
+          // Migrate localStorage userType to database if needed
           const storedUserType = userTypeStorage.get();
-          setUser({ ...currentUser, userType: storedUserType });
-          setUserTypeState(storedUserType);
+          if (storedUserType && !currentUser.userType) {
+            try {
+              await api.updateUserType(token, storedUserType);
+              setUser({ ...currentUser, userType: storedUserType });
+              setUserTypeState(storedUserType);
+              userTypeStorage.clear(); // Clear after successful migration
+            } catch (error) {
+              console.error('Failed to migrate userType to database:', error);
+            }
+          }
         } catch {
           localStorage.removeItem(TOKEN_KEY);
           setUser(null);
@@ -57,20 +69,51 @@ export const UserProvider = ({ children }: { children: ReactNode }): ReactNode =
     loadUser();
   }, []);
 
-  const setUserType = (type: UserType) => {
-    userTypeStorage.set(type);
+  const setUserType = async (type: UserType) => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    
+    // Update state immediately for responsive UI
     setUserTypeState(type);
     if (user) {
       setUser({ ...user, userType: type });
+    }
+    
+    // If authenticated, persist to database
+    if (token && user) {
+      try {
+        await api.updateUserType(token, type);
+        userTypeStorage.clear(); // Clear localStorage after successful DB update
+      } catch (error) {
+        console.error('Failed to update userType in database:', error);
+        // Fallback to localStorage if database update fails
+        userTypeStorage.set(type);
+      }
+    } else {
+      // If not authenticated, store in localStorage temporarily
+      userTypeStorage.set(type);
     }
   };
 
   const login = async (email: string, password: string) => {
     const { user: loggedInUser, token } = await api.signIn(email, password);
     localStorage.setItem(TOKEN_KEY, token);
+    
+    // Use userType from database
+    setUser(loggedInUser);
+    setUserTypeState(loggedInUser.userType || null);
+    
+    // Migrate localStorage userType to database if needed
     const storedUserType = userTypeStorage.get();
-    setUser({ ...loggedInUser, userType: storedUserType });
-    setUserTypeState(storedUserType);
+    if (storedUserType && !loggedInUser.userType) {
+      try {
+        await api.updateUserType(token, storedUserType);
+        setUser({ ...loggedInUser, userType: storedUserType });
+        setUserTypeState(storedUserType);
+        userTypeStorage.clear(); // Clear after successful migration
+      } catch (error) {
+        console.error('Failed to migrate userType to database:', error);
+      }
+    }
   };
 
   const logout = () => {
@@ -83,9 +126,23 @@ export const UserProvider = ({ children }: { children: ReactNode }): ReactNode =
   const register = async (email: string, password: string, name?: string) => {
     const { user: newUser, token } = await api.signUp(email, password, name);
     localStorage.setItem(TOKEN_KEY, token);
+    
+    // Use userType from database
+    setUser(newUser);
+    setUserTypeState(newUser.userType || null);
+    
+    // Migrate localStorage userType to database if set before registration
     const storedUserType = userTypeStorage.get();
-    setUser({ ...newUser, userType: storedUserType });
-    setUserTypeState(storedUserType);
+    if (storedUserType && !newUser.userType) {
+      try {
+        await api.updateUserType(token, storedUserType);
+        setUser({ ...newUser, userType: storedUserType });
+        setUserTypeState(storedUserType);
+        userTypeStorage.clear(); // Clear after successful migration
+      } catch (error) {
+        console.error('Failed to set userType in database:', error);
+      }
+    }
   };
 
   return (
@@ -112,7 +169,7 @@ export const useUser = () => {
       loading: true,
       isAuthenticated: false,
       userType: null,
-      setUserType: () => {},
+      setUserType: async () => {},
       login: async () => {},
       logout: () => {},
       register: async () => {},

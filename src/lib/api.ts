@@ -148,6 +148,19 @@ export const api = {
     return res.json();
   },
 
+  async updateUserType(token: string, userType: 'renter' | 'landlord' | 'agent' | 'admin'): Promise<{ user: AuthUser }> {
+    const res = await fetch("/api/auth/user-type", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ userType }),
+    });
+    if (!res.ok) throw new Error("Failed to update user type");
+    return res.json();
+  },
+
 
   async getProperties(filters?: {
     city?: string;

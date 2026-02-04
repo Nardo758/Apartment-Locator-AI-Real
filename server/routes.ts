@@ -15,6 +15,7 @@ import {
   verifyToken, 
   getUserById,
   getUserByEmail,
+  updateUserType,
   type AuthUser 
 } from "./auth";
 import { z } from "zod";
@@ -117,6 +118,27 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   app.get("/api/auth/me", authMiddleware, (req, res) => {
     res.json({ user: req.user });
+  });
+
+  app.patch("/api/auth/user-type", authMiddleware, async (req, res) => {
+    try {
+      const { userType } = req.body;
+      
+      if (!userType || !["renter", "landlord", "agent", "admin"].includes(userType)) {
+        return res.status(400).json({ error: "Invalid user type" });
+      }
+
+      const updatedUser = await updateUserType(req.user!.id, userType);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json({ user: updatedUser });
+    } catch (error) {
+      console.error("Error updating user type:", error);
+      res.status(500).json({ error: "Failed to update user type" });
+    }
   });
 
   app.get("/api/properties", async (req, res) => {
