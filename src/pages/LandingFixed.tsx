@@ -12,7 +12,6 @@ import { PaymentButton } from '@/components/PaymentButton';
 
 const LandingFixed = () => {
   const navigate = useNavigate();
-  const [currentDemo, setCurrentDemo] = useState(0);
   const [isClient, setIsClient] = useState(false);
 
   // Ensure we're on the client side before doing any auth checks
@@ -40,13 +39,6 @@ const LandingFixed = () => {
     
     checkAuth();
   }, [navigate, isClient]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentDemo(prev => (prev + 1) % 2);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
 
   const features = [
     {
@@ -90,19 +82,6 @@ const LandingFixed = () => {
       role: "Marketing Manager",
       image: successStory2,
       quote: "The market intelligence features are incredible. I knew exactly when to make my move and got the best deal possible."
-    }
-  ];
-
-  const demos = [
-    {
-      title: "Market Intelligence Dashboard",
-      description: "Real-time market data and trends",
-      features: ["Live rent prices", "Market velocity", "Negotiation leverage"]
-    },
-    {
-      title: "AI Apartment Matching",
-      description: "Personalized apartment recommendations",
-      features: ["Smart filtering", "Preference learning", "Location scoring"]
     }
   ];
 
@@ -226,47 +205,6 @@ const LandingFixed = () => {
                 <div className="text-blue-100">{stat.label}</div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Demo Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              See Our AI in Action
-            </h2>
-            <p className="text-xl text-gray-600">
-              Experience the power of intelligent apartment hunting
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="grid lg:grid-cols-2">
-              <div className="p-8 lg:p-12">
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-bold text-gray-900">{demos[currentDemo].title}</h3>
-                  <p className="text-lg text-gray-600">{demos[currentDemo].description}</p>
-                  <ul className="space-y-3">
-                    {demos[currentDemo].features.map((feature, index) => (
-                      <li key={index} className="flex items-center">
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
-                        <span className="text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-8 lg:p-12 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center mb-4 mx-auto">
-                    <BarChart className="w-12 h-12 text-white" />
-                  </div>
-                  <p className="text-gray-600">Interactive demo coming soon...</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>

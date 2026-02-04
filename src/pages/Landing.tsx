@@ -228,9 +228,9 @@ const Landing = () => {
               </div>
             </div>
             
-            {/* Demo Interface */}
+            {/* AI Preview Interface */}
             <div 
-              id="demo"
+              id="ai-preview"
               className="rounded-[20px] p-8 border relative overflow-hidden ml-8"
               style={{ 
                 background: 'rgba(255, 255, 255, 0.05)',
