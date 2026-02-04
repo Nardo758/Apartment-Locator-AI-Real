@@ -20,7 +20,6 @@ import MarketIntel from "./pages/MarketIntel";
 import NotFound from "./pages/NotFound";
 import AuthModern from "./pages/AuthModern";
 import ProgramAIUnified from "./pages/ProgramAIUnified";
-import Trial from "./pages/Trial";
 import UnifiedDashboard from "./pages/UnifiedDashboard";
 import Profile from "./pages/Profile";
 import Billing from "./pages/Billing";
@@ -71,8 +70,8 @@ const App = () => (
                     
                     {/* Auth Routes */}
                     <Route path="/auth" element={<AuthModern />} />
-                    <Route path="/signup" element={<Trial />} />
-                    <Route path="/trial" element={<Trial />} />
+                    <Route path="/signup" element={<AuthModern />} />
+                    <Route path="/trial" element={<AuthModern />} />
                     
                     {/* Support & Legal - Public Access */}
                     <Route path="/help" element={<Help />} />
