@@ -61,6 +61,8 @@ import LeaseVerification from "./pages/LeaseVerification";
 import SavedAndOffers from "./pages/SavedAndOffers";
 import EmailTemplates from "./pages/EmailTemplates";
 import RenewalOptimizer from "./pages/RenewalOptimizer";
+import AgentDashboard from "./pages/AgentDashboard";
+import AgentPricing from "./pages/AgentPricing";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
@@ -126,6 +128,10 @@ const App = () => (
                     <Route path="/landlord-pricing" element={<LandlordPricing />} />
                     <Route path="/landlord-onboarding" element={<LandlordOnboarding />} />
                     <Route path="/portfolio-dashboard" element={<PortfolioDashboard />} />
+                    
+                    {/* Agent/Broker Routes */}
+                    <Route path="/agent-dashboard" element={<AgentDashboard />} />
+                    <Route path="/agent-pricing" element={<AgentPricing />} />
                     
                     {/* Lease Verification & Refund */}
                     <Route path="/verify-lease" element={<LeaseVerification />} />
