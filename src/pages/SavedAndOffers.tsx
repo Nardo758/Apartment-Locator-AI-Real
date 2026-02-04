@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -164,11 +165,20 @@ const mockOffers: Offer[] = [
 ];
 
 export default function SavedAndOffers() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>('saved');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [savedProperties] = useState(mockSavedProperties);
   const [offers] = useState(mockOffers);
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
+
+  const handleSignOut = () => {
+    // Clear any auth tokens/session data
+    localStorage.removeItem('auth_token');
+    sessionStorage.clear();
+    // Redirect to landing page
+    navigate('/');
+  };
 
   const handleSelectProperty = (id: string) => {
     if (selectedProperties.includes(id)) {
@@ -211,7 +221,7 @@ export default function SavedAndOffers() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pb-20">
-      <Header />
+      <Header onSignOut={handleSignOut} />
       {/* Page Header */}
       <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
