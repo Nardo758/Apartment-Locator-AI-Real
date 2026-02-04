@@ -46,7 +46,7 @@ export default function UserTypeSelection() {
         "Renewal optimizer",
         "Email templates"
       ],
-      route: '/portfolio-dashboard'
+      route: '/landlord-onboarding'
     },
     {
       type: 'agent',
@@ -59,7 +59,7 @@ export default function UserTypeSelection() {
         "Commission calculator",
         "Activity tracking"
       ],
-      route: '/agent-dashboard'
+      route: '/agent-onboarding'
     }
   ];
 

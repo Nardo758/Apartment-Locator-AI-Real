@@ -28,12 +28,13 @@ interface Property {
   bathrooms: string;
 }
 
-type Step = 'account-type' | 'properties' | 'monitoring' | 'plan' | 'payment';
+type Step = 'properties' | 'complete';
 
 export default function LandlordOnboarding() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<Step>('account-type');
-  const [accountType, setAccountType] = useState<'landlord' | 'property-manager' | 'agent'>('landlord');
+  const [step, setStep] = useState<Step>('properties');
+  // Get account type from user type selection (stored in localStorage)
+  const accountType = localStorage.getItem('userType') || 'landlord';
   const [properties, setProperties] = useState<Property[]>([
     {
       id: '1',
@@ -77,16 +78,13 @@ export default function LandlordOnboarding() {
     ));
   };
 
-  const steps: Step[] = ['account-type', 'properties', 'monitoring', 'plan', 'payment'];
+  const steps: Step[] = ['properties', 'complete'];
   const currentStepIndex = steps.indexOf(step);
   const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
   const stepTitles: Record<Step, string> = {
-    'account-type': 'Account Type',
-    'properties': 'Add Properties',
-    'monitoring': 'Monitoring Areas',
-    'plan': 'Choose Plan',
-    'payment': 'Payment'
+    'properties': 'Setup Your Account',
+    'complete': 'All Set!'
   };
 
   return (
@@ -128,73 +126,7 @@ export default function LandlordOnboarding() {
 
         {/* Step Content */}
         <Card variant="elevated" className="p-8">
-          {/* Step 1: Account Type */}
-          {step === 'account-type' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-2">
-                What best describes you?
-              </h2>
-              <p className="text-white/60 mb-8">
-                This helps us customize your experience
-              </p>
-
-              <div className="grid gap-4">
-                {[
-                  {
-                    id: 'landlord',
-                    icon: <Home className="w-8 h-8" />,
-                    title: 'Individual Landlord',
-                    description: 'I own and rent out 1-10 properties'
-                  },
-                  {
-                    id: 'property-manager',
-                    icon: <Building className="w-8 h-8" />,
-                    title: 'Property Manager',
-                    description: 'I manage 10+ properties for owners'
-                  },
-                  {
-                    id: 'agent',
-                    icon: <DollarSign className="w-8 h-8" />,
-                    title: 'Real Estate Agent/Broker',
-                    description: 'I help clients find and lease properties'
-                  }
-                ].map((type) => (
-                  <button
-                    key={type.id}
-                    onClick={() => setAccountType(type.id as typeof accountType)}
-                    className={`p-6 rounded-xl border-2 transition-all text-left ${
-                      accountType === type.id
-                        ? 'border-blue-500 bg-blue-900/20'
-                        : 'border-white/10 hover:border-white/30 bg-white/5'
-                    }`}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className={`p-3 rounded-lg ${
-                        accountType === type.id
-                          ? 'bg-blue-500/20 text-blue-400'
-                          : 'bg-white/5 text-white/60'
-                      }`}>
-                        {type.icon}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-white mb-1">
-                          {type.title}
-                        </h3>
-                        <p className="text-white/60 text-sm">
-                          {type.description}
-                        </p>
-                      </div>
-                      {accountType === type.id && (
-                        <CheckCircle className="w-6 h-6 text-blue-400 flex-shrink-0" />
-                      )}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Step 2: Add Properties */}
+          {/* Step 1: Add Properties & Monitoring */}
           {step === 'properties' && (
             <div>
               <div className="flex items-center justify-between mb-6">
@@ -311,7 +243,7 @@ export default function LandlordOnboarding() {
               </div>
 
               {/* Bulk Upload */}
-              <div className="p-6 rounded-xl border-2 border-dashed border-white/20 text-center">
+              <div className="p-6 rounded-xl border-2 border-dashed border-white/20 text-center mb-8">
                 <Upload className="w-8 h-8 text-white/40 mx-auto mb-3" />
                 <p className="text-white/60 text-sm mb-2">
                   Have many properties? Upload a CSV file
@@ -320,24 +252,19 @@ export default function LandlordOnboarding() {
                   Upload CSV
                 </Button>
               </div>
-            </div>
-          )}
 
-          {/* Step 3: Monitoring Areas */}
-          {step === 'monitoring' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-2">
-                Which areas should we monitor?
-              </h2>
-              <p className="text-white/60 mb-8">
-                We'll track competitor activity and market trends in these locations
-              </p>
-
+              {/* Monitoring Areas */}
               <div className="space-y-6">
                 <div>
+                  <h3 className="text-lg font-semibold text-white mb-2">
+                    Which areas should we monitor? (Optional)
+                  </h3>
+                  <p className="text-white/60 text-sm mb-4">
+                    We'll track competitor activity and market trends
+                  </p>
                   <label className="label mb-2 flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
-                    ZIP Codes to Monitor
+                    Additional ZIP Codes to Monitor
                   </label>
                   <Input
                     placeholder="78701, 78702, 78703"
@@ -345,186 +272,34 @@ export default function LandlordOnboarding() {
                     onChange={(e) => setMonitoringZips(e.target.value)}
                   />
                   <p className="text-xs text-white/50 mt-2">
-                    Enter comma-separated ZIP codes. We'll automatically include areas where your properties are located.
+                    We'll automatically monitor areas where your properties are located
                   </p>
                 </div>
-
-                {/* Auto-detected areas */}
-                <Card variant="glass" className="p-6">
-                  <h3 className="text-sm font-semibold text-white/70 mb-3">
-                    Auto-detected from your properties:
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {Array.from(new Set(properties.map(p => p.zipCode).filter(Boolean))).map((zip) => (
-                      <Badge key={zip} variant="primary">
-                        {zip}
-                      </Badge>
-                    ))}
-                    {properties.every(p => !p.zipCode) && (
-                      <p className="text-white/50 text-sm">
-                        No ZIP codes added yet
-                      </p>
-                    )}
-                  </div>
-                </Card>
-
-                {/* What we'll monitor */}
-                <Card variant="highlighted" className="p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">
-                    What we'll track in these areas:
-                  </h3>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    {[
-                      'Competitor pricing changes',
-                      'New concessions & deals',
-                      'Market rent trends',
-                      'Days on market',
-                      'New listings',
-                      'Vacancy rates'
-                    ].map((item) => (
-                      <div key={item} className="flex items-center gap-2">
-                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
-                        <span className="text-white/80 text-sm">{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
               </div>
             </div>
           )}
 
-          {/* Step 4: Choose Plan */}
-          {step === 'plan' && (
+          {/* Step 2: Complete */}
+          {step === 'complete' && (
             <div>
-              <h2 className="text-2xl font-bold text-white mb-2">
-                Choose Your Plan
-              </h2>
-              <p className="text-white/60 mb-8">
-                All plans include a 14-day free trial
-              </p>
-
-              <div className="grid md:grid-cols-3 gap-6 mb-6">
-                {[
-                  {
-                    id: 'starter',
-                    name: 'Starter',
-                    price: 49,
-                    maxProperties: 10,
-                    features: ['Portfolio dashboard', 'Market comparison', 'Pricing alerts']
-                  },
-                  {
-                    id: 'professional',
-                    name: 'Professional',
-                    price: 99,
-                    maxProperties: 50,
-                    popular: true,
-                    features: ['Everything in Starter', 'Competitive alerts', 'Renewal optimizer']
-                  },
-                  {
-                    id: 'enterprise',
-                    name: 'Enterprise',
-                    price: 199,
-                    maxProperties: null,
-                    features: ['Everything in Pro', 'Unlimited properties', 'API access']
-                  }
-                ].map((plan) => (
-                  <button
-                    key={plan.id}
-                    onClick={() => setSelectedPlan(plan.id as typeof selectedPlan)}
-                    className={`p-6 rounded-xl border-2 transition-all text-left relative ${
-                      selectedPlan === plan.id
-                        ? 'border-blue-500 bg-blue-900/20'
-                        : 'border-white/10 hover:border-white/30 bg-white/5'
-                    }`}
-                  >
-                    {plan.popular && (
-                      <Badge variant="success" size="sm" className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        Popular
-                      </Badge>
-                    )}
-
-                    <h3 className="text-xl font-bold text-white mb-2">
-                      {plan.name}
-                    </h3>
-                    <div className="text-3xl font-bold text-white mb-1">
-                      ${plan.price}
-                      <span className="text-base text-white/60">/mo</span>
-                    </div>
-                    <p className="text-sm text-white/60 mb-4">
-                      {plan.maxProperties ? `Up to ${plan.maxProperties} properties` : 'Unlimited properties'}
-                    </p>
-
-                    <div className="space-y-2 mb-4">
-                      {plan.features.map((feature) => (
-                        <div key={feature} className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
-                          <span className="text-white/70 text-sm">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {selectedPlan === plan.id && (
-                      <div className="flex items-center justify-center gap-2 text-blue-400 font-semibold">
-                        <CheckCircle className="w-5 h-5" />
-                        <span>Selected</span>
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              {/* Property count check */}
-              {properties.length > 10 && selectedPlan === 'starter' && (
-                <Card variant="glass" className="p-4 border-yellow-500/30">
-                  <div className="flex items-start gap-3">
-                    <Building className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-yellow-400 font-semibold mb-1">
-                        You have {properties.length} properties
-                      </p>
-                      <p className="text-white/70 text-sm">
-                        Starter plan supports up to 10 properties. Consider upgrading to Professional.
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              )}
-            </div>
-          )}
-
-          {/* Step 5: Payment (Placeholder) */}
-          {step === 'payment' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-2">
-                Start Your Free Trial
-              </h2>
-              <p className="text-white/60 mb-8">
-                No credit card required • Cancel anytime
-              </p>
-
               <Card variant="highlighted" className="p-8 text-center mb-6">
                 <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-white mb-2">
                   You're All Set!
                 </h3>
                 <p className="text-white/70 mb-6">
-                  Your 14-day free trial starts now. No payment required.
+                  Your 14-day free trial starts now. No credit card required.
                 </p>
-                <div className="p-4 rounded-lg bg-white/5 border border-white/10 mb-6">
+                <div className="p-4 rounded-lg bg-white/5 border border-white/10 mb-6 text-left">
+                  {properties.some(p => p.address) && (
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span className="text-white/60">Properties added:</span>
+                      <span className="text-white font-semibold">
+                        {properties.filter(p => p.address).length}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-white/60">Plan:</span>
-                    <span className="text-white font-semibold">
-                      {selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)} (${
-                        selectedPlan === 'starter' ? 49 :
-                        selectedPlan === 'professional' ? 99 : 199
-                      }/month)
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm mt-2">
-                    <span className="text-white/60">Properties:</span>
-                    <span className="text-white font-semibold">{properties.length}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm mt-2">
                     <span className="text-white/60">Trial ends:</span>
                     <span className="text-white font-semibold">
                       {new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString()}
@@ -542,55 +317,38 @@ export default function LandlordOnboarding() {
               </Card>
 
               <p className="text-xs text-white/50 text-center">
-                We'll send you a reminder before your trial ends. Add payment details anytime from your account settings.
+                You can add properties, choose a plan, and add payment details later from your dashboard.
               </p>
             </div>
           )}
 
           {/* Navigation Buttons */}
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/10">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                const prevIndex = currentStepIndex - 1;
-                if (prevIndex >= 0) {
-                  setStep(steps[prevIndex]);
-                } else {
-                  navigate('/landlord-pricing');
-                }
-              }}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
+          {step !== 'complete' && (
+            <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/10">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/user-type')}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
 
-            <div className="flex items-center gap-3">
-              {step === 'properties' && (
+              <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
-                  onClick={() => {
-                    const nextIndex = currentStepIndex + 1;
-                    if (nextIndex < steps.length) {
-                      setStep(steps[nextIndex]);
-                    }
-                  }}
+                  onClick={() => setStep('complete')}
                 >
                   Skip for Now
                 </Button>
-              )}
-              <Button
-                onClick={() => {
-                  const nextIndex = currentStepIndex + 1;
-                  if (nextIndex < steps.length) {
-                    setStep(steps[nextIndex]);
-                  }
-                }}
-              >
-                {step === 'payment' ? 'Complete Setup' : 'Continue'}
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+                <Button
+                  onClick={() => setStep('complete')}
+                >
+                  Continue
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </Card>
       </div>
     </div>

@@ -42,6 +42,7 @@ import EmailTemplates from "./pages/EmailTemplates";
 import RenewalOptimizer from "./pages/RenewalOptimizer";
 import AgentDashboard from "./pages/AgentDashboard";
 import AgentPricing from "./pages/AgentPricing";
+import AgentOnboarding from "./pages/AgentOnboarding";
 import UserTypeSelection from "./pages/UserTypeSelection";
 import "./lib/data-tracker"; // Initialize data tracking
 
@@ -106,6 +107,7 @@ const App = () => (
                     <Route path="/verify-lease" element={<LeaseVerification />} />
                     
                     {/* Agent/Broker Routes */}
+                    <Route path="/agent-onboarding" element={<AgentOnboarding />} />
                     <Route path="/agent-dashboard" element={<AgentDashboard />} />
                     <Route path="/agent-pricing" element={<AgentPricing />} />
                     
