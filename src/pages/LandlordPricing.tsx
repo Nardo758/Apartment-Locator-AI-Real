@@ -276,7 +276,7 @@ export default function LandlordPricing() {
                 </div>
 
                 {/* CTA Button */}
-                <Link to="/landlord-onboarding">
+                <Link to={`/auth?type=landlord&mode=signup&plan=${plan.id}`}>
                   <Button
                     size="lg"
                     className={`w-full mb-6 ${
@@ -438,7 +438,7 @@ export default function LandlordPricing() {
           <h2 className="text-3xl font-bold text-white mb-6">
             Ready to Optimize Your Portfolio?
           </h2>
-          <Link to="/landlord-onboarding">
+          <Link to="/auth?type=landlord&mode=signup&plan=professional">
             <Button size="xl" className="bg-gradient-to-r from-blue-600 to-purple-600">
               Start Free Trial - No Credit Card Required
               <ArrowRight className="w-5 h-5 ml-2" />

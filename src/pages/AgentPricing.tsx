@@ -152,9 +152,9 @@ export default function AgentPricing() {
       <header className="border-b border-white/10 bg-black/20 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link to="/agent-dashboard">
+            <Link to="/">
               <Button variant="outline" className="border-white/20 hover:bg-white/5">
-                ← Back to Dashboard
+                ← Back to Home
               </Button>
             </Link>
             <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
@@ -253,16 +253,18 @@ export default function AgentPricing() {
               </CardHeader>
 
               <CardContent className="space-y-6">
-                <Button 
-                  className={`w-full py-6 text-lg font-semibold ${
-                    plan.popular
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700'
-                      : 'bg-white/10 hover:bg-white/20 border border-white/20'
-                  }`}
-                >
-                  Get Started
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
+                <Link to={`/auth?type=agent&mode=signup&plan=${plan.id}`}>
+                  <Button 
+                    className={`w-full py-6 text-lg font-semibold ${
+                      plan.popular
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700'
+                        : 'bg-white/10 hover:bg-white/20 border border-white/20'
+                    }`}
+                  >
+                    Get Started
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
 
                 <div className="space-y-3">
                   <p className="text-sm font-semibold text-white/80">What's included:</p>
@@ -465,14 +467,18 @@ export default function AgentPricing() {
               Join thousands of successful agents and brokers today
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 text-lg">
-                <Zap className="w-5 h-5 mr-2" />
-                Start Free Trial
-              </Button>
-              <Button variant="outline" className="border-white/20 hover:bg-white/5 px-8 py-6 text-lg">
-                <MessageSquare className="w-5 h-5 mr-2" />
-                Talk to Sales
-              </Button>
+              <Link to="/auth?type=agent&mode=signup&plan=team">
+                <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 text-lg">
+                  <Zap className="w-5 h-5 mr-2" />
+                  Start Free Trial
+                </Button>
+              </Link>
+              <Link to="/contact">
+                <Button variant="outline" className="border-white/20 hover:bg-white/5 px-8 py-6 text-lg">
+                  <MessageSquare className="w-5 h-5 mr-2" />
+                  Talk to Sales
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>

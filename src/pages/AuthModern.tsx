@@ -1,20 +1,28 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { Mail, Lock, ArrowLeft, AlertCircle, Loader2, Building, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, ArrowLeft, AlertCircle, Loader2, Building, Eye, EyeOff, Home, Briefcase } from 'lucide-react';
 import { designSystem } from '@/lib/design-system';
 import { ModernLoading } from '@/components/modern/ModernLoading';
 import { useUser } from '@/hooks/useUser';
+import type { UserType } from '@/components/routing/ProtectedRoute';
 
 const AuthModern = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, loading: userLoading, login, register } = useUser();
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [searchParams] = useSearchParams();
+  const { isAuthenticated, loading: userLoading, login, register, setUserType, userType } = useUser();
+  
+  // Get URL parameters
+  const urlUserType = searchParams.get('type') as UserType | null;
+  const urlMode = searchParams.get('mode');
+  const urlPlan = searchParams.get('plan');
+  
+  const [isSignUp, setIsSignUp] = useState(urlMode === 'signup');
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,11 +31,32 @@ const AuthModern = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
 
+  // Set user type from URL param on mount
+  useEffect(() => {
+    if (urlUserType && ['renter', 'landlord', 'agent'].includes(urlUserType)) {
+      setUserType(urlUserType);
+    }
+  }, [urlUserType, setUserType]);
+
+  // Redirect helper based on user type
+  const getRedirectPath = (type: UserType | null): string => {
+    switch (type) {
+      case 'landlord':
+        return '/landlord-onboarding';
+      case 'agent':
+        return '/agent-onboarding';
+      case 'renter':
+      default:
+        return '/dashboard';
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      const redirectPath = getRedirectPath(urlUserType || userType);
+      navigate(redirectPath);
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, urlUserType, userType]);
 
   const handleSignUp = async (e: FormEvent) => {
     e.preventDefault();
@@ -42,7 +71,8 @@ const AuthModern = () => {
     try {
       await register(email, password, email.split('@')[0]);
       toast.success('Account created successfully!');
-      navigate('/dashboard');
+      const redirectPath = getRedirectPath(urlUserType || userType);
+      navigate(redirectPath);
     } catch (error: unknown) {
       console.error('Sign up error:', error);
       const message = error instanceof Error ? error.message : String(error);
@@ -64,7 +94,8 @@ const AuthModern = () => {
     try {
       await login(email, password);
       toast.success('Welcome back!');
-      navigate('/dashboard');
+      const redirectPath = getRedirectPath(urlUserType || userType);
+      navigate(redirectPath);
     } catch (error: unknown) {
       console.error('Sign in error:', error);
       const message = error instanceof Error ? error.message : String(error);
@@ -120,17 +151,49 @@ const AuthModern = () => {
 
           <Card className={`${designSystem.backgrounds.card} ${designSystem.backgrounds.cardHover} ${designSystem.animations.entrance}`}>
             <CardHeader className="text-center pb-6">
-              {/* App Icon */}
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Building className="w-8 h-8 text-white" />
+              {/* App Icon - changes based on user type */}
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg ${
+                urlUserType === 'landlord' 
+                  ? 'bg-gradient-to-br from-purple-500 to-pink-600'
+                  : urlUserType === 'agent'
+                  ? 'bg-gradient-to-br from-orange-500 to-red-600'
+                  : 'bg-gradient-to-br from-blue-500 to-purple-600'
+              }`}>
+                {urlUserType === 'landlord' ? (
+                  <Building className="w-8 h-8 text-white" />
+                ) : urlUserType === 'agent' ? (
+                  <Briefcase className="w-8 h-8 text-white" />
+                ) : (
+                  <Home className="w-8 h-8 text-white" />
+                )}
               </div>
+              
+              {/* User type badge */}
+              {urlUserType && (
+                <div className="mb-4">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                    urlUserType === 'landlord'
+                      ? 'bg-purple-100 text-purple-700'
+                      : urlUserType === 'agent'
+                      ? 'bg-orange-100 text-orange-700'
+                      : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {urlUserType === 'landlord' ? 'Landlord Account' : urlUserType === 'agent' ? 'Agent Account' : 'Renter Account'}
+                    {urlPlan && <span className="ml-1">• {urlPlan.charAt(0).toUpperCase() + urlPlan.slice(1)} Plan</span>}
+                  </span>
+                </div>
+              )}
               
               <CardTitle className={designSystem.typography.subheadingLarge}>
                 {isSignUp ? 'Create Your Account' : 'Welcome Back'}
               </CardTitle>
               <CardDescription className={designSystem.typography.body}>
                 {isSignUp 
-                  ? 'Start finding your perfect rental with AI-powered market intelligence'
+                  ? urlUserType === 'landlord'
+                    ? 'Start optimizing your portfolio with AI-powered market intelligence'
+                    : urlUserType === 'agent'
+                    ? 'Start growing your business with powerful agent tools'
+                    : 'Start finding your perfect rental with AI-powered market intelligence'
                   : 'Sign in to access your rental intelligence dashboard and saved properties'
                 }
               </CardDescription>
