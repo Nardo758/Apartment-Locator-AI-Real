@@ -130,6 +130,23 @@ export const marketSnapshots = pgTable("market_snapshots", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const purchases = pgTable("purchases", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id"),
+  guestEmail: varchar("guest_email", { length: 255 }),
+  guestName: varchar("guest_name", { length: 255 }),
+  amount: integer("amount").notNull(),
+  currency: varchar("currency", { length: 3 }).default("usd"),
+  stripePaymentIntentId: varchar("stripe_payment_intent_id", { length: 255 }).notNull().unique(),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
+  status: varchar("status", { length: 50 }).notNull().default("pending"),
+  productType: varchar("product_type", { length: 100 }).default("one_time_unlock"),
+  searchCriteria: json("search_criteria").$type<Record<string, unknown>>(),
+  unlockedAt: timestamp("unlocked_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPropertySchema = createInsertSchema(properties).omit({ id: true, lastSeen: true, firstScraped: true, lastUpdated: true });
 export const insertSavedApartmentSchema = createInsertSchema(savedApartments).omit({ id: true, createdAt: true });
@@ -137,6 +154,7 @@ export const insertSearchHistorySchema = createInsertSchema(searchHistory).omit(
 export const insertUserPreferencesSchema = createInsertSchema(userPreferences).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertMarketSnapshotSchema = createInsertSchema(marketSnapshots).omit({ id: true, createdAt: true });
 export const insertUserPoiSchema = createInsertSchema(userPois).omit({ id: true, createdAt: true });
+export const insertPurchaseSchema = createInsertSchema(purchases).omit({ id: true, createdAt: true, updatedAt: true });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
@@ -145,9 +163,11 @@ export type InsertSearchHistory = z.infer<typeof insertSearchHistorySchema>;
 export type InsertUserPreferences = z.infer<typeof insertUserPreferencesSchema>;
 export type InsertMarketSnapshot = z.infer<typeof insertMarketSnapshotSchema>;
 export type InsertUserPoi = z.infer<typeof insertUserPoiSchema>;
+export type InsertPurchase = z.infer<typeof insertPurchaseSchema>;
 
 export type User = typeof users.$inferSelect;
 export type Property = typeof properties.$inferSelect;
+export type Purchase = typeof purchases.$inferSelect;
 export type SavedApartment = typeof savedApartments.$inferSelect;
 export type SearchHistory = typeof searchHistory.$inferSelect;
 export type UserPreferences = typeof userPreferences.$inferSelect;

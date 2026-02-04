@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DollarSign, MapPin, Home, Calendar, TrendingUp, Zap, ArrowRight, CheckCircle } from 'lucide-react';
+import { PaywallModal } from './PaywallModal';
+import { useNavigate } from 'react-router-dom';
 
 interface SavingsResult {
   potentialSavings: number;
@@ -17,14 +19,18 @@ interface SavingsResult {
 }
 
 export function FreeSavingsCalculator() {
-  const [step, setStep] = useState<'input' | 'results'>('input');
+  const navigate = useNavigate();
+  const [step, setStep] = useState<'input' | 'results' | 'email'>('input');
   const [formData, setFormData] = useState({
     zipCodes: '',
     budget: '',
     bedrooms: '1',
-    moveInDate: ''
+    moveInDate: '',
+    email: '',
+    name: ''
   });
   const [results, setResults] = useState<SavingsResult | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
 
   const calculateSavings = () => {
     // Simulated calculation - in production, this would call your AI API
@@ -155,15 +161,54 @@ export function FreeSavingsCalculator() {
                 and email templates. One-time payment, lifetime access to your results.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button size="xl" className="w-full sm:w-auto">
-                  Unlock Full Results - $49
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                  See Pricing Plans
-                </Button>
-              </div>
+              {step !== 'email' ? (
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
+                  <Button 
+                    size="xl" 
+                    className="w-full sm:w-auto"
+                    onClick={() => setStep('email')}
+                  >
+                    Unlock Full Results - $49
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="w-full sm:w-auto"
+                    onClick={() => navigate('/pricing')}
+                  >
+                    See Pricing Plans
+                  </Button>
+                </div>
+              ) : (
+                <div className="max-w-md mx-auto mb-6">
+                  <p className="text-white/80 mb-4 text-sm">Enter your email to continue to payment:</p>
+                  <div className="space-y-3">
+                    <Input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                    />
+                    <Input
+                      type="text"
+                      placeholder="Your name (optional)"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    />
+                    <Button 
+                      size="lg" 
+                      className="w-full"
+                      onClick={() => setShowPaywall(true)}
+                      disabled={!formData.email}
+                    >
+                      Continue to Payment
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm text-white/60">
                 <div className="flex items-center gap-2">
@@ -192,6 +237,25 @@ export function FreeSavingsCalculator() {
             ← Try different search criteria
           </button>
         </div>
+
+        <PaywallModal
+          isOpen={showPaywall}
+          onClose={() => setShowPaywall(false)}
+          potentialSavings={results?.potentialSavings || 0}
+          propertiesCount={results?.negotiableProperties || 0}
+          guestEmail={formData.email}
+          guestName={formData.name}
+          searchCriteria={{
+            zipCodes: formData.zipCodes,
+            budget: formData.budget,
+            bedrooms: formData.bedrooms,
+            moveInDate: formData.moveInDate,
+          }}
+          onPaymentSuccess={() => {
+            setShowPaywall(false);
+            navigate('/dashboard');
+          }}
+        />
       </div>
     );
   }
@@ -294,6 +358,25 @@ export function FreeSavingsCalculator() {
           </p>
         </form>
       </CardContent>
+      
+      <PaywallModal
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        potentialSavings={results?.potentialSavings || 0}
+        propertiesCount={results?.negotiableProperties || 0}
+        guestEmail={formData.email}
+        guestName={formData.name}
+        searchCriteria={{
+          zipCodes: formData.zipCodes,
+          budget: formData.budget,
+          bedrooms: formData.bedrooms,
+          moveInDate: formData.moveInDate,
+        }}
+        onPaymentSuccess={() => {
+          setShowPaywall(false);
+          navigate('/dashboard');
+        }}
+      />
     </Card>
   );
 }

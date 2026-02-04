@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle, TrendingUp, Users, DollarSign, Clock, Zap, Target, BarChart, Brain, Search, Mail, Star, Building, MapPin, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { FreeSavingsCalculator } from '@/components/FreeSavingsCalculator';
 
 // SSR-Safe Landing Page - No external dependencies that could cause SSR issues
 const LandingSSRSafe = () => {
@@ -174,8 +175,24 @@ const LandingSSRSafe = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Free Savings Calculator Section */}
       <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              See How Much You Could Save
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Get instant insights into your potential savings. Our AI analyzes market data to show you real opportunities - for free.
+            </p>
+          </div>
+          
+          <FreeSavingsCalculator />
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">

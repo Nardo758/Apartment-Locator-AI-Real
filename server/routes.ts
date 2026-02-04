@@ -18,6 +18,7 @@ import {
   type AuthUser 
 } from "./auth";
 import { z } from "zod";
+import { registerPaymentRoutes } from "./routes/payments";
 
 declare global {
   namespace Express {
@@ -333,34 +334,6 @@ export async function registerRoutes(app: Express): Promise<void> {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
 
-  app.post("/api/payments/create-checkout", async (req, res) => {
-    try {
-      const { plan, guestEmail, guestName } = req.body;
-      
-      if (!plan) {
-        return res.status(400).json({ error: "Missing plan" });
-      }
-
-      const token = req.headers.authorization?.slice(7);
-      let userId = null;
-      if (token) {
-        const payload = verifyToken(token);
-        if (payload) userId = payload.userId;
-      }
-
-      const pricingUrls: Record<string, string> = {
-        basic: 'https://buy.stripe.com/placeholder_basic',
-        pro: 'https://buy.stripe.com/placeholder_pro',
-        premium: 'https://buy.stripe.com/placeholder_premium'
-      };
-
-      res.json({ 
-        url: pricingUrls[plan] || pricingUrls.pro,
-        message: "Stripe integration pending - configure STRIPE_SECRET_KEY for live payments"
-      });
-    } catch (error) {
-      console.error("Payment checkout error:", error);
-      res.status(500).json({ error: "Failed to create checkout session" });
-    }
-  });
+  // Register payment routes
+  registerPaymentRoutes(app);
 }
