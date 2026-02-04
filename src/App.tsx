@@ -45,6 +45,7 @@ import AgentDashboard from "./pages/AgentDashboard";
 import AgentPricing from "./pages/AgentPricing";
 import AgentOnboarding from "./pages/AgentOnboarding";
 import UserTypeSelection from "./pages/UserTypeSelection";
+import LandlordSettings from "./components/landlord/LandlordSettings";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
@@ -184,6 +185,11 @@ const App = () => (
                     <Route path="/verify-lease" element={
                       <ProtectedRoute allowedUserTypes={['landlord']}>
                         <LeaseVerification />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/landlord/settings" element={
+                      <ProtectedRoute allowedUserTypes={['landlord']}>
+                        <LandlordSettings />
                       </ProtectedRoute>
                     } />
                     
