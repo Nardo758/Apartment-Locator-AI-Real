@@ -57,18 +57,18 @@ export default function ProtectedRoute({
   requireAuth = true,
   redirectTo = '/auth',
 }: ProtectedRouteProps) {
-  const { user, loading, isAuthenticated } = useUser();
+  const { user, loading, isAuthenticated, userType: contextUserType } = useUser();
   const location = useLocation();
   const [userType, setUserType] = useState<UserType | null>(null);
   const [checkingUserType, setCheckingUserType] = useState(true);
 
   useEffect(() => {
-    // Get user type from localStorage
-    // TODO: Once backend is connected, this should come from user.userType
+    // Get user type from server (via useUser) or fallback to localStorage
+    const serverUserType = user?.userType as UserType | null;
     const storedUserType = localStorage.getItem('userType') as UserType | null;
-    setUserType(storedUserType);
+    setUserType(serverUserType || contextUserType || storedUserType);
     setCheckingUserType(false);
-  }, [user]);
+  }, [user, contextUserType]);
 
   // Show loading state while checking authentication
   if (loading || checkingUserType) {
@@ -104,6 +104,11 @@ export default function ProtectedRoute({
           replace
         />
       );
+    }
+
+    // Admin users have access to all routes
+    if (userType === 'admin') {
+      return <>{children}</>;
     }
 
     // If user type doesn't match, redirect to user type selection or appropriate dashboard

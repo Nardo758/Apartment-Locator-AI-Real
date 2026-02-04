@@ -41,6 +41,8 @@ const AuthModern = () => {
   // Redirect helper based on user type
   const getRedirectPath = (type: UserType | null): string => {
     switch (type) {
+      case 'admin':
+        return '/admin';
       case 'landlord':
         return '/landlord-onboarding';
       case 'agent':
