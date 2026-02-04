@@ -6,19 +6,11 @@ import { FreeSavingsCalculator } from '@/components/FreeSavingsCalculator';
 
 // SSR-Safe Landing Page - No external dependencies that could cause SSR issues
 const LandingSSRSafe = () => {
-  const [currentDemo, setCurrentDemo] = useState(0);
   const [mounted, setMounted] = useState(false);
 
   // Only run client-side effects after component mounts
   useEffect(() => {
     setMounted(true);
-    
-    // Only set up intervals after mounting
-    const interval = setInterval(() => {
-      setCurrentDemo(prev => (prev + 1) % 2);
-    }, 5000);
-    
-    return () => clearInterval(interval);
   }, []);
 
   // Prevent hydration mismatches by not rendering dynamic content until mounted
@@ -64,19 +56,6 @@ const LandingSSRSafe = () => {
     { icon: <TrendingUp className="w-8 h-8 text-orange-600" />, value: "95%", label: "Success Rate" }
   ];
 
-  const demos = [
-    {
-      title: "Market Intelligence Dashboard",
-      description: "Real-time market data and trends",
-      features: ["Live rent prices", "Market velocity", "Negotiation leverage"]
-    },
-    {
-      title: "AI Apartment Matching",
-      description: "Personalized apartment recommendations",
-      features: ["Smart filtering", "Preference learning", "Location scoring"]
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation Header */}
@@ -87,9 +66,6 @@ const LandingSSRSafe = () => {
             <span className="text-xl font-bold text-gray-900">Apartment Locator AI</span>
           </div>
           <div className="flex items-center gap-6">
-            <Link to="/demo" className="text-gray-600 hover:text-gray-900 transition-colors" data-testid="link-demo">
-              Demo
-            </Link>
             <Link to="/auth" data-testid="link-signin">
               <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100">Sign In</Button>
             </Link>
@@ -124,11 +100,6 @@ const LandingSSRSafe = () => {
                   <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg">
                     Start Free Trial
                     <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
-                </Link>
-                <Link to="/demo">
-                  <Button variant="outline" size="lg" className="px-8 py-3 text-lg border-2 border-blue-600 text-blue-600 hover:bg-blue-50">
-                    Watch Demo
                   </Button>
                 </Link>
               </div>
@@ -243,53 +214,6 @@ const LandingSSRSafe = () => {
         </div>
       </section>
 
-      {/* Demo Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              See Our AI in Action
-            </h2>
-            <p className="text-xl text-gray-600">
-              Experience the power of intelligent apartment hunting
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="grid lg:grid-cols-2">
-              <div className="p-8 lg:p-12">
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-bold text-gray-900">{demos[currentDemo].title}</h3>
-                  <p className="text-lg text-gray-600">{demos[currentDemo].description}</p>
-                  <ul className="space-y-3">
-                    {demos[currentDemo].features.map((feature, index) => (
-                      <li key={index} className="flex items-center">
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
-                        <span className="text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Link to="/demo">
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                      Try Interactive Demo
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-8 lg:p-12 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center mb-4 mx-auto">
-                    <BarChart className="w-12 h-12 text-white" />
-                  </div>
-                  <p className="text-gray-600">Interactive demo loading...</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
@@ -344,7 +268,6 @@ const LandingSSRSafe = () => {
             <div>
               <h4 className="font-semibold mb-4">Product</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link to="/demo" className="hover:text-white">Demo</Link></li>
                 <li><Link to="/pricing" className="hover:text-white">Pricing</Link></li>
                 <li><Link to="/market-intel" className="hover:text-white">Market Intel</Link></li>
               </ul>
