@@ -132,11 +132,6 @@ const LandingFixed = () => {
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
-                <Link to="/demo">
-                  <Button variant="outline" size="lg" className="px-8 py-3 text-lg border-2 border-blue-600 text-blue-600 hover:bg-blue-50">
-                    Watch Demo
-                  </Button>
-                </Link>
               </div>
 
               <div className="flex items-center gap-6 text-sm text-gray-500">
@@ -261,12 +256,6 @@ const LandingFixed = () => {
                       </li>
                     ))}
                   </ul>
-                  <Link to="/demo">
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                      Try Interactive Demo
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </Link>
                 </div>
               </div>
               <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-8 lg:p-12 flex items-center justify-center">
@@ -375,7 +364,6 @@ const LandingFixed = () => {
             <div>
               <h4 className="font-semibold mb-4">Product</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link to="/demo" className="hover:text-white">Demo</Link></li>
                 <li><Link to="/pricing" className="hover:text-white">Pricing</Link></li>
                 <li><Link to="/market-intel" className="hover:text-white">Market Intel</Link></li>
               </ul>

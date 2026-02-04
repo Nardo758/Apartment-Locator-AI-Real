@@ -225,9 +225,6 @@ const Landing = () => {
                 <Button size="lg" className="bg-gradient-primary text-white font-semibold" asChild>
                   <Link to="/auth">Get Started Free</Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-white/20 text-foreground hover:bg-white/10" asChild>
-                  <Link to="/demo">View Demo</Link>
-                </Button>
               </div>
             </div>
             

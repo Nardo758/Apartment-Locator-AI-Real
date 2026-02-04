@@ -213,12 +213,6 @@ const RenterIntelligence = () => {
       subtitle="AI-powered insights to help you find the perfect apartment with negotiation advantages"
       headerContent={
         <div className="flex gap-3">
-          <Link to="/demo">
-            <Button variant="outline" size="sm" className="gap-2">
-              <ArrowLeft size={16} />
-              Back to Demo
-            </Button>
-          </Link>
           <Link to="/market-intel">
             <Button className={`${designSystem.buttons.primary} ${designSystem.buttons.small} gap-2`}>
               <BarChart size={16} />

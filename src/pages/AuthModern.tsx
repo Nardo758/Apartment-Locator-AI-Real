@@ -254,18 +254,6 @@ const AuthModern = () => {
               </div>
 
 
-              {/* Demo Link */}
-              <div className="pt-2">
-                <Link to="/demo">
-                  <Button 
-                    variant="outline" 
-                    className={`w-full h-11 border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 ${designSystem.animations.transition}`}
-                  >
-                    <Building className={`${designSystem.icons.small} mr-2`} />
-                    View Demo (no account needed)
-                  </Button>
-                </Link>
-              </div>
 
               {/* Features Preview */}
               <div className="pt-4 space-y-3">
