@@ -785,6 +785,353 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
+  // ============================================
+  // AGENT CLIENT MANAGEMENT ENDPOINTS
+  // ============================================
+
+  /**
+   * POST /api/agent/clients
+   * Add a new client
+   */
+  app.post("/api/agent/clients", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const schema = z.object({
+        firstName: z.string().min(1).max(100),
+        lastName: z.string().min(1).max(100),
+        email: z.string().email().max(255),
+        phone: z.string().max(50).optional(),
+        status: z.enum(['active', 'inactive', 'archived']).default('active'),
+        stage: z.enum(['lead', 'viewing', 'negotiating', 'contract', 'closed']).default('lead'),
+        source: z.string().max(100).optional(),
+        budget: z.object({
+          min: z.number().optional(),
+          max: z.number().optional(),
+        }).optional(),
+        preferredLocations: z.array(z.string()).default([]),
+        bedrooms: z.number().int().optional(),
+        bathrooms: z.number().optional(),
+        moveInDate: z.string().datetime().optional(),
+        notes: z.string().optional(),
+        tags: z.array(z.string()).default([]),
+        priority: z.enum(['low', 'medium', 'high']).default('medium'),
+        assignedProperties: z.array(z.string()).default([]),
+        nextFollowUp: z.string().datetime().optional(),
+        metadata: z.record(z.unknown()).optional(),
+      });
+
+      const parseResult = schema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid client data", 
+          details: parseResult.error.errors 
+        });
+      }
+
+      const data = parseResult.data;
+
+      // Convert date strings to Date objects
+      const clientData: any = {
+        ...data,
+        agentId: req.user!.id,
+      };
+
+      if (data.moveInDate) {
+        clientData.moveInDate = new Date(data.moveInDate);
+      }
+
+      if (data.nextFollowUp) {
+        clientData.nextFollowUp = new Date(data.nextFollowUp);
+      }
+
+      const client = await storage.createClient(clientData);
+      
+      res.status(201).json(client);
+    } catch (error) {
+      console.error("Error creating client:", error);
+      res.status(500).json({ error: "Failed to create client" });
+    }
+  });
+
+  /**
+   * GET /api/agent/clients
+   * List clients with filtering and sorting
+   */
+  app.get("/api/agent/clients", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const { 
+        status, 
+        stage, 
+        search, 
+        sortBy, 
+        sortOrder, 
+        limit, 
+        offset 
+      } = req.query;
+
+      const result = await storage.getClients(req.user!.id, {
+        status: status as string,
+        stage: stage as string,
+        search: search as string,
+        sortBy: sortBy as 'name' | 'createdAt' | 'lastContact' | 'priority',
+        sortOrder: sortOrder as 'asc' | 'desc',
+        limit: limit ? parseInt(limit as string) : undefined,
+        offset: offset ? parseInt(offset as string) : undefined,
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+      res.status(500).json({ error: "Failed to fetch clients" });
+    }
+  });
+
+  /**
+   * GET /api/agent/clients/:id
+   * Get client details
+   */
+  app.get("/api/agent/clients/:id", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const client = await storage.getClientById(req.params.id, req.user!.id);
+
+      if (!client) {
+        return res.status(404).json({ error: "Client not found" });
+      }
+
+      res.json(client);
+    } catch (error) {
+      console.error("Error fetching client:", error);
+      res.status(500).json({ error: "Failed to fetch client" });
+    }
+  });
+
+  /**
+   * PATCH /api/agent/clients/:id
+   * Update client
+   */
+  app.patch("/api/agent/clients/:id", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const schema = z.object({
+        firstName: z.string().min(1).max(100).optional(),
+        lastName: z.string().min(1).max(100).optional(),
+        email: z.string().email().max(255).optional(),
+        phone: z.string().max(50).optional(),
+        status: z.enum(['active', 'inactive', 'archived']).optional(),
+        stage: z.enum(['lead', 'viewing', 'negotiating', 'contract', 'closed']).optional(),
+        source: z.string().max(100).optional(),
+        budget: z.object({
+          min: z.number().optional(),
+          max: z.number().optional(),
+        }).optional(),
+        preferredLocations: z.array(z.string()).optional(),
+        bedrooms: z.number().int().optional(),
+        bathrooms: z.number().optional(),
+        moveInDate: z.string().datetime().optional(),
+        notes: z.string().optional(),
+        tags: z.array(z.string()).optional(),
+        priority: z.enum(['low', 'medium', 'high']).optional(),
+        assignedProperties: z.array(z.string()).optional(),
+        nextFollowUp: z.string().datetime().optional(),
+        metadata: z.record(z.unknown()).optional(),
+      });
+
+      const parseResult = schema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid client data", 
+          details: parseResult.error.errors 
+        });
+      }
+
+      const data: any = { ...parseResult.data };
+
+      // Convert date strings to Date objects
+      if (data.moveInDate) {
+        data.moveInDate = new Date(data.moveInDate);
+      }
+
+      if (data.nextFollowUp) {
+        data.nextFollowUp = new Date(data.nextFollowUp);
+      }
+
+      const client = await storage.updateClient(req.params.id, req.user!.id, data);
+
+      if (!client) {
+        return res.status(404).json({ error: "Client not found" });
+      }
+
+      res.json(client);
+    } catch (error) {
+      console.error("Error updating client:", error);
+      res.status(500).json({ error: "Failed to update client" });
+    }
+  });
+
+  /**
+   * DELETE /api/agent/clients/:id
+   * Archive client (soft delete)
+   */
+  app.delete("/api/agent/clients/:id", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const client = await storage.archiveClient(req.params.id, req.user!.id);
+
+      if (!client) {
+        return res.status(404).json({ error: "Client not found" });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error archiving client:", error);
+      res.status(500).json({ error: "Failed to archive client" });
+    }
+  });
+
+  /**
+   * GET /api/agent/clients/:id/activity
+   * Get client activity history
+   */
+  app.get("/api/agent/clients/:id/activity", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const { limit, offset } = req.query;
+
+      const result = await storage.getClientActivity(
+        req.params.id, 
+        req.user!.id, 
+        {
+          limit: limit ? parseInt(limit as string) : undefined,
+          offset: offset ? parseInt(offset as string) : undefined,
+        }
+      );
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching client activity:", error);
+      res.status(500).json({ error: "Failed to fetch client activity" });
+    }
+  });
+
+  /**
+   * POST /api/agent/clients/:id/activity
+   * Add activity to client
+   */
+  app.post("/api/agent/clients/:id/activity", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const schema = z.object({
+        activityType: z.enum(['note', 'call', 'email', 'meeting', 'viewing', 'offer', 'contract']),
+        title: z.string().min(1).max(255),
+        description: z.string().optional(),
+        propertyId: z.string().uuid().optional(),
+        metadata: z.record(z.unknown()).optional(),
+        scheduledFor: z.string().datetime().optional(),
+        completedAt: z.string().datetime().optional(),
+      });
+
+      const parseResult = schema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid activity data", 
+          details: parseResult.error.errors 
+        });
+      }
+
+      const data: any = {
+        ...parseResult.data,
+        clientId: req.params.id,
+        agentId: req.user!.id,
+      };
+
+      // Convert date strings to Date objects
+      if (data.scheduledFor) {
+        data.scheduledFor = new Date(data.scheduledFor);
+      }
+
+      if (data.completedAt) {
+        data.completedAt = new Date(data.completedAt);
+      }
+
+      const activity = await storage.createClientActivity(data);
+
+      res.status(201).json(activity);
+    } catch (error) {
+      console.error("Error creating client activity:", error);
+      res.status(500).json({ error: "Failed to create client activity" });
+    }
+  });
+
+  /**
+   * GET /api/agent/dashboard/summary
+   * Get agent dashboard overview stats
+   */
+  app.get("/api/agent/dashboard/summary", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const summary = await storage.getAgentDashboardSummary(req.user!.id);
+
+      res.json(summary);
+    } catch (error) {
+      console.error("Error fetching dashboard summary:", error);
+      res.status(500).json({ error: "Failed to fetch dashboard summary" });
+    }
+  });
+
+  // ============================================
+  // END AGENT CLIENT MANAGEMENT ENDPOINTS
+  // ============================================
+
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
@@ -1724,6 +2071,1579 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // ============================================
   // END PRICING ALERTS ENDPOINTS
+  // ============================================
+
+  // ============================================
+  // AGENT LEAD MANAGEMENT ENDPOINTS
+  // ============================================
+
+  /**
+   * POST /api/agent/leads
+   * Capture a new lead from a form submission
+   */
+  app.post("/api/agent/leads", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const schema = z.object({
+        firstName: z.string().min(1).max(255),
+        lastName: z.string().min(1).max(255),
+        email: z.string().email().max(255),
+        phone: z.string().max(50).optional(),
+        leadSource: z.string().min(1).max(100),
+        propertyInterest: z.string().max(500).optional(),
+        propertyId: z.string().uuid().optional(),
+        budgetMin: z.number().int().min(0).optional(),
+        budgetMax: z.number().int().min(0).optional(),
+        preferredLocations: z.array(z.string()).default([]),
+        bedrooms: z.number().int().min(0).optional(),
+        bathrooms: z.number().min(0).optional(),
+        moveInDate: z.string().datetime().optional(),
+        timeline: z.enum(['immediate', '1-3months', '3-6months', '6+months']).optional(),
+        notes: z.string().optional(),
+        tags: z.array(z.string()).default([]),
+        metadata: z.record(z.unknown()).optional(),
+      });
+
+      const parseResult = schema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid lead data", 
+          details: parseResult.error.errors 
+        });
+      }
+
+      const leadData = {
+        ...parseResult.data,
+        agentId: req.user!.id,
+        moveInDate: parseResult.data.moveInDate ? new Date(parseResult.data.moveInDate) : undefined,
+      };
+
+      const lead = await storage.createLead(leadData);
+      
+      res.status(201).json({ 
+        lead,
+        message: "Lead captured successfully"
+      });
+    } catch (error) {
+      console.error("Error creating lead:", error);
+      res.status(500).json({ error: "Failed to create lead" });
+    }
+  });
+
+  /**
+   * GET /api/agent/leads
+   * List and filter leads for the authenticated agent
+   */
+  app.get("/api/agent/leads", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const {
+        status,
+        leadSource,
+        search,
+        minScore,
+        maxScore,
+        tags,
+        sortBy,
+        sortOrder,
+        limit,
+        offset,
+      } = req.query;
+
+      const options: any = {
+        status: status as string,
+        leadSource: leadSource as string,
+        search: search as string,
+        minScore: minScore ? parseInt(minScore as string) : undefined,
+        maxScore: maxScore ? parseInt(maxScore as string) : undefined,
+        tags: tags ? (Array.isArray(tags) ? tags : [tags]) as string[] : undefined,
+        sortBy: (sortBy as 'leadScore' | 'createdAt' | 'lastContactedAt' | 'nextFollowUpAt') || 'createdAt',
+        sortOrder: (sortOrder as 'asc' | 'desc') || 'desc',
+        limit: limit ? parseInt(limit as string) : 50,
+        offset: offset ? parseInt(offset as string) : 0,
+      };
+
+      const result = await storage.getLeads(req.user!.id, options);
+      
+      res.json({
+        leads: result.leads,
+        total: result.total,
+        limit: options.limit,
+        offset: options.offset,
+      });
+    } catch (error) {
+      console.error("Error fetching leads:", error);
+      res.status(500).json({ error: "Failed to fetch leads" });
+    }
+  });
+
+  /**
+   * GET /api/agent/leads/:id
+   * Get a specific lead by ID
+   */
+  app.get("/api/agent/leads/:id", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const lead = await storage.getLeadById(req.params.id, req.user!.id);
+      
+      if (!lead) {
+        return res.status(404).json({ error: "Lead not found" });
+      }
+      
+      res.json(lead);
+    } catch (error) {
+      console.error("Error fetching lead:", error);
+      res.status(500).json({ error: "Failed to fetch lead" });
+    }
+  });
+
+  /**
+   * PATCH /api/agent/leads/:id
+   * Update lead status and details
+   */
+  app.patch("/api/agent/leads/:id", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const schema = z.object({
+        firstName: z.string().min(1).max(255).optional(),
+        lastName: z.string().min(1).max(255).optional(),
+        email: z.string().email().max(255).optional(),
+        phone: z.string().max(50).optional(),
+        status: z.enum(['new', 'contacted', 'qualified', 'nurturing', 'converted', 'lost']).optional(),
+        leadSource: z.string().min(1).max(100).optional(),
+        propertyInterest: z.string().max(500).optional(),
+        propertyId: z.string().uuid().optional(),
+        budgetMin: z.number().int().min(0).optional(),
+        budgetMax: z.number().int().min(0).optional(),
+        preferredLocations: z.array(z.string()).optional(),
+        bedrooms: z.number().int().min(0).optional(),
+        bathrooms: z.number().min(0).optional(),
+        moveInDate: z.string().datetime().optional(),
+        timeline: z.enum(['immediate', '1-3months', '3-6months', '6+months']).optional(),
+        lastContactedAt: z.string().datetime().optional(),
+        nextFollowUpAt: z.string().datetime().optional(),
+        followUpCount: z.number().int().optional(),
+        autoFollowUpEnabled: z.boolean().optional(),
+        totalInteractions: z.number().int().optional(),
+        emailsSent: z.number().int().optional(),
+        emailsOpened: z.number().int().optional(),
+        propertiesViewed: z.number().int().optional(),
+        tourScheduled: z.boolean().optional(),
+        tourDate: z.string().datetime().optional(),
+        estimatedValue: z.number().int().optional(),
+        notes: z.string().optional(),
+        tags: z.array(z.string()).optional(),
+        lostReason: z.string().max(255).optional(),
+        metadata: z.record(z.unknown()).optional(),
+      });
+
+      const parseResult = schema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid update data", 
+          details: parseResult.error.errors 
+        });
+      }
+
+      const updateData: any = { ...parseResult.data };
+      
+      // Convert date strings to Date objects
+      if (updateData.moveInDate) {
+        updateData.moveInDate = new Date(updateData.moveInDate);
+      }
+      if (updateData.lastContactedAt) {
+        updateData.lastContactedAt = new Date(updateData.lastContactedAt);
+      }
+      if (updateData.nextFollowUpAt) {
+        updateData.nextFollowUpAt = new Date(updateData.nextFollowUpAt);
+      }
+      if (updateData.tourDate) {
+        updateData.tourDate = new Date(updateData.tourDate);
+      }
+      
+      // If status is being changed to 'lost', set lostAt timestamp
+      if (updateData.status === 'lost') {
+        updateData.lostAt = new Date();
+      }
+
+      const lead = await storage.updateLead(
+        req.params.id, 
+        req.user!.id, 
+        updateData
+      );
+      
+      if (!lead) {
+        return res.status(404).json({ error: "Lead not found" });
+      }
+      
+      res.json(lead);
+    } catch (error) {
+      console.error("Error updating lead:", error);
+      res.status(500).json({ error: "Failed to update lead" });
+    }
+  });
+
+  /**
+   * POST /api/agent/leads/:id/convert
+   * Convert a lead to a client
+   */
+  app.post("/api/agent/leads/:id/convert", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const result = await storage.convertLeadToClient(
+        req.params.id,
+        req.user!.id
+      );
+      
+      res.json({
+        message: "Lead successfully converted to client",
+        lead: result.lead,
+        client: result.client,
+      });
+    } catch (error) {
+      console.error("Error converting lead:", error);
+      if (error instanceof Error && error.message === "Lead not found") {
+        return res.status(404).json({ error: error.message });
+      }
+      res.status(500).json({ error: "Failed to convert lead" });
+    }
+  });
+
+  /**
+   * DELETE /api/agent/leads/:id
+   * Delete a lead
+   */
+  app.delete("/api/agent/leads/:id", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      // Verify the lead exists before deleting
+      const lead = await storage.getLeadById(req.params.id, req.user!.id);
+      if (!lead) {
+        return res.status(404).json({ error: "Lead not found" });
+      }
+
+      await storage.deleteLead(req.params.id, req.user!.id);
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting lead:", error);
+      res.status(500).json({ error: "Failed to delete lead" });
+    }
+  });
+
+  /**
+   * GET /api/agent/leads/sources
+   * Get lead source analytics (conversion rates, average scores)
+   */
+  app.get("/api/agent/leads/sources", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const sources = await storage.getLeadSources(req.user!.id);
+      
+      // Calculate totals
+      const totalLeads = sources.reduce((sum, s) => sum + s.count, 0);
+      const totalConverted = sources.reduce((sum, s) => 
+        sum + Math.round((s.count * s.conversionRate) / 100), 0
+      );
+      const overallConversionRate = totalLeads > 0 
+        ? Math.round((totalConverted / totalLeads) * 100) 
+        : 0;
+
+      // Sort by count descending
+      const sortedSources = sources.sort((a, b) => b.count - a.count);
+
+      res.json({
+        sources: sortedSources,
+        summary: {
+          totalLeads,
+          totalConverted,
+          overallConversionRate,
+          topSource: sortedSources[0] || null,
+          highestConversionSource: sources.reduce((max, s) => 
+            s.conversionRate > (max?.conversionRate || 0) ? s : max, 
+            sources[0] || null
+          ),
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching lead sources:", error);
+      res.status(500).json({ error: "Failed to fetch lead sources" });
+    }
+  });
+
+  // ============================================
+  // END AGENT LEAD MANAGEMENT ENDPOINTS
+  // ============================================
+
+  // ============================================
+  // AGENT COMMISSION CALCULATOR & ANALYTICS ENDPOINTS
+  // ============================================
+
+  /**
+   * POST /api/agent/commission/calculate
+   * Calculate commission with splits
+   */
+  app.post("/api/agent/commission/calculate", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const schema = z.object({
+        transactionType: z.enum(['sale', 'rental', 'lease']),
+        propertyValue: z.number().positive(),
+        rentalMonths: z.number().int().positive().optional(),
+        commissionRate: z.number().min(0).max(100),
+        commissionType: z.enum(['percentage', 'flat_fee']),
+        flatFeeAmount: z.number().min(0).optional(),
+        splits: z.array(z.object({
+          agentName: z.string(),
+          percentage: z.number().min(0).max(100),
+          role: z.enum(['listing_agent', 'buyer_agent', 'referral', 'team_lead', 'brokerage']),
+        })).optional(),
+        expenses: z.array(z.object({
+          description: z.string(),
+          amount: z.number().min(0),
+          category: z.string().optional(),
+        })).optional(),
+        bonuses: z.array(z.object({
+          description: z.string(),
+          amount: z.number().min(0),
+        })).optional(),
+      });
+
+      const parseResult = schema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid commission calculation data", 
+          details: parseResult.error.errors 
+        });
+      }
+
+      const data = parseResult.data;
+
+      // Calculate base commission
+      let baseCommission: number;
+      if (data.commissionType === 'flat_fee') {
+        baseCommission = data.flatFeeAmount || 0;
+      } else {
+        // For rental/lease, calculate based on monthly rent * number of months
+        const calculationBase = data.transactionType === 'sale' 
+          ? data.propertyValue 
+          : data.propertyValue * (data.rentalMonths || 1);
+        baseCommission = (calculationBase * data.commissionRate) / 100;
+      }
+
+      // Calculate splits
+      let splits: any[] = [];
+      let totalSplitPercentage = 0;
+      
+      if (data.splits && data.splits.length > 0) {
+        // Validate total split percentage
+        totalSplitPercentage = data.splits.reduce((sum, split) => sum + split.percentage, 0);
+        
+        if (Math.abs(totalSplitPercentage - 100) > 0.01) {
+          return res.status(400).json({ 
+            error: `Split percentages must total 100%. Current total: ${totalSplitPercentage.toFixed(2)}%` 
+          });
+        }
+
+        splits = data.splits.map(split => ({
+          ...split,
+          amount: (baseCommission * split.percentage) / 100,
+        }));
+      } else {
+        // Default: 100% to requesting agent
+        splits = [{
+          agentName: req.user!.name || req.user!.email,
+          percentage: 100,
+          role: 'listing_agent',
+          amount: baseCommission,
+        }];
+      }
+
+      // Calculate expenses
+      const totalExpenses = data.expenses 
+        ? data.expenses.reduce((sum, exp) => sum + exp.amount, 0) 
+        : 0;
+
+      // Calculate bonuses
+      const totalBonuses = data.bonuses 
+        ? data.bonuses.reduce((sum, bonus) => sum + bonus.amount, 0) 
+        : 0;
+
+      // Net commission
+      const netCommission = baseCommission + totalBonuses - totalExpenses;
+
+      // Commission breakdown by role
+      const breakdownByRole = splits.reduce((acc: any, split) => {
+        if (!acc[split.role]) {
+          acc[split.role] = {
+            totalAmount: 0,
+            agents: [],
+          };
+        }
+        acc[split.role].totalAmount += split.amount;
+        acc[split.role].agents.push({
+          name: split.agentName,
+          percentage: split.percentage,
+          amount: split.amount,
+        });
+        return acc;
+      }, {});
+
+      // Calculate effective commission rate
+      const effectiveRate = data.transactionType === 'sale'
+        ? (baseCommission / data.propertyValue) * 100
+        : (baseCommission / (data.propertyValue * (data.rentalMonths || 1))) * 100;
+
+      const result = {
+        calculation: {
+          transactionType: data.transactionType,
+          propertyValue: data.propertyValue,
+          rentalMonths: data.rentalMonths,
+          commissionRate: data.commissionRate,
+          commissionType: data.commissionType,
+          baseCommission: parseFloat(baseCommission.toFixed(2)),
+          totalExpenses: parseFloat(totalExpenses.toFixed(2)),
+          totalBonuses: parseFloat(totalBonuses.toFixed(2)),
+          netCommission: parseFloat(netCommission.toFixed(2)),
+          effectiveRate: parseFloat(effectiveRate.toFixed(4)),
+        },
+        splits: splits.map(split => ({
+          ...split,
+          amount: parseFloat(split.amount.toFixed(2)),
+        })),
+        breakdownByRole,
+        expenses: data.expenses || [],
+        bonuses: data.bonuses || [],
+        summary: {
+          grossCommission: parseFloat(baseCommission.toFixed(2)),
+          netToAgent: parseFloat(netCommission.toFixed(2)),
+          totalDeductions: parseFloat(totalExpenses.toFixed(2)),
+          totalAdditions: parseFloat(totalBonuses.toFixed(2)),
+          numberOfSplits: splits.length,
+        },
+        calculatedAt: new Date().toISOString(),
+      };
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error calculating commission:", error);
+      res.status(500).json({ error: "Failed to calculate commission" });
+    }
+  });
+
+  /**
+   * GET /api/agent/commission/templates
+   * List saved commission templates
+   */
+  app.get("/api/agent/commission/templates", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      // For now, return mock templates (you can implement storage.getCommissionTemplates later)
+      const templates = [
+        {
+          id: "template-1",
+          userId: req.user!.id,
+          name: "Standard Sale - 50/50 Split",
+          description: "Standard sale commission with 50/50 buyer/seller split",
+          transactionType: "sale",
+          commissionRate: 6.0,
+          commissionType: "percentage",
+          splits: [
+            {
+              agentName: "Listing Agent",
+              percentage: 50,
+              role: "listing_agent",
+            },
+            {
+              agentName: "Buyer Agent",
+              percentage: 50,
+              role: "buyer_agent",
+            },
+          ],
+          isDefault: true,
+          usageCount: 42,
+          createdAt: new Date("2024-01-15").toISOString(),
+          updatedAt: new Date("2024-01-15").toISOString(),
+        },
+        {
+          id: "template-2",
+          userId: req.user!.id,
+          name: "Rental - 1 Month Fee",
+          description: "Standard rental commission - one month's rent",
+          transactionType: "rental",
+          commissionRate: 100,
+          commissionType: "percentage",
+          rentalMonths: 1,
+          splits: [
+            {
+              agentName: "Agent",
+              percentage: 80,
+              role: "listing_agent",
+            },
+            {
+              agentName: "Brokerage",
+              percentage: 20,
+              role: "brokerage",
+            },
+          ],
+          isDefault: false,
+          usageCount: 18,
+          createdAt: new Date("2024-01-20").toISOString(),
+          updatedAt: new Date("2024-01-20").toISOString(),
+        },
+        {
+          id: "template-3",
+          userId: req.user!.id,
+          name: "Luxury Sale - Team Lead",
+          description: "High-value sale with team lead commission",
+          transactionType: "sale",
+          commissionRate: 5.0,
+          commissionType: "percentage",
+          splits: [
+            {
+              agentName: "Primary Agent",
+              percentage: 60,
+              role: "listing_agent",
+            },
+            {
+              agentName: "Team Lead",
+              percentage: 25,
+              role: "team_lead",
+            },
+            {
+              agentName: "Brokerage",
+              percentage: 15,
+              role: "brokerage",
+            },
+          ],
+          isDefault: false,
+          usageCount: 7,
+          createdAt: new Date("2024-02-01").toISOString(),
+          updatedAt: new Date("2024-02-01").toISOString(),
+        },
+      ];
+
+      res.json({
+        templates,
+        total: templates.length,
+      });
+    } catch (error) {
+      console.error("Error fetching commission templates:", error);
+      res.status(500).json({ error: "Failed to fetch commission templates" });
+    }
+  });
+
+  /**
+   * POST /api/agent/commission/templates
+   * Save a new commission template
+   */
+  app.post("/api/agent/commission/templates", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const schema = z.object({
+        name: z.string().min(1).max(255),
+        description: z.string().max(1000).optional(),
+        transactionType: z.enum(['sale', 'rental', 'lease']),
+        commissionRate: z.number().min(0).max(100),
+        commissionType: z.enum(['percentage', 'flat_fee']),
+        flatFeeAmount: z.number().min(0).optional(),
+        rentalMonths: z.number().int().positive().optional(),
+        splits: z.array(z.object({
+          agentName: z.string(),
+          percentage: z.number().min(0).max(100),
+          role: z.enum(['listing_agent', 'buyer_agent', 'referral', 'team_lead', 'brokerage']),
+        })),
+        isDefault: z.boolean().optional(),
+      });
+
+      const parseResult = schema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid template data", 
+          details: parseResult.error.errors 
+        });
+      }
+
+      const data = parseResult.data;
+
+      // Validate total split percentage
+      const totalSplitPercentage = data.splits.reduce((sum, split) => sum + split.percentage, 0);
+      if (Math.abs(totalSplitPercentage - 100) > 0.01) {
+        return res.status(400).json({ 
+          error: `Split percentages must total 100%. Current total: ${totalSplitPercentage.toFixed(2)}%` 
+        });
+      }
+
+      // Create template (mock implementation - you can implement storage.createCommissionTemplate later)
+      const template = {
+        id: `template-${Date.now()}`,
+        userId: req.user!.id,
+        ...data,
+        usageCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      res.status(201).json(template);
+    } catch (error) {
+      console.error("Error creating commission template:", error);
+      res.status(500).json({ error: "Failed to create commission template" });
+    }
+  });
+
+  /**
+   * GET /api/agent/analytics/revenue
+   * Revenue tracking for agent
+   */
+  app.get("/api/agent/analytics/revenue", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const { startDate, endDate, groupBy = 'month' } = req.query;
+
+      // Parse dates
+      const start = startDate ? new Date(startDate as string) : new Date(new Date().getFullYear(), 0, 1);
+      const end = endDate ? new Date(endDate as string) : new Date();
+
+      // Mock revenue data (you can implement storage.getAgentRevenue later)
+      // Generate monthly revenue data
+      const monthlyData = [];
+      const currentDate = new Date(start);
+      
+      while (currentDate <= end) {
+        const month = currentDate.toISOString().substring(0, 7);
+        
+        // Mock data generation
+        const salesCount = Math.floor(Math.random() * 5) + 1;
+        const rentalsCount = Math.floor(Math.random() * 8) + 2;
+        
+        const salesRevenue = salesCount * (Math.random() * 15000 + 8000);
+        const rentalsRevenue = rentalsCount * (Math.random() * 2000 + 1000);
+        
+        monthlyData.push({
+          period: month,
+          sales: {
+            count: salesCount,
+            totalCommission: parseFloat(salesRevenue.toFixed(2)),
+            avgCommission: parseFloat((salesRevenue / salesCount).toFixed(2)),
+          },
+          rentals: {
+            count: rentalsCount,
+            totalCommission: parseFloat(rentalsRevenue.toFixed(2)),
+            avgCommission: parseFloat((rentalsRevenue / rentalsCount).toFixed(2)),
+          },
+          total: {
+            transactions: salesCount + rentalsCount,
+            revenue: parseFloat((salesRevenue + rentalsRevenue).toFixed(2)),
+          },
+        });
+        
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+
+      // Calculate totals
+      const totals = monthlyData.reduce((acc, month) => ({
+        totalRevenue: acc.totalRevenue + month.total.revenue,
+        totalTransactions: acc.totalTransactions + month.total.transactions,
+        totalSales: acc.totalSales + month.sales.count,
+        totalRentals: acc.totalRentals + month.rentals.count,
+        salesRevenue: acc.salesRevenue + month.sales.totalCommission,
+        rentalsRevenue: acc.rentalsRevenue + month.rentals.totalCommission,
+      }), {
+        totalRevenue: 0,
+        totalTransactions: 0,
+        totalSales: 0,
+        totalRentals: 0,
+        salesRevenue: 0,
+        rentalsRevenue: 0,
+      });
+
+      // Calculate averages
+      const avgMonthlyRevenue = monthlyData.length > 0 
+        ? totals.totalRevenue / monthlyData.length 
+        : 0;
+
+      const avgTransactionValue = totals.totalTransactions > 0
+        ? totals.totalRevenue / totals.totalTransactions
+        : 0;
+
+      // Year-over-year comparison
+      const currentYear = new Date().getFullYear();
+      const lastYearSameMonth = monthlyData.find(m => 
+        m.period.startsWith(String(currentYear - 1))
+      );
+      
+      const currentMonth = monthlyData[monthlyData.length - 1];
+      const yoyGrowth = lastYearSameMonth && lastYearSameMonth.total.revenue > 0
+        ? ((currentMonth.total.revenue - lastYearSameMonth.total.revenue) / lastYearSameMonth.total.revenue) * 100
+        : 0;
+
+      // Revenue composition
+      const revenueComposition = {
+        sales: {
+          percentage: totals.totalRevenue > 0 
+            ? (totals.salesRevenue / totals.totalRevenue) * 100 
+            : 0,
+          amount: totals.salesRevenue,
+        },
+        rentals: {
+          percentage: totals.totalRevenue > 0 
+            ? (totals.rentalsRevenue / totals.totalRevenue) * 100 
+            : 0,
+          amount: totals.rentalsRevenue,
+        },
+      };
+
+      res.json({
+        period: {
+          startDate: start.toISOString(),
+          endDate: end.toISOString(),
+          groupBy: groupBy as string,
+        },
+        summary: {
+          totalRevenue: parseFloat(totals.totalRevenue.toFixed(2)),
+          totalTransactions: totals.totalTransactions,
+          avgMonthlyRevenue: parseFloat(avgMonthlyRevenue.toFixed(2)),
+          avgTransactionValue: parseFloat(avgTransactionValue.toFixed(2)),
+          yoyGrowth: parseFloat(yoyGrowth.toFixed(2)),
+        },
+        composition: {
+          sales: {
+            count: totals.totalSales,
+            revenue: parseFloat(totals.salesRevenue.toFixed(2)),
+            percentage: parseFloat(revenueComposition.sales.percentage.toFixed(2)),
+          },
+          rentals: {
+            count: totals.totalRentals,
+            revenue: parseFloat(totals.rentalsRevenue.toFixed(2)),
+            percentage: parseFloat(revenueComposition.rentals.percentage.toFixed(2)),
+          },
+        },
+        timeline: monthlyData,
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Error fetching revenue analytics:", error);
+      res.status(500).json({ error: "Failed to fetch revenue analytics" });
+    }
+  });
+
+  /**
+   * GET /api/agent/analytics/pipeline
+   * Pipeline metrics for agent
+   */
+  app.get("/api/agent/analytics/pipeline", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      // Mock pipeline data (you can implement storage.getAgentPipeline later)
+      
+      // Pipeline stages
+      const stages = [
+        {
+          stage: "lead",
+          name: "New Leads",
+          count: 24,
+          totalValue: 8750000,
+          avgValue: 364583,
+          avgDaysInStage: 3,
+        },
+        {
+          stage: "qualified",
+          name: "Qualified",
+          count: 18,
+          totalValue: 6200000,
+          avgValue: 344444,
+          avgDaysInStage: 7,
+        },
+        {
+          stage: "showing",
+          name: "Showing Scheduled",
+          count: 12,
+          totalValue: 4100000,
+          avgValue: 341667,
+          avgDaysInStage: 5,
+        },
+        {
+          stage: "offer",
+          name: "Offer Submitted",
+          count: 6,
+          totalValue: 2050000,
+          avgValue: 341667,
+          avgDaysInStage: 10,
+        },
+        {
+          stage: "negotiation",
+          name: "Under Negotiation",
+          count: 4,
+          totalValue: 1400000,
+          avgValue: 350000,
+          avgDaysInStage: 8,
+        },
+        {
+          stage: "contract",
+          name: "Under Contract",
+          count: 3,
+          totalValue: 1050000,
+          avgValue: 350000,
+          avgDaysInStage: 15,
+        },
+      ];
+
+      // Calculate pipeline metrics
+      const totalDeals = stages.reduce((sum, stage) => sum + stage.count, 0);
+      const totalValue = stages.reduce((sum, stage) => sum + stage.totalValue, 0);
+      const avgDealValue = totalDeals > 0 ? totalValue / totalDeals : 0;
+
+      // Conversion rates (mock data)
+      const conversionRates = [
+        {
+          from: "lead",
+          to: "qualified",
+          rate: 75,
+          avgDays: 3,
+        },
+        {
+          from: "qualified",
+          to: "showing",
+          rate: 67,
+          avgDays: 7,
+        },
+        {
+          from: "showing",
+          to: "offer",
+          rate: 50,
+          avgDays: 5,
+        },
+        {
+          from: "offer",
+          to: "contract",
+          rate: 50,
+          avgDays: 18,
+        },
+        {
+          from: "contract",
+          to: "closed",
+          rate: 90,
+          avgDays: 30,
+        },
+      ];
+
+      // Overall conversion rate (lead to closed)
+      const overallConversionRate = conversionRates.reduce((rate, conversion) => 
+        rate * (conversion.rate / 100), 
+        1
+      ) * 100;
+
+      // Forecast closed deals
+      const forecastClosedDeals = Math.round(totalDeals * (overallConversionRate / 100));
+      const forecastRevenue = totalValue * (overallConversionRate / 100);
+
+      // Velocity metrics
+      const avgDaysToClose = conversionRates.reduce((sum, conversion) => 
+        sum + conversion.avgDays, 
+        0
+      );
+
+      // Deal age distribution
+      const ageDistribution = {
+        fresh: Math.floor(totalDeals * 0.4), // < 7 days
+        active: Math.floor(totalDeals * 0.35), // 7-30 days
+        aging: Math.floor(totalDeals * 0.15), // 30-60 days
+        stale: Math.floor(totalDeals * 0.1), // > 60 days
+      };
+
+      // Top properties in pipeline (mock data)
+      const topProperties = [
+        {
+          id: "prop-1",
+          address: "123 Main St, Boston, MA",
+          stage: "contract",
+          value: 450000,
+          daysInPipeline: 42,
+          probability: 90,
+        },
+        {
+          id: "prop-2",
+          address: "456 Oak Ave, Cambridge, MA",
+          stage: "negotiation",
+          value: 380000,
+          daysInPipeline: 28,
+          probability: 70,
+        },
+        {
+          id: "prop-3",
+          address: "789 Pine Rd, Somerville, MA",
+          stage: "offer",
+          value: 320000,
+          daysInPipeline: 35,
+          probability: 60,
+        },
+      ];
+
+      res.json({
+        summary: {
+          totalDeals,
+          totalValue: parseFloat(totalValue.toFixed(2)),
+          avgDealValue: parseFloat(avgDealValue.toFixed(2)),
+          overallConversionRate: parseFloat(overallConversionRate.toFixed(2)),
+          avgDaysToClose,
+        },
+        stages,
+        conversions: conversionRates,
+        forecast: {
+          expectedClosedDeals: forecastClosedDeals,
+          expectedRevenue: parseFloat(forecastRevenue.toFixed(2)),
+          confidence: 75,
+        },
+        velocity: {
+          avgDaysToClose,
+          ageDistribution,
+        },
+        topDeals: topProperties,
+        insights: {
+          bottleneck: "showing", // Stage with lowest conversion
+          recommendation: "Focus on improving showing-to-offer conversion rate (currently 50%)",
+          dealHealthScore: 78,
+        },
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Error fetching pipeline analytics:", error);
+      res.status(500).json({ error: "Failed to fetch pipeline analytics" });
+    }
+  });
+
+  /**
+   * GET /api/agent/reports/monthly
+   * Monthly performance report for agent
+   */
+  app.get("/api/agent/reports/monthly", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const { year, month } = req.query;
+      
+      // Default to current month if not provided
+      const reportDate = year && month 
+        ? new Date(parseInt(year as string), parseInt(month as string) - 1, 1)
+        : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+      const reportYear = reportDate.getFullYear();
+      const reportMonth = reportDate.getMonth() + 1;
+      const monthName = reportDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+      // Mock monthly performance data
+      const closedDeals = {
+        sales: {
+          count: 3,
+          totalVolume: 1050000,
+          avgPrice: 350000,
+          totalCommission: 31500,
+          avgCommission: 10500,
+        },
+        rentals: {
+          count: 7,
+          totalVolume: 21000, // total monthly rent
+          avgRent: 3000,
+          totalCommission: 14700,
+          avgCommission: 2100,
+        },
+        total: {
+          deals: 10,
+          volume: 1071000,
+          commission: 46200,
+        },
+      };
+
+      // Activity metrics
+      const activities = {
+        newLeads: 28,
+        showingsScheduled: 42,
+        showingsCompleted: 38,
+        offersSubmitted: 8,
+        offersAccepted: 5,
+        contractsSigned: 10,
+        dealsLost: 3,
+        lossReasons: [
+          { reason: "Price too high", count: 1 },
+          { reason: "Property sold to another buyer", count: 1 },
+          { reason: "Client changed mind", count: 1 },
+        ],
+      };
+
+      // Performance metrics
+      const performance = {
+        conversionRate: {
+          leadToShowing: (activities.showingsScheduled / activities.newLeads) * 100,
+          showingToOffer: (activities.offersSubmitted / activities.showingsCompleted) * 100,
+          offerToContract: (activities.contractsSigned / activities.offersSubmitted) * 100,
+          overallLeadToClose: (closedDeals.total.deals / activities.newLeads) * 100,
+        },
+        avgDaysToClose: {
+          sales: 42,
+          rentals: 18,
+          overall: 32,
+        },
+        clientSatisfaction: {
+          avgRating: 4.7,
+          reviewsReceived: 8,
+          nps: 85,
+        },
+      };
+
+      // Goals and targets
+      const goals = {
+        revenueGoal: 50000,
+        revenueAchieved: closedDeals.total.commission,
+        revenueProgress: (closedDeals.total.commission / 50000) * 100,
+        dealsGoal: 12,
+        dealsAchieved: closedDeals.total.deals,
+        dealsProgress: (closedDeals.total.deals / 12) * 100,
+      };
+
+      // Market insights for the month
+      const marketInsights = {
+        avgDaysOnMarket: 28,
+        medianSalePrice: 365000,
+        medianRent: 2800,
+        inventoryLevel: "low",
+        competitionLevel: "high",
+        marketTrend: "seller's market",
+      };
+
+      // Top performing listings
+      const topListings = [
+        {
+          id: "listing-1",
+          address: "123 Main St, Boston, MA",
+          type: "sale",
+          listPrice: 450000,
+          soldPrice: 465000,
+          daysOnMarket: 12,
+          commission: 13950,
+          status: "sold_above_asking",
+        },
+        {
+          id: "listing-2",
+          address: "456 Oak Ave, Cambridge, MA",
+          type: "rental",
+          listRent: 3500,
+          actualRent: 3500,
+          daysOnMarket: 5,
+          commission: 3500,
+          status: "rented_at_asking",
+        },
+      ];
+
+      // Expenses and net income
+      const expenses = {
+        marketing: 2500,
+        transportation: 400,
+        professional: 350,
+        software: 200,
+        other: 150,
+        total: 3600,
+      };
+
+      const netIncome = closedDeals.total.commission - expenses.total;
+
+      // Comparison to previous month
+      const previousMonth = {
+        commission: 38500,
+        deals: 8,
+      };
+
+      const monthOverMonth = {
+        commissionChange: closedDeals.total.commission - previousMonth.commission,
+        commissionChangePercent: ((closedDeals.total.commission - previousMonth.commission) / previousMonth.commission) * 100,
+        dealsChange: closedDeals.total.deals - previousMonth.deals,
+        dealsChangePercent: ((closedDeals.total.deals - previousMonth.deals) / previousMonth.deals) * 100,
+      };
+
+      // Year-to-date summary
+      const ytdSummary = {
+        totalCommission: closedDeals.total.commission * reportMonth, // Simple estimate
+        totalDeals: closedDeals.total.deals * reportMonth,
+        avgMonthlyCommission: closedDeals.total.commission,
+        avgMonthlyDeals: closedDeals.total.deals,
+      };
+
+      // Recommendations
+      const recommendations = [
+        {
+          category: "Performance",
+          priority: "high",
+          message: goals.revenueProgress >= 100 
+            ? "Excellent! You exceeded your revenue goal this month." 
+            : "Focus on closing the remaining pipeline to meet revenue goals.",
+        },
+        {
+          category: "Lead Generation",
+          priority: "medium",
+          message: "Consider increasing marketing spend to generate more qualified leads.",
+        },
+        {
+          category: "Efficiency",
+          priority: "medium",
+          message: `Your showing-to-offer conversion is ${performance.conversionRate.showingToOffer.toFixed(0)}%. Industry average is 40-50%.`,
+        },
+      ];
+
+      res.json({
+        report: {
+          period: {
+            year: reportYear,
+            month: reportMonth,
+            monthName,
+          },
+          summary: {
+            totalRevenue: parseFloat(closedDeals.total.commission.toFixed(2)),
+            totalDeals: closedDeals.total.deals,
+            netIncome: parseFloat(netIncome.toFixed(2)),
+            profitMargin: parseFloat(((netIncome / closedDeals.total.commission) * 100).toFixed(2)),
+          },
+          closedDeals,
+          activities,
+          performance: {
+            conversionRate: {
+              leadToShowing: parseFloat(performance.conversionRate.leadToShowing.toFixed(2)),
+              showingToOffer: parseFloat(performance.conversionRate.showingToOffer.toFixed(2)),
+              offerToContract: parseFloat(performance.conversionRate.offerToContract.toFixed(2)),
+              overallLeadToClose: parseFloat(performance.conversionRate.overallLeadToClose.toFixed(2)),
+            },
+            avgDaysToClose: performance.avgDaysToClose,
+            clientSatisfaction: performance.clientSatisfaction,
+          },
+          goals: {
+            revenue: {
+              goal: goals.revenueGoal,
+              achieved: parseFloat(goals.revenueAchieved.toFixed(2)),
+              progress: parseFloat(goals.revenueProgress.toFixed(2)),
+              remaining: parseFloat((goals.revenueGoal - goals.revenueAchieved).toFixed(2)),
+            },
+            deals: {
+              goal: goals.dealsGoal,
+              achieved: goals.dealsAchieved,
+              progress: parseFloat(goals.dealsProgress.toFixed(2)),
+              remaining: goals.dealsGoal - goals.dealsAchieved,
+            },
+          },
+          marketInsights,
+          topListings,
+          expenses: {
+            breakdown: expenses,
+            totalExpenses: parseFloat(expenses.total.toFixed(2)),
+          },
+          comparison: {
+            monthOverMonth: {
+              commissionChange: parseFloat(monthOverMonth.commissionChange.toFixed(2)),
+              commissionChangePercent: parseFloat(monthOverMonth.commissionChangePercent.toFixed(2)),
+              dealsChange: monthOverMonth.dealsChange,
+              dealsChangePercent: parseFloat(monthOverMonth.dealsChangePercent.toFixed(2)),
+            },
+            ytd: {
+              totalCommission: parseFloat(ytdSummary.totalCommission.toFixed(2)),
+              totalDeals: ytdSummary.totalDeals,
+              avgMonthlyCommission: parseFloat(ytdSummary.avgMonthlyCommission.toFixed(2)),
+              avgMonthlyDeals: ytdSummary.avgMonthlyDeals,
+            },
+          },
+          recommendations,
+        },
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Error generating monthly report:", error);
+      res.status(500).json({ error: "Failed to generate monthly report" });
+    }
+  });
+
+  // ============================================
+  // END AGENT COMMISSION CALCULATOR & ANALYTICS ENDPOINTS
+  // ============================================
+
+  // ============================================
+  // AGENT DEAL PIPELINE ENDPOINTS
+  // ============================================
+
+  /**
+   * POST /api/agent/deals
+   * Create a new deal in the pipeline
+   */
+  app.post("/api/agent/deals", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const dealSchema = z.object({
+        clientId: z.string().uuid().optional(),
+        clientName: z.string().min(1).max(255),
+        clientEmail: z.string().email().max(255).optional(),
+        clientPhone: z.string().max(50).optional(),
+        propertyId: z.string().uuid().optional(),
+        propertyAddress: z.string().max(500).optional(),
+        stage: z.enum(['lead', 'showing', 'offer', 'contract', 'closed']).default('lead'),
+        dealValue: z.number().or(z.string()).optional(),
+        commissionRate: z.number().or(z.string()).optional(),
+        estimatedCommission: z.number().or(z.string()).optional(),
+        expectedCloseDate: z.string().datetime().optional(),
+        status: z.enum(['active', 'archived', 'won', 'lost']).default('active'),
+        priority: z.enum(['low', 'medium', 'high']).default('medium'),
+        source: z.string().max(100).optional(),
+        tags: z.array(z.string()).optional(),
+        metadata: z.record(z.unknown()).optional(),
+      });
+
+      const parseResult = dealSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid deal data", 
+          details: parseResult.error.errors 
+        });
+      }
+
+      const dealData = {
+        ...parseResult.data,
+        agentId: req.user!.id,
+        expectedCloseDate: parseResult.data.expectedCloseDate 
+          ? new Date(parseResult.data.expectedCloseDate) 
+          : undefined,
+      };
+
+      const deal = await storage.createDeal(dealData as any);
+      
+      res.status(201).json(deal);
+    } catch (error) {
+      console.error("Error creating deal:", error);
+      res.status(500).json({ error: "Failed to create deal" });
+    }
+  });
+
+  /**
+   * GET /api/agent/deals
+   * List all deals for the authenticated agent with optional filtering
+   */
+  app.get("/api/agent/deals", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const { status, stage, clientId, limit, offset } = req.query;
+      
+      const result = await storage.getDeals(req.user!.id, {
+        status: status as string,
+        stage: stage as string,
+        clientId: clientId as string,
+        limit: limit ? parseInt(limit as string) : 50,
+        offset: offset ? parseInt(offset as string) : 0,
+      });
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching deals:", error);
+      res.status(500).json({ error: "Failed to fetch deals" });
+    }
+  });
+
+  /**
+   * GET /api/agent/deals/:id
+   * Get specific deal details with notes
+   */
+  app.get("/api/agent/deals/:id", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const deal = await storage.getDealById(req.params.id, req.user!.id);
+      
+      if (!deal) {
+        return res.status(404).json({ 
+          error: "Deal not found or access denied" 
+        });
+      }
+
+      // Fetch notes for this deal
+      const notes = await storage.getDealNotes(req.params.id, req.user!.id);
+      
+      res.json({ ...deal, notes });
+    } catch (error) {
+      console.error("Error fetching deal:", error);
+      res.status(500).json({ error: "Failed to fetch deal" });
+    }
+  });
+
+  /**
+   * PATCH /api/agent/deals/:id
+   * Update deal details or move to different stage
+   */
+  app.patch("/api/agent/deals/:id", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const updateSchema = z.object({
+        clientId: z.string().uuid().optional(),
+        clientName: z.string().min(1).max(255).optional(),
+        clientEmail: z.string().email().max(255).optional(),
+        clientPhone: z.string().max(50).optional(),
+        propertyId: z.string().uuid().optional(),
+        propertyAddress: z.string().max(500).optional(),
+        stage: z.enum(['lead', 'showing', 'offer', 'contract', 'closed']).optional(),
+        dealValue: z.number().or(z.string()).optional(),
+        commissionRate: z.number().or(z.string()).optional(),
+        estimatedCommission: z.number().or(z.string()).optional(),
+        expectedCloseDate: z.string().datetime().optional(),
+        actualCloseDate: z.string().datetime().optional(),
+        status: z.enum(['active', 'archived', 'won', 'lost']).optional(),
+        priority: z.enum(['low', 'medium', 'high']).optional(),
+        source: z.string().max(100).optional(),
+        tags: z.array(z.string()).optional(),
+        metadata: z.record(z.unknown()).optional(),
+      });
+
+      const parseResult = updateSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid update data", 
+          details: parseResult.error.errors 
+        });
+      }
+
+      const updateData: any = { ...parseResult.data };
+      
+      // Convert date strings to Date objects
+      if (updateData.expectedCloseDate) {
+        updateData.expectedCloseDate = new Date(updateData.expectedCloseDate);
+      }
+      if (updateData.actualCloseDate) {
+        updateData.actualCloseDate = new Date(updateData.actualCloseDate);
+      }
+
+      const deal = await storage.updateDeal(
+        req.params.id,
+        req.user!.id,
+        updateData
+      );
+      
+      if (!deal) {
+        return res.status(404).json({ 
+          error: "Deal not found or access denied" 
+        });
+      }
+      
+      res.json(deal);
+    } catch (error) {
+      console.error("Error updating deal:", error);
+      res.status(500).json({ error: "Failed to update deal" });
+    }
+  });
+
+  /**
+   * DELETE /api/agent/deals/:id
+   * Archive or delete a deal
+   */
+  app.delete("/api/agent/deals/:id", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const { permanent } = req.query;
+
+      if (permanent === 'true') {
+        // Permanently delete the deal
+        await storage.deleteDeal(req.params.id, req.user!.id);
+        res.status(204).send();
+      } else {
+        // Archive the deal (soft delete)
+        const deal = await storage.archiveDeal(req.params.id, req.user!.id);
+        
+        if (!deal) {
+          return res.status(404).json({ 
+            error: "Deal not found or access denied" 
+          });
+        }
+        
+        res.json(deal);
+      }
+    } catch (error) {
+      console.error("Error deleting deal:", error);
+      res.status(500).json({ error: "Failed to delete deal" });
+    }
+  });
+
+  /**
+   * POST /api/agent/deals/:id/notes
+   * Add a note to a deal
+   */
+  app.post("/api/agent/deals/:id/notes", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const noteSchema = z.object({
+        note: z.string().min(1),
+        noteType: z.enum(['general', 'call', 'email', 'meeting', 'showing']).default('general'),
+        metadata: z.record(z.unknown()).optional(),
+      });
+
+      const parseResult = noteSchema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ 
+          error: "Invalid note data", 
+          details: parseResult.error.errors 
+        });
+      }
+
+      // Verify the deal exists and belongs to the agent
+      const deal = await storage.getDealById(req.params.id, req.user!.id);
+      if (!deal) {
+        return res.status(404).json({ 
+          error: "Deal not found or access denied" 
+        });
+      }
+
+      const noteData = {
+        ...parseResult.data,
+        dealId: req.params.id,
+        userId: req.user!.id,
+      };
+
+      const note = await storage.createDealNote(noteData as any);
+      
+      res.status(201).json(note);
+    } catch (error) {
+      console.error("Error creating deal note:", error);
+      res.status(500).json({ error: "Failed to create deal note" });
+    }
+  });
+
+  /**
+   * GET /api/agent/deals/:id/notes
+   * Get all notes for a deal
+   */
+  app.get("/api/agent/deals/:id/notes", authMiddleware, async (req, res) => {
+    try {
+      // Check if user is an agent
+      if (req.user!.userType !== 'agent' && req.user!.userType !== 'admin') {
+        return res.status(403).json({ 
+          error: "Access denied. Agent account required." 
+        });
+      }
+
+      const notes = await storage.getDealNotes(req.params.id, req.user!.id);
+      
+      res.json(notes);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("not found")) {
+        return res.status(404).json({ error: error.message });
+      }
+      console.error("Error fetching deal notes:", error);
+      res.status(500).json({ error: "Failed to fetch deal notes" });
+    }
+  });
+
+  // ============================================
+  // END AGENT DEAL PIPELINE ENDPOINTS
   // ============================================
 
   // Register payment routes

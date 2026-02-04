@@ -1,0 +1,370 @@
+{
+  "info": {
+    "name": "Agent Lead Management API",
+    "description": "Complete API collection for testing agent lead management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{agentToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "agentToken",
+      "value": "YOUR_JWT_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "leadId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Create Lead",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.environment.set('leadId', jsonData.lead.id);",
+              "    pm.test('Lead created successfully', function () {",
+              "        pm.expect(jsonData.lead.leadScore).to.be.a('number');",
+              "    });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"555-1234\",\n  \"leadSource\": \"website\",\n  \"budgetMin\": 1500,\n  \"budgetMax\": 2000,\n  \"bedrooms\": 2,\n  \"bathrooms\": 1,\n  \"timeline\": \"immediate\",\n  \"preferredLocations\": [\"Downtown\", \"Midtown\"],\n  \"notes\": \"Looking for pet-friendly apartment\",\n  \"tags\": [\"first-time-renter\", \"urgent\"]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. List All Leads",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads?limit=50&offset=0&sortBy=createdAt&sortOrder=desc",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads"],
+          "query": [
+            {
+              "key": "limit",
+              "value": "50"
+            },
+            {
+              "key": "offset",
+              "value": "0"
+            },
+            {
+              "key": "sortBy",
+              "value": "createdAt"
+            },
+            {
+              "key": "sortOrder",
+              "value": "desc"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. List High-Score Leads",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads?minScore=70&sortBy=leadScore&sortOrder=desc",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads"],
+          "query": [
+            {
+              "key": "minScore",
+              "value": "70"
+            },
+            {
+              "key": "sortBy",
+              "value": "leadScore"
+            },
+            {
+              "key": "sortOrder",
+              "value": "desc"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. List New Leads",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads?status=new",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads"],
+          "query": [
+            {
+              "key": "status",
+              "value": "new"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. Search Leads",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads?search=john",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads"],
+          "query": [
+            {
+              "key": "search",
+              "value": "john"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6. Get Lead by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads/{{leadId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads", "{{leadId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "7. Update Lead - Mark Contacted",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"contacted\",\n  \"lastContactedAt\": \"{{$isoTimestamp}}\",\n  \"nextFollowUpAt\": \"2025-02-06T10:00:00Z\",\n  \"followUpCount\": 1,\n  \"emailsSent\": 1,\n  \"notes\": \"Initial contact made. Discussed budget and preferences.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads/{{leadId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads", "{{leadId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "8. Update Lead - Track Email Open",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"emailsOpened\": 1,\n  \"totalInteractions\": 1\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads/{{leadId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads", "{{leadId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "9. Update Lead - Schedule Tour",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"qualified\",\n  \"tourScheduled\": true,\n  \"tourDate\": \"2025-02-10T14:00:00Z\",\n  \"nextFollowUpAt\": \"2025-02-09T10:00:00Z\",\n  \"notes\": \"Tour scheduled for Feb 10 at 2pm\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads/{{leadId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads", "{{leadId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "10. Update Lead - Mark as Lost",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"lost\",\n  \"lostReason\": \"Found apartment elsewhere\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads/{{leadId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads", "{{leadId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "11. Convert Lead to Client",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.test('Lead converted successfully', function () {",
+              "        pm.expect(jsonData.lead.status).to.equal('converted');",
+              "        pm.expect(jsonData.client).to.be.an('object');",
+              "    });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads/{{leadId}}/convert",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads", "{{leadId}}", "convert"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "12. Get Lead Sources Analytics",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads/sources",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads", "sources"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "13. Delete Lead",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads/{{leadId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads", "{{leadId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "14. Filter by Lead Source",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads?leadSource=website",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads"],
+          "query": [
+            {
+              "key": "leadSource",
+              "value": "website"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "15. Filter by Score Range",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/agent/leads?minScore=50&maxScore=80",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "agent", "leads"],
+          "query": [
+            {
+              "key": "minScore",
+              "value": "50"
+            },
+            {
+              "key": "maxScore",
+              "value": "80"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

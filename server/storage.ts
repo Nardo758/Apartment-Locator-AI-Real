@@ -11,6 +11,11 @@ import {
   competitionSetCompetitors,
   pricingAlerts,
   alertPreferences,
+  agentClients,
+  clientActivity,
+  deals,
+  dealNotes,
+  agentLeads,
   type Property,
   type SavedApartment,
   type SearchHistory,
@@ -21,6 +26,11 @@ import {
   type CompetitionSetCompetitor,
   type PricingAlert,
   type AlertPreferences,
+  type AgentClient,
+  type ClientActivity,
+  type Deal,
+  type DealNote,
+  type AgentLead,
   type InsertProperty,
   type InsertSavedApartment,
   type InsertSearchHistory,
@@ -31,6 +41,11 @@ import {
   type InsertCompetitionSetCompetitor,
   type InsertPricingAlert,
   type InsertAlertPreferences,
+  type InsertAgentClient,
+  type InsertClientActivity,
+  type InsertDeal,
+  type InsertDealNote,
+  type InsertAgentLead,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -109,6 +124,70 @@ export interface IStorage {
   // Alert Preferences
   getAlertPreferences(userId: string): Promise<AlertPreferences | undefined>;
   upsertAlertPreferences(data: InsertAlertPreferences): Promise<AlertPreferences>;
+  
+  // Agent Lead Management
+  getLeads(agentId: string, options?: {
+    status?: string;
+    leadSource?: string;
+    search?: string;
+    minScore?: number;
+    maxScore?: number;
+    tags?: string[];
+    sortBy?: 'leadScore' | 'createdAt' | 'lastContactedAt' | 'nextFollowUpAt';
+    sortOrder?: 'asc' | 'desc';
+    limit?: number;
+    offset?: number;
+  }): Promise<{ leads: AgentLead[]; total: number }>;
+  getLeadById(id: string, agentId: string): Promise<AgentLead | undefined>;
+  createLead(data: InsertAgentLead): Promise<AgentLead>;
+  updateLead(id: string, agentId: string, data: Partial<InsertAgentLead>): Promise<AgentLead | undefined>;
+  convertLeadToClient(leadId: string, agentId: string): Promise<{ lead: AgentLead; client: AgentClient }>;
+  deleteLead(id: string, agentId: string): Promise<void>;
+  getLeadSources(agentId: string): Promise<Array<{ source: string; count: number; avgScore: number; conversionRate: number }>>;
+  
+  // Agent Client Management
+  getClients(agentId: string, options?: { 
+    status?: string; 
+    stage?: string; 
+    search?: string;
+    sortBy?: 'name' | 'createdAt' | 'lastContact' | 'priority';
+    sortOrder?: 'asc' | 'desc';
+    limit?: number; 
+    offset?: number;
+  }): Promise<{ clients: AgentClient[]; total: number }>;
+  getClientById(id: string, agentId: string): Promise<AgentClient | undefined>;
+  createClient(data: InsertAgentClient): Promise<AgentClient>;
+  updateClient(id: string, agentId: string, data: Partial<InsertAgentClient>): Promise<AgentClient | undefined>;
+  archiveClient(id: string, agentId: string): Promise<AgentClient | undefined>;
+  deleteClient(id: string, agentId: string): Promise<void>;
+  
+  // Client Activity
+  getClientActivity(clientId: string, agentId: string, options?: { limit?: number; offset?: number }): Promise<{ activities: ClientActivity[]; total: number }>;
+  createClientActivity(data: InsertClientActivity): Promise<ClientActivity>;
+  
+  // Agent Dashboard Summary
+  getAgentDashboardSummary(agentId: string): Promise<{
+    totalClients: number;
+    activeClients: number;
+    clientsByStage: Record<string, number>;
+    clientsByPriority: Record<string, number>;
+    recentActivities: ClientActivity[];
+    upcomingFollowUps: AgentClient[];
+  }>;
+  
+  // Agent Deal Pipeline
+  getDeals(agentId: string, options?: { status?: string; stage?: string; clientId?: string; limit?: number; offset?: number }): Promise<{ deals: Deal[]; total: number }>;
+  getDealById(id: string, agentId: string): Promise<Deal | undefined>;
+  createDeal(data: InsertDeal): Promise<Deal>;
+  updateDeal(id: string, agentId: string, data: Partial<InsertDeal>): Promise<Deal | undefined>;
+  archiveDeal(id: string, agentId: string): Promise<Deal | undefined>;
+  deleteDeal(id: string, agentId: string): Promise<void>;
+  
+  // Deal Notes
+  getDealNotes(dealId: string, agentId: string): Promise<DealNote[]>;
+  createDealNote(data: InsertDealNote): Promise<DealNote>;
+  updateDealNote(id: string, userId: string, note: string): Promise<DealNote | undefined>;
+  deleteDealNote(id: string, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -579,6 +658,593 @@ export class DatabaseStorage implements IStorage {
     }
     const [created] = await db.insert(alertPreferences).values(data).returning();
     return created;
+  }
+
+  // Agent Lead Management Methods
+  async getLeads(agentId: string, options?: {
+    status?: string;
+    leadSource?: string;
+    search?: string;
+    minScore?: number;
+    maxScore?: number;
+    tags?: string[];
+    sortBy?: 'leadScore' | 'createdAt' | 'lastContactedAt' | 'nextFollowUpAt';
+    sortOrder?: 'asc' | 'desc';
+    limit?: number;
+    offset?: number;
+  }): Promise<{ leads: AgentLead[]; total: number }> {
+    const limit = options?.limit || 50;
+    const offset = options?.offset || 0;
+    
+    const conditions = [eq(agentLeads.agentId, agentId)];
+    
+    if (options?.status) {
+      conditions.push(eq(agentLeads.status, options.status));
+    }
+    if (options?.leadSource) {
+      conditions.push(eq(agentLeads.leadSource, options.leadSource));
+    }
+    if (options?.minScore !== undefined) {
+      conditions.push(gte(agentLeads.leadScore, options.minScore));
+    }
+    if (options?.maxScore !== undefined) {
+      conditions.push(lte(agentLeads.leadScore, options.maxScore));
+    }
+    if (options?.search) {
+      const searchTerm = `%${options.search}%`;
+      conditions.push(
+        or(
+          ilike(agentLeads.firstName, searchTerm),
+          ilike(agentLeads.lastName, searchTerm),
+          ilike(agentLeads.email, searchTerm)
+        )!
+      );
+    }
+    
+    const orderByField = options?.sortBy || 'createdAt';
+    const orderByDirection = options?.sortOrder === 'asc' ? sql`ASC` : sql`DESC`;
+    
+    const leadsList = await db.select()
+      .from(agentLeads)
+      .where(and(...conditions))
+      .orderBy(sql`${agentLeads[orderByField]} ${orderByDirection}`)
+      .limit(limit)
+      .offset(offset);
+
+    const [{ count }] = await db.select({ count: sql<number>`count(*)::int` })
+      .from(agentLeads)
+      .where(and(...conditions));
+
+    return { leads: leadsList, total: count };
+  }
+
+  async getLeadById(id: string, agentId: string): Promise<AgentLead | undefined> {
+    const [lead] = await db.select()
+      .from(agentLeads)
+      .where(and(eq(agentLeads.id, id), eq(agentLeads.agentId, agentId)));
+    return lead;
+  }
+
+  async createLead(data: InsertAgentLead): Promise<AgentLead> {
+    // Calculate initial lead score
+    const leadScore = this.calculateLeadScore(data);
+    
+    const [created] = await db.insert(agentLeads)
+      .values({
+        ...data,
+        leadScore,
+      })
+      .returning();
+    
+    return created;
+  }
+
+  async updateLead(id: string, agentId: string, data: Partial<InsertAgentLead>): Promise<AgentLead | undefined> {
+    // Recalculate lead score if relevant fields changed
+    let updateData = { ...data, updatedAt: new Date() };
+    
+    const existing = await this.getLeadById(id, agentId);
+    if (!existing) return undefined;
+    
+    const merged = { ...existing, ...data };
+    const newScore = this.calculateLeadScore(merged as any);
+    if (newScore !== existing.leadScore) {
+      updateData = { ...updateData, leadScore: newScore };
+    }
+    
+    const [updated] = await db.update(agentLeads)
+      .set(updateData)
+      .where(and(eq(agentLeads.id, id), eq(agentLeads.agentId, agentId)))
+      .returning();
+    
+    return updated;
+  }
+
+  async convertLeadToClient(leadId: string, agentId: string): Promise<{ lead: AgentLead; client: AgentClient }> {
+    const lead = await this.getLeadById(leadId, agentId);
+    if (!lead) {
+      throw new Error("Lead not found");
+    }
+    
+    // Create client from lead
+    const clientData: InsertAgentClient = {
+      agentId: lead.agentId,
+      firstName: lead.firstName,
+      lastName: lead.lastName,
+      email: lead.email,
+      phone: lead.phone || undefined,
+      status: 'active',
+      stage: 'viewing',
+      source: lead.leadSource,
+      budget: {
+        min: lead.budgetMin || undefined,
+        max: lead.budgetMax || undefined,
+      },
+      preferredLocations: lead.preferredLocations || [],
+      bedrooms: lead.bedrooms || undefined,
+      bathrooms: lead.bathrooms || undefined,
+      moveInDate: lead.moveInDate || undefined,
+      notes: lead.notes || undefined,
+      tags: lead.tags || [],
+    };
+    
+    const [client] = await db.insert(agentClients)
+      .values(clientData)
+      .returning();
+    
+    // Update lead to mark as converted
+    const [updatedLead] = await db.update(agentLeads)
+      .set({
+        status: 'converted',
+        convertedToClientAt: new Date(),
+        convertedClientId: client.id,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(agentLeads.id, leadId), eq(agentLeads.agentId, agentId)))
+      .returning();
+    
+    return { lead: updatedLead, client };
+  }
+
+  async deleteLead(id: string, agentId: string): Promise<void> {
+    await db.delete(agentLeads)
+      .where(and(eq(agentLeads.id, id), eq(agentLeads.agentId, agentId)));
+  }
+
+  async getLeadSources(agentId: string): Promise<Array<{ source: string; count: number; avgScore: number; conversionRate: number }>> {
+    const result = await db.select({
+      source: agentLeads.leadSource,
+      count: sql<number>`count(*)::int`,
+      avgScore: sql<number>`COALESCE(avg(${agentLeads.leadScore}), 0)::int`,
+      converted: sql<number>`count(CASE WHEN ${agentLeads.status} = 'converted' THEN 1 END)::int`,
+    })
+    .from(agentLeads)
+    .where(eq(agentLeads.agentId, agentId))
+    .groupBy(agentLeads.leadSource);
+    
+    return result.map(r => ({
+      source: r.source || 'unknown',
+      count: r.count,
+      avgScore: r.avgScore,
+      conversionRate: r.count > 0 ? Math.round((r.converted / r.count) * 100) : 0,
+    }));
+  }
+
+  private calculateLeadScore(lead: Partial<InsertAgentLead>): number {
+    let score = 0;
+    const factors: any = {};
+    
+    // Budget factor (0-25 points)
+    if (lead.budgetMin && lead.budgetMax) {
+      const budgetRange = lead.budgetMax - lead.budgetMin;
+      if (budgetRange < 500 && lead.budgetMin > 0) {
+        // Specific budget = higher intent
+        factors.budget = 25;
+      } else if (lead.budgetMin > 0) {
+        factors.budget = 15;
+      }
+    }
+    
+    // Timeline factor (0-20 points)
+    switch (lead.timeline) {
+      case 'immediate':
+        factors.timeline = 20;
+        break;
+      case '1-3months':
+        factors.timeline = 15;
+        break;
+      case '3-6months':
+        factors.timeline = 10;
+        break;
+      case '6+months':
+        factors.timeline = 5;
+        break;
+    }
+    
+    // Engagement factor (0-20 points)
+    const totalInteractions = lead.totalInteractions || 0;
+    const emailsOpened = lead.emailsOpened || 0;
+    const propertiesViewed = lead.propertiesViewed || 0;
+    
+    factors.engagement = Math.min(20, 
+      (totalInteractions * 2) + 
+      (emailsOpened * 1) + 
+      (propertiesViewed * 3)
+    );
+    
+    // Motivation factor (0-20 points)
+    if (lead.tourScheduled) {
+      factors.motivation = 20;
+    } else if (lead.nextFollowUpAt) {
+      factors.motivation = 10;
+    } else {
+      factors.motivation = 5;
+    }
+    
+    // Response rate factor (0-15 points)
+    const emailsSent = lead.emailsSent || 0;
+    if (emailsSent > 0) {
+      const responseRate = emailsOpened / emailsSent;
+      factors.responseRate = Math.round(responseRate * 15);
+    }
+    
+    // Sum all factors
+    score = Object.values(factors).reduce((sum: number, val: any) => sum + (val || 0), 0);
+    
+    // Cap at 100
+    return Math.min(100, score);
+  }
+
+  // Agent Deal Pipeline Methods
+  async getDeals(agentId: string, options?: { status?: string; stage?: string; clientId?: string; limit?: number; offset?: number }): Promise<{ deals: Deal[]; total: number }> {
+    const limit = options?.limit || 50;
+    const offset = options?.offset || 0;
+    
+    const conditions = [eq(deals.agentId, agentId)];
+    
+    if (options?.status) {
+      conditions.push(eq(deals.status, options.status));
+    }
+    if (options?.stage) {
+      conditions.push(eq(deals.stage, options.stage));
+    }
+    if (options?.clientId) {
+      conditions.push(eq(deals.clientId, options.clientId));
+    }
+    
+    const dealsList = await db.select()
+      .from(deals)
+      .where(and(...conditions))
+      .orderBy(desc(deals.updatedAt))
+      .limit(limit)
+      .offset(offset);
+
+    const [{ count }] = await db.select({ count: sql<number>`count(*)::int` })
+      .from(deals)
+      .where(and(...conditions));
+
+    return { deals: dealsList, total: count };
+  }
+
+  async getDealById(id: string, agentId: string): Promise<Deal | undefined> {
+    const [deal] = await db.select()
+      .from(deals)
+      .where(and(eq(deals.id, id), eq(deals.agentId, agentId)));
+    return deal;
+  }
+
+  async createDeal(data: InsertDeal): Promise<Deal> {
+    const [created] = await db.insert(deals).values(data).returning();
+    return created;
+  }
+
+  async updateDeal(id: string, agentId: string, data: Partial<InsertDeal>): Promise<Deal | undefined> {
+    const updateData: any = { ...data, updatedAt: new Date() };
+    
+    // If stage is being updated, update stageChangedAt
+    if (data.stage) {
+      updateData.stageChangedAt = new Date();
+    }
+    
+    const [updated] = await db.update(deals)
+      .set(updateData)
+      .where(and(eq(deals.id, id), eq(deals.agentId, agentId)))
+      .returning();
+    return updated;
+  }
+
+  async archiveDeal(id: string, agentId: string): Promise<Deal | undefined> {
+    const [updated] = await db.update(deals)
+      .set({ status: 'archived', updatedAt: new Date() })
+      .where(and(eq(deals.id, id), eq(deals.agentId, agentId)))
+      .returning();
+    return updated;
+  }
+
+  async deleteDeal(id: string, agentId: string): Promise<void> {
+    await db.delete(deals)
+      .where(and(eq(deals.id, id), eq(deals.agentId, agentId)));
+  }
+
+  // Deal Notes Methods
+  async getDealNotes(dealId: string, agentId: string): Promise<DealNote[]> {
+    // First verify the deal belongs to the agent
+    const deal = await this.getDealById(dealId, agentId);
+    if (!deal) {
+      throw new Error("Deal not found or access denied");
+    }
+    
+    const notes = await db.select()
+      .from(dealNotes)
+      .where(eq(dealNotes.dealId, dealId))
+      .orderBy(desc(dealNotes.createdAt));
+    
+    return notes;
+  }
+
+  async createDealNote(data: InsertDealNote): Promise<DealNote> {
+    const [created] = await db.insert(dealNotes).values(data).returning();
+    return created;
+  }
+
+  async updateDealNote(id: string, userId: string, note: string): Promise<DealNote | undefined> {
+    const [updated] = await db.update(dealNotes)
+      .set({ note, updatedAt: new Date() })
+      .where(and(eq(dealNotes.id, id), eq(dealNotes.userId, userId)))
+      .returning();
+    return updated;
+  }
+
+  async deleteDealNote(id: string, userId: string): Promise<void> {
+    await db.delete(dealNotes)
+      .where(and(eq(dealNotes.id, id), eq(dealNotes.userId, userId)));
+  }
+
+  // ============================================
+  // AGENT CLIENT MANAGEMENT METHODS
+  // ============================================
+
+  async getClients(agentId: string, options?: { 
+    status?: string; 
+    stage?: string; 
+    search?: string;
+    sortBy?: 'name' | 'createdAt' | 'lastContact' | 'priority';
+    sortOrder?: 'asc' | 'desc';
+    limit?: number; 
+    offset?: number;
+  }): Promise<{ clients: AgentClient[]; total: number }> {
+    const conditions = [eq(agentClients.agentId, agentId)];
+
+    if (options?.status) {
+      conditions.push(eq(agentClients.status, options.status));
+    }
+
+    if (options?.stage) {
+      conditions.push(eq(agentClients.stage, options.stage));
+    }
+
+    if (options?.search) {
+      const searchPattern = `%${options.search}%`;
+      conditions.push(
+        or(
+          ilike(agentClients.firstName, searchPattern),
+          ilike(agentClients.lastName, searchPattern),
+          ilike(agentClients.email, searchPattern)
+        )!
+      );
+    }
+
+    // Count total
+    const [countResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(agentClients)
+      .where(and(...conditions));
+    const total = Number(countResult.count);
+
+    // Build query
+    let query = db.select().from(agentClients).where(and(...conditions));
+
+    // Sorting
+    const sortBy = options?.sortBy || 'createdAt';
+    const sortOrder = options?.sortOrder || 'desc';
+    
+    if (sortBy === 'name') {
+      query = query.orderBy(sortOrder === 'asc' ? agentClients.lastName : desc(agentClients.lastName));
+    } else if (sortBy === 'lastContact') {
+      query = query.orderBy(sortOrder === 'asc' ? agentClients.lastContact : desc(agentClients.lastContact));
+    } else if (sortBy === 'priority') {
+      query = query.orderBy(sortOrder === 'asc' ? agentClients.priority : desc(agentClients.priority));
+    } else {
+      query = query.orderBy(sortOrder === 'asc' ? agentClients.createdAt : desc(agentClients.createdAt));
+    }
+
+    // Pagination
+    if (options?.limit) {
+      query = query.limit(options.limit);
+    }
+    if (options?.offset) {
+      query = query.offset(options.offset);
+    }
+
+    const clients = await query;
+    return { clients, total };
+  }
+
+  async getClientById(id: string, agentId: string): Promise<AgentClient | undefined> {
+    const [client] = await db
+      .select()
+      .from(agentClients)
+      .where(and(eq(agentClients.id, id), eq(agentClients.agentId, agentId)));
+    return client;
+  }
+
+  async createClient(data: InsertAgentClient): Promise<AgentClient> {
+    const [created] = await db.insert(agentClients).values(data).returning();
+    return created;
+  }
+
+  async updateClient(id: string, agentId: string, data: Partial<InsertAgentClient>): Promise<AgentClient | undefined> {
+    const [updated] = await db
+      .update(agentClients)
+      .set({ ...data, updatedAt: new Date() })
+      .where(and(eq(agentClients.id, id), eq(agentClients.agentId, agentId)))
+      .returning();
+    return updated;
+  }
+
+  async archiveClient(id: string, agentId: string): Promise<AgentClient | undefined> {
+    const [archived] = await db
+      .update(agentClients)
+      .set({ 
+        isArchived: true, 
+        archivedAt: new Date(),
+        status: 'archived',
+        updatedAt: new Date() 
+      })
+      .where(and(eq(agentClients.id, id), eq(agentClients.agentId, agentId)))
+      .returning();
+    return archived;
+  }
+
+  async deleteClient(id: string, agentId: string): Promise<void> {
+    await db
+      .delete(agentClients)
+      .where(and(eq(agentClients.id, id), eq(agentClients.agentId, agentId)));
+  }
+
+  async getClientActivity(
+    clientId: string, 
+    agentId: string, 
+    options?: { limit?: number; offset?: number }
+  ): Promise<{ activities: ClientActivity[]; total: number }> {
+    // Verify client belongs to agent
+    const client = await this.getClientById(clientId, agentId);
+    if (!client) {
+      return { activities: [], total: 0 };
+    }
+
+    // Count total
+    const [countResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(clientActivity)
+      .where(eq(clientActivity.clientId, clientId));
+    const total = Number(countResult.count);
+
+    // Get activities
+    let query = db
+      .select()
+      .from(clientActivity)
+      .where(eq(clientActivity.clientId, clientId))
+      .orderBy(desc(clientActivity.createdAt));
+
+    if (options?.limit) {
+      query = query.limit(options.limit);
+    }
+    if (options?.offset) {
+      query = query.offset(options.offset);
+    }
+
+    const activities = await query;
+    return { activities, total };
+  }
+
+  async createClientActivity(data: InsertClientActivity): Promise<ClientActivity> {
+    const [created] = await db.insert(clientActivity).values(data).returning();
+    
+    // Update client's lastContact timestamp
+    await db
+      .update(agentClients)
+      .set({ lastContact: new Date(), updatedAt: new Date() })
+      .where(eq(agentClients.id, data.clientId));
+    
+    return created;
+  }
+
+  async getAgentDashboardSummary(agentId: string): Promise<{
+    totalClients: number;
+    activeClients: number;
+    clientsByStage: Record<string, number>;
+    clientsByPriority: Record<string, number>;
+    recentActivities: ClientActivity[];
+    upcomingFollowUps: AgentClient[];
+  }> {
+    // Count total clients (excluding archived)
+    const [totalResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(agentClients)
+      .where(and(
+        eq(agentClients.agentId, agentId),
+        eq(agentClients.isArchived, false)
+      ));
+    const totalClients = Number(totalResult.count);
+
+    // Count active clients
+    const [activeResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(agentClients)
+      .where(and(
+        eq(agentClients.agentId, agentId),
+        eq(agentClients.status, 'active'),
+        eq(agentClients.isArchived, false)
+      ));
+    const activeClients = Number(activeResult.count);
+
+    // Get all clients for stage and priority breakdown
+    const allClients = await db
+      .select()
+      .from(agentClients)
+      .where(and(
+        eq(agentClients.agentId, agentId),
+        eq(agentClients.isArchived, false)
+      ));
+
+    // Group by stage
+    const clientsByStage: Record<string, number> = {};
+    allClients.forEach(client => {
+      const stage = client.stage || 'unknown';
+      clientsByStage[stage] = (clientsByStage[stage] || 0) + 1;
+    });
+
+    // Group by priority
+    const clientsByPriority: Record<string, number> = {};
+    allClients.forEach(client => {
+      const priority = client.priority || 'medium';
+      clientsByPriority[priority] = (clientsByPriority[priority] || 0) + 1;
+    });
+
+    // Get recent activities (last 10)
+    const recentActivities = await db
+      .select()
+      .from(clientActivity)
+      .where(eq(clientActivity.agentId, agentId))
+      .orderBy(desc(clientActivity.createdAt))
+      .limit(10);
+
+    // Get upcoming follow-ups (next 7 days)
+    const today = new Date();
+    const nextWeek = new Date();
+    nextWeek.setDate(today.getDate() + 7);
+
+    const upcomingFollowUps = await db
+      .select()
+      .from(agentClients)
+      .where(and(
+        eq(agentClients.agentId, agentId),
+        eq(agentClients.isArchived, false),
+        gte(agentClients.nextFollowUp, today),
+        lte(agentClients.nextFollowUp, nextWeek)
+      ))
+      .orderBy(agentClients.nextFollowUp)
+      .limit(10);
+
+    return {
+      totalClients,
+      activeClients,
+      clientsByStage,
+      clientsByPriority,
+      recentActivities,
+      upcomingFollowUps,
+    };
   }
 }
 

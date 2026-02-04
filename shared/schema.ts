@@ -313,6 +313,156 @@ export const competitionSetCompetitors = pgTable("competition_set_competitors", 
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const agentClients = pgTable("agent_clients", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  agentId: uuid("agent_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  firstName: varchar("first_name", { length: 100 }).notNull(),
+  lastName: varchar("last_name", { length: 100 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  status: varchar("status", { length: 50 }).notNull().default("active"), // active, inactive, archived
+  stage: varchar("stage", { length: 50 }).default("lead"), // lead, viewing, negotiating, contract, closed
+  source: varchar("source", { length: 100 }), // referral, website, walk-in, etc
+  budget: json("budget").$type<{ min?: number; max?: number }>(),
+  preferredLocations: json("preferred_locations").$type<string[]>().default([]),
+  bedrooms: integer("bedrooms"),
+  bathrooms: decimal("bathrooms", { precision: 3, scale: 1 }),
+  moveInDate: timestamp("move_in_date"),
+  notes: text("notes"),
+  tags: json("tags").$type<string[]>().default([]),
+  priority: varchar("priority", { length: 20 }).default("medium"), // low, medium, high
+  assignedProperties: json("assigned_properties").$type<string[]>().default([]),
+  lastContact: timestamp("last_contact"),
+  nextFollowUp: timestamp("next_follow_up"),
+  isArchived: boolean("is_archived").default(false),
+  archivedAt: timestamp("archived_at"),
+  metadata: json("metadata").$type<Record<string, unknown>>(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const clientActivity = pgTable("client_activity", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  clientId: uuid("client_id").notNull().references(() => agentClients.id, { onDelete: "cascade" }),
+  agentId: uuid("agent_id").notNull().references(() => users.id),
+  activityType: varchar("activity_type", { length: 50 }).notNull(), // note, call, email, meeting, viewing, offer, contract
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  propertyId: uuid("property_id").references(() => properties.id),
+  metadata: json("metadata").$type<Record<string, unknown>>(),
+  scheduledFor: timestamp("scheduled_for"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const deals = pgTable("deals", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  agentId: uuid("agent_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  clientId: uuid("client_id").references(() => users.id),
+  clientName: varchar("client_name", { length: 255 }).notNull(),
+  clientEmail: varchar("client_email", { length: 255 }),
+  clientPhone: varchar("client_phone", { length: 50 }),
+  propertyId: uuid("property_id").references(() => properties.id),
+  propertyAddress: varchar("property_address", { length: 500 }),
+  stage: varchar("stage", { length: 50 }).notNull().default("lead"), // lead, showing, offer, contract, closed
+  dealValue: decimal("deal_value", { precision: 12, scale: 2 }),
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }),
+  estimatedCommission: decimal("estimated_commission", { precision: 12, scale: 2 }),
+  expectedCloseDate: timestamp("expected_close_date"),
+  actualCloseDate: timestamp("actual_close_date"),
+  status: varchar("status", { length: 50 }).default("active"), // active, archived, won, lost
+  priority: varchar("priority", { length: 20 }).default("medium"), // low, medium, high
+  source: varchar("source", { length: 100 }), // referral, website, cold_call, etc.
+  tags: json("tags").$type<string[]>().default([]),
+  metadata: json("metadata").$type<Record<string, unknown>>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  stageChangedAt: timestamp("stage_changed_at").defaultNow(),
+});
+
+export const dealNotes = pgTable("deal_notes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  dealId: uuid("deal_id").notNull().references(() => deals.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id),
+  note: text("note").notNull(),
+  noteType: varchar("note_type", { length: 50 }).default("general"), // general, call, email, meeting, showing
+  metadata: json("metadata").$type<Record<string, unknown>>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// ============================================
+// AGENT LEADS MANAGEMENT
+// ============================================
+
+export const agentLeads = pgTable("agent_leads", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  agentId: uuid("agent_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Contact Information
+  firstName: varchar("first_name", { length: 255 }).notNull(),
+  lastName: varchar("last_name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  
+  // Lead Details
+  status: varchar("status", { length: 50 }).notNull().default("new"), // new, contacted, qualified, nurturing, converted, lost
+  leadSource: varchar("lead_source", { length: 100 }).notNull(), // website, referral, social, zillow, realtor.com, etc
+  propertyInterest: varchar("property_interest", { length: 500 }),
+  propertyId: uuid("property_id").references(() => properties.id),
+  
+  // Lead Scoring (0-100)
+  leadScore: integer("lead_score").default(0),
+  scoreFactors: json("score_factors").$type<{
+    engagement?: number;
+    budget?: number;
+    timeline?: number;
+    motivation?: number;
+    responseRate?: number;
+  }>(),
+  
+  // Preferences & Requirements
+  budgetMin: integer("budget_min"),
+  budgetMax: integer("budget_max"),
+  preferredLocations: json("preferred_locations").$type<string[]>().default([]),
+  bedrooms: integer("bedrooms"),
+  bathrooms: decimal("bathrooms", { precision: 3, scale: 1 }),
+  moveInDate: timestamp("move_in_date"),
+  timeline: varchar("timeline", { length: 50 }), // immediate, 1-3months, 3-6months, 6+months
+  
+  // Follow-up Tracking
+  lastContactedAt: timestamp("last_contacted_at"),
+  nextFollowUpAt: timestamp("next_follow_up_at"),
+  followUpCount: integer("follow_up_count").default(0),
+  autoFollowUpEnabled: boolean("auto_follow_up_enabled").default(true),
+  
+  // Interaction History
+  totalInteractions: integer("total_interactions").default(0),
+  emailsSent: integer("emails_sent").default(0),
+  emailsOpened: integer("emails_opened").default(0),
+  propertiesViewed: integer("properties_viewed").default(0),
+  tourScheduled: boolean("tour_scheduled").default(false),
+  tourDate: timestamp("tour_date"),
+  
+  // Conversion Tracking
+  convertedToClientAt: timestamp("converted_to_client_at"),
+  convertedClientId: uuid("converted_client_id").references(() => agentClients.id),
+  estimatedValue: integer("estimated_value"), // estimated commission value
+  
+  // Notes & Tags
+  notes: text("notes"),
+  tags: json("tags").$type<string[]>().default([]),
+  
+  // Additional Metadata
+  metadata: json("metadata").$type<Record<string, unknown>>(),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  lostAt: timestamp("lost_at"),
+  lostReason: varchar("lost_reason", { length: 255 }),
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPropertySchema = createInsertSchema(properties).omit({ id: true, lastSeen: true, firstScraped: true, lastUpdated: true });
 export const insertSavedApartmentSchema = createInsertSchema(savedApartments).omit({ id: true, createdAt: true });
@@ -328,6 +478,11 @@ export const insertPricingAlertSchema = createInsertSchema(pricingAlerts).omit({
 export const insertAlertPreferencesSchema = createInsertSchema(alertPreferences).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertCompetitionSetSchema = createInsertSchema(competitionSets).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertCompetitionSetCompetitorSchema = createInsertSchema(competitionSetCompetitors).omit({ id: true, createdAt: true, lastUpdated: true });
+export const insertAgentClientSchema = createInsertSchema(agentClients).omit({ id: true, createdAt: true, updatedAt: true, archivedAt: true });
+export const insertClientActivitySchema = createInsertSchema(clientActivity).omit({ id: true, createdAt: true });
+export const insertDealSchema = createInsertSchema(deals).omit({ id: true, createdAt: true, updatedAt: true, stageChangedAt: true });
+export const insertDealNoteSchema = createInsertSchema(dealNotes).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertAgentLeadSchema = createInsertSchema(agentLeads).omit({ id: true, createdAt: true, updatedAt: true, lostAt: true, convertedToClientAt: true });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
@@ -344,6 +499,11 @@ export type InsertPricingAlert = z.infer<typeof insertPricingAlertSchema>;
 export type InsertAlertPreferences = z.infer<typeof insertAlertPreferencesSchema>;
 export type InsertCompetitionSet = z.infer<typeof insertCompetitionSetSchema>;
 export type InsertCompetitionSetCompetitor = z.infer<typeof insertCompetitionSetCompetitorSchema>;
+export type InsertAgentClient = z.infer<typeof insertAgentClientSchema>;
+export type InsertClientActivity = z.infer<typeof insertClientActivitySchema>;
+export type InsertDeal = z.infer<typeof insertDealSchema>;
+export type InsertDealNote = z.infer<typeof insertDealNoteSchema>;
+export type InsertAgentLead = z.infer<typeof insertAgentLeadSchema>;
 
 export type User = typeof users.$inferSelect;
 export type Property = typeof properties.$inferSelect;
@@ -360,6 +520,11 @@ export type PricingAlert = typeof pricingAlerts.$inferSelect;
 export type AlertPreferences = typeof alertPreferences.$inferSelect;
 export type CompetitionSet = typeof competitionSets.$inferSelect;
 export type CompetitionSetCompetitor = typeof competitionSetCompetitors.$inferSelect;
+export type AgentClient = typeof agentClients.$inferSelect;
+export type ClientActivity = typeof clientActivity.$inferSelect;
+export type Deal = typeof deals.$inferSelect;
+export type DealNote = typeof dealNotes.$inferSelect;
+export type AgentLead = typeof agentLeads.$inferSelect;
 
 // =====================================================
 // RELATIONS - Drizzle ORM Relations for Easy Querying
@@ -383,6 +548,10 @@ export const usersRelations = relations(users, ({ many, one }) => ({
     fields: [users.id],
     references: [alertPreferences.userId],
   }),
+  agentDeals: many(deals, { relationName: "agentDeals" }),
+  clientDeals: many(deals, { relationName: "clientDeals" }),
+  dealNotes: many(dealNotes),
+  agentLeads: many(agentLeads, { relationName: "agentLeads" }),
 }));
 
 // Property Relations
@@ -477,5 +646,78 @@ export const invoicesRelations = relations(invoices, ({ one }) => ({
   subscription: one(subscriptions, {
     fields: [invoices.subscriptionId],
     references: [subscriptions.id],
+  }),
+}));
+
+// Agent Client Relations
+export const agentClientsRelations = relations(agentClients, ({ one, many }) => ({
+  agent: one(users, {
+    fields: [agentClients.agentId],
+    references: [users.id],
+  }),
+  activities: many(clientActivity),
+}));
+
+// Client Activity Relations
+export const clientActivityRelations = relations(clientActivity, ({ one }) => ({
+  client: one(agentClients, {
+    fields: [clientActivity.clientId],
+    references: [agentClients.id],
+  }),
+  agent: one(users, {
+    fields: [clientActivity.agentId],
+    references: [users.id],
+  }),
+  property: one(properties, {
+    fields: [clientActivity.propertyId],
+    references: [properties.id],
+  }),
+}));
+
+// Deal Relations
+export const dealsRelations = relations(deals, ({ one, many }) => ({
+  agent: one(users, {
+    fields: [deals.agentId],
+    references: [users.id],
+    relationName: "agentDeals",
+  }),
+  client: one(users, {
+    fields: [deals.clientId],
+    references: [users.id],
+    relationName: "clientDeals",
+  }),
+  property: one(properties, {
+    fields: [deals.propertyId],
+    references: [properties.id],
+  }),
+  notes: many(dealNotes),
+}));
+
+// Deal Note Relations
+export const dealNotesRelations = relations(dealNotes, ({ one }) => ({
+  deal: one(deals, {
+    fields: [dealNotes.dealId],
+    references: [deals.id],
+  }),
+  user: one(users, {
+    fields: [dealNotes.userId],
+    references: [users.id],
+  }),
+}));
+
+// Agent Leads Relations
+export const agentLeadsRelations = relations(agentLeads, ({ one }) => ({
+  agent: one(users, {
+    fields: [agentLeads.agentId],
+    references: [users.id],
+    relationName: "agentLeads",
+  }),
+  property: one(properties, {
+    fields: [agentLeads.propertyId],
+    references: [properties.id],
+  }),
+  convertedClient: one(agentClients, {
+    fields: [agentLeads.convertedClientId],
+    references: [agentClients.id],
   }),
 }));
