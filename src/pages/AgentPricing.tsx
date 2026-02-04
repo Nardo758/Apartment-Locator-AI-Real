@@ -110,21 +110,24 @@ const testimonials = [
     role: 'Real Estate Agent',
     company: 'Coldwell Banker',
     quote: 'This platform has tripled my client management efficiency. The commission calculator alone pays for itself!',
-    avatar: 'JM'
+    avatar: 'JM',
+    avatarBg: 'bg-purple-500'
   },
   {
     name: 'Robert Chen',
     role: 'Broker',
     company: 'Century 21',
     quote: 'Managing 15 agents used to be chaos. Now we have complete visibility and our conversion rates are up 40%.',
-    avatar: 'RC'
+    avatar: 'RC',
+    avatarBg: 'bg-teal-500'
   },
   {
     name: 'Lisa Thompson',
     role: 'Team Leader',
     company: 'RE/MAX',
     quote: 'The automated reports save me hours every week. My clients love the professional presentations.',
-    avatar: 'LT'
+    avatar: 'LT',
+    avatarBg: 'bg-amber-500'
   }
 ];
 
@@ -304,50 +307,66 @@ export default function AgentPricing() {
               {
                 icon: Users,
                 title: 'Client Management',
-                description: 'Track all your clients and deals in one place'
+                description: 'Track all your clients and deals in one place',
+                iconBg: 'bg-teal-100',
+                iconColor: 'text-teal-600'
               },
               {
                 icon: Calculator,
                 title: 'Commission Calculator',
-                description: 'Instantly calculate earnings and splits'
+                description: 'Instantly calculate earnings and splits',
+                iconBg: 'bg-pink-100',
+                iconColor: 'text-pink-600'
               },
               {
                 icon: FileText,
                 title: 'Professional Reports',
-                description: 'Generate beautiful client reports'
+                description: 'Generate beautiful client reports',
+                iconBg: 'bg-blue-100',
+                iconColor: 'text-blue-600'
               },
               {
                 icon: BarChart3,
                 title: 'Analytics Dashboard',
-                description: 'Track performance and conversion rates'
+                description: 'Track performance and conversion rates',
+                iconBg: 'bg-amber-100',
+                iconColor: 'text-amber-600'
               },
               {
                 icon: Target,
                 title: 'Lead Capture',
-                description: 'Convert prospects into clients faster'
+                description: 'Convert prospects into clients faster',
+                iconBg: 'bg-red-100',
+                iconColor: 'text-red-600'
               },
               {
                 icon: MessageSquare,
                 title: 'Automated Follow-ups',
-                description: 'Never miss a follow-up opportunity'
+                description: 'Never miss a follow-up opportunity',
+                iconBg: 'bg-indigo-100',
+                iconColor: 'text-indigo-600'
               },
               {
                 icon: Smartphone,
                 title: 'Mobile Access',
-                description: 'Work from anywhere with our mobile app'
+                description: 'Work from anywhere with our mobile app',
+                iconBg: 'bg-purple-100',
+                iconColor: 'text-purple-600'
               },
               {
                 icon: Shield,
                 title: 'Secure & Compliant',
-                description: 'Bank-level security for your data'
+                description: 'Bank-level security for your data',
+                iconBg: 'bg-emerald-100',
+                iconColor: 'text-emerald-600'
               }
             ].map((feature, idx) => {
               const Icon = feature.icon;
               return (
                 <Card key={idx} variant="elevated" hover>
                   <CardContent className="p-6">
-                    <div className="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-purple-600" />
+                    <div className={`${feature.iconBg} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}>
+                      <Icon className={`w-6 h-6 ${feature.iconColor}`} />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
                     <p className="text-sm text-gray-600">{feature.description}</p>
@@ -376,7 +395,7 @@ export default function AgentPricing() {
                   </div>
                   <p className="text-gray-700 mb-6 italic">"{testimonial.quote}"</p>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold">
+                    <div className={`w-12 h-12 rounded-full ${testimonial.avatarBg} flex items-center justify-center text-white font-bold`}>
                       {testimonial.avatar}
                     </div>
                     <div>

@@ -89,22 +89,26 @@ const plans = [
 
 const features = [
   {
-    icon: <TrendingUp className="w-6 h-6 text-blue-400" />,
+    icon: <TrendingUp className="w-6 h-6 text-teal-600" />,
+    iconBg: 'bg-teal-100',
     title: 'Market Intelligence',
     description: 'Real-time data on competitor pricing, concessions, and market trends'
   },
   {
-    icon: <Users className="w-6 h-6 text-purple-400" />,
+    icon: <Users className="w-6 h-6 text-pink-600" />,
+    iconBg: 'bg-pink-100',
     title: 'Tenant Retention',
     description: 'Optimize renewals and prevent costly turnovers with AI recommendations'
   },
   {
-    icon: <Zap className="w-6 h-6 text-yellow-400" />,
+    icon: <Zap className="w-6 h-6 text-yellow-600" />,
+    iconBg: 'bg-yellow-100',
     title: 'Instant Alerts',
     description: 'Get notified when competitors change pricing or add concessions'
   },
   {
-    icon: <Shield className="w-6 h-6 text-green-400" />,
+    icon: <Shield className="w-6 h-6 text-emerald-600" />,
+    iconBg: 'bg-emerald-100',
     title: 'Risk Management',
     description: 'Identify vacancy risks before they become problems'
   }
@@ -116,21 +120,24 @@ const testimonials = [
     role: 'Property Manager',
     properties: 23,
     quote: 'Reduced vacancy days by 40% and increased renewal rates to 85%. This tool pays for itself.',
-    savings: '$18,000/year'
+    savings: '$18,000/year',
+    avatarBg: 'bg-purple-500'
   },
   {
     name: 'Michael Rodriguez',
     role: 'Real Estate Investor',
     properties: 8,
     quote: 'Caught competitors dropping prices before I lost tenants. The competitive alerts alone are worth it.',
-    savings: '$6,400/year'
+    savings: '$6,400/year',
+    avatarBg: 'bg-teal-500'
   },
   {
     name: 'Jennifer Williams',
     role: 'Landlord',
     properties: 4,
     quote: 'My renewal optimizer recommendations have a 92% success rate. No more guessing on renewal pricing.',
-    savings: '$4,800/year'
+    savings: '$4,800/year',
+    avatarBg: 'bg-emerald-500'
   }
 ];
 
@@ -330,7 +337,7 @@ export default function LandlordPricing() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, idx) => (
               <Card key={idx} variant="elevated" hover className="p-6 text-center">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center mx-auto mb-4">
+                <div className={`w-12 h-12 rounded-full ${feature.iconBg} flex items-center justify-center mx-auto mb-4`}>
                   {feature.icon}
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">
@@ -356,7 +363,7 @@ export default function LandlordPricing() {
             {testimonials.map((testimonial, idx) => (
               <Card key={idx} variant="elevated" className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                  <div className={`w-12 h-12 rounded-full ${testimonial.avatarBg} flex items-center justify-center text-white font-bold`}>
                     {testimonial.name.charAt(0)}
                   </div>
                   <div>
