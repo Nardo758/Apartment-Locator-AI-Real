@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { User, ChevronDown, Settings, HelpCircle, CreditCard, LogOut, Menu, X } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { User, ChevronDown, Settings, HelpCircle, CreditCard, LogOut, Menu, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
@@ -10,12 +10,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useUser } from '@/hooks/useUser';
 
 interface HeaderProps {
   onSignOut?: () => void;
 }
 
 const Header = ({ onSignOut }: HeaderProps) => {
+  const { user, isAuthenticated, logout } = useUser();
+  const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -115,16 +118,26 @@ const Header = ({ onSignOut }: HeaderProps) => {
                 >
                   Contact Support
                 </Link>
-                {onSignOut && (
+                {isAuthenticated ? (
                   <button
                     onClick={() => {
-                      onSignOut();
+                      logout();
+                      onSignOut?.();
                       setMobileMenuOpen(false);
+                      navigate('/');
                     }}
-                    className="block w-full text-left px-3 py-2 text-red-600 hover:bg-red-50"
+                    className="block w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
                   >
                     Sign Out
                   </button>
+                ) : (
+                  <Link
+                    to="/auth"
+                    className="block px-3 py-2 text-primary font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Sign In
+                  </Link>
                 )}
               </div>
             </div>
@@ -133,57 +146,91 @@ const Header = ({ onSignOut }: HeaderProps) => {
 
         {/* User Section */}
         <div className="flex items-center space-x-4">
-          {/* Free Plan Badge */}
-          <div className="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full bg-secondary/20 border border-secondary/30">
-            <div className="w-2 h-2 bg-secondary rounded-full"></div>
-            <span className="text-sm font-medium text-secondary">Free Plan</span>
-          </div>
+          {/* Plan Badge - only show when authenticated */}
+          {isAuthenticated && (
+            <div className="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full bg-secondary/20 border border-secondary/30">
+              <div className="w-2 h-2 bg-secondary rounded-full"></div>
+              <span className="text-sm font-medium text-secondary">
+                {user?.subscriptionTier || 'Free Plan'}
+              </span>
+            </div>
+          )}
 
-          {/* User Menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 px-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
-                  <User size={16} className="text-primary-foreground" />
-                </div>
-                <ChevronDown size={14} className="text-muted-foreground" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem asChild>
-                <Link to="/program-ai" className="flex items-center gap-2">
-                  <Settings size={16} />
-                  Program Your AI
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/billing" className="flex items-center gap-2">
-                  <CreditCard size={16} />
-                  Billing & Plans
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/help" className="flex items-center gap-2">
-                  <HelpCircle size={16} />
-                  Help & Support
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/data-export" className="flex items-center gap-2">
-                  <Settings size={16} />
-                  Export My Data
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              {onSignOut && (
-                <DropdownMenuItem onClick={onSignOut} className="flex items-center gap-2 text-red-600">
+          {isAuthenticated ? (
+            /* User Menu - Authenticated */
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2 px-2" data-testid="button-user-menu">
+                  <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
+                    <User size={16} className="text-primary-foreground" />
+                  </div>
+                  <ChevronDown size={14} className="text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {user?.email && (
+                  <>
+                    <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                      {user.email}
+                    </div>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="flex items-center gap-2">
+                    <User size={16} />
+                    My Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/program-ai" className="flex items-center gap-2">
+                    <Settings size={16} />
+                    Program Your AI
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/billing" className="flex items-center gap-2">
+                    <CreditCard size={16} />
+                    Billing & Plans
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/help" className="flex items-center gap-2">
+                    <HelpCircle size={16} />
+                    Help & Support
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/data-export" className="flex items-center gap-2">
+                    <Settings size={16} />
+                    Export My Data
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => {
+                    logout();
+                    onSignOut?.();
+                    navigate('/');
+                  }} 
+                  className="flex items-center gap-2 text-red-600"
+                  data-testid="button-sign-out"
+                >
                   <LogOut size={16} />
                   Sign Out
                 </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            /* Sign In Button - Not Authenticated */
+            <Button asChild variant="default" data-testid="button-sign-in">
+              <Link to="/auth" className="flex items-center gap-2">
+                <LogIn size={16} />
+                Sign In
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>
