@@ -18,7 +18,7 @@ interface UserContextType {
   isAuthenticated: boolean;
   userType: UserType | null;
   setUserType: (type: UserType) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => void;
   register: (email: string, password: string, name?: string) => Promise<void>;
 }
@@ -94,7 +94,7 @@ export const UserProvider = ({ children }: { children: ReactNode }): ReactNode =
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<User> => {
     const { user: loggedInUser, token } = await api.signIn(email, password);
     localStorage.setItem(TOKEN_KEY, token);
     
@@ -107,13 +107,17 @@ export const UserProvider = ({ children }: { children: ReactNode }): ReactNode =
     if (storedUserType && !loggedInUser.userType) {
       try {
         await api.updateUserType(token, storedUserType);
-        setUser({ ...loggedInUser, userType: storedUserType });
+        const updatedUser = { ...loggedInUser, userType: storedUserType };
+        setUser(updatedUser);
         setUserTypeState(storedUserType);
         userTypeStorage.clear(); // Clear after successful migration
+        return updatedUser;
       } catch (error) {
         console.error('Failed to migrate userType to database:', error);
       }
     }
+    
+    return loggedInUser;
   };
 
   const logout = () => {
@@ -170,7 +174,7 @@ export const useUser = () => {
       isAuthenticated: false,
       userType: null,
       setUserType: async () => {},
-      login: async () => {},
+      login: async (): Promise<User> => { throw new Error('UserProvider not found'); },
       logout: () => {},
       register: async () => {},
     };

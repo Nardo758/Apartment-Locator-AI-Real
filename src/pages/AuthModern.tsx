@@ -130,22 +130,24 @@ const AuthModern = () => {
     setError('');
 
     try {
-      // Login first to get the user's existing data
-      await login(email, password);
+      // Login and get the user data directly from the response
+      const loggedInUser = await login(email, password);
       
-      // If URL specifies a user type, update the user's type
-      // Otherwise, the login() function already sets userType from the database
-      if (urlUserType) {
+      // Determine redirect type: URL param takes priority, then use user's stored type from DB
+      let redirectType: UserType | null = urlUserType || (loggedInUser?.userType as UserType | null);
+      
+      // If URL specifies a user type, update the user's type in DB
+      if (urlUserType && urlUserType !== loggedInUser?.userType) {
         await setUserType(urlUserType);
-        // Small delay to ensure state is fully propagated
-        await new Promise(resolve => setTimeout(resolve, 50));
+        redirectType = urlUserType;
       }
+      
+      // Small delay to ensure state is fully propagated
+      await new Promise(resolve => setTimeout(resolve, 50));
       
       toast.success('Welcome back!');
       
       // For sign-in, use signin redirect (to dashboard, not onboarding)
-      // If URL specified a type, use that; otherwise use the user's existing type from login
-      const redirectType = urlUserType || userType;
       const redirectPath = getSigninRedirectPath(redirectType);
       navigate(redirectPath, { replace: true });
     } catch (error: unknown) {
