@@ -37,12 +37,12 @@ export function CompetitorSearchResult({
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <MapPin className="w-4 h-4 text-purple-400 flex-shrink-0" />
-              <h4 className="text-base font-semibold text-white">
+              <h4 className="text-base font-semibold text-foreground">
                 {property.address}
               </h4>
             </div>
             {property.distance && (
-              <p className="text-xs text-white/50 ml-6">
+              <p className="text-xs text-muted-foreground ml-6">
                 {formatDistance(property.distance)} away
               </p>
             )}
@@ -72,7 +72,7 @@ export function CompetitorSearchResult({
           {property.bedrooms !== undefined && property.bathrooms !== undefined && (
             <div className="flex items-center gap-2 text-sm">
               <Home className="w-4 h-4 text-blue-400" />
-              <span className="text-white/80">
+              <span className="text-foreground/80">
                 {property.bedrooms}bd / {property.bathrooms}ba
               </span>
             </div>
@@ -83,7 +83,7 @@ export function CompetitorSearchResult({
               <div className="w-4 h-4 flex items-center justify-center">
                 <span className="text-blue-400 text-xs font-bold">□</span>
               </div>
-              <span className="text-white/80">
+              <span className="text-foreground/80">
                 {property.squareFeet.toLocaleString()} sq ft
               </span>
             </div>
@@ -92,7 +92,7 @@ export function CompetitorSearchResult({
           {property.currentRent && (
             <div className="flex items-center gap-2 text-sm col-span-2">
               <DollarSign className="w-4 h-4 text-green-400" />
-              <span className="text-white font-semibold">
+              <span className="text-foreground font-semibold">
                 ${property.currentRent.toLocaleString()}/mo
               </span>
             </div>
@@ -124,8 +124,8 @@ export function CompetitorSearchResult({
         {/* Source Badge */}
         {property.source && (
           <div className="mt-3 pt-3 border-t border-border">
-            <div className="text-xs text-white/40">
-              Source: <span className="text-white/60">{property.source}</span>
+            <div className="text-xs text-muted-foreground">
+              Source: <span className="text-muted-foreground">{property.source}</span>
             </div>
           </div>
         )}

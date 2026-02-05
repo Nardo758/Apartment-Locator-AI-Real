@@ -284,7 +284,7 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                 setEditingSet(null);
                 setIsDialogOpen(true);
               }}
-              className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+              className=" hover:from-purple-600 hover:to-blue-600"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Set
@@ -297,17 +297,17 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
       {competitionSets.length === 0 ? (
         <Card variant="elevated">
           <CardContent className="text-center py-12">
-            <Users className="w-16 h-16 mx-auto mb-4 text-white/20" />
-            <h3 className="text-xl font-semibold text-white mb-2">
+            <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
+            <h3 className="text-xl font-semibold text-foreground mb-2">
               No Competition Sets Yet
             </h3>
-            <p className="text-white/60 mb-6 max-w-md mx-auto">
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               Create your first competition set to start tracking competitor pricing and
               activity across your properties.
             </p>
             <Button
               onClick={() => setIsDialogOpen(true)}
-              className="bg-gradient-to-r from-purple-500 to-blue-500"
+              className=""
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Your First Set
@@ -327,7 +327,7 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-white">
+                      <h3 className="text-xl font-bold text-foreground">
                         {set.name}
                       </h3>
                       {set.alertsEnabled ? (
@@ -343,7 +343,7 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                       )}
                     </div>
                     {set.description && (
-                      <p className="text-white/60 text-sm">{set.description}</p>
+                      <p className="text-muted-foreground text-sm">{set.description}</p>
                     )}
                   </div>
 
@@ -352,7 +352,7 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEdit(set)}
-                      className="text-white/60 hover:text-white"
+                      className="text-muted-foreground hover:text-foreground"
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
@@ -361,7 +361,7 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                       size="sm"
                       onClick={() => handleDelete(set.id)}
                       disabled={deletingSetId === set.id}
-                      className="text-white/60 hover:text-red-400"
+                      className="text-muted-foreground hover:text-red-400"
                     >
                       {deletingSetId === set.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -377,9 +377,9 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                   <div className="p-3 rounded-lg bg-muted/50 border border-border">
                     <div className="flex items-center gap-2 mb-1">
                       <MapPin className="w-4 h-4 text-blue-400" />
-                      <span className="text-xs text-white/60">Your Properties</span>
+                      <span className="text-xs text-muted-foreground">Your Properties</span>
                     </div>
-                    <div className="text-2xl font-bold text-white">
+                    <div className="text-2xl font-bold text-foreground">
                       {set.ownPropertyIds.length}
                     </div>
                   </div>
@@ -387,9 +387,9 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                   <div className="p-3 rounded-lg bg-muted/50 border border-border">
                     <div className="flex items-center gap-2 mb-1">
                       <Users className="w-4 h-4 text-purple-400" />
-                      <span className="text-xs text-white/60">Competitors</span>
+                      <span className="text-xs text-muted-foreground">Competitors</span>
                     </div>
-                    <div className="text-2xl font-bold text-white">
+                    <div className="text-2xl font-bold text-foreground">
                       {set.competitorCount || set.competitors?.length || 0}
                     </div>
                   </div>
@@ -397,9 +397,9 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                   <div className="p-3 rounded-lg bg-muted/50 border border-border">
                     <div className="flex items-center gap-2 mb-1">
                       <Bell className="w-4 h-4 text-green-400" />
-                      <span className="text-xs text-white/60">Status</span>
+                      <span className="text-xs text-muted-foreground">Status</span>
                     </div>
-                    <div className="text-sm font-semibold text-white">
+                    <div className="text-sm font-semibold text-foreground">
                       {set.alertsEnabled ? 'Monitoring' : 'Inactive'}
                     </div>
                   </div>
@@ -408,12 +408,12 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                 {/* Expanded Details */}
                 {expandedSetId === set.id && set.competitors && (
                   <div className="pt-4 border-t border-border">
-                    <h4 className="text-sm font-semibold text-white mb-3">
+                    <h4 className="text-sm font-semibold text-foreground mb-3">
                       Tracked Competitors
                     </h4>
                     <div className="space-y-2 max-h-[300px] overflow-y-auto">
                       {set.competitors.length === 0 ? (
-                        <p className="text-white/50 text-sm text-center py-4">
+                        <p className="text-muted-foreground text-sm text-center py-4">
                           No competitors added yet
                         </p>
                       ) : (
@@ -426,12 +426,12 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
                                   <MapPin className="w-3 h-3 text-purple-400" />
-                                  <span className="text-sm text-white">
+                                  <span className="text-sm text-foreground">
                                     {competitor.address}
                                   </span>
                                 </div>
                                 {(competitor.bedrooms || competitor.bathrooms || competitor.currentRent) && (
-                                  <div className="flex items-center gap-3 text-xs text-white/60 ml-5">
+                                  <div className="flex items-center gap-3 text-xs text-muted-foreground ml-5">
                                     {competitor.bedrooms && competitor.bathrooms && (
                                       <span>{competitor.bedrooms}bd / {competitor.bathrooms}ba</span>
                                     )}
@@ -462,7 +462,7 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                     variant="ghost"
                     size="sm"
                     onClick={() => toggleExpanded(set.id)}
-                    className="text-white/60 hover:text-white w-full"
+                    className="text-muted-foreground hover:text-foreground w-full"
                   >
                     {expandedSetId === set.id ? 'Hide Details' : 'View Details'}
                   </Button>
@@ -470,7 +470,7 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
 
                 {/* Last Updated */}
                 <div className="mt-4 pt-4 border-t border-border">
-                  <p className="text-xs text-white/40">
+                  <p className="text-xs text-muted-foreground">
                     Last updated: {new Date(set.updatedAt).toLocaleString()}
                   </p>
                 </div>

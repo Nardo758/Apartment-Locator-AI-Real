@@ -132,7 +132,7 @@ export function AlertCard({ alert, onDismiss, onTakeAction }: AlertCardProps) {
                 <Badge variant={severity.badgeVariant} size="sm">
                   {severity.label}
                 </Badge>
-                <Badge variant="outline" size="sm" className="text-white/60">
+                <Badge variant="outline" size="sm" className="text-muted-foreground">
                   {type.label}
                 </Badge>
                 {!alert.read && (
@@ -140,10 +140,10 @@ export function AlertCard({ alert, onDismiss, onTakeAction }: AlertCardProps) {
                 )}
               </div>
               
-              <h3 className="text-xl font-bold text-white mb-1">
+              <h3 className="text-xl font-bold text-foreground mb-1">
                 {alert.title}
               </h3>
-              <p className="text-white/70 text-sm">
+              <p className="text-muted-foreground text-sm">
                 {alert.description}
               </p>
             </div>
@@ -153,16 +153,16 @@ export function AlertCard({ alert, onDismiss, onTakeAction }: AlertCardProps) {
         {/* Competitor Info */}
         <div className="grid grid-cols-2 gap-3 mb-4 p-4 rounded-xl bg-muted/50 border border-border">
           <div>
-            <div className="text-xs text-white/50 mb-1">Competitor Property</div>
-            <div className="text-white font-semibold flex items-center gap-2">
-              <Building className="w-4 h-4 text-white/60" />
+            <div className="text-xs text-muted-foreground mb-1">Competitor Property</div>
+            <div className="text-foreground font-semibold flex items-center gap-2">
+              <Building className="w-4 h-4 text-muted-foreground" />
               {alert.competitorProperty}
             </div>
           </div>
           <div>
-            <div className="text-xs text-white/50 mb-1">Location</div>
-            <div className="text-white font-semibold flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-white/60" />
+            <div className="text-xs text-muted-foreground mb-1">Location</div>
+            <div className="text-foreground font-semibold flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-muted-foreground" />
               ZIP {alert.zipCode}
             </div>
           </div>
@@ -174,13 +174,13 @@ export function AlertCard({ alert, onDismiss, onTakeAction }: AlertCardProps) {
             {alert.type === 'price_drop' && alert.details.oldValue && alert.details.newValue && (
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-white/60 mb-1">Price Change</div>
+                  <div className="text-sm text-muted-foreground mb-1">Price Change</div>
                   <div className="flex items-center gap-2">
-                    <span className="text-white/50 line-through">
+                    <span className="text-muted-foreground line-through">
                       ${alert.details.oldValue.toLocaleString()}/mo
                     </span>
-                    <ArrowRight className="w-4 h-4 text-white/40" />
-                    <span className="text-xl font-bold text-white">
+                    <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xl font-bold text-foreground">
                       ${alert.details.newValue.toLocaleString()}/mo
                     </span>
                   </div>
@@ -200,8 +200,8 @@ export function AlertCard({ alert, onDismiss, onTakeAction }: AlertCardProps) {
               <div className="flex items-center gap-3">
                 <Gift className={`w-6 h-6 ${severity.color}`} />
                 <div>
-                  <div className="font-semibold text-white">{alert.details.concessionType}</div>
-                  <div className="text-sm text-white/70">{alert.details.concessionValue}</div>
+                  <div className="font-semibold text-foreground">{alert.details.concessionType}</div>
+                  <div className="text-sm text-muted-foreground">{alert.details.concessionValue}</div>
                 </div>
               </div>
             )}
@@ -214,14 +214,14 @@ export function AlertCard({ alert, onDismiss, onTakeAction }: AlertCardProps) {
             <DollarSign className="w-5 h-5 text-red-400 mt-0.5" />
             <div className="flex-1">
               <div className="text-sm font-semibold text-red-300 mb-1">Impact on Your Portfolio</div>
-              <div className="text-white/90 text-sm mb-2">{alert.impact.message}</div>
+              <div className="text-foreground/90 text-sm mb-2">{alert.impact.message}</div>
               <div className="flex items-center gap-4 text-xs">
                 <div>
-                  <span className="text-white/50">Affected: </span>
-                  <span className="text-white font-semibold">{alert.impact.affectedProperties} properties</span>
+                  <span className="text-muted-foreground">Affected: </span>
+                  <span className="text-foreground font-semibold">{alert.impact.affectedProperties} properties</span>
                 </div>
                 <div>
-                  <span className="text-white/50">Risk: </span>
+                  <span className="text-muted-foreground">Risk: </span>
                   <span className="text-red-400 font-semibold">
                     ${alert.impact.revenueRisk.toLocaleString()}/mo
                   </span>
@@ -235,18 +235,18 @@ export function AlertCard({ alert, onDismiss, onTakeAction }: AlertCardProps) {
         <div className="p-4 rounded-xl bg-primary/10 border border-primary/30 mb-4">
           <div className="flex items-start gap-3">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-              <DollarSign className="w-4 h-4 text-white" />
+              <DollarSign className="w-4 h-4 text-foreground" />
             </div>
             <div>
               <div className="text-sm font-semibold text-blue-300 mb-1">Recommended Action</div>
-              <div className="text-white/90 text-sm">{alert.recommendation}</div>
+              <div className="text-foreground/90 text-sm">{alert.recommendation}</div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-4 border-t border-border">
-          <div className="flex items-center gap-2 text-sm text-white/50">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="w-4 h-4" />
             <span>{alert.timestamp}</span>
           </div>
@@ -257,7 +257,7 @@ export function AlertCard({ alert, onDismiss, onTakeAction }: AlertCardProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => onDismiss(alert.id)}
-                className="text-white/60 hover:text-white"
+                className="text-muted-foreground hover:text-foreground"
               >
                 Dismiss
               </Button>

@@ -105,50 +105,50 @@ export function ImpactAnalysis({ alerts }: ImpactAnalysisProps) {
               <AlertTriangle className="w-6 h-6 text-red-400" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-white">Portfolio Impact Analysis</h2>
+              <h2 className="text-2xl font-bold text-foreground">Portfolio Impact Analysis</h2>
               <p className="text-red-300 text-sm">Competitive threats to your properties</p>
             </div>
           </div>
 
           <div className="grid grid-cols-4 gap-4">
             <div className="bg-muted/50 rounded-xl p-4 border border-border">
-              <div className="flex items-center gap-2 text-white/60 text-sm mb-2">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
                 <Home className="w-4 h-4" />
                 Properties at Risk
               </div>
-              <div className="text-3xl font-bold text-white">{totalAffectedProperties}</div>
+              <div className="text-3xl font-bold text-foreground">{totalAffectedProperties}</div>
               <div className="text-xs text-red-400 mt-1">
                 {((totalAffectedProperties / 25) * 100).toFixed(0)}% of portfolio
               </div>
             </div>
 
             <div className="bg-muted/50 rounded-xl p-4 border border-border">
-              <div className="flex items-center gap-2 text-white/60 text-sm mb-2">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
                 <DollarSign className="w-4 h-4" />
                 Revenue at Risk
               </div>
-              <div className="text-3xl font-bold text-white">
+              <div className="text-3xl font-bold text-foreground">
                 ${(totalRevenueRisk / 1000).toFixed(1)}K
               </div>
               <div className="text-xs text-red-400 mt-1">per month</div>
             </div>
 
             <div className="bg-muted/50 rounded-xl p-4 border border-border">
-              <div className="flex items-center gap-2 text-white/60 text-sm mb-2">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
                 <AlertTriangle className="w-4 h-4" />
                 Critical Alerts
               </div>
               <div className="text-3xl font-bold text-red-400">{criticalAlerts}</div>
-              <div className="text-xs text-white/60 mt-1">Immediate action needed</div>
+              <div className="text-xs text-muted-foreground mt-1">Immediate action needed</div>
             </div>
 
             <div className="bg-muted/50 rounded-xl p-4 border border-border">
-              <div className="flex items-center gap-2 text-white/60 text-sm mb-2">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
                 <Target className="w-4 h-4" />
                 High Priority
               </div>
               <div className="text-3xl font-bold text-orange-400">{highAlerts}</div>
-              <div className="text-xs text-white/60 mt-1">Action recommended</div>
+              <div className="text-xs text-muted-foreground mt-1">Action recommended</div>
             </div>
           </div>
         </div>
@@ -160,11 +160,11 @@ export function ImpactAnalysis({ alerts }: ImpactAnalysisProps) {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-                <TrendingDown className="w-5 h-5 text-white" />
+                <TrendingDown className="w-5 h-5 text-foreground" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white">Properties Being Undercut</h3>
-                <p className="text-sm text-white/60">{propertyImpacts.length} properties now priced above competitors</p>
+                <h3 className="text-xl font-bold text-foreground">Properties Being Undercut</h3>
+                <p className="text-sm text-muted-foreground">{propertyImpacts.length} properties now priced above competitors</p>
               </div>
             </div>
             <Badge variant="destructive">Action Required</Badge>
@@ -181,19 +181,19 @@ export function ImpactAnalysis({ alerts }: ImpactAnalysisProps) {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-semibold text-white">{property.address}</h4>
+                        <h4 className="font-semibold text-foreground">{property.address}</h4>
                         <Badge variant={risk.badge} size="sm">
                           {property.riskLevel.toUpperCase()}
                         </Badge>
                       </div>
-                      <div className="text-sm text-white/70">
+                      <div className="text-sm text-muted-foreground">
                         {property.competitorCount} competitor{property.competitorCount !== 1 ? 's' : ''} nearby
                       </div>
                     </div>
                     
                     <div className="text-right">
-                      <div className="text-sm text-white/60">Your Rent</div>
-                      <div className="text-xl font-bold text-white">
+                      <div className="text-sm text-muted-foreground">Your Rent</div>
+                      <div className="text-xl font-bold text-foreground">
                         ${property.currentRent.toLocaleString()}/mo
                       </div>
                     </div>
@@ -203,7 +203,7 @@ export function ImpactAnalysis({ alerts }: ImpactAnalysisProps) {
                     <div className="flex items-center gap-2">
                       <TrendingDown className={`w-5 h-5 ${risk.text}`} />
                       <div>
-                        <div className="text-sm text-white/60">Undercut by</div>
+                        <div className="text-sm text-muted-foreground">Undercut by</div>
                         <div className={`text-lg font-bold ${risk.text}`}>
                           ${property.undercutBy.toLocaleString()}/mo
                         </div>
@@ -211,7 +211,7 @@ export function ImpactAnalysis({ alerts }: ImpactAnalysisProps) {
                     </div>
 
                     <div className="text-right">
-                      <div className="text-sm text-white/60">Suggested Price</div>
+                      <div className="text-sm text-muted-foreground">Suggested Price</div>
                       <div className="text-lg font-bold text-green-400">
                         ${(property.currentRent - property.undercutBy + 25).toLocaleString()}/mo
                       </div>
@@ -220,7 +220,7 @@ export function ImpactAnalysis({ alerts }: ImpactAnalysisProps) {
 
                   {/* Quick recommendations */}
                   <div className="mt-3 pt-3 border-t border-border">
-                    <div className="text-xs text-white/60 mb-2">Quick Actions:</div>
+                    <div className="text-xs text-muted-foreground mb-2">Quick Actions:</div>
                     <div className="flex flex-wrap gap-2">
                       <button className="px-3 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 text-xs font-semibold transition-colors">
                         Match lowest price
@@ -245,11 +245,11 @@ export function ImpactAnalysis({ alerts }: ImpactAnalysisProps) {
         <div className="p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-              <BarChart3 className="w-5 h-5 text-white" />
+              <BarChart3 className="w-5 h-5 text-foreground" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white">Competitive Position</h3>
-              <p className="text-sm text-white/60">How your properties compare</p>
+              <h3 className="text-xl font-bold text-foreground">Competitive Position</h3>
+              <p className="text-sm text-muted-foreground">How your properties compare</p>
             </div>
           </div>
 
@@ -257,28 +257,28 @@ export function ImpactAnalysis({ alerts }: ImpactAnalysisProps) {
             <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="w-4 h-4 text-green-400" />
-                <span className="text-sm text-white/60">Priced Right</span>
+                <span className="text-sm text-muted-foreground">Priced Right</span>
               </div>
               <div className="text-3xl font-bold text-green-400">8</div>
-              <div className="text-xs text-white/60 mt-1">32% of portfolio</div>
+              <div className="text-xs text-muted-foreground mt-1">32% of portfolio</div>
             </div>
 
             <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
               <div className="flex items-center gap-2 mb-2">
                 <Target className="w-4 h-4 text-yellow-400" />
-                <span className="text-sm text-white/60">Need Adjustment</span>
+                <span className="text-sm text-muted-foreground">Need Adjustment</span>
               </div>
               <div className="text-3xl font-bold text-yellow-400">12</div>
-              <div className="text-xs text-white/60 mt-1">48% of portfolio</div>
+              <div className="text-xs text-muted-foreground mt-1">48% of portfolio</div>
             </div>
 
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30">
               <div className="flex items-center gap-2 mb-2">
                 <AlertTriangle className="w-4 h-4 text-red-400" />
-                <span className="text-sm text-white/60">High Risk</span>
+                <span className="text-sm text-muted-foreground">High Risk</span>
               </div>
               <div className="text-3xl font-bold text-red-400">5</div>
-              <div className="text-xs text-white/60 mt-1">20% of portfolio</div>
+              <div className="text-xs text-muted-foreground mt-1">20% of portfolio</div>
             </div>
           </div>
         </div>

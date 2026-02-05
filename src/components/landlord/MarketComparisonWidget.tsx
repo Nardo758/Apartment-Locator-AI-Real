@@ -35,7 +35,7 @@ export function MarketComparisonWidget({
       {/* Header */}
       <div className="p-6 bg-primary/10 border-b border-border">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-bold text-white">
+          <h3 className="text-lg font-bold text-foreground">
             Market Overview
           </h3>
           <div className="flex items-center gap-2">
@@ -53,7 +53,7 @@ export function MarketComparisonWidget({
             </span>
           </div>
         </div>
-        <p className="text-sm text-white/60">
+        <p className="text-sm text-muted-foreground">
           {bedrooms}bd apartments in {city}, {state}
         </p>
       </div>
@@ -62,21 +62,21 @@ export function MarketComparisonWidget({
         {/* Main Stats Grid */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <div className="text-sm text-white/60 mb-1">Average Rent</div>
-            <div className="text-3xl font-bold text-white">
+            <div className="text-sm text-muted-foreground mb-1">Average Rent</div>
+            <div className="text-3xl font-bold text-foreground">
               ${marketData.avgRent.toLocaleString()}
             </div>
-            <div className="text-xs text-white/50 mt-1">
+            <div className="text-xs text-muted-foreground mt-1">
               Median: ${marketData.medianRent.toLocaleString()}
             </div>
           </div>
 
           <div>
-            <div className="text-sm text-white/60 mb-1">Price Range</div>
-            <div className="text-xl font-bold text-white">
+            <div className="text-sm text-muted-foreground mb-1">Price Range</div>
+            <div className="text-xl font-bold text-foreground">
               ${marketData.minRent.toLocaleString()} - ${marketData.maxRent.toLocaleString()}
             </div>
-            <div className="text-xs text-white/50 mt-1">
+            <div className="text-xs text-muted-foreground mt-1">
               {marketData.totalProperties} properties
             </div>
           </div>
@@ -87,11 +87,11 @@ export function MarketComparisonWidget({
           <div className="p-3 rounded-lg bg-muted/50 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-blue-400" />
-              <span className="text-xs text-white/60">7-Day</span>
+              <span className="text-xs text-muted-foreground">7-Day</span>
             </div>
             <div className={`text-lg font-bold ${
               marketData.rentTrend7d > 0 ? 'text-green-400' : 
-              marketData.rentTrend7d < 0 ? 'text-red-400' : 'text-white'
+              marketData.rentTrend7d < 0 ? 'text-red-400' : 'text-foreground'
             }`}>
               {marketData.rentTrend7d > 0 ? '+' : ''}{marketData.rentTrend7d.toFixed(1)}%
             </div>
@@ -100,11 +100,11 @@ export function MarketComparisonWidget({
           <div className="p-3 rounded-lg bg-muted/50 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Calendar className="w-4 h-4 text-purple-400" />
-              <span className="text-xs text-white/60">30-Day</span>
+              <span className="text-xs text-muted-foreground">30-Day</span>
             </div>
             <div className={`text-lg font-bold ${
               trend30d > 0 ? 'text-green-400' : 
-              trend30d < 0 ? 'text-red-400' : 'text-white'
+              trend30d < 0 ? 'text-red-400' : 'text-foreground'
             }`}>
               {trend30d > 0 ? '+' : ''}{trend30d.toFixed(1)}%
             </div>
@@ -113,9 +113,9 @@ export function MarketComparisonWidget({
           <div className="p-3 rounded-lg bg-muted/50 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Home className="w-4 h-4 text-green-400" />
-              <span className="text-xs text-white/60">New</span>
+              <span className="text-xs text-muted-foreground">New</span>
             </div>
-            <div className="text-lg font-bold text-white">
+            <div className="text-lg font-bold text-foreground">
               {marketData.newListings30d}
             </div>
           </div>
@@ -128,15 +128,15 @@ export function MarketComparisonWidget({
               <div className="text-sm text-purple-300 font-semibold mb-1">
                 Market Velocity
               </div>
-              <div className="text-xs text-white/60">
+              <div className="text-xs text-muted-foreground">
                 Average time on market
               </div>
             </div>
             <div className="text-right">
-              <div className="text-3xl font-bold text-white">
+              <div className="text-3xl font-bold text-foreground">
                 {marketData.avgDaysOnMarket}
               </div>
-              <div className="text-sm text-white/60">days</div>
+              <div className="text-sm text-muted-foreground">days</div>
             </div>
           </div>
 
@@ -171,7 +171,7 @@ export function MarketComparisonWidget({
         <div className="mt-4 p-3 rounded-lg bg-blue-900/20 border border-blue-500/20">
           <div className="flex items-start gap-2">
             <DollarSign className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-white/80">
+            <p className="text-sm text-foreground/80">
               {isIncreasing ? (
                 <>Market is <span className="text-green-400 font-semibold">heating up</span> - Consider raising rents or reducing concessions.</>
               ) : trend30d < -1 ? (

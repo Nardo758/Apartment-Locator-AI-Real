@@ -250,7 +250,7 @@ export function CompetitionSetDialog({
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name" className="text-white">
+              <Label htmlFor="name" className="text-foreground">
                 Competition Set Name <span className="text-red-400">*</span>
               </Label>
               <Input
@@ -262,7 +262,7 @@ export function CompetitionSetDialog({
                 }}
                 placeholder="e.g., Downtown Premium Competitors"
                 className={cn(
-                  'mt-2 bg-muted/50 border-border text-white',
+                  'mt-2 bg-muted/50 border-border text-foreground',
                   errors.name && 'border-red-500'
                 )}
               />
@@ -272,7 +272,7 @@ export function CompetitionSetDialog({
             </div>
 
             <div>
-              <Label htmlFor="description" className="text-white">
+              <Label htmlFor="description" className="text-foreground">
                 Description (Optional)
               </Label>
               <Textarea
@@ -281,7 +281,7 @@ export function CompetitionSetDialog({
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Describe what this competition set is tracking..."
                 rows={4}
-                className="mt-2 bg-muted/50 border-border text-white resize-none"
+                className="mt-2 bg-muted/50 border-border text-foreground resize-none"
               />
             </div>
           </div>
@@ -290,7 +290,7 @@ export function CompetitionSetDialog({
       case 2:
         return (
           <div className="space-y-4">
-            <p className="text-white/70 text-sm">
+            <p className="text-muted-foreground text-sm">
               Select which of your properties you want to track competitors for:
             </p>
             {errors.ownPropertyIds && (
@@ -298,7 +298,7 @@ export function CompetitionSetDialog({
             )}
             <div className="space-y-2 max-h-[400px] overflow-y-auto">
               {userProperties.length === 0 ? (
-                <div className="text-center py-8 text-white/50">
+                <div className="text-center py-8 text-muted-foreground">
                   <Home className="w-12 h-12 mx-auto mb-3 opacity-50" />
                   <p>No properties found</p>
                   <p className="text-sm mt-1">Add properties to your portfolio first</p>
@@ -319,12 +319,12 @@ export function CompetitionSetDialog({
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <Home className="w-4 h-4 text-purple-400" />
-                          <span className="text-white font-medium">
+                          <span className="text-foreground font-medium">
                             {property.address}
                           </span>
                         </div>
                         {(property.bedrooms || property.bathrooms) && (
-                          <p className="text-sm text-white/60 mt-1 ml-6">
+                          <p className="text-sm text-muted-foreground mt-1 ml-6">
                             {property.bedrooms}bd / {property.bathrooms}ba
                             {property.currentRent && ` • $${property.currentRent.toLocaleString()}/mo`}
                           </p>
@@ -344,7 +344,7 @@ export function CompetitionSetDialog({
       case 3:
         return (
           <div className="space-y-4">
-            <p className="text-white/70 text-sm">
+            <p className="text-muted-foreground text-sm">
               Add competitors from the map or manually enter their addresses:
             </p>
 
@@ -356,7 +356,7 @@ export function CompetitionSetDialog({
                   onChange={(e) => setCompetitorSearch(e.target.value)}
                   placeholder="Search by address, city, or zip code..."
                   onKeyDown={(e) => e.key === 'Enter' && handleSearchCompetitors()}
-                  className="bg-muted/50 border-border text-white"
+                  className="bg-muted/50 border-border text-foreground"
                 />
                 <Button
                   onClick={handleSearchCompetitors}
@@ -388,14 +388,14 @@ export function CompetitionSetDialog({
 
             {/* Manual Add Section */}
             <div className="pt-4 border-t border-border">
-              <Label className="text-white mb-2 block">Add Manually</Label>
+              <Label className="text-foreground mb-2 block">Add Manually</Label>
               <div className="flex gap-2">
                 <Input
                   value={manualCompetitorAddress}
                   onChange={(e) => setManualCompetitorAddress(e.target.value)}
                   placeholder="123 Main St, City, State ZIP"
                   onKeyDown={(e) => e.key === 'Enter' && handleManualAdd()}
-                  className="bg-muted/50 border-border text-white"
+                  className="bg-muted/50 border-border text-foreground"
                 />
                 <Button
                   onClick={handleManualAdd}
@@ -410,7 +410,7 @@ export function CompetitionSetDialog({
             {/* Added Competitors List */}
             {formData.competitors.length > 0 && (
               <div className="pt-4 border-t border-border">
-                <Label className="text-white mb-3 block">
+                <Label className="text-foreground mb-3 block">
                   Added Competitors ({formData.competitors.length})
                 </Label>
                 <div className="space-y-2 max-h-[200px] overflow-y-auto">
@@ -421,7 +421,7 @@ export function CompetitionSetDialog({
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <MapPin className="w-4 h-4 text-purple-400 flex-shrink-0" />
-                        <span className="text-white text-sm truncate">
+                        <span className="text-foreground text-sm truncate">
                           {competitor.address}
                         </span>
                         {competitor.source && (
@@ -434,7 +434,7 @@ export function CompetitionSetDialog({
                         variant="ghost"
                         size="sm"
                         onClick={() => removeCompetitor(idx)}
-                        className="text-white/50 hover:text-red-400 flex-shrink-0"
+                        className="text-muted-foreground hover:text-red-400 flex-shrink-0"
                       >
                         <X className="w-4 h-4" />
                       </Button>
@@ -445,7 +445,7 @@ export function CompetitionSetDialog({
             )}
 
             {formData.competitors.length === 0 && (
-              <div className="text-center py-8 text-white/50">
+              <div className="text-center py-8 text-muted-foreground">
                 <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
                 <p>No competitors added yet</p>
                 <p className="text-sm mt-1">Search or manually add competitor addresses</p>
@@ -457,7 +457,7 @@ export function CompetitionSetDialog({
       case 4:
         return (
           <div className="space-y-4">
-            <p className="text-white/70 text-sm mb-4">
+            <p className="text-muted-foreground text-sm mb-4">
               Configure how you want to be notified about competitor activity:
             </p>
 
@@ -466,10 +466,10 @@ export function CompetitionSetDialog({
                 <div className="flex items-start gap-3">
                   <Bell className="w-5 h-5 text-purple-400 mt-0.5" />
                   <div>
-                    <Label htmlFor="alerts" className="text-white font-medium">
+                    <Label htmlFor="alerts" className="text-foreground font-medium">
                       Enable Pricing Alerts
                     </Label>
-                    <p className="text-sm text-white/60 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1">
                       Get notified when competitors change prices or add concessions
                     </p>
                   </div>
@@ -489,7 +489,7 @@ export function CompetitionSetDialog({
                 <p className="text-purple-300 text-sm">
                   ✓ You'll receive alerts when:
                 </p>
-                <ul className="mt-2 space-y-1 text-sm text-white/70 ml-4">
+                <ul className="mt-2 space-y-1 text-sm text-muted-foreground ml-4">
                   <li>• Competitors lower their rent prices</li>
                   <li>• New concessions or deals are offered</li>
                   <li>• Competitor properties become vacant</li>
@@ -500,26 +500,26 @@ export function CompetitionSetDialog({
 
             {/* Summary */}
             <div className="pt-4 border-t border-border">
-              <Label className="text-white mb-3 block">Summary</Label>
+              <Label className="text-foreground mb-3 block">Summary</Label>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-white/60">Competition Set:</span>
-                  <span className="text-white font-medium">{formData.name}</span>
+                  <span className="text-muted-foreground">Competition Set:</span>
+                  <span className="text-foreground font-medium">{formData.name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Your Properties:</span>
-                  <span className="text-white font-medium">
+                  <span className="text-muted-foreground">Your Properties:</span>
+                  <span className="text-foreground font-medium">
                     {formData.ownPropertyIds.length}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Competitors:</span>
-                  <span className="text-white font-medium">
+                  <span className="text-muted-foreground">Competitors:</span>
+                  <span className="text-foreground font-medium">
                     {formData.competitors.length}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">Alerts:</span>
+                  <span className="text-muted-foreground">Alerts:</span>
                   <Badge variant={formData.alertsEnabled ? 'success' : 'secondary'}>
                     {formData.alertsEnabled ? 'Enabled' : 'Disabled'}
                   </Badge>
@@ -570,12 +570,12 @@ export function CompetitionSetDialog({
                     )}
                   >
                     {isCompleted ? (
-                      <Check className="w-4 h-4 text-white" />
+                      <Check className="w-4 h-4 text-foreground" />
                     ) : (
                       <Icon
                         className={cn(
                           'w-4 h-4',
-                          isActive ? 'text-purple-400' : 'text-white/40'
+                          isActive ? 'text-purple-400' : 'text-muted-foreground'
                         )}
                       />
                     )}
@@ -583,7 +583,7 @@ export function CompetitionSetDialog({
                   <span
                     className={cn(
                       'text-sm font-medium hidden sm:inline',
-                      isActive ? 'text-purple-400' : 'text-white/60'
+                      isActive ? 'text-purple-400' : 'text-muted-foreground'
                     )}
                   >
                     {step.title}

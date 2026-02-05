@@ -47,18 +47,18 @@ export function CompetitorActivityFeed({ alerts, maxItems = 10 }: CompetitorActi
       <div className="p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-            <Activity className="w-5 h-5 text-white" />
+            <Activity className="w-5 h-5 text-foreground" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white">Competitor Activity Timeline</h2>
-            <p className="text-sm text-white/60">Real-time market movements</p>
+            <h2 className="text-xl font-bold text-foreground">Competitor Activity Timeline</h2>
+            <p className="text-sm text-muted-foreground">Real-time market movements</p>
           </div>
         </div>
 
         {displayAlerts.length === 0 ? (
           <div className="text-center py-12">
-            <Activity className="w-12 h-12 text-white/20 mx-auto mb-3" />
-            <p className="text-white/60">No recent competitor activity</p>
+            <Activity className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
+            <p className="text-muted-foreground">No recent competitor activity</p>
           </div>
         ) : (
           <div className="relative">
@@ -70,7 +70,7 @@ export function CompetitorActivityFeed({ alerts, maxItems = 10 }: CompetitorActi
                 <div key={alert.id} className="relative pl-16">
                   {/* Timeline dot */}
                   <div className={`absolute left-0 top-0 w-12 h-12 rounded-xl ${getSeverityColor(alert.severity)} bg-opacity-20 border-2 ${getSeverityColor(alert.severity).replace('bg-', 'border-')} flex items-center justify-center`}>
-                    <span className="text-white">
+                    <span className="text-foreground">
                       {getTypeIcon(alert.type)}
                     </span>
                   </div>
@@ -86,21 +86,21 @@ export function CompetitorActivityFeed({ alerts, maxItems = 10 }: CompetitorActi
                           >
                             {alert.severity.toUpperCase()}
                           </Badge>
-                          <span className="text-xs text-white/50">{alert.timestamp}</span>
+                          <span className="text-xs text-muted-foreground">{alert.timestamp}</span>
                         </div>
-                        <h4 className="font-semibold text-white mb-1">{alert.title}</h4>
-                        <p className="text-sm text-white/70">{alert.description}</p>
+                        <h4 className="font-semibold text-foreground mb-1">{alert.title}</h4>
+                        <p className="text-sm text-muted-foreground">{alert.description}</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 mt-3">
                       <div className="flex items-center gap-2 text-sm">
-                        <Building className="w-4 h-4 text-white/40" />
-                        <span className="text-white/70">{alert.competitorProperty}</span>
+                        <Building className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">{alert.competitorProperty}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="w-4 h-4 text-white/40" />
-                        <span className="text-white/70">ZIP {alert.zipCode}</span>
+                        <MapPin className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">ZIP {alert.zipCode}</span>
                       </div>
                     </div>
 
@@ -108,11 +108,11 @@ export function CompetitorActivityFeed({ alerts, maxItems = 10 }: CompetitorActi
                     {alert.type === 'price_drop' && alert.details.oldValue && alert.details.newValue && (
                       <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
                         <div className="flex items-center gap-2 text-sm">
-                          <span className="text-white/50">
+                          <span className="text-muted-foreground">
                             ${alert.details.oldValue.toLocaleString()}
                           </span>
-                          <ArrowRight className="w-4 h-4 text-white/30" />
-                          <span className="text-white font-semibold">
+                          <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-foreground font-semibold">
                             ${alert.details.newValue.toLocaleString()}/mo
                           </span>
                         </div>
@@ -128,15 +128,15 @@ export function CompetitorActivityFeed({ alerts, maxItems = 10 }: CompetitorActi
                       <div className="mt-3 pt-3 border-t border-border flex items-center gap-2">
                         <Gift className="w-4 h-4 text-purple-400" />
                         <div className="text-sm">
-                          <span className="text-white font-semibold">{alert.details.concessionType}</span>
-                          <span className="text-white/50"> - {alert.details.concessionValue}</span>
+                          <span className="text-foreground font-semibold">{alert.details.concessionType}</span>
+                          <span className="text-muted-foreground"> - {alert.details.concessionValue}</span>
                         </div>
                       </div>
                     )}
 
                     {/* Impact summary */}
                     <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-xs">
-                      <span className="text-white/50">
+                      <span className="text-muted-foreground">
                         Impacts {alert.impact.affectedProperties} of your properties
                       </span>
                       <div className="flex items-center gap-1 text-red-400 font-semibold">
