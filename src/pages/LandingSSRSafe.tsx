@@ -303,14 +303,38 @@ const LandingSSRSafe = () => {
               <Link 
                 to="/pricing" 
                 data-testid="link-cta-bottom"
-                className="inline-flex items-center justify-center bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold rounded-md shadow-lg transition-colors"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#ffffff',
+                  color: '#2563eb',
+                  padding: '12px 32px',
+                  fontSize: '18px',
+                  fontWeight: 600,
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                  textDecoration: 'none'
+                }}
               >
                 Search Apartments Free
-                <ArrowRight className="ml-2 w-5 h-5" />
+                <ArrowRight style={{ marginLeft: '8px', width: '20px', height: '20px' }} />
               </Link>
               <Link 
                 to="/pricing"
-                className="inline-flex items-center justify-center bg-blue-700 text-white hover:bg-blue-800 px-8 py-3 text-lg font-semibold rounded-md shadow-lg transition-colors"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#1d4ed8',
+                  color: '#ffffff',
+                  padding: '12px 32px',
+                  fontSize: '18px',
+                  fontWeight: 600,
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                  textDecoration: 'none'
+                }}
               >
                 View Market Intel
               </Link>
