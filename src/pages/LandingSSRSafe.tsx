@@ -95,7 +95,7 @@ const LandingSSRSafe = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/auth?type=renter&mode=signup" data-testid="link-hero-cta">
+                <Link to="/apartments" data-testid="link-hero-cta">
                   <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg">
                     Search Apartments Free
                     <ArrowRight className="ml-2 w-5 h-5" />
@@ -203,7 +203,7 @@ const LandingSSRSafe = () => {
                 </li>
               </ul>
               <Button className="w-full bg-blue-600 hover:bg-blue-700" asChild data-testid="button-renter-cta">
-                <Link to="/auth?type=renter&mode=signup">Get Started Free</Link>
+                <Link to="/apartments">Get Started Free</Link>
               </Button>
             </div>
 
@@ -235,7 +235,7 @@ const LandingSSRSafe = () => {
                 </li>
               </ul>
               <Button className="w-full bg-purple-600 hover:bg-purple-700" asChild data-testid="button-landlord-cta">
-                <Link to="/auth?type=landlord&mode=signup">Get Started</Link>
+                <Link to="/signup?type=landlord">Get Started</Link>
               </Button>
             </div>
 
@@ -267,7 +267,7 @@ const LandingSSRSafe = () => {
                 </li>
               </ul>
               <Button className="w-full bg-orange-600 hover:bg-orange-700" asChild data-testid="button-agent-cta">
-                <Link to="/auth?type=agent&mode=signup">Get Started</Link>
+                <Link to="/signup?type=agent">Get Started</Link>
               </Button>
             </div>
           </div>
@@ -300,7 +300,7 @@ const LandingSSRSafe = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <Link to="/auth?type=renter&mode=signup" data-testid="link-cta-bottom">
+              <Link to="/apartments" data-testid="link-cta-bottom">
                 <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold">
                   Search Apartments Free
                   <ArrowRight className="ml-2 w-5 h-5" />

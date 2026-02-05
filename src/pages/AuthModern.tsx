@@ -22,9 +22,6 @@ const AuthModern = () => {
   const urlMode = searchParams.get('mode');
   const urlPlan = searchParams.get('plan');
   
-  // Debug log URL params
-  console.log('[Auth Debug] URL Params:', { urlUserType, urlMode, urlPlan, fullSearch: window.location.search });
-  
   const [isSignUp, setIsSignUp] = useState(urlMode === 'signup');
   const [loading, setLoading] = useState(false);
   const [isFormSubmitting, setIsFormSubmitting] = useState(false); // Prevents auto-redirect during form submission
@@ -96,7 +93,6 @@ const AuthModern = () => {
       // Determine the target user type BEFORE any async operations
       // Priority: URL parameter > existing context value > default to renter
       const targetUserType: UserType = urlUserType || 'renter';
-      console.log('[Auth Debug] Signup - targetUserType:', targetUserType, 'urlUserType:', urlUserType);
       
       // Register the user
       await register(email, password, email.split('@')[0]);
@@ -112,7 +108,6 @@ const AuthModern = () => {
       // Navigate DIRECTLY to the correct path based on the URL user type
       // Don't rely on state - use the known targetUserType
       const redirectPath = getSignupRedirectPath(targetUserType);
-      console.log('[Auth Debug] Signup redirect path:', redirectPath);
       navigate(redirectPath, { replace: true });
     } catch (error: unknown) {
       console.error('Sign up error:', error);

@@ -48,6 +48,7 @@ import AgentOnboarding from "./pages/AgentOnboarding";
 import UserTypeSelection from "./pages/UserTypeSelection";
 import LandlordSettings from "./components/landlord/LandlordSettings";
 import LandlordRetentionDashboard from "./pages/LandlordRetentionDashboard";
+import SignUp from "./pages/SignUp";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
@@ -66,6 +67,7 @@ const App = () => (
                   <Routes>
                     {/* Public Routes - No Authentication Required */}
                     <Route path="/" element={<LandingSSRSafe />} />
+                    <Route path="/apartments" element={<UnifiedDashboard />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/pricing" element={<Pricing />} />
                     <Route path="/landlord-pricing" element={<LandlordPricing />} />
@@ -73,7 +75,7 @@ const App = () => (
                     
                     {/* Auth Routes */}
                     <Route path="/auth" element={<AuthModern />} />
-                    <Route path="/signup" element={<AuthModern />} />
+                    <Route path="/signup" element={<SignUp />} />
                     <Route path="/trial" element={<AuthModern />} />
                     
                     {/* Support & Legal - Public Access */}
@@ -179,6 +181,11 @@ const App = () => (
                         <LandlordRetentionDashboard />
                       </ProtectedRoute>
                     } />
+                    <Route path="/landlord/dashboard" element={
+                      <ProtectedRoute allowedUserTypes={['landlord']}>
+                        <LandlordRetentionDashboard />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/landlord-dashboard-old" element={
                       <ProtectedRoute allowedUserTypes={['landlord']}>
                         <LandlordDashboard />
@@ -212,6 +219,11 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/agent-dashboard" element={
+                      <ProtectedRoute allowedUserTypes={['agent']}>
+                        <AgentDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/agent/dashboard" element={
                       <ProtectedRoute allowedUserTypes={['agent']}>
                         <AgentDashboard />
                       </ProtectedRoute>
