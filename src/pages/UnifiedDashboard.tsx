@@ -13,6 +13,7 @@ import InteractivePropertyMap from '@/components/maps/InteractivePropertyMap';
 import { useLocationCostContext } from '@/contexts/LocationCostContext';
 import { calculateApartmentCosts, formatCurrency } from '@/services/locationCostService';
 import type { ApartmentLocationCost } from '@/types/locationCost.types';
+import { api } from '@/lib/api';
 
 interface POI {
   id: string;
@@ -73,11 +74,92 @@ export default function UnifiedDashboard() {
   useEffect(() => {
     document.title = 'Renter Dashboard | Apartment Locator AI';
   }, []);
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      setDataError(null);
+      const defaultCity = 'Orlando';
+      const defaultState = 'FL';
+
+      try {
+        const fetched = await api.getProperties({ city: defaultCity, state: defaultState, limit: 25 });
+        if (fetched.length > 0) {
+          const mapped = fetched
+            .map((property) => {
+              const lat = property.latitude ? parseFloat(property.latitude) : null;
+              const lng = property.longitude ? parseFloat(property.longitude) : null;
+              const rent = property.minPrice && property.maxPrice
+                ? (property.minPrice + property.maxPrice) / 2
+                : property.minPrice || property.maxPrice || 0;
+
+              if (!lat || !lng) {
+                return null;
+              }
+
+              return {
+                id: property.id,
+                name: property.name,
+                address: property.address,
+                coordinates: { lat, lng },
+                baseRent: rent,
+                parkingIncluded: false,
+                bedrooms: property.bedroomsMin || property.bedroomsMax || 0,
+                bathrooms: Number(property.bathroomsMin || property.bathroomsMax || 0),
+                imageUrl: property.images?.[0],
+              };
+            })
+            .filter((prop): prop is PropertyData => prop !== null);
+
+          if (mapped.length > 0) {
+            setProperties(mapped);
+          }
+        }
+      } catch (error) {
+        setDataError(error instanceof Error ? error.message : 'Failed to load properties');
+      }
+
+      try {
+        const snapshots = await api.getMarketSnapshots(defaultCity, defaultState, 1);
+        if (snapshots.length > 0) {
+          const latest = snapshots[0];
+          const rentChange = latest.priceTrend30d
+            ? parseFloat(String(latest.priceTrend30d))
+            : latest.priceTrend7d
+              ? parseFloat(String(latest.priceTrend7d))
+              : 0;
+          const inventoryLevel = latest.activeListings ?? latest.totalProperties ?? 0;
+          const daysOnMarket = Number(latest.avgDaysOnMarket || 0);
+          const leverageScore = Math.min(100, Math.max(0, Math.round((daysOnMarket / 2) + (inventoryLevel / 20))));
+          const aiRecommendation = rentChange < 0
+            ? 'Market conditions favor renters. Good time to negotiate!'
+            : rentChange > 3
+              ? 'Market is heating up. Act quickly and be competitive.'
+              : 'Stable market conditions. Negotiate based on property specifics.';
+
+          setMarketData((prev) => ({
+            medianRent: latest.medianPrice || latest.avgPrice || prev.medianRent,
+            rentChange: Number.isNaN(rentChange) ? prev.rentChange : rentChange,
+            daysOnMarket,
+            inventoryLevel,
+            leverageScore,
+            aiRecommendation,
+          }));
+        }
+      } catch (error) {
+        setDataError(error instanceof Error ? error.message : 'Failed to load market data');
+      }
+    };
+
+    loadDashboardData();
+  }, []);
   
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [sortBy, setSortBy] = useState<SortField>('trueCost');
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
   const [results, setResults] = useState<ApartmentLocationCost[]>([]);
+  const [properties, setProperties] = useState<PropertyData[]>(MOCK_PROPERTIES);
+  const [marketData, setMarketData] = useState(MOCK_MARKET_DATA);
+  const [dataError, setDataError] = useState<string | null>(null);
   const [pois, setPois] = useState<POI[]>([
     { id: '1', name: 'My Office', address: '123 Main St, Orlando, FL', category: 'work', coordinates: { lat: 28.5383, lng: -81.3792 } },
   ]);
@@ -106,6 +188,11 @@ export default function UnifiedDashboard() {
     amenities: [],
   });
 
+  const calculationProperties = useMemo(
+    () => (properties.length > 0 ? properties : MOCK_PROPERTIES),
+    [properties]
+  );
+
   const handleAddPOI = useCallback((poi: Omit<POI, 'id'>) => {
     const newPOI: POI = { ...poi, id: `poi-${Date.now()}` };
     setPois(prev => [...prev, newPOI]);
@@ -129,7 +216,7 @@ export default function UnifiedDashboard() {
           hasGymMembership: lifestyleInputs.hasGym,
           gymVisitsPerWeek: lifestyleInputs.gymVisits,
         },
-        MOCK_PROPERTIES,
+        calculationProperties,
         import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
         { stateAverage: gasPrice, lastUpdated: new Date(), source: 'manual' }
       );
@@ -139,10 +226,10 @@ export default function UnifiedDashboard() {
     } finally {
       setIsCalculating(false);
     }
-  }, [inputs, lifestyleInputs, gasPrice, setIsCalculating]);
+  }, [inputs, lifestyleInputs, gasPrice, setIsCalculating, calculationProperties]);
 
   const propertiesWithCosts = useMemo(() => {
-    return MOCK_PROPERTIES.map(prop => {
+    return calculationProperties.map(prop => {
       const costResult = results.find(r => r.apartmentId === prop.id);
       return {
         ...prop,
@@ -167,7 +254,7 @@ export default function UnifiedDashboard() {
           return 0;
       }
     });
-  }, [results, filters, sortBy]);
+  }, [results, filters, sortBy, calculationProperties]);
 
   const mapProperties = useMemo(() => {
     return propertiesWithCosts.map(p => ({
@@ -205,14 +292,19 @@ export default function UnifiedDashboard() {
             Apartment search, true-cost comparisons, and negotiation insights.
           </p>
         </div>
+        {dataError && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+            Failed to load live data: {dataError}
+          </div>
+        )}
         <MarketIntelBar
           location="Orlando, FL"
-          medianRent={MOCK_MARKET_DATA.medianRent}
-          rentChange={MOCK_MARKET_DATA.rentChange}
-          daysOnMarket={MOCK_MARKET_DATA.daysOnMarket}
-          inventoryLevel={MOCK_MARKET_DATA.inventoryLevel}
-          leverageScore={MOCK_MARKET_DATA.leverageScore}
-          aiRecommendation={MOCK_MARKET_DATA.aiRecommendation}
+          medianRent={marketData.medianRent}
+          rentChange={marketData.rentChange}
+          daysOnMarket={marketData.daysOnMarket}
+          inventoryLevel={marketData.inventoryLevel}
+          leverageScore={marketData.leverageScore}
+          aiRecommendation={marketData.aiRecommendation}
           className="mb-4"
         />
 
