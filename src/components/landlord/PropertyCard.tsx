@@ -73,7 +73,7 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
     }
   };
 
-  const risk = riskConfig[property.vacancyRisk];
+  const risk = riskConfig[property.vacancyRisk] || riskConfig.low;
   const recConfig = property.pricingRecommendation 
     ? recommendationConfig[property.pricingRecommendation.type]
     : null;
