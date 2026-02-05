@@ -151,7 +151,7 @@ export function AlertCard({ alert, onDismiss, onTakeAction }: AlertCardProps) {
         </div>
 
         {/* Competitor Info */}
-        <div className="grid grid-cols-2 gap-3 mb-4 p-4 rounded-xl bg-white/5 border border-white/10">
+        <div className="grid grid-cols-2 gap-3 mb-4 p-4 rounded-xl bg-muted/50 border border-border">
           <div>
             <div className="text-xs text-white/50 mb-1">Competitor Property</div>
             <div className="text-white font-semibold flex items-center gap-2">
@@ -232,7 +232,7 @@ export function AlertCard({ alert, onDismiss, onTakeAction }: AlertCardProps) {
         </div>
 
         {/* Recommendation */}
-        <div className="p-4 rounded-xl bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-500/30 mb-4">
+        <div className="p-4 rounded-xl bg-primary/10 border border-primary/30 mb-4">
           <div className="flex items-start gap-3">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0">
               <DollarSign className="w-4 h-4 text-white" />
@@ -245,7 +245,7 @@ export function AlertCard({ alert, onDismiss, onTakeAction }: AlertCardProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-white/10">
+        <div className="flex items-center justify-between pt-4 border-t border-border">
           <div className="flex items-center gap-2 text-sm text-white/50">
             <Clock className="w-4 h-4" />
             <span>{alert.timestamp}</span>

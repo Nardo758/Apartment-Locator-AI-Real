@@ -76,7 +76,7 @@ export function CompetitorActivityFeed({ alerts, maxItems = 10 }: CompetitorActi
                   </div>
 
                   {/* Activity card */}
-                  <div className="bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 transition-colors">
+                  <div className="bg-muted/50 rounded-xl border border-border p-4 hover:bg-muted transition-colors">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -106,7 +106,7 @@ export function CompetitorActivityFeed({ alerts, maxItems = 10 }: CompetitorActi
 
                     {/* Price change details */}
                     {alert.type === 'price_drop' && alert.details.oldValue && alert.details.newValue && (
-                      <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
+                      <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
                         <div className="flex items-center gap-2 text-sm">
                           <span className="text-white/50">
                             ${alert.details.oldValue.toLocaleString()}
@@ -125,7 +125,7 @@ export function CompetitorActivityFeed({ alerts, maxItems = 10 }: CompetitorActi
 
                     {/* Concession details */}
                     {alert.type === 'concession_added' && alert.details.concessionType && (
-                      <div className="mt-3 pt-3 border-t border-white/10 flex items-center gap-2">
+                      <div className="mt-3 pt-3 border-t border-border flex items-center gap-2">
                         <Gift className="w-4 h-4 text-purple-400" />
                         <div className="text-sm">
                           <span className="text-white font-semibold">{alert.details.concessionType}</span>
@@ -135,7 +135,7 @@ export function CompetitorActivityFeed({ alerts, maxItems = 10 }: CompetitorActi
                     )}
 
                     {/* Impact summary */}
-                    <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+                    <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-xs">
                       <span className="text-white/50">
                         Impacts {alert.impact.affectedProperties} of your properties
                       </span>

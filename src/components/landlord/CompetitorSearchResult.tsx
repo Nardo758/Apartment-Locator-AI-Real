@@ -101,7 +101,7 @@ export function CompetitorSearchResult({
 
         {/* Amenities */}
         {property.amenities && property.amenities.length > 0 && (
-          <div className="pt-3 border-t border-white/10">
+          <div className="pt-3 border-t border-border">
             <div className="flex flex-wrap gap-1.5">
               {property.amenities.slice(0, 4).map((amenity, idx) => (
                 <Badge 
@@ -123,7 +123,7 @@ export function CompetitorSearchResult({
 
         {/* Source Badge */}
         {property.source && (
-          <div className="mt-3 pt-3 border-t border-white/10">
+          <div className="mt-3 pt-3 border-t border-border">
             <div className="text-xs text-white/40">
               Source: <span className="text-white/60">{property.source}</span>
             </div>

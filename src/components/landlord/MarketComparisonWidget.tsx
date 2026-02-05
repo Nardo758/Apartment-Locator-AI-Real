@@ -33,7 +33,7 @@ export function MarketComparisonWidget({
   return (
     <Card variant="elevated" className="overflow-hidden">
       {/* Header */}
-      <div className="p-6 bg-gradient-to-r from-blue-900/30 to-purple-900/30 border-b border-white/10">
+      <div className="p-6 bg-primary/10 border-b border-border">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-bold text-white">
             Market Overview
@@ -84,7 +84,7 @@ export function MarketComparisonWidget({
 
         {/* Trends */}
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+          <div className="p-3 rounded-lg bg-muted/50 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-blue-400" />
               <span className="text-xs text-white/60">7-Day</span>
@@ -97,7 +97,7 @@ export function MarketComparisonWidget({
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+          <div className="p-3 rounded-lg bg-muted/50 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Calendar className="w-4 h-4 text-purple-400" />
               <span className="text-xs text-white/60">30-Day</span>
@@ -110,7 +110,7 @@ export function MarketComparisonWidget({
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+          <div className="p-3 rounded-lg bg-muted/50 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Home className="w-4 h-4 text-green-400" />
               <span className="text-xs text-white/60">New</span>
@@ -122,7 +122,7 @@ export function MarketComparisonWidget({
         </div>
 
         {/* Market Velocity */}
-        <div className="p-4 rounded-xl bg-gradient-to-r from-purple-900/20 to-blue-900/20 border border-purple-500/30">
+        <div className="p-4 rounded-xl bg-primary/10 border border-primary/30">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-purple-300 font-semibold mb-1">
