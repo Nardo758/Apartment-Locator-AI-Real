@@ -300,8 +300,8 @@ const LandingSSRSafe = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <Link 
-                to="/pricing" 
+              <a 
+                href="/pricing" 
                 data-testid="link-cta-bottom"
                 style={{
                   display: 'inline-flex',
@@ -319,9 +319,9 @@ const LandingSSRSafe = () => {
               >
                 Search Apartments Free
                 <ArrowRight style={{ marginLeft: '8px', width: '20px', height: '20px' }} />
-              </Link>
-              <Link 
-                to="/pricing"
+              </a>
+              <a 
+                href="/pricing"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -337,7 +337,7 @@ const LandingSSRSafe = () => {
                 }}
               >
                 View Market Intel
-              </Link>
+              </a>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-sm text-blue-100">
