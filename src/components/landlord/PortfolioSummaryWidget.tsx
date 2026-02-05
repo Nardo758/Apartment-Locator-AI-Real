@@ -108,46 +108,46 @@ export function PortfolioSummaryWidget({ userId, className = '' }: PortfolioSumm
       <CardContent className="space-y-4">
         {/* Property Count Stats */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+          <div className="p-4 rounded-xl bg-muted/50 border border-border">
             <div className="flex items-center gap-2 mb-2">
-              <Building2 className="w-4 h-4 text-blue-400" />
-              <span className="text-xs text-white/60">Total</span>
+              <Building2 className="w-4 h-4 text-primary" />
+              <span className="text-xs text-muted-foreground">Total</span>
             </div>
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-foreground">
               {summary.totalProperties}
             </div>
-            <div className="text-xs text-white/50 mt-1">Properties</div>
+            <div className="text-xs text-muted-foreground mt-1">Properties</div>
           </div>
 
-          <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30">
+          <div className="p-4 rounded-xl bg-green-100 dark:bg-green-500/10 border border-green-300 dark:border-green-500/30">
             <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="w-4 h-4 text-green-400" />
-              <span className="text-xs text-green-300">Occupied</span>
+              <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <span className="text-xs text-green-700 dark:text-green-300">Occupied</span>
             </div>
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-foreground">
               {summary.occupiedUnits}
             </div>
-            <div className="text-xs text-green-300 mt-1">Units</div>
+            <div className="text-xs text-green-700 dark:text-green-300 mt-1">Units</div>
           </div>
 
-          <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/30">
+          <div className="p-4 rounded-xl bg-orange-100 dark:bg-orange-500/10 border border-orange-300 dark:border-orange-500/30">
             <div className="flex items-center gap-2 mb-2">
-              <Home className="w-4 h-4 text-orange-400" />
-              <span className="text-xs text-orange-300">Vacant</span>
+              <Home className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+              <span className="text-xs text-orange-700 dark:text-orange-300">Vacant</span>
             </div>
-            <div className="text-2xl font-bold text-white">
+            <div className="text-2xl font-bold text-foreground">
               {summary.vacantUnits}
             </div>
-            <div className="text-xs text-orange-300 mt-1">Units</div>
+            <div className="text-xs text-orange-700 dark:text-orange-300 mt-1">Units</div>
           </div>
         </div>
 
         {/* Occupancy Rate */}
-        <div className="p-4 rounded-xl bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-purple-500/30">
+        <div className="p-4 rounded-xl bg-primary/10 border border-primary/30">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Percent className="w-5 h-5 text-purple-400" />
-              <span className="text-sm font-semibold text-purple-300">Occupancy Rate</span>
+              <Percent className="w-5 h-5 text-primary" />
+              <span className="text-sm font-semibold text-primary">Occupancy Rate</span>
             </div>
             <span className={`text-2xl font-bold ${occupancyColor}`}>
               {summary.occupancyRate.toFixed(1)}%
@@ -155,7 +155,7 @@ export function PortfolioSummaryWidget({ userId, className = '' }: PortfolioSumm
           </div>
           
           {/* Progress bar */}
-          <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
             <div 
               className={`h-full transition-all duration-500 ${
                 summary.occupancyRate >= 95 ? 'bg-green-500' : 
@@ -166,7 +166,7 @@ export function PortfolioSummaryWidget({ userId, className = '' }: PortfolioSumm
             />
           </div>
           
-          <div className="flex items-center justify-between mt-2 text-xs text-white/60">
+          <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
             <span>{summary.occupiedUnits} / {summary.occupiedUnits + summary.vacantUnits} units</span>
             <span className={occupancyColor}>
               {summary.occupancyRate >= 95 ? 'Excellent' : 
@@ -178,12 +178,12 @@ export function PortfolioSummaryWidget({ userId, className = '' }: PortfolioSumm
 
         {/* Revenue Stats */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+          <div className="p-4 rounded-xl bg-muted/50 border border-border">
             <div className="flex items-center gap-2 mb-2">
-              <DollarSign className="w-4 h-4 text-green-400" />
-              <span className="text-xs text-white/60">Revenue</span>
+              <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <span className="text-xs text-muted-foreground">Revenue</span>
             </div>
-            <div className="text-2xl font-bold text-white mb-1">
+            <div className="text-2xl font-bold text-foreground mb-1">
               ${summary.totalRevenue.toLocaleString()}
             </div>
             <div className={`flex items-center gap-1 text-sm ${revenueColor}`}>
@@ -196,36 +196,36 @@ export function PortfolioSummaryWidget({ userId, className = '' }: PortfolioSumm
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+          <div className="p-4 rounded-xl bg-muted/50 border border-border">
             <div className="flex items-center gap-2 mb-2">
-              <HomeIcon className="w-4 h-4 text-blue-400" />
-              <span className="text-xs text-white/60">Avg Rent</span>
+              <HomeIcon className="w-4 h-4 text-primary" />
+              <span className="text-xs text-muted-foreground">Avg Rent</span>
             </div>
-            <div className="text-2xl font-bold text-white mb-1">
+            <div className="text-2xl font-bold text-foreground mb-1">
               ${summary.averageRent.toLocaleString()}
             </div>
-            <div className="text-sm text-white/60">
+            <div className="text-sm text-muted-foreground">
               per unit/month
             </div>
           </div>
         </div>
 
         {/* Revenue Efficiency */}
-        <div className="p-4 rounded-xl bg-gradient-to-r from-green-900/20 to-blue-900/20 border border-green-500/30">
+        <div className="p-4 rounded-xl bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-500/30">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm text-green-300 font-semibold mb-1">
+              <div className="text-sm text-green-700 dark:text-green-300 font-semibold mb-1">
                 Revenue Efficiency
               </div>
-              <div className="text-xs text-white/60">
+              <div className="text-xs text-muted-foreground">
                 Actual vs. Potential
               </div>
             </div>
             <div className="text-right">
-              <div className="text-3xl font-bold text-white">
+              <div className="text-3xl font-bold text-foreground">
                 {revenueEfficiency.toFixed(1)}%
               </div>
-              <div className="text-xs text-white/60">
+              <div className="text-xs text-muted-foreground">
                 ${summary.potentialRevenue.toLocaleString()} potential
               </div>
             </div>
@@ -234,14 +234,14 @@ export function PortfolioSummaryWidget({ userId, className = '' }: PortfolioSumm
 
         {/* At-Risk Alert */}
         {summary.atRiskCount > 0 && (
-          <div className="p-4 rounded-xl bg-red-900/20 border border-red-500/30">
+          <div className="p-4 rounded-xl bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-500/30">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
               <div>
-                <div className="text-sm font-semibold text-red-300 mb-1">
+                <div className="text-sm font-semibold text-red-700 dark:text-red-300 mb-1">
                   {summary.atRiskCount} {summary.atRiskCount === 1 ? 'Property' : 'Properties'} Need Attention
                 </div>
-                <div className="text-xs text-white/70">
+                <div className="text-xs text-muted-foreground">
                   High vacancy risk or below-market pricing detected. Review pricing strategy and competitor activity.
                 </div>
               </div>

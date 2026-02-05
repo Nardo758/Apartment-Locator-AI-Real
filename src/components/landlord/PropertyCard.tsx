@@ -29,23 +29,23 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
 
   const riskConfig = {
     low: { 
-      color: 'text-green-400', 
-      bgColor: 'bg-green-500/10', 
-      borderColor: 'border-green-500/30',
+      color: 'text-green-700 dark:text-green-400', 
+      bgColor: 'bg-green-100 dark:bg-green-500/10', 
+      borderColor: 'border-green-300 dark:border-green-500/30',
       icon: <CheckCircle className="w-5 h-5" />,
       label: 'PRICED RIGHT'
     },
     medium: { 
-      color: 'text-yellow-400', 
-      bgColor: 'bg-yellow-500/10', 
-      borderColor: 'border-yellow-500/30',
+      color: 'text-yellow-700 dark:text-yellow-400', 
+      bgColor: 'bg-yellow-100 dark:bg-yellow-500/10', 
+      borderColor: 'border-yellow-300 dark:border-yellow-500/30',
       icon: <AlertTriangle className="w-5 h-5" />,
       label: 'WATCH CLOSELY'
     },
     high: { 
-      color: 'text-red-400', 
-      bgColor: 'bg-red-500/10', 
-      borderColor: 'border-red-500/30',
+      color: 'text-red-700 dark:text-red-400', 
+      bgColor: 'bg-red-100 dark:bg-red-500/10', 
+      borderColor: 'border-red-300 dark:border-red-500/30',
       icon: <AlertTriangle className="w-5 h-5" />,
       label: 'HIGH RISK'
     }
@@ -53,23 +53,23 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
 
   const recommendationConfig = {
     increase: {
-      color: 'text-green-400',
-      bgColor: 'bg-green-900/20',
-      borderColor: 'border-green-500/30',
+      color: 'text-green-700 dark:text-green-400',
+      bgColor: 'bg-green-100 dark:bg-green-900/20',
+      borderColor: 'border-green-300 dark:border-green-500/30',
       icon: <TrendingUp className="w-4 h-4" />,
       label: 'Raise Rent'
     },
     decrease: {
-      color: 'text-orange-400',
-      bgColor: 'bg-orange-900/20',
-      borderColor: 'border-orange-500/30',
+      color: 'text-orange-700 dark:text-orange-400',
+      bgColor: 'bg-orange-100 dark:bg-orange-900/20',
+      borderColor: 'border-orange-300 dark:border-orange-500/30',
       icon: <TrendingDown className="w-4 h-4" />,
       label: 'Lower Rent'
     },
     hold: {
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-900/20',
-      borderColor: 'border-blue-500/30',
+      color: 'text-blue-700 dark:text-blue-400',
+      bgColor: 'bg-blue-100 dark:bg-blue-900/20',
+      borderColor: 'border-blue-300 dark:border-blue-500/30',
       icon: <Target className="w-4 h-4" />,
       label: 'Hold Steady'
     }
