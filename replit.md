@@ -40,14 +40,23 @@ An AI-powered apartment locator application that helps users find apartments, an
     - Renters → `/dashboard`
     - Landlords → `/landlord-onboarding` → `/landlord-dashboard` or `/portfolio-dashboard`
     - Agents → `/agent-onboarding` → `/agent-dashboard`
-- **Landlord Dashboard**: New unified dashboard at `/landlord-dashboard` mirroring UnifiedDashboard pattern
-  - Light gradient theme matching User Dashboard (bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50)
-  - Theme-aware components with proper light/dark mode support
-  - MarketIntelBar with landlord-specific metrics (portfolio value, avg rent, vacancy rate)
-  - LeftPanelSidebar with PortfolioSummaryWidget, PropertyFilters, CompetitionSetManager, AlertsWidget
-  - Map/List toggle view with property cards
-  - All components use `authenticatedFetch()` for consistent 401 handling
-  - Mock data fallback when API endpoints don't exist yet
+- **Landlord Retention Dashboard**: New retention intelligence dashboard at `/landlord-dashboard` 
+  - Strategic pivot from "competitive pricing" to "retention intelligence" platform
+  - Light gradient theme (bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50)
+  - Components in `src/components/retention/`:
+    - RetentionHealthBar: Portfolio retention metrics (retention rate, units at risk, vacancy cost, renewals due, AI insight)
+    - PortfolioHealthWidget: Sidebar with retention rate hero, unit stats grid, vacancy cost callout
+    - UpcomingRenewalsWidget: Renewal list with risk-colored indicators and lease expiry countdown
+    - RetentionAlertsSidebar: Severity-styled alert cards (critical, warning, info, success)
+    - RetentionFilterBar: Filter buttons (All, Critical, At Risk, Healthy, Vacant)
+    - VacancyCostCalculator: 12-month cost scenarios comparing retention vs. turnover
+    - RetentionScoreBreakdown: Risk factor visualization with score bars
+    - NearbyMarketContext: Nearby comparable units with concessions
+    - RetentionDetailCard: Property detail panel with risk breakdown and cost calculator
+    - RetentionMapView: Map with health-colored pins (green=healthy, yellow=at risk, red=critical, gray=vacant)
+  - Types in `src/types/retention.types.ts`: RetentionUnit, RetentionAlert, PortfolioHealth, RetentionMetrics
+  - Mock data fallback until API endpoints are implemented
+  - All interactive elements have data-testid attributes for testing
 - **API Routes**: RESTful endpoints for properties, saved apartments, search history, preferences, market data, auth, and payments
 
 ## Project Architecture
