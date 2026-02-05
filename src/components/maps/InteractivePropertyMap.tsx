@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { Coordinates } from '@/types/locationCost.types';
 
+const GOOGLE_MAPS_LIBRARIES: ("places")[] = ['places'];
+
 type POICategory = 'work' | 'gym' | 'grocery' | 'daycare' | 'school' | 'medical' | 'pet' | 'religious' | 'dining' | 'nightlife' | 'entertainment' | 'library' | 'coworking' | 'park' | 'beach' | 'coffee' | 'other';
 
 interface POI {
@@ -107,7 +109,7 @@ export default function InteractivePropertyMap({
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
-    libraries: ['places'],
+    libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
   const mapCenter = useMemo(() => {
