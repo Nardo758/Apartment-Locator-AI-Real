@@ -24,6 +24,8 @@ An AI-powered apartment locator application that helps users find apartments, an
 - **Backend**: Express server with Drizzle ORM for database operations
 - **Database**: PostgreSQL with tables for properties, saved apartments, search history, user preferences, market snapshots, users, and user POIs
 - **Authentication**: JWT-based auth with bcrypt password hashing (signup, signin, /me endpoints)
+  - Centralized auth helper (`src/lib/authHelpers.ts`) with `getAuthToken()`, `getAuthHeaders()`, and `authenticatedFetch()`
+  - Token stored in localStorage as `auth_token` (consistent across all components)
   - Header component integrates with useUser hook for dynamic auth state display
   - Shows "Sign In" button when not authenticated, user dropdown menu when logged in
   - Sign Out option available in both desktop dropdown and mobile menu
