@@ -20,8 +20,10 @@ import {
 import type { Property, PropertyCardProps } from '@/types/landlord.types';
 
 export function PropertyCard({ property, onEdit, onViewDetails, className = '' }: PropertyCardProps) {
-  const priceDiff = property.currentRent - property.marketAvgRent;
-  const priceDiffPercent = ((priceDiff / property.marketAvgRent) * 100).toFixed(1);
+  const priceDiff = (property.currentRent || 0) - (property.marketAvgRent || 0);
+  const priceDiffPercent = property.marketAvgRent 
+    ? ((priceDiff / property.marketAvgRent) * 100).toFixed(1)
+    : '0.0';
   const isOverpriced = priceDiff > 0;
   const isUnderpriced = priceDiff < -50;
 
@@ -80,7 +82,7 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
 
   // Calculate average competitor rent
   const avgCompetitorRent = property.competitorComparison?.length
-    ? property.competitorComparison.reduce((sum, c) => sum + c.rent, 0) / property.competitorComparison.length
+    ? property.competitorComparison.reduce((sum, c) => sum + (c.rent || 0), 0) / property.competitorComparison.length
     : null;
 
   return (
@@ -114,7 +116,7 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
             <p className="text-white/60 text-sm flex items-center gap-2">
               <Building2 className="w-4 h-4" />
               {property.city}, {property.state} • {property.bedrooms}bd/{property.bathrooms}ba
-              {property.squareFeet && ` • ${property.squareFeet.toLocaleString()} sq ft`}
+              {property.squareFeet && ` • ${property.squareFeet?.toLocaleString()} sq ft`}
               {property.yearBuilt && ` • Built ${property.yearBuilt}`}
             </p>
             {property.competitionSetName && (
@@ -142,7 +144,7 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
               {isUnderpriced && <TrendingDown className="w-4 h-4 text-green-400" />}
             </div>
             <div className="text-2xl font-bold text-white">
-              ${property.currentRent.toLocaleString()}/mo
+              ${property.currentRent?.toLocaleString() || '0'}/mo
             </div>
             <div className={`text-sm mt-1 ${isOverpriced ? 'text-red-400' : isUnderpriced ? 'text-green-400' : 'text-white/60'}`}>
               {isOverpriced ? '+' : ''}{priceDiffPercent}% vs market
@@ -152,7 +154,7 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
             <div className="text-sm text-white/60 mb-2">Market Avg</div>
             <div className="text-2xl font-bold text-white">
-              ${property.marketAvgRent.toLocaleString()}/mo
+              ${property.marketAvgRent?.toLocaleString() || '0'}/mo
             </div>
             <div className="text-sm text-white/60 mt-1">
               {property.bedrooms}bd in {property.city}
@@ -236,7 +238,7 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
               )}
             </div>
             <div className="space-y-2">
-              {property.competitorComparison.slice(0, 3).map((comp, idx) => (
+              {property.competitorComparison?.slice(0, 3).map((comp, idx) => (
                 <div key={idx} className="flex items-center justify-between text-sm p-2 rounded bg-white/5">
                   <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
@@ -250,20 +252,20 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
                       {comp.bedrooms}bd/${comp.bathrooms}ba
                     </span>
                     <span className={`font-semibold ${
-                      comp.rent > property.currentRent ? 'text-green-400' : 'text-orange-400'
+                      (comp.rent || 0) > (property.currentRent || 0) ? 'text-green-400' : 'text-orange-400'
                     }`}>
-                      ${comp.rent.toLocaleString()}
+                      ${comp.rent?.toLocaleString() || '0'}
                     </span>
                   </div>
                 </div>
               ))}
             </div>
-            {property.competitorComparison.length > 3 && (
+            {(property.competitorComparison?.length || 0) > 3 && (
               <button
                 onClick={() => onViewDetails?.(property.id)}
                 className="w-full mt-2 text-xs text-purple-400 hover:text-purple-300 flex items-center justify-center gap-1"
               >
-                View all {property.competitorComparison.length} competitors
+                View all {property.competitorComparison?.length} competitors
                 <ChevronRight className="w-3 h-3" />
               </button>
             )}
