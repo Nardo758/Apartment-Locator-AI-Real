@@ -91,11 +91,14 @@ export interface IStorage {
   deleteLandlordProperty(landlordId: string, propertyId: string): Promise<void>;
   getPortfolioSummary(landlordId: string): Promise<{
     totalProperties: number;
-    occupied: number;
-    vacant: number;
+    occupiedUnits: number;
+    vacantUnits: number;
     occupancyRate: number;
-    totalMonthlyRevenue: number;
-    potentialMonthlyRevenue: number;
+    totalRevenue: number;
+    potentialRevenue: number;
+    revenueChange: number;
+    averageRent: number;
+    atRiskCount: number;
     revenueEfficiency: number;
     avgDaysVacant: number;
     totalSquareFeet: number;
@@ -381,13 +384,20 @@ export class DatabaseStorage implements IStorage {
       ? totalMonthlyRevenue / totalSquareFeet
       : 0;
     
+    const averageRent = occupied > 0 && totalMonthlyRevenue > 0
+      ? totalMonthlyRevenue / occupied
+      : 0;
+    
     return {
       totalProperties,
-      occupied,
-      vacant,
+      occupiedUnits: occupied,
+      vacantUnits: vacant,
       occupancyRate: Math.round(occupancyRate * 100) / 100,
-      totalMonthlyRevenue: Math.round(totalMonthlyRevenue * 100) / 100,
-      potentialMonthlyRevenue: Math.round(potentialMonthlyRevenue * 100) / 100,
+      totalRevenue: Math.round(totalMonthlyRevenue * 100) / 100,
+      potentialRevenue: Math.round(potentialMonthlyRevenue * 100) / 100,
+      revenueChange: 0,
+      averageRent: Math.round(averageRent * 100) / 100,
+      atRiskCount: vacant,
       revenueEfficiency: Math.round(revenueEfficiency * 100) / 100,
       avgDaysVacant: Math.round(avgDaysVacant * 100) / 100,
       totalSquareFeet,
