@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,11 @@ type TabType = 'overview' | 'clients' | 'lead-capture' | 'calculator' | 'reports
 
 export default function AgentDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  
+  // Set page title
+  useEffect(() => {
+    document.title = 'Agent Dashboard | Apartment Locator AI';
+  }, []);
 
   const stats = {
     totalClients: 8,

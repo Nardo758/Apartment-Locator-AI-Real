@@ -1,5 +1,5 @@
-import { useState, useMemo, useCallback } from 'react';
-import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star } from 'lucide-react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -68,6 +68,11 @@ const GROCERY_STORE_MAP: Record<string, 'walmart' | 'wholefoods' | 'traderjoes' 
 
 export default function UnifiedDashboard() {
   const { inputs, gasPrice, isCalculating, setIsCalculating } = useLocationCostContext();
+  
+  // Set page title
+  useEffect(() => {
+    document.title = 'Apartment Search | Apartment Locator AI';
+  }, []);
   
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [sortBy, setSortBy] = useState<SortField>('trueCost');

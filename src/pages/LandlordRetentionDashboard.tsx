@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building2, Map, List, Settings, User } from "lucide-react";
@@ -48,6 +48,11 @@ export default function LandlordRetentionDashboard() {
   const [filter, setFilter] = useState<RetentionFilter>("All");
   const [viewMode, setViewMode] = useState<"map" | "list">("map");
   const [sortBy, setSortBy] = useState<string>("risk");
+  
+  // Set page title
+  useEffect(() => {
+    document.title = 'Landlord Dashboard | Apartment Locator AI';
+  }, []);
 
   const filteredUnits = useMemo(() => {
     return MOCK_UNITS.filter(u => {

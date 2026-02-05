@@ -72,8 +72,15 @@ const AuthModern = () => {
 
     try {
       await register(email, password, email.split('@')[0]);
+      
+      // Set the user type in database after registration if we have one from URL
+      const targetUserType = urlUserType || userType;
+      if (targetUserType) {
+        await setUserType(targetUserType);
+      }
+      
       toast.success('Account created successfully!');
-      const redirectPath = getRedirectPath(urlUserType || userType);
+      const redirectPath = getRedirectPath(targetUserType);
       navigate(redirectPath);
     } catch (error: unknown) {
       console.error('Sign up error:', error);
