@@ -301,13 +301,13 @@ const LandingSSRSafe = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <Link to="/pricing" data-testid="link-cta-bottom">
-                <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold shadow-lg">
+                <Button size="lg" className="!bg-white !text-blue-600 hover:!bg-gray-100 px-8 py-3 text-lg font-semibold shadow-lg">
                   Search Apartments Free
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
               <Link to="/pricing">
-                <Button size="lg" className="bg-blue-800 text-white hover:bg-blue-900 px-8 py-3 text-lg font-semibold shadow-lg border-2 border-blue-400">
+                <Button size="lg" className="!bg-blue-800 !text-white hover:!bg-blue-900 px-8 py-3 text-lg font-semibold shadow-lg border-2 border-blue-400">
                   View Market Intel
                 </Button>
               </Link>
