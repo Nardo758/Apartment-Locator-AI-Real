@@ -18,6 +18,32 @@ declare global {
   }
 }
 
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour window
+const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
+
+function checkRateLimit(keyId: string, limit: number): { allowed: boolean; remaining: number; resetAt: number } {
+  const now = Date.now();
+  const entry = rateLimitMap.get(keyId);
+  
+  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    rateLimitMap.set(keyId, { count: 1, windowStart: now });
+    return { allowed: true, remaining: limit - 1, resetAt: now + RATE_LIMIT_WINDOW_MS };
+  }
+  
+  if (entry.count >= limit) {
+    return { allowed: false, remaining: 0, resetAt: entry.windowStart + RATE_LIMIT_WINDOW_MS };
+  }
+  
+  entry.count++;
+  return { allowed: true, remaining: limit - entry.count, resetAt: entry.windowStart + RATE_LIMIT_WINDOW_MS };
+}
+
+function matchEndpointPattern(pattern: string, path: string): boolean {
+  if (pattern === '*' || pattern === '/api/jedi/*') return true;
+  const regexPattern = pattern.replace(/\*/g, '.*').replace(/\//g, '\\/');
+  return new RegExp(`^${regexPattern}$`).test(path);
+}
+
 const validateApiKey = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   
@@ -47,12 +73,40 @@ const validateApiKey = async (req: Request, res: Response, next: NextFunction) =
   }
 
   const permissions = keyRecord.permissions as { endpoints: string[]; rateLimit: number; tier: 'free' | 'basic' | 'premium' | 'enterprise' } | null;
+  const tier = permissions?.tier || 'free';
+  const endpoints = permissions?.endpoints || ['/api/jedi/*'];
+  const rateLimit = permissions?.rateLimit || 1000;
+  
+  const hasAccess = endpoints.some(pattern => matchEndpointPattern(pattern, req.path));
+  if (!hasAccess) {
+    return res.status(403).json({ 
+      error: "Insufficient permissions for this endpoint",
+      tier: tier,
+      upgrade_info: "Contact support to upgrade your API tier"
+    });
+  }
+  
+  const rateLimitCheck = checkRateLimit(keyRecord.id, rateLimit);
+  if (!rateLimitCheck.allowed) {
+    res.setHeader('X-RateLimit-Limit', rateLimit);
+    res.setHeader('X-RateLimit-Remaining', 0);
+    res.setHeader('X-RateLimit-Reset', Math.ceil(rateLimitCheck.resetAt / 1000));
+    return res.status(429).json({ 
+      error: "Rate limit exceeded",
+      limit: rateLimit,
+      reset_at: new Date(rateLimitCheck.resetAt).toISOString()
+    });
+  }
+  
+  res.setHeader('X-RateLimit-Limit', rateLimit);
+  res.setHeader('X-RateLimit-Remaining', rateLimitCheck.remaining);
+  res.setHeader('X-RateLimit-Reset', Math.ceil(rateLimitCheck.resetAt / 1000));
   
   req.apiKey = {
     keyId: keyRecord.id,
-    tier: permissions?.tier || 'free',
-    endpoints: permissions?.endpoints || ['/api/jedi/*'],
-    rateLimit: permissions?.rateLimit || 1000,
+    tier: tier,
+    endpoints: endpoints,
+    rateLimit: rateLimit,
   };
 
   await storage.updateApiKeyUsage(keyRecord.id);
@@ -461,6 +515,13 @@ export function registerJediRoutes(app: Express) {
 
   app.post("/api/jedi/api-keys", async (req: Request, res: Response) => {
     try {
+      if (!req.isAuthenticated?.() || !(req.user as any)?.isAdmin) {
+        return res.status(403).json({ 
+          error: "Admin access required to create API keys",
+          info: "Contact your account administrator"
+        });
+      }
+      
       const { name, tier = 'free', userId } = req.body;
       
       if (!name) {
