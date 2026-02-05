@@ -52,10 +52,22 @@ app.use((req, res, next) => {
 
   const server = createServer(app);
 
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
+  const shouldServeStatic =
+    app.get("env") !== "development" ||
+    process.env.NODE_ENV === "production" ||
+    process.env.REPLIT_DEPLOYMENT === "true" ||
+    Boolean(process.env.REPL_ID) ||
+    Boolean(process.env.REPL_SLUG);
+
+  if (shouldServeStatic) {
+    try {
+      serveStatic(app);
+    } catch (error) {
+      log(`Static build not found, falling back to Vite: ${(error as Error).message}`);
+      await setupVite(app, server);
+    }
   } else {
-    serveStatic(app);
+    await setupVite(app, server);
   }
 
   const port = 5000;
