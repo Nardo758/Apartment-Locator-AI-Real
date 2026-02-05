@@ -12,24 +12,8 @@ import {
   Percent
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { getAuthHeaders } from '@/lib/authHelpers';
-
-interface PortfolioSummary {
-  totalProperties: number;
-  occupiedUnits: number;
-  vacantUnits: number;
-  occupancyRate: number;
-  totalRevenue: number;
-  potentialRevenue: number;
-  atRiskCount: number;
-  averageRent: number;
-  revenueChange: number; // percentage change
-}
-
-interface PortfolioSummaryWidgetProps {
-  userId?: string;
-  className?: string;
-}
+import { authenticatedFetch } from '@/lib/authHelpers';
+import type { PortfolioSummary, PortfolioSummaryWidgetProps } from '@/types/landlord.types';
 
 export function PortfolioSummaryWidget({ userId, className = '' }: PortfolioSummaryWidgetProps) {
   const [summary, setSummary] = useState<PortfolioSummary | null>(null);
@@ -40,12 +24,13 @@ export function PortfolioSummaryWidget({ userId, className = '' }: PortfolioSumm
     const fetchSummary = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/landlord/portfolio/summary', {
-          headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-          },
+        const response = await authenticatedFetch('/api/landlord/portfolio/summary', {
+          headers: { 'Content-Type': 'application/json' },
         });
+
+        if (response.status === 401) {
+          return; // handleUnauthorized already called by authenticatedFetch
+        }
 
         if (!response.ok) {
           throw new Error('Failed to fetch portfolio summary');

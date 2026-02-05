@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CompetitionSetDialog } from './CompetitionSetDialog';
 import { useToast } from '@/hooks/use-toast';
-import { getAuthToken, getAuthHeaders } from '@/lib/authHelpers';
+import { authenticatedFetch } from '@/lib/authHelpers';
 import {
   Plus,
   Edit,
@@ -18,34 +18,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-interface CompetitionSet {
-  id: string;
-  userId: string;
-  name: string;
-  description?: string;
-  ownPropertyIds: string[];
-  alertsEnabled: boolean;
-  createdAt: string;
-  updatedAt: string;
-  competitorCount?: number;
-  competitors?: Array<{
-    id: string;
-    address: string;
-    bedrooms?: number;
-    bathrooms?: number;
-    currentRent?: number;
-    source?: string;
-  }>;
-}
-
-interface Property {
-  id: string;
-  address: string;
-  bedrooms?: number;
-  bathrooms?: number;
-  currentRent?: number;
-}
+import type { CompetitionSet, Property } from '@/types/competitionSets.types';
 
 interface CompetitionSetManagerProps {
   userId?: string;
@@ -61,16 +34,14 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
   const [expandedSetId, setExpandedSetId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const getHeaders = (): HeadersInit => {
-    return getAuthHeaders();
-  };
-
   // Fetch competition sets
   const fetchCompetitionSets = async () => {
     try {
-      const response = await fetch('/api/competition-sets', {
-        headers: getHeaders(),
-      });
+      const response = await authenticatedFetch('/api/competition-sets');
+
+      if (response.status === 401) {
+        return; // handleUnauthorized already called by authenticatedFetch
+      }
 
       if (!response.ok) {
         throw new Error('Failed to fetch competition sets');
@@ -91,9 +62,11 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
   // Fetch user properties (for the dialog)
   const fetchUserProperties = async () => {
     try {
-      const response = await fetch('/api/landlord/properties', {
-        headers: getHeaders(),
-      });
+      const response = await authenticatedFetch('/api/landlord/properties');
+
+      if (response.status === 401) {
+        return; // handleUnauthorized already called by authenticatedFetch
+      }
 
       if (response.ok) {
         const data = await response.json();
@@ -121,9 +94,11 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
   // Fetch detailed competition set (with competitors)
   const fetchCompetitionSetDetails = async (setId: string) => {
     try {
-      const response = await fetch(`/api/competition-sets/${setId}`, {
-        headers: getHeaders(),
-      });
+      const response = await authenticatedFetch(`/api/competition-sets/${setId}`);
+
+      if (response.status === 401) {
+        return null;
+      }
 
       if (!response.ok) {
         throw new Error('Failed to fetch competition set details');
@@ -157,12 +132,9 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
       
       const method = editingSet ? 'PATCH' : 'POST';
 
-      const response = await fetch(url, {
+      const response = await authenticatedFetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          ...getHeaders(),
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
           description: formData.description,
@@ -170,6 +142,10 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
           alertsEnabled: formData.alertsEnabled,
         }),
       });
+
+      if (response.status === 401) {
+        return;
+      }
 
       if (!response.ok) {
         const error = await response.json();
@@ -183,12 +159,9 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
         await Promise.all(
           formData.competitors.map(async (competitor: any) => {
             try {
-              await fetch(`/api/competition-sets/${savedSet.id}/competitors`, {
+              await authenticatedFetch(`/api/competition-sets/${savedSet.id}/competitors`, {
                 method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  ...getHeaders(),
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(competitor),
               });
             } catch (err) {
@@ -225,10 +198,13 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
     setDeletingSetId(setId);
 
     try {
-      const response = await fetch(`/api/competition-sets/${setId}`, {
+      const response = await authenticatedFetch(`/api/competition-sets/${setId}`, {
         method: 'DELETE',
-        headers: getHeaders(),
       });
+
+      if (response.status === 401) {
+        return;
+      }
 
       if (!response.ok) {
         throw new Error('Failed to delete competition set');
@@ -517,10 +493,17 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
         editData={editingSet ? {
           id: editingSet.id,
           name: editingSet.name,
-          description: editingSet.description,
+          description: editingSet.description ?? undefined,
           ownPropertyIds: editingSet.ownPropertyIds,
           alertsEnabled: editingSet.alertsEnabled,
-          competitors: editingSet.competitors,
+          competitors: editingSet.competitors?.map(c => ({
+            id: c.id,
+            address: c.address,
+            bedrooms: c.bedrooms ?? undefined,
+            bathrooms: typeof c.bathrooms === 'string' ? parseFloat(c.bathrooms) : c.bathrooms ?? undefined,
+            currentRent: typeof c.currentRent === 'string' ? parseFloat(c.currentRent) : c.currentRent ?? undefined,
+            source: c.source,
+          })),
         } : undefined}
         userProperties={userProperties}
       />

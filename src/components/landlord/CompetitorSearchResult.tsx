@@ -8,27 +8,10 @@ import {
   CheckCircle,
   Plus
 } from 'lucide-react';
-
-interface CompetitorProperty {
-  id?: string;
-  address: string;
-  latitude?: number;
-  longitude?: number;
-  bedrooms?: number;
-  bathrooms?: number;
-  squareFeet?: number;
-  currentRent?: number;
-  amenities?: string[];
-  distance?: number; // miles from search center
-  source?: string;
-}
-
-interface CompetitorSearchResultProps {
-  property: CompetitorProperty;
-  onAdd: (property: CompetitorProperty) => void;
-  isAdded?: boolean;
-  isLoading?: boolean;
-}
+import type { 
+  CompetitorProperty, 
+  CompetitorSearchResultProps 
+} from '@/types/competitionSets.types';
 
 export function CompetitorSearchResult({
   property,

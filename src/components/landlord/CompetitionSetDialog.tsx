@@ -29,57 +29,13 @@ import {
   Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-interface Property {
-  id: string;
-  address: string;
-  bedrooms?: number;
-  bathrooms?: number;
-  currentRent?: number;
-}
-
-interface CompetitorData {
-  id?: string;
-  address: string;
-  latitude?: number;
-  longitude?: number;
-  bedrooms?: number;
-  bathrooms?: number;
-  squareFeet?: number;
-  currentRent?: number;
-  amenities?: string[];
-  concessions?: Array<{
-    type: string;
-    description: string;
-    value: number;
-  }>;
-  source?: string;
-  notes?: string;
-}
-
-interface CompetitionSetFormData {
-  name: string;
-  description: string;
-  ownPropertyIds: string[];
-  alertsEnabled: boolean;
-  competitors: CompetitorData[];
-}
-
-interface CompetitionSetDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CompetitionSetFormData) => Promise<void>;
-  editData?: {
-    id: string;
-    name: string;
-    description?: string;
-    ownPropertyIds: string[];
-    alertsEnabled: boolean;
-    competitors?: CompetitorData[];
-  };
-  userProperties?: Property[];
-  isLoading?: boolean;
-}
+import type {
+  Property,
+  CompetitorData,
+  CompetitionSetFormData,
+  CompetitionSetDialogProps,
+  CompetitionSetEditData,
+} from '@/types/competitionSets.types';
 
 const STEPS = [
   { id: 1, title: 'Name Set', icon: MapPin },

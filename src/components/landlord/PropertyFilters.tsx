@@ -18,20 +18,14 @@ import {
   Users,
   RotateCcw
 } from 'lucide-react';
-import { getAuthHeaders } from '@/lib/authHelpers';
-
-export interface PropertyFilterOptions {
-  city?: string;
-  status?: 'all' | 'occupied' | 'vacant';
-  vacancyRisk?: 'all' | 'low' | 'medium' | 'high';
-  competitionSet?: string;
-}
+import { authenticatedFetch } from '@/lib/authHelpers';
+import type { PropertyFilterOptions, CompetitionSet } from '@/types/landlord.types';
 
 interface PropertyFiltersProps {
   filters: PropertyFilterOptions;
   onFiltersChange: (filters: PropertyFilterOptions) => void;
   availableCities?: string[];
-  availableCompetitionSets?: Array<{ id: string; name: string; }>;
+  availableCompetitionSets?: CompetitionSet[];
   resultCount?: number;
   className?: string;
 }
@@ -64,9 +58,12 @@ export function PropertyFilters({
 
   const fetchCities = async () => {
     try {
-      const response = await fetch('/api/landlord/properties/cities', {
-        headers: getAuthHeaders(),
-      });
+      const response = await authenticatedFetch('/api/landlord/properties/cities');
+      
+      if (response.status === 401) {
+        return; // handleUnauthorized already called by authenticatedFetch
+      }
+      
       if (response.ok) {
         const data = await response.json();
         setCities(data.cities || []);
@@ -78,9 +75,12 @@ export function PropertyFilters({
 
   const fetchCompetitionSets = async () => {
     try {
-      const response = await fetch('/api/competition-sets', {
-        headers: getAuthHeaders(),
-      });
+      const response = await authenticatedFetch('/api/competition-sets');
+      
+      if (response.status === 401) {
+        return; // handleUnauthorized already called by authenticatedFetch
+      }
+      
       if (response.ok) {
         const data = await response.json();
         setCompetitionSets(data.sets || []);

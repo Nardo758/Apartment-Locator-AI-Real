@@ -17,63 +17,7 @@ import {
   Eye,
   ChevronRight
 } from 'lucide-react';
-
-interface CompetitorConcession {
-  property: string;
-  type: string;
-  value: string;
-}
-
-interface CompetitorComparison {
-  propertyName: string;
-  distance: number; // in miles
-  rent: number;
-  bedrooms: number;
-  bathrooms: number;
-  concessions: string[];
-  occupancyRate?: number;
-}
-
-interface PricingRecommendation {
-  type: 'increase' | 'decrease' | 'hold';
-  amount?: number;
-  confidence: number; // 0-100
-  reasoning: string;
-  expectedImpact?: string;
-}
-
-interface PropertyData {
-  id: string;
-  address: string;
-  city: string;
-  state: string;
-  currentRent: number;
-  bedrooms: number;
-  bathrooms: number;
-  squareFeet?: number;
-  marketAvgRent: number;
-  vacancyRisk: 'low' | 'medium' | 'high';
-  daysVacant?: number;
-  lastUpdated: string;
-  competitorConcessions: CompetitorConcession[];
-  recommendation?: string;
-  status: 'occupied' | 'vacant';
-  leaseEndDate?: string;
-  tenant?: string;
-  // Enhanced fields
-  pricingRecommendation?: PricingRecommendation;
-  competitorComparison?: CompetitorComparison[];
-  competitionSetName?: string;
-  imageUrl?: string;
-  yearBuilt?: number;
-}
-
-interface PropertyCardProps {
-  property: PropertyData;
-  onEdit?: (propertyId: string) => void;
-  onViewDetails?: (propertyId: string) => void;
-  className?: string;
-}
+import type { Property, PropertyCardProps } from '@/types/landlord.types';
 
 export function PropertyCard({ property, onEdit, onViewDetails, className = '' }: PropertyCardProps) {
   const priceDiff = property.currentRent - property.marketAvgRent;
