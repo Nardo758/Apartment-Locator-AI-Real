@@ -107,7 +107,12 @@ export default function LandlordRetentionDashboard() {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
             <Building2 className="h-4 w-4 text-white" />
           </div>
-          <span className="text-base font-bold text-gray-900">ApartmentIQ</span>
+          <div className="flex flex-col">
+            <span className="text-base font-bold text-gray-900">ApartmentIQ</span>
+            <span className="text-xs text-gray-500" data-testid="landlord-dashboard-label">
+              Landlord Dashboard
+            </span>
+          </div>
           <span className="text-[10px] font-semibold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full ml-1">
             LANDLORD
           </span>

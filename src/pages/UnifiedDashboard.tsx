@@ -71,7 +71,7 @@ export default function UnifiedDashboard() {
   
   // Set page title
   useEffect(() => {
-    document.title = 'Apartment Search | Apartment Locator AI';
+    document.title = 'Renter Dashboard | Apartment Locator AI';
   }, []);
   
   const [viewMode, setViewMode] = useState<ViewMode>('map');
@@ -197,6 +197,14 @@ export default function UnifiedDashboard() {
       <Header />
       
       <div className="container mx-auto px-4 pt-20 pb-8">
+        <div className="mb-4">
+          <h1 className="text-2xl font-semibold text-foreground" data-testid="renter-dashboard-title">
+            Renter Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Apartment search, true-cost comparisons, and negotiation insights.
+          </p>
+        </div>
         <MarketIntelBar
           location="Orlando, FL"
           medianRent={MOCK_MARKET_DATA.medianRent}

@@ -192,6 +192,10 @@ export default function LandlordDashboard() {
   });
 
   useEffect(() => {
+    document.title = 'Landlord Dashboard (Legacy) | Apartment Locator AI';
+  }, []);
+
+  useEffect(() => {
     fetchProperties();
     fetchCities();
   }, []);
@@ -323,6 +327,26 @@ export default function LandlordDashboard() {
       <Header />
       
       <div className="container mx-auto px-4 pt-20 pb-8">
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="text-sm font-semibold text-amber-900" data-testid="landlord-legacy-label">
+                Landlord Dashboard (Legacy)
+              </div>
+              <div className="text-xs text-amber-800">
+                Portfolio and pricing tools. The retention-focused experience lives in the main Landlord Dashboard.
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/landlord-dashboard')}
+              className="border-amber-300 text-amber-900 hover:bg-amber-100"
+            >
+              Go to Landlord Dashboard
+            </Button>
+          </div>
+        </div>
         <MarketIntelBar
           location="Austin, TX"
           medianRent={MOCK_MARKET_DATA.medianRent}

@@ -8,16 +8,17 @@ const successStory2 = 'https://images.unsplash.com/photo-1494790108755-2616b612b
 import { Button } from '@/components/ui/button';
 import { PaymentButton } from '@/components/PaymentButton';
 import { useUser } from '@/hooks/useUser';
+import { getDefaultDashboard } from '@/utils/authRouter';
 
 const Landing = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, loading } = useUser();
+  const { isAuthenticated, loading, userType } = useUser();
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      navigate('/dashboard');
+      navigate(getDefaultDashboard(userType));
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, loading, navigate, userType]);
 
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
@@ -98,7 +99,7 @@ const Landing = () => {
               </Link>
             </li>
           </ul>
-          <Link to="/auth?type=renter&mode=signup">
+          <Link to="/pricing">
             <button 
               className="text-white px-6 py-3 border-0 rounded-full font-semibold transition-all duration-300 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg hover:-translate-y-0.5"
             >
@@ -137,7 +138,7 @@ const Landing = () => {
               
               <div className="flex gap-5" style={{ animation: 'slideInUp 1s ease-out 0.6s backwards' }}>
                 <Button size="lg" className="bg-gradient-primary text-white font-semibold" asChild>
-                  <Link to="/auth">Get Started Free</Link>
+                  <Link to="/pricing">Get Started Free</Link>
                 </Button>
               </div>
             </div>
@@ -519,7 +520,7 @@ const Landing = () => {
               <h4 className="text-white font-semibold mb-4">Product</h4>
               <ul className="space-y-2">
                 <li><Link to="/how-it-works" className="text-muted-foreground hover:text-primary transition-colors">How It Works</Link></li>
-                <li><Link to="/auth?type=renter&mode=signup" className="text-muted-foreground hover:text-primary transition-colors">Start Free Trial</Link></li>
+                <li><Link to="/pricing" className="text-muted-foreground hover:text-primary transition-colors">Start Free Trial</Link></li>
                 <li><Link to="/auth" className="text-muted-foreground hover:text-primary transition-colors">Sign In</Link></li>
               </ul>
             </div>
