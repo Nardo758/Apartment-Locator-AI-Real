@@ -300,44 +300,17 @@ const LandingSSRSafe = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <a 
-                href="/pricing" 
-                data-testid="link-cta-bottom"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: '#ffffff',
-                  color: '#2563eb',
-                  padding: '12px 32px',
-                  fontSize: '18px',
-                  fontWeight: 600,
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
-                  textDecoration: 'none'
-                }}
-              >
-                Search Apartments Free
-                <ArrowRight style={{ marginLeft: '8px', width: '20px', height: '20px' }} />
-              </a>
-              <a 
-                href="/pricing"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: '#1d4ed8',
-                  color: '#ffffff',
-                  padding: '12px 32px',
-                  fontSize: '18px',
-                  fontWeight: 600,
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
-                  textDecoration: 'none'
-                }}
-              >
-                View Market Intel
-              </a>
+              <Link to="/pricing" data-testid="link-cta-bottom">
+                <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold shadow-lg">
+                  Search Apartments Free
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+              <Link to="/pricing">
+                <Button size="lg" className="bg-blue-800 text-white hover:bg-blue-900 px-8 py-3 text-lg font-semibold shadow-lg border-2 border-blue-400">
+                  View Market Intel
+                </Button>
+              </Link>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-sm text-blue-100">
