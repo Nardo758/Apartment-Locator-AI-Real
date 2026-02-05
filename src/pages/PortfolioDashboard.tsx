@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -14,113 +14,49 @@ import {
 } from 'lucide-react';
 import { PropertyCard } from '@/components/landlord/PropertyCard';
 import { MarketComparisonWidget } from '@/components/landlord/MarketComparisonWidget';
+import { authFetchJson } from '@/lib/authHelpers';
+import type { Property } from '@/types/landlord.types';
 
-// Mock data - will be replaced with real API calls
-const mockProperties = [
-  {
-    id: '1',
-    address: '1234 Main St, Unit 203',
-    city: 'Austin',
-    state: 'TX',
-    currentRent: 2200,
-    bedrooms: 2,
-    bathrooms: 2,
-    squareFeet: 1100,
-    marketAvgRent: 2100,
-    status: 'occupied' as const,
-    vacancyRisk: 'high' as const,
-    daysVacant: 0,
-    tenant: 'John Smith',
-    leaseEndDate: '2026-06-30',
-    lastUpdated: '2 hours ago',
-    competitorConcessions: [
-      { property: 'Riverside Apartments', type: '2 months free', value: '$4,400 value' },
-      { property: 'Downtown Towers', type: '$500 off', value: 'move-in special' }
-    ],
-    recommendation: 'Drop rent to $2,100/mo OR offer 1 month free ($2,200 / 12 = $183/mo value) to match market'
-  },
-  {
-    id: '2',
-    address: '5678 Oak Ave, Apt 12',
-    city: 'Austin',
-    state: 'TX',
-    currentRent: 1800,
-    bedrooms: 1,
-    bathrooms: 1,
-    squareFeet: 750,
-    marketAvgRent: 1950,
-    status: 'occupied' as const,
-    vacancyRisk: 'low' as const,
-    daysVacant: 0,
-    tenant: 'Sarah Johnson',
-    leaseEndDate: '2026-09-15',
-    lastUpdated: '1 day ago',
-    competitorConcessions: [],
-    recommendation: 'Property priced well below market - consider raising to $1,850/mo on next lease renewal'
-  },
-  {
-    id: '3',
-    address: '999 Congress Ave, Suite 4B',
-    city: 'Austin',
-    state: 'TX',
-    currentRent: 3200,
-    bedrooms: 3,
-    bathrooms: 2.5,
-    squareFeet: 1500,
-    marketAvgRent: 3150,
-    status: 'occupied' as const,
-    vacancyRisk: 'low' as const,
-    daysVacant: 0,
-    tenant: 'Mike Chen',
-    leaseEndDate: '2026-12-01',
-    lastUpdated: '3 hours ago',
-    competitorConcessions: [
-      { property: 'Luxury Heights', type: 'Waived deposit', value: '$3,200 value' }
-    ],
-    recommendation: 'Priced at market rate - maintain current pricing'
-  },
-  {
-    id: '4',
-    address: '2468 Riverside Dr, #305',
-    city: 'Austin',
-    state: 'TX',
-    currentRent: 2400,
-    bedrooms: 2,
-    bathrooms: 2,
-    squareFeet: 1050,
-    marketAvgRent: 2100,
-    status: 'vacant' as const,
-    vacancyRisk: 'high' as const,
-    daysVacant: 45,
-    lastUpdated: '6 hours ago',
-    competitorConcessions: [
-      { property: 'River Oaks', type: '1 month free', value: '$2,100 value' },
-      { property: 'The Domain', type: '50% off 1st month', value: '$1,200 value' }
-    ],
-    recommendation: 'URGENT: 45 days vacant + $300/mo overpriced. Drop to $2,100 OR offer 2 months free immediately'
-  },
-  {
-    id: '5',
-    address: '7890 South Lamar, Unit 8',
-    city: 'Austin',
-    state: 'TX',
-    currentRent: 1600,
-    bedrooms: 1,
-    bathrooms: 1,
-    squareFeet: 650,
-    marketAvgRent: 1700,
-    status: 'occupied' as const,
-    vacancyRisk: 'medium' as const,
-    daysVacant: 0,
-    tenant: 'Lisa Williams',
-    leaseEndDate: '2026-04-30',
-    lastUpdated: '5 hours ago',
-    competitorConcessions: [
-      { property: 'South Park Lofts', type: '$400 off', value: 'first month' }
-    ],
-    recommendation: 'Slightly underpriced - could raise to $1,650/mo while remaining competitive'
-  }
-];
+interface ApiLandlordProperty {
+  id: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode?: string | null;
+  bedroomsMin?: number | null;
+  bedroomsMax?: number | null;
+  bathroomsMin?: number | string | null;
+  bathroomsMax?: number | string | null;
+  squareFeetMin?: number | null;
+  squareFeetMax?: number | null;
+  actualRent?: number | string | null;
+  targetRent?: number | string | null;
+  marketRent?: number | string | null;
+  occupancyStatus?: string | null;
+  retentionRiskScore?: number | null;
+  daysVacant?: number | null;
+  tenantName?: string | null;
+  leaseEndDate?: string | null;
+  lastUpdated?: string | null;
+  lastSeen?: string | null;
+}
+
+interface MarketAnalyticsResponse {
+  overallMarket: {
+    avgRent: number;
+    medianRent: number;
+    minRent: number;
+    maxRent: number;
+    totalProperties: number;
+  };
+}
+
+interface OccupancyAnalyticsResponse {
+  currentStatus: {
+    avgDaysOnMarket: number;
+    newListingsLast7Days: number;
+  };
+}
 
 const mockMarketData = {
   avgRent: 2100,
@@ -135,12 +71,107 @@ const mockMarketData = {
 };
 
 export default function PortfolioDashboard() {
-  const [properties] = useState(mockProperties);
+  const [properties, setProperties] = useState<Property[]>([]);
   const [filterRisk, setFilterRisk] = useState<'all' | 'high' | 'medium' | 'low'>('all');
+  const [marketData, setMarketData] = useState(mockMarketData);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const filteredProperties = properties.filter(p => 
-    filterRisk === 'all' || p.vacancyRisk === filterRisk
-  );
+  const toNumber = (value: unknown, fallback = 0) => {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      return Number.isNaN(parsed) ? fallback : parsed;
+    }
+    return fallback;
+  };
+
+  const mapApiProperty = (property: ApiLandlordProperty): Property => {
+    const bedrooms = property.bedroomsMin ?? property.bedroomsMax ?? 0;
+    const bathrooms = toNumber(property.bathroomsMin ?? property.bathroomsMax, 0);
+    const squareFeet = property.squareFeetMin ?? property.squareFeetMax ?? undefined;
+    const currentRent = toNumber(property.actualRent ?? property.targetRent, 0);
+    const marketAvgRent = toNumber(property.marketRent, currentRent);
+    const status = property.occupancyStatus === 'vacant' ? 'vacant' : 'occupied';
+    const riskScore = property.retentionRiskScore ?? 0;
+    const vacancyRisk = status === 'vacant'
+      ? 'high'
+      : riskScore >= 70
+        ? 'high'
+        : riskScore >= 40
+          ? 'medium'
+          : 'low';
+
+    return {
+      id: property.id,
+      address: property.address,
+      city: property.city,
+      state: property.state,
+      zipCode: property.zipCode ?? undefined,
+      bedrooms,
+      bathrooms,
+      squareFeet,
+      currentRent,
+      marketAvgRent,
+      status,
+      vacancyRisk,
+      daysVacant: property.daysVacant ?? 0,
+      tenant: property.tenantName ?? undefined,
+      leaseEndDate: property.leaseEndDate ?? undefined,
+      lastUpdated: property.lastUpdated ?? property.lastSeen ?? new Date().toISOString(),
+      competitorConcessions: [],
+      recommendation: undefined,
+    };
+  };
+
+  useEffect(() => {
+    const loadPortfolio = async () => {
+      setLoadError(null);
+
+      const propertiesResult = await authFetchJson<{ properties: ApiLandlordProperty[] }>('/api/landlord/properties');
+      if (propertiesResult.success) {
+        const mapped = propertiesResult.data.properties.map(mapApiProperty);
+        setProperties(mapped);
+
+        if (mapped.length > 0) {
+          const primary = mapped[0];
+          const [pricingResult, occupancyResult] = await Promise.all([
+            authFetchJson<MarketAnalyticsResponse>(`/api/landlord/analytics/pricing?city=${encodeURIComponent(primary.city)}&state=${encodeURIComponent(primary.state)}&bedrooms=${primary.bedrooms}`),
+            authFetchJson<OccupancyAnalyticsResponse>(`/api/landlord/analytics/occupancy?city=${encodeURIComponent(primary.city)}&state=${encodeURIComponent(primary.state)}`),
+          ]);
+
+          if (pricingResult.success) {
+            const overall = pricingResult.data.overallMarket;
+            setMarketData((prev) => ({
+              ...prev,
+              avgRent: overall.avgRent,
+              medianRent: overall.medianRent,
+              minRent: overall.minRent,
+              maxRent: overall.maxRent,
+              totalProperties: overall.totalProperties,
+            }));
+          }
+
+          if (occupancyResult.success) {
+            setMarketData((prev) => ({
+              ...prev,
+              avgDaysOnMarket: occupancyResult.data.currentStatus.avgDaysOnMarket,
+              newListings30d: occupancyResult.data.currentStatus.newListingsLast7Days * 4,
+            }));
+          }
+        }
+      } else {
+        setLoadError(propertiesResult.error);
+      }
+    };
+
+    loadPortfolio();
+  }, []);
+
+  const filteredProperties = useMemo(() => {
+    return properties.filter(p => 
+      filterRisk === 'all' || p.vacancyRisk === filterRisk
+    );
+  }, [filterRisk, properties]);
 
   const stats = {
     total: properties.length,
@@ -148,9 +179,16 @@ export default function PortfolioDashboard() {
     mediumRisk: properties.filter(p => p.vacancyRisk === 'medium').length,
     lowRisk: properties.filter(p => p.vacancyRisk === 'low').length,
     totalRevenue: properties.reduce((sum, p) => sum + p.currentRent, 0),
-    avgRent: Math.round(properties.reduce((sum, p) => sum + p.currentRent, 0) / properties.length),
+    avgRent: properties.length > 0
+      ? Math.round(properties.reduce((sum, p) => sum + p.currentRent, 0) / properties.length)
+      : 0,
     vacant: properties.filter(p => p.daysVacant && p.daysVacant > 0).length
   };
+
+  const primaryMarket = properties[0];
+  const marketCity = primaryMarket?.city || 'Austin';
+  const marketState = primaryMarket?.state || 'TX';
+  const marketBedrooms = primaryMarket?.bedrooms || 2;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
@@ -274,6 +312,13 @@ export default function PortfolioDashboard() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {loadError && (
+          <Card className="mb-6 border-red-200 bg-red-50">
+            <div className="p-4 text-sm text-red-700">
+              Failed to load portfolio data: {loadError}
+            </div>
+          </Card>
+        )}
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Properties List - 2 columns */}
           <div className="lg:col-span-2">
@@ -338,10 +383,10 @@ export default function PortfolioDashboard() {
             </h2>
             <div className="space-y-6">
               <MarketComparisonWidget
-                city="Austin"
-                state="TX"
-                bedrooms={2}
-                marketData={mockMarketData}
+                city={marketCity}
+                state={marketState}
+                bedrooms={marketBedrooms}
+                marketData={marketData}
               />
 
               {/* Quick Actions */}
