@@ -27,14 +27,17 @@ const mockProperties = [
     bathrooms: 2,
     squareFeet: 1100,
     marketAvgRent: 2100,
+    status: 'occupied' as const,
     vacancyRisk: 'high' as const,
     daysVacant: 0,
+    tenant: 'John Smith',
+    leaseEndDate: '2026-06-30',
     lastUpdated: '2 hours ago',
     competitorConcessions: [
       { property: 'Riverside Apartments', type: '2 months free', value: '$4,400 value' },
       { property: 'Downtown Towers', type: '$500 off', value: 'move-in special' }
     ],
-    recommendation: 'Drop rent to $2,100/mo OR offer 1 month free ($2,200 ÷ 12 = $183/mo value) to match market'
+    recommendation: 'Drop rent to $2,100/mo OR offer 1 month free ($2,200 / 12 = $183/mo value) to match market'
   },
   {
     id: '2',
@@ -46,8 +49,11 @@ const mockProperties = [
     bathrooms: 1,
     squareFeet: 750,
     marketAvgRent: 1950,
+    status: 'occupied' as const,
     vacancyRisk: 'low' as const,
     daysVacant: 0,
+    tenant: 'Sarah Johnson',
+    leaseEndDate: '2026-09-15',
     lastUpdated: '1 day ago',
     competitorConcessions: [],
     recommendation: 'Property priced well below market - consider raising to $1,850/mo on next lease renewal'
@@ -62,8 +68,11 @@ const mockProperties = [
     bathrooms: 2.5,
     squareFeet: 1500,
     marketAvgRent: 3150,
+    status: 'occupied' as const,
     vacancyRisk: 'low' as const,
     daysVacant: 0,
+    tenant: 'Mike Chen',
+    leaseEndDate: '2026-12-01',
     lastUpdated: '3 hours ago',
     competitorConcessions: [
       { property: 'Luxury Heights', type: 'Waived deposit', value: '$3,200 value' }
@@ -80,6 +89,7 @@ const mockProperties = [
     bathrooms: 2,
     squareFeet: 1050,
     marketAvgRent: 2100,
+    status: 'vacant' as const,
     vacancyRisk: 'high' as const,
     daysVacant: 45,
     lastUpdated: '6 hours ago',
@@ -99,8 +109,11 @@ const mockProperties = [
     bathrooms: 1,
     squareFeet: 650,
     marketAvgRent: 1700,
+    status: 'occupied' as const,
     vacancyRisk: 'medium' as const,
     daysVacant: 0,
+    tenant: 'Lisa Williams',
+    leaseEndDate: '2026-04-30',
     lastUpdated: '5 hours ago',
     competitorConcessions: [
       { property: 'South Park Lofts', type: '$400 off', value: 'first month' }
