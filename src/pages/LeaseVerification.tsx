@@ -23,6 +23,17 @@ export default function LeaseVerification() {
     leaseSignedDate: '',
     moveInDate: ''
   });
+  const [verificationId, setVerificationId] = useState<string | null>(null);
+  const [verificationData, setVerificationData] = useState<{
+    refundAmount: number;
+    refundPercentage: number;
+    tier: string;
+    annualSavings: number;
+    actualSavings: number;
+  } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProcessingRefund, setIsProcessingRefund] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Mock data - in production, fetch from purchase record
   const mockPurchaseData = {
@@ -50,9 +61,12 @@ export default function LeaseVerification() {
     return { amount: 0, percentage: 0, tier: 'none' };
   };
 
-  const refund = calculateRefund();
+  const refund = verificationData
+    ? { amount: verificationData.refundAmount, percentage: verificationData.refundPercentage, tier: verificationData.tier }
+    : calculateRefund();
   const finalRent = parseInt(leaseDetails.finalRent) || 0;
-  const actualSavings = mockPurchaseData.originalAskingRent - finalRent;
+  const actualSavings = verificationData?.actualSavings ?? (mockPurchaseData.originalAskingRent - finalRent);
+  const annualSavings = verificationData?.annualSavings ?? (actualSavings * 12);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -60,15 +74,91 @@ export default function LeaseVerification() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In production, upload to backend for verification
-    setStep('review');
+    if (!leaseFile) {
+      setErrorMessage('Please upload your signed lease.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    try {
+      const leaseFileUrl = URL.createObjectURL(leaseFile);
+      const submitResponse = await fetch('/api/lease-verification/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          purchaseId: mockPurchaseData.purchaseId,
+          propertyName: leaseDetails.propertyName,
+          finalRent: leaseDetails.finalRent,
+          leaseSignedDate: leaseDetails.leaseSignedDate,
+          moveInDate: leaseDetails.moveInDate,
+          leaseFileUrl,
+        }),
+      });
+
+      const submitData = await submitResponse.json();
+      if (!submitResponse.ok) {
+        throw new Error(submitData.error || 'Failed to submit lease');
+      }
+
+      setVerificationId(submitData.verificationId);
+
+      const verifyResponse = await fetch(`/api/lease-verification/verify/${submitData.verificationId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          originalAskingRent: mockPurchaseData.originalAskingRent,
+          predictedRent: mockPurchaseData.predictedRent,
+        }),
+      });
+
+      const verifyData = await verifyResponse.json();
+      if (!verifyResponse.ok) {
+        throw new Error(verifyData.error || 'Failed to verify lease');
+      }
+
+      setVerificationData({
+        refundAmount: verifyData.verification.refundAmount,
+        refundPercentage: verifyData.verification.refundPercentage,
+        tier: verifyData.verification.tier,
+        annualSavings: verifyData.verification.annualSavings,
+        actualSavings: verifyData.verification.actualSavings,
+      });
+
+      setStep('review');
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to submit lease');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleApprove = () => {
-    // In production, trigger refund via Stripe
-    setStep('approved');
+  const handleApprove = async () => {
+    if (!verificationId) {
+      setErrorMessage('Missing verification details. Please resubmit.');
+      return;
+    }
+
+    setIsProcessingRefund(true);
+    setErrorMessage(null);
+
+    try {
+      const refundResponse = await fetch(`/api/lease-verification/refund/${verificationId}`, {
+        method: 'POST',
+      });
+      const refundData = await refundResponse.json();
+      if (!refundResponse.ok) {
+        throw new Error(refundData.error || 'Failed to process refund');
+      }
+      setStep('approved');
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to process refund');
+    } finally {
+      setIsProcessingRefund(false);
+    }
   };
 
   return (
@@ -87,6 +177,12 @@ export default function LeaseVerification() {
             Upload your signed lease and get money back based on how much you saved
           </p>
         </div>
+
+        {errorMessage && (
+          <Card className="p-4 mb-6 border border-red-500/40 bg-red-500/10 text-red-200">
+            {errorMessage}
+          </Card>
+        )}
 
         {/* Step 1: Upload */}
         {step === 'upload' && (
@@ -279,9 +375,9 @@ export default function LeaseVerification() {
                   type="submit"
                   size="lg"
                   className="w-full"
-                  disabled={!leaseFile || !leaseDetails.finalRent}
+                  disabled={!leaseFile || !leaseDetails.finalRent || isSubmitting}
                 >
-                  Submit for Verification
+                  {isSubmitting ? 'Submitting...' : 'Submit for Verification'}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </form>
@@ -355,7 +451,7 @@ export default function LeaseVerification() {
                   <div className="flex items-center gap-2 text-green-400">
                     <TrendingUp className="w-5 h-5" />
                     <span className="font-semibold">
-                      Annual Savings: ${actualSavings * 12}
+                      Annual Savings: ${annualSavings}
                     </span>
                   </div>
                 </div>
@@ -391,8 +487,9 @@ export default function LeaseVerification() {
                       size="lg"
                       className="bg-gradient-to-r from-green-600 to-emerald-600"
                       onClick={handleApprove}
+                      disabled={isProcessingRefund}
                     >
-                      Confirm & Process Refund
+                      {isProcessingRefund ? 'Processing Refund...' : 'Confirm & Process Refund'}
                     </Button>
                   </div>
                 </Card>
@@ -417,7 +514,7 @@ export default function LeaseVerification() {
             <div className="p-6 rounded-xl bg-white/5 border border-white/10 mb-6 max-w-md mx-auto">
               <div className="text-white/60 text-sm mb-2">Total Verified Savings</div>
               <div className="text-4xl font-bold text-green-400 mb-2">
-                ${actualSavings * 12}
+                ${annualSavings}
               </div>
               <div className="text-white/60 text-sm">per year</div>
             </div>
