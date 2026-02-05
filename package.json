@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server/index.ts",
-    "build": "vite build --outDir dist/public && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
-    "start": "NODE_ENV=production node dist/index.js",
+    "build": "vite build --outDir dist/public && esbuild server/index.ts --platform=node --packages=external --bundle --format=cjs --outfile=dist/index.cjs",
+    "start": "NODE_ENV=production node dist/index.cjs",
     "lint": "eslint .",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
