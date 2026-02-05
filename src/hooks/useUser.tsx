@@ -79,9 +79,11 @@ export const UserProvider = ({ children }: { children: ReactNode }): ReactNode =
     }
     
     // If authenticated, persist to database
-    if (token && user) {
+    if (token) {
       try {
-        await api.updateUserType(token, type);
+        const { user: updatedUser } = await api.updateUserType(token, type);
+        setUser((prevUser) => (prevUser ? { ...prevUser, ...updatedUser } : updatedUser));
+        setUserTypeState(updatedUser.userType || type);
         userTypeStorage.clear(); // Clear localStorage after successful DB update
       } catch (error) {
         console.error('Failed to update userType in database:', error);

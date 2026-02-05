@@ -68,7 +68,7 @@ const LandingSSRSafe = () => {
             <Link to="/auth" data-testid="link-signin">
               <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100">Sign In</Button>
             </Link>
-            <Link to="/user-type" data-testid="link-get-started">
+            <Link to="/pricing" data-testid="link-get-started">
               <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                 Get Started Free
               </Button>
@@ -95,7 +95,7 @@ const LandingSSRSafe = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/auth?type=renter&mode=signup" data-testid="link-hero-cta">
+                <Link to="/pricing" data-testid="link-hero-cta">
                   <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg">
                     Search Apartments Free
                     <ArrowRight className="ml-2 w-5 h-5" />
@@ -203,7 +203,7 @@ const LandingSSRSafe = () => {
                 </li>
               </ul>
               <Button className="w-full bg-blue-600 hover:bg-blue-700" asChild data-testid="button-renter-cta">
-                <Link to="/auth?type=renter&mode=signup">Get Started Free</Link>
+                <Link to="/pricing">Get Started Free</Link>
               </Button>
             </div>
 
@@ -300,7 +300,7 @@ const LandingSSRSafe = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <Link to="/auth?type=renter&mode=signup" data-testid="link-cta-bottom">
+              <Link to="/pricing" data-testid="link-cta-bottom">
                 <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold">
                   Search Apartments Free
                   <ArrowRight className="ml-2 w-5 h-5" />

@@ -34,6 +34,9 @@ const AuthModern = () => {
 
   // Redirect helper based on user type - for NEW signups, go to onboarding
   const getSignupRedirectPath = (type: UserType | null): string => {
+    if (!type) {
+      return '/user-type';
+    }
     switch (type) {
       case 'admin':
         return '/admin';
@@ -49,6 +52,9 @@ const AuthModern = () => {
 
   // Redirect helper for EXISTING users (sign-in) - go to dashboard
   const getSigninRedirectPath = (type: UserType | null): string => {
+    if (!type) {
+      return '/user-type';
+    }
     switch (type) {
       case 'admin':
         return '/admin';
