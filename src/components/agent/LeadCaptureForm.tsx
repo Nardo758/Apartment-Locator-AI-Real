@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { authFetchJson } from '@/lib/authHelpers';
 import { 
   User, 
   Mail, 
@@ -47,6 +48,7 @@ export function LeadCaptureForm({ onSubmit, initialData }: LeadCaptureFormProps)
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData(prev => ({
@@ -55,14 +57,73 @@ export function LeadCaptureForm({ onSubmit, initialData }: LeadCaptureFormProps)
     }));
   };
 
+  const parseName = (fullName: string) => {
+    const trimmed = fullName.trim();
+    if (!trimmed) return { firstName: '', lastName: '' };
+    const parts = trimmed.split(/\s+/);
+    const firstName = parts.shift() || '';
+    const lastName = parts.length > 0 ? parts.join(' ') : 'Unknown';
+    return { firstName, lastName };
+  };
+
+  const parseBudget = (value: string) => {
+    const cleaned = value.replace(/[^0-9]/g, '');
+    if (!cleaned) return null;
+    const parsed = parseInt(cleaned, 10);
+    return Number.isNaN(parsed) ? null : parsed;
+  };
+
+  const parseBedrooms = (value: string) => {
+    if (!value) return undefined;
+    if (value === 'studio') return 0;
+    if (value === '4+') return 4;
+    const parsed = parseInt(value, 10);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
+    setErrorMessage(null);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { firstName, lastName } = parseName(formData.name);
+      const budgetMax = parseBudget(formData.budget);
+      const moveInDate = formData.moveInDate
+        ? new Date(formData.moveInDate).toISOString()
+        : undefined;
+      const bedrooms = parseBedrooms(formData.bedrooms);
+
+      const payload = {
+        firstName,
+        lastName,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        leadSource: 'agent_dashboard_form',
+        budgetMax: budgetMax ?? undefined,
+        preferredLocations: formData.location ? [formData.location] : [],
+        bedrooms,
+        moveInDate,
+        notes: formData.notes || undefined,
+        metadata: {
+          currentRent: formData.currentRent || undefined,
+        },
+      };
+
+      const result = await authFetchJson<{ lead: unknown; message?: string }>(
+        '/api/agent/leads',
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!result.success) {
+        setSubmitStatus('error');
+        setErrorMessage(result.error);
+        return;
+      }
       
       if (onSubmit) {
         onSubmit(formData);
@@ -87,6 +148,7 @@ export function LeadCaptureForm({ onSubmit, initialData }: LeadCaptureFormProps)
       }, 2000);
     } catch (error) {
       setSubmitStatus('error');
+      setErrorMessage(error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setIsSubmitting(false);
     }
@@ -297,7 +359,9 @@ export function LeadCaptureForm({ onSubmit, initialData }: LeadCaptureFormProps)
           {submitStatus === 'error' && (
             <div className="flex items-center gap-2 p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
               <AlertCircle className="w-5 h-5 text-red-400" />
-              <span className="text-red-300">Failed to capture lead. Please try again.</span>
+              <span className="text-red-300">
+                {errorMessage ? `Failed to capture lead: ${errorMessage}` : 'Failed to capture lead. Please try again.'}
+              </span>
             </div>
           )}
 
