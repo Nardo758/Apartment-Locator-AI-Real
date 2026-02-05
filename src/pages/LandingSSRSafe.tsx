@@ -301,13 +301,13 @@ const LandingSSRSafe = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <Link to="/pricing" data-testid="link-cta-bottom">
-                <Button variant="outline" size="lg" data-testid="button-cta-search" className="!bg-white !text-blue-600 !border-white/50 shadow-lg text-lg">
+                <Button variant="cta-light" size="lg" data-testid="button-cta-search">
                   Search Apartments Free
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
               <Link to="/pricing">
-                <Button variant="outline" size="lg" data-testid="button-cta-market" className="!bg-blue-900 !text-white !border-white/30 shadow-lg text-lg">
+                <Button variant="cta-dark" size="lg" data-testid="button-cta-market">
                   View Market Intel
                 </Button>
               </Link>
