@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Search, ArrowLeft, Star, MapPin } from 'lucide-react';
 import { usePropertyState } from '@/contexts';
-import { mockProperties } from '@/data/mockData';
+import { mockProperties, type Property } from '@/data/mockData';
 import PropertyCard from '@/components/PropertyCard';
 import { Button } from '@/components/ui/button';
 import { designSystem } from '@/lib/design-system';
@@ -10,13 +10,92 @@ import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import ModernCard from '@/components/modern/ModernCard';
 import Header from '@/components/Header';
 import { PropertySearchExample } from '@/components/PropertySearchExample';
+import { api } from '@/lib/api';
+import { useUser } from '@/hooks/useUser';
 
 const SavedProperties: React.FC = () => {
   const { favoriteProperties } = usePropertyState();
+  const { user } = useUser();
+  const [savedPropertiesList, setSavedPropertiesList] = useState<Property[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const savedPropertiesList = mockProperties.filter(property => 
-    favoriteProperties.includes(property.id)
-  );
+  const mapApiProperty = (property: Awaited<ReturnType<typeof api.getPropertyById>>): Property | null => {
+    if (!property) return null;
+    const minPrice = property.minPrice ?? 0;
+    const maxPrice = property.maxPrice ?? minPrice;
+    const aiPrice = minPrice || maxPrice;
+    const originalPrice = maxPrice || minPrice;
+    const savings = Math.max(0, originalPrice - aiPrice);
+    const coordinates = {
+      lat: property.latitude ? parseFloat(property.latitude) : 30.2672,
+      lng: property.longitude ? parseFloat(property.longitude) : -97.7431,
+    };
+
+    return {
+      id: property.id,
+      name: property.name,
+      address: property.address,
+      city: property.city,
+      state: property.state,
+      zip: property.zipCode || '',
+      originalPrice,
+      aiPrice,
+      effectivePrice: aiPrice,
+      savings,
+      matchScore: 80,
+      successRate: 70,
+      daysVacant: 0,
+      availability: property.isActive ? 'Available Now' : 'Limited Availability',
+      availabilityType: property.isActive ? 'immediate' : 'soon',
+      features: Object.keys(property.features || {}),
+      amenities: Object.keys(property.amenities || {}),
+      commutes: [],
+      concessions: [],
+      coordinates,
+      images: property.images?.length ? property.images : ['/placeholder.svg'],
+      bedrooms: property.bedroomsMin ?? 0,
+      bathrooms: Number(property.bathroomsMin ?? 0),
+      sqft: property.squareFeetMin ?? 0,
+      yearBuilt: property.yearBuilt ?? 0,
+      petPolicy: property.petPolicy ? 'See listing' : 'Contact for details',
+      parking: property.parking ? 'See listing' : 'Contact for details',
+    };
+  };
+
+  useEffect(() => {
+    const loadSavedProperties = async () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      setLoadError(null);
+
+      try {
+        const saved = await api.getSavedApartments(user.id);
+        const propertyDetails = await Promise.all(
+          saved.map((item) => api.getPropertyById(item.apartmentId))
+        );
+        const mapped = propertyDetails
+          .map(mapApiProperty)
+          .filter((property): property is Property => property !== null);
+
+        setSavedPropertiesList(mapped);
+      } catch (error) {
+        setLoadError(error instanceof Error ? error.message : 'Failed to load saved properties');
+        const fallback = mockProperties.filter(property => 
+          favoriteProperties.includes(property.id)
+        );
+        setSavedPropertiesList(fallback);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSavedProperties();
+  }, [favoriteProperties, user]);
 
   return (
     <div className={`${designSystem.backgrounds.page} ${designSystem.backgrounds.pageDark}`}>
@@ -33,7 +112,30 @@ const SavedProperties: React.FC = () => {
           </Link>
         }
       >
-        {savedPropertiesList.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-16">
+            <ModernCard className="max-w-md mx-auto text-center p-8">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center">
+                  <Heart className="w-8 h-8 text-blue-600 animate-pulse" />
+                </div>
+                <p className={designSystem.typography.body}>Loading saved properties...</p>
+              </div>
+            </ModernCard>
+          </div>
+        ) : loadError ? (
+          <div className="text-center py-16">
+            <ModernCard className="max-w-md mx-auto text-center p-8">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+                  <Heart className="w-8 h-8 text-red-600" />
+                </div>
+                <p className={designSystem.typography.body}>Failed to load saved properties.</p>
+                <p className="text-sm text-muted-foreground">{loadError}</p>
+              </div>
+            </ModernCard>
+          </div>
+        ) : savedPropertiesList.length === 0 ? (
           // Empty State
           <div className="text-center py-16">
             <ModernCard className="max-w-md mx-auto text-center p-8">
