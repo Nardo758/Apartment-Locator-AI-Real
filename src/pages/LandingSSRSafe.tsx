@@ -95,7 +95,7 @@ const LandingSSRSafe = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/dashboard" data-testid="link-hero-cta">
+                <Link to="/auth?type=renter&mode=signup" data-testid="link-hero-cta">
                   <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg">
                     Search Apartments Free
                     <ArrowRight className="ml-2 w-5 h-5" />
@@ -106,11 +106,11 @@ const LandingSSRSafe = () => {
               <div className="flex items-center gap-6 text-sm text-gray-500">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>No signup required</span>
+                  <span>Free account</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Free to search</span>
+                  <span>Unlimited searches</span>
                 </div>
               </div>
             </div>
@@ -203,7 +203,7 @@ const LandingSSRSafe = () => {
                 </li>
               </ul>
               <Button className="w-full bg-blue-600 hover:bg-blue-700" asChild data-testid="button-renter-cta">
-                <Link to="/dashboard">Get Started Free</Link>
+                <Link to="/auth?type=renter&mode=signup">Get Started Free</Link>
               </Button>
             </div>
 
@@ -300,7 +300,7 @@ const LandingSSRSafe = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <Link to="/dashboard" data-testid="link-cta-bottom">
+              <Link to="/auth?type=renter&mode=signup" data-testid="link-cta-bottom">
                 <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold">
                   Search Apartments Free
                   <ArrowRight className="ml-2 w-5 h-5" />
@@ -316,11 +316,11 @@ const LandingSSRSafe = () => {
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-sm text-blue-100">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
-                <span>Free to search</span>
+                <span>Unlimited searches</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
-                <span>No signup required</span>
+                <span>Free to join</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />

@@ -89,8 +89,12 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     
-                    {/* Renter Dashboard - Public Access for Free Search */}
-                    <Route path="/dashboard" element={<UnifiedDashboard />} />
+                    {/* Renter Dashboard - Requires Account */}
+                    <Route path="/dashboard" element={
+                      <ProtectedRoute requireAuth>
+                        <UnifiedDashboard />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/profile" element={
                       <ProtectedRoute requireAuth>
                         <Profile />
