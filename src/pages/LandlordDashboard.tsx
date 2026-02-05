@@ -18,6 +18,30 @@ import { authenticatedFetch } from '@/lib/authHelpers';
 import { useUser } from '@/hooks/useUser';
 import type { Property, PropertyFilterOptions } from '@/types/landlord.types';
 
+interface ApiLandlordProperty {
+  id: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode?: string | null;
+  bedroomsMin?: number | null;
+  bedroomsMax?: number | null;
+  bathroomsMin?: number | string | null;
+  bathroomsMax?: number | string | null;
+  squareFeetMin?: number | null;
+  squareFeetMax?: number | null;
+  actualRent?: number | string | null;
+  targetRent?: number | string | null;
+  marketRent?: number | string | null;
+  occupancyStatus?: string | null;
+  retentionRiskScore?: number | null;
+  daysVacant?: number | null;
+  tenantName?: string | null;
+  leaseEndDate?: string | null;
+  lastUpdated?: string | null;
+  lastSeen?: string | null;
+}
+
 type SortField = 'vacancyRisk' | 'currentRent' | 'marketDiff';
 type ViewMode = 'map' | 'list';
 
@@ -174,6 +198,53 @@ const MOCK_PROPERTIES: Property[] = [
   }
 ];
 
+const toNumber = (value: unknown, fallback = 0) => {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    return Number.isNaN(parsed) ? fallback : parsed;
+  }
+  return fallback;
+};
+
+const mapApiProperty = (property: ApiLandlordProperty): Property => {
+  const bedrooms = property.bedroomsMin ?? property.bedroomsMax ?? 0;
+  const bathrooms = toNumber(property.bathroomsMin ?? property.bathroomsMax, 0);
+  const squareFeet = property.squareFeetMin ?? property.squareFeetMax ?? undefined;
+  const currentRent = toNumber(property.actualRent ?? property.targetRent, 0);
+  const marketAvgRent = toNumber(property.marketRent, currentRent);
+  const status = property.occupancyStatus === 'vacant' ? 'vacant' : 'occupied';
+  const riskScore = property.retentionRiskScore ?? 0;
+  const vacancyRisk = status === 'vacant'
+    ? 'high'
+    : riskScore >= 70
+      ? 'high'
+      : riskScore >= 40
+        ? 'medium'
+        : 'low';
+
+  return {
+    id: property.id,
+    address: property.address,
+    city: property.city,
+    state: property.state,
+    zipCode: property.zipCode ?? undefined,
+    bedrooms,
+    bathrooms,
+    squareFeet,
+    currentRent,
+    marketAvgRent,
+    status,
+    vacancyRisk,
+    daysVacant: property.daysVacant ?? 0,
+    tenant: property.tenantName ?? undefined,
+    leaseEndDate: property.leaseEndDate ?? undefined,
+    lastUpdated: property.lastUpdated ?? property.lastSeen ?? new Date().toISOString(),
+    competitorConcessions: [],
+    recommendation: undefined,
+  };
+};
+
 export default function LandlordDashboard() {
   const navigate = useNavigate();
   const { user } = useUser();
@@ -228,7 +299,8 @@ export default function LandlordDashboard() {
 
       const data = await response.json();
       if (data.properties && data.properties.length > 0) {
-        setProperties(data.properties);
+        const mapped = (data.properties as ApiLandlordProperty[]).map(mapApiProperty);
+        setProperties(mapped);
       } else {
         setProperties(MOCK_PROPERTIES);
       }

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { authFetchJson } from '@/lib/authHelpers';
 import { 
   User,
   Mail,
@@ -35,6 +36,24 @@ interface Client {
   viewedProperties: number;
   offers: number;
   estimatedCommission: number;
+}
+
+interface ApiAgentClient {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  status?: string | null;
+  stage?: string | null;
+  budget?: { min?: number; max?: number } | null;
+  preferredLocations?: string[] | null;
+  bedrooms?: number | null;
+  moveInDate?: string | null;
+  createdAt?: string | null;
+  lastContact?: string | null;
+  notes?: string | null;
+  priority?: string | null;
 }
 
 const MOCK_CLIENTS: Client[] = [
@@ -177,9 +196,65 @@ const MOCK_CLIENTS: Client[] = [
 ];
 
 export function ClientPortfolio() {
-  const [clients] = useState<Client[]>(MOCK_CLIENTS);
+  const [clients, setClients] = useState<Client[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const mapStatus = (client: ApiAgentClient): Client['status'] => {
+    if (client.status === 'archived') return 'lost';
+    if (client.stage === 'closed') return 'closed';
+    if (client.status === 'inactive') return 'pending';
+    if (client.status === 'active') return 'active';
+    if (client.stage === 'lead') return 'pending';
+    return 'active';
+  };
+
+  const mapClient = (client: ApiAgentClient): Client => {
+    const name = `${client.firstName ?? ''} ${client.lastName ?? ''}`.trim() || 'Unnamed Client';
+    const budget = client.budget?.max ?? client.budget?.min ?? 0;
+    const preferredLocation = client.preferredLocations?.[0] || '—';
+    const bedrooms = client.bedrooms === 0 ? 'Studio' : client.bedrooms ? String(client.bedrooms) : '—';
+
+    return {
+      id: client.id,
+      name,
+      email: client.email,
+      phone: client.phone || '—',
+      status: mapStatus(client),
+      budget,
+      location: preferredLocation,
+      bedrooms,
+      moveInDate: client.moveInDate || '',
+      addedDate: client.createdAt || '',
+      lastContact: client.lastContact || '',
+      notes: client.notes || 'No notes yet.',
+      viewedProperties: 0,
+      offers: 0,
+      estimatedCommission: 0,
+    };
+  };
+
+  useEffect(() => {
+    const loadClients = async () => {
+      setIsLoading(true);
+      setLoadError(null);
+
+      const result = await authFetchJson<{ clients: ApiAgentClient[] }>('/api/agent/clients');
+      if (!result.success) {
+        setLoadError(result.error);
+        setClients([]);
+        setIsLoading(false);
+        return;
+      }
+
+      setClients(result.data.clients.map(mapClient));
+      setIsLoading(false);
+    };
+
+    loadClients();
+  }, []);
 
   const filteredClients = selectedStatus === 'all' 
     ? clients 
@@ -223,8 +298,11 @@ export function ClientPortfolio() {
     }).format(amount);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '—';
+    const parsed = new Date(dateString);
+    if (Number.isNaN(parsed.getTime())) return '—';
+    return parsed.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
@@ -295,6 +373,22 @@ export function ClientPortfolio() {
           </CardContent>
         </Card>
       </div>
+
+      {loadError && (
+        <Card variant="elevated" className="border-red-500/30 bg-red-500/10">
+          <CardContent className="p-4 text-red-200">
+            Failed to load clients: {loadError}
+          </CardContent>
+        </Card>
+      )}
+
+      {isLoading && !loadError && (
+        <Card variant="elevated" className="border-white/10 bg-white/5">
+          <CardContent className="p-4 text-white/70">
+            Loading clients...
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filters */}
       <Card variant="elevated">

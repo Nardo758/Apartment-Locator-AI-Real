@@ -48,7 +48,7 @@ export async function setupVite(app: Express, server: any) {
     const url = req.originalUrl;
 
     try {
-      const clientTemplate = path.resolve(__dirname, "..", "index.html");
+      const clientTemplate = resolveIndexHtmlPath();
 
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = await vite.transformIndexHtml(url, template);
@@ -61,14 +61,61 @@ export async function setupVite(app: Express, server: any) {
   });
 }
 
-export function serveStatic(app: Express) {
-  const distPath = path.resolve(__dirname, "..", "dist", "public");
+const DIST_DIRS = ["dist/public", "dist/client", "dist"];
 
-  if (!fs.existsSync(distPath)) {
+function buildRootCandidates(): string[] {
+  const roots = [
+    process.cwd(),
+    __dirname,
+    path.dirname(process.argv[1] || ""),
+  ].filter(Boolean);
+
+  const candidates = new Set<string>();
+  roots.forEach((root) => {
+    for (let depth = 0; depth <= 2; depth += 1) {
+      const base = path.resolve(root, ...Array(depth).fill(".."));
+      candidates.add(base);
+    }
+  });
+
+  return Array.from(candidates);
+}
+
+function resolveIndexHtmlPath() {
+  const roots = buildRootCandidates();
+  const candidates = roots.map((root) => path.resolve(root, "index.html"));
+
+  const existing = candidates.find((candidate) => fs.existsSync(candidate));
+  if (!existing) {
+    const searched = candidates.join(", ");
+    throw new Error(`Could not find index.html. Looked in: ${searched}`);
+  }
+
+  return existing;
+}
+
+function resolveDistPath() {
+  const roots = buildRootCandidates();
+  const candidates = roots.flatMap((root) =>
+    DIST_DIRS.map((dir) => path.resolve(root, dir)),
+  );
+  const uniqueCandidates = Array.from(new Set(candidates));
+
+  const existing = uniqueCandidates.find((candidate) =>
+    fs.existsSync(path.resolve(candidate, "index.html")),
+  );
+  if (!existing) {
+    const searched = uniqueCandidates.join(", ");
     throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
+      `Could not find the build directory. Looked in: ${searched}`,
     );
   }
+
+  return existing;
+}
+
+export function serveStatic(app: Express) {
+  const distPath = resolveDistPath();
 
   app.use(express.static(distPath));
 

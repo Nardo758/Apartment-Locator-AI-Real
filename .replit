@@ -9,7 +9,7 @@ packages = ["unzip"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["node", "./dist/index.cjs"]
+run = ["npm", "start"]
 build = ["npm", "run", "build"]
 
 [workflows]

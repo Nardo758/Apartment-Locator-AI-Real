@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { authFetchJson } from '@/lib/authHelpers';
 import { 
   DollarSign, 
   TrendingUp,
@@ -19,13 +20,44 @@ interface CommissionResult {
   netCommission: number;
 }
 
+interface CommissionApiResult {
+  summary: {
+    grossCommission: number;
+    netToAgent: number;
+  };
+  splits: Array<{
+    agentName: string;
+    percentage: number;
+    role: string;
+    amount: number;
+  }>;
+  calculation: {
+    propertyValue: number;
+    commissionRate: number;
+  };
+}
+
 export function CommissionCalculator() {
   const [monthlyRent, setMonthlyRent] = useState('');
   const [commissionRate, setCommissionRate] = useState('15');
   const [brokerageSplit, setBrokerageSplit] = useState('50');
   const [result, setResult] = useState<CommissionResult | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
-  const calculateCommission = () => {
+  const calculateLocalCommission = (rent: number, rate: number, split: number) => {
+    const commission = rent * (rate / 100);
+    const brokerageFee = commission * (split / 100);
+    const agentFee = commission - brokerageFee;
+    return {
+      monthlyRent: rent,
+      commission,
+      agentFee,
+      brokerageFee,
+      netCommission: agentFee,
+    };
+  };
+
+  const calculateCommission = async () => {
     const rent = parseFloat(monthlyRent);
     const rate = parseFloat(commissionRate);
     const split = parseFloat(brokerageSplit);
@@ -33,18 +65,42 @@ export function CommissionCalculator() {
     if (isNaN(rent) || isNaN(rate) || isNaN(split)) {
       return;
     }
+    setApiError(null);
 
-    const commission = rent * (rate / 100);
-    const brokerageFee = commission * (split / 100);
-    const agentFee = commission - brokerageFee;
-    const netCommission = agentFee;
+    const agentPercentage = Math.max(0, 100 - split);
+
+    const payload = {
+      transactionType: 'rental',
+      propertyValue: rent,
+      rentalMonths: 1,
+      commissionRate: rate,
+      commissionType: 'percentage',
+      splits: [
+        { agentName: 'Agent', percentage: agentPercentage, role: 'listing_agent' },
+        { agentName: 'Brokerage', percentage: split, role: 'brokerage' },
+      ],
+    };
+
+    const response = await authFetchJson<CommissionApiResult>('/api/agent/commission/calculate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.success) {
+      setApiError(response.error);
+      setResult(calculateLocalCommission(rent, rate, split));
+      return;
+    }
+
+    const brokerageSplitResult = response.data.splits.find(splitItem => splitItem.role === 'brokerage');
+    const agentSplitResult = response.data.splits.find(splitItem => splitItem.role !== 'brokerage');
 
     setResult({
       monthlyRent: rent,
-      commission,
-      agentFee,
-      brokerageFee,
-      netCommission
+      commission: response.data.summary.grossCommission,
+      agentFee: agentSplitResult?.amount ?? response.data.summary.netToAgent,
+      brokerageFee: brokerageSplitResult?.amount ?? 0,
+      netCommission: agentSplitResult?.amount ?? response.data.summary.netToAgent,
     });
   };
 
@@ -190,6 +246,13 @@ Net Commission: ${formatCurrency(result.netCommission)}
           <Calculator className="w-4 h-4 mr-2" />
           Calculate Commission
         </Button>
+
+        {apiError && (
+          <div className="flex items-center gap-2 p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-200">
+            <AlertCircle className="w-4 h-4" />
+            <span>Using local estimate: {apiError}</span>
+          </div>
+        )}
 
         {/* Results Section */}
         {result && (
