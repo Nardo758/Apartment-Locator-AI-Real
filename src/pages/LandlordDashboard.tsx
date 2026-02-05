@@ -319,7 +319,7 @@ export default function LandlordDashboard() {
   };
 
   return (
-    <div className="dark min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 text-gray-100">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto px-4 pt-20 pb-8">
@@ -335,7 +335,7 @@ export default function LandlordDashboard() {
         />
 
         <div className="flex flex-col lg:flex-row gap-4">
-          <aside className="w-full lg:w-80 shrink-0 space-y-4 [&_.card]:bg-gray-800/80 [&_.card]:border-gray-700">
+          <aside className="w-full lg:w-80 shrink-0 space-y-4">
             <PortfolioSummaryWidget userId={user?.id} />
             
             <PropertyFilters
@@ -400,7 +400,7 @@ export default function LandlordDashboard() {
                   <Settings className="w-4 h-4" />
                 </Button>
 
-                <Button size="sm" onClick={handleAddProperty} className="bg-gradient-to-r from-purple-600 to-blue-600">
+                <Button size="sm" onClick={handleAddProperty}>
                   <Plus className="w-4 h-4 sm:mr-1" />
                   <span className="hidden sm:inline">Add Property</span>
                 </Button>
@@ -444,7 +444,7 @@ export default function LandlordDashboard() {
                             Clear Filters
                           </Button>
                         )}
-                        <Button onClick={handleAddProperty} className="bg-gradient-to-r from-purple-600 to-blue-600">
+                        <Button onClick={handleAddProperty}>
                           <Plus className="w-4 h-4 mr-1" />
                           Add Property
                         </Button>
