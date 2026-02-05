@@ -41,7 +41,8 @@ An AI-powered apartment locator application that helps users find apartments, an
     - Landlords → `/landlord-onboarding` → `/landlord-dashboard` or `/portfolio-dashboard`
     - Agents → `/agent-onboarding` → `/agent-dashboard`
 - **Landlord Dashboard**: New unified dashboard at `/landlord-dashboard` mirroring UnifiedDashboard pattern
-  - Dark gradient theme (bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900)
+  - Light gradient theme matching User Dashboard (bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50)
+  - Theme-aware components with proper light/dark mode support
   - MarketIntelBar with landlord-specific metrics (portfolio value, avg rent, vacancy rate)
   - LeftPanelSidebar with PortfolioSummaryWidget, PropertyFilters, CompetitionSetManager, AlertsWidget
   - Map/List toggle view with property cards
