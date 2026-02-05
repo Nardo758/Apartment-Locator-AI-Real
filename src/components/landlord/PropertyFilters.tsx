@@ -272,7 +272,7 @@ export function PropertyFilters({
               {filters.city && (
                 <Badge 
                   variant="secondary" 
-                  className="gap-1 cursor-pointer hover:bg-white/10"
+                  className="gap-1 cursor-pointer"
                   onClick={() => handleFilterChange('city', 'all')}
                 >
                   <MapPin className="w-3 h-3" />
@@ -283,7 +283,7 @@ export function PropertyFilters({
               {filters.status && filters.status !== 'all' && (
                 <Badge 
                   variant="secondary"
-                  className="gap-1 cursor-pointer hover:bg-white/10"
+                  className="gap-1 cursor-pointer"
                   onClick={() => handleFilterChange('status', 'all')}
                 >
                   <Building2 className="w-3 h-3" />
@@ -294,7 +294,7 @@ export function PropertyFilters({
               {filters.vacancyRisk && filters.vacancyRisk !== 'all' && (
                 <Badge 
                   variant="secondary"
-                  className="gap-1 cursor-pointer hover:bg-white/10"
+                  className="gap-1 cursor-pointer"
                   onClick={() => handleFilterChange('vacancyRisk', 'all')}
                 >
                   <AlertTriangle className="w-3 h-3" />
@@ -305,7 +305,7 @@ export function PropertyFilters({
               {filters.competitionSet && (
                 <Badge 
                   variant="secondary"
-                  className="gap-1 cursor-pointer hover:bg-white/10"
+                  className="gap-1 cursor-pointer"
                   onClick={() => handleFilterChange('competitionSet', 'all')}
                 >
                   <Users className="w-3 h-3" />

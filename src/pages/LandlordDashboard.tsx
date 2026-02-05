@@ -319,7 +319,7 @@ export default function LandlordDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <Header />
       
       <div className="container mx-auto px-4 pt-20 pb-8">

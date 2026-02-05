@@ -1,0 +1,74 @@
+TASK: Update the Landlord Dashboard color scheme to match the User Dashboard styling.
+
+CURRENT PROBLEM:
+The Landlord Dashboard uses a dark theme (dark backgrounds, white text) while the User Dashboard uses a light theme with blue/indigo gradients. This creates inconsistency in the app.
+
+TARGET STYLE (User Dashboard):
+- Background: Light gradient (bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50)
+- Cards: White background (bg-white) with shadow-2xl
+- Text: Dark text on light backgrounds
+- Accent colors: Blue-to-purple gradients for headings and CTAs
+- Buttons: Gradient backgrounds (bg-gradient-to-r from-blue-600 to-indigo-600)
+- Borders: Subtle gray/blue borders
+- Overall vibe: Clean, professional, light and airy
+
+FILES TO UPDATE:
+
+1. src/pages/PortfolioDashboard.tsx
+   - Change outer container from dark to light gradient background
+   - Update all card backgrounds from dark (bg-gray-800/900) to white (bg-white)
+   - Change text colors from white/light to dark (text-gray-900/800)
+   - Update accent colors from purple/pink to blue/indigo
+
+2. src/components/landlord/PortfolioSummaryWidget.tsx
+   - Change card backgrounds to white
+   - Update metric cards to use light backgrounds with colored accents
+   - Change text from white to dark
+
+3. src/components/landlord/PropertyCard.tsx
+   - Change main card from dark to white background
+   - Update all text colors to dark
+   - Keep colored badges/alerts but on light backgrounds
+   - Update "View Competition" button to blue gradient
+
+4. src/components/landlord/PropertyFilters.tsx
+   - Light background for filter section
+   - White dropdowns/inputs
+   - Blue accents
+
+5. src/components/landlord/CompetitionSetManager.tsx
+   - White cards on light background
+   - Blue/indigo buttons and accents
+
+6. src/components/landlord/ComparisonView.tsx
+   - Light theme throughout
+   - White comparison tables
+   - Blue headers
+
+7. src/components/landlord/LandlordSettings.tsx
+   - Match light theme
+   - White form containers
+
+REFERENCE EXAMPLES:
+Look at these files for the target color scheme:
+- src/pages/UnifiedDashboard.tsx (user dashboard)
+- src/pages/UserTypeSelection.tsx (light gradient pattern)
+- src/pages/LandingPage.tsx (clean light design)
+
+KEY CHANGES TO MAKE:
+1. Replace all dark backgrounds (bg-gray-800, bg-gray-900, bg-black) → bg-white or light gradients
+2. Replace white text (text-white) → text-gray-900/text-gray-800
+3. Replace purple/pink gradients → blue/indigo gradients
+4. Add subtle shadows (shadow-xl, shadow-2xl) to cards
+5. Keep colored status badges but make them work on light backgrounds
+6. Ensure all text is readable (high contrast on light backgrounds)
+
+PRESERVE:
+- All functionality and logic
+- Component structure
+- Status indicators (green/yellow/red)
+- Data display format
+- Interactive elements
+
+OUTPUT:
+Apply consistent light theme across all landlord dashboard components matching the User Dashboard aesthetic.
