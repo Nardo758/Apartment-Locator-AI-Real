@@ -12,52 +12,53 @@ import {
   Shield,
   Building,
   ArrowRight,
-  DollarSign
+  DollarSign,
+  Star
 } from 'lucide-react';
 
 const plans = [
   {
     id: 'starter',
     name: 'Starter',
-    price: 49,
-    priceAnnual: 470, // 20% discount
-    description: 'Perfect for individual landlords',
-    maxProperties: 10,
+    price: 19,
+    priceAnnual: 180, // 20% discount
+    description: 'Perfect for small landlords',
+    maxUnits: 5,
     popular: false,
     features: [
-      'Up to 10 properties',
-      'Portfolio dashboard',
-      'Market comparison',
-      'Pricing recommendations',
-      'Vacancy risk alerts',
-      'Monthly market reports',
+      'Up to 5 units',
+      'Retention risk scores',
+      'Vacancy cost calculator',
+      'Renewal deadline tracking',
+      'Basic market context',
+      'Email alerts',
       'Email support'
     ],
     notIncluded: [
-      'Competitive intelligence alerts',
+      'Advanced retention analytics',
       'Renewal optimizer',
       'API access',
-      'White-label reports'
+      'Priority support'
     ]
   },
   {
     id: 'professional',
     name: 'Professional',
-    price: 99,
-    priceAnnual: 950, // 20% discount
-    description: 'For growing property managers',
-    maxProperties: 50,
+    price: 49,
+    priceAnnual: 470, // 20% discount
+    description: 'For growing portfolios',
+    maxUnits: 20,
     popular: true,
     features: [
-      'Up to 50 properties',
+      'Up to 20 units',
       'Everything in Starter, plus:',
-      'Real-time competitor alerts',
-      'Renewal optimizer',
-      'Tenant retention tools',
-      'Market share analysis',
+      'Advanced retention analytics',
+      'Renewal optimizer with AI',
+      'Tenant satisfaction tracking',
+      'Nearby market context',
       'Email templates',
       'Priority support',
-      'Advanced analytics'
+      'Custom alert thresholds'
     ],
     notIncluded: [
       'API access',
@@ -67,13 +68,13 @@ const plans = [
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 199,
-    priceAnnual: 1910, // 20% discount
+    price: 99,
+    priceAnnual: 950, // 20% discount
     description: 'For professional property managers',
-    maxProperties: null, // Unlimited
+    maxUnits: 100,
     popular: false,
     features: [
-      'Unlimited properties',
+      'Up to 100 units',
       'Everything in Professional, plus:',
       'API access',
       'White-label reports',
@@ -81,7 +82,7 @@ const plans = [
       'Dedicated account manager',
       'Phone support',
       'Training & onboarding',
-      'Custom analytics'
+      'Multi-property analytics'
     ],
     notIncluded: []
   }
@@ -91,26 +92,26 @@ const features = [
   {
     icon: <TrendingUp className="w-6 h-6 text-teal-600" />,
     iconBg: 'bg-teal-100',
-    title: 'Market Intelligence',
-    description: 'Real-time data on competitor pricing, concessions, and market trends'
+    title: 'Retention Risk Scores',
+    description: 'Know which tenants are at risk of leaving before they give notice'
   },
   {
     icon: <Users className="w-6 h-6 text-pink-600" />,
     iconBg: 'bg-pink-100',
-    title: 'Tenant Retention',
-    description: 'Optimize renewals and prevent costly turnovers with AI recommendations'
+    title: 'Renewal Optimizer',
+    description: 'AI-powered recommendations to maximize renewal rates and retention'
   },
   {
     icon: <Zap className="w-6 h-6 text-yellow-600" />,
     iconBg: 'bg-yellow-100',
-    title: 'Instant Alerts',
-    description: 'Get notified when competitors change pricing or add concessions'
+    title: 'Vacancy Cost Calculator',
+    description: 'See exactly how much each vacancy costs you in real dollars'
   },
   {
     icon: <Shield className="w-6 h-6 text-emerald-600" />,
     iconBg: 'bg-emerald-100',
-    title: 'Risk Management',
-    description: 'Identify vacancy risks before they become problems'
+    title: 'Market Context',
+    description: 'Understand what renters want nearby to inform your retention strategy'
   }
 ];
 
@@ -127,7 +128,7 @@ const testimonials = [
     name: 'Michael Rodriguez',
     role: 'Real Estate Investor',
     properties: 8,
-    quote: 'Caught competitors dropping prices before I lost tenants. The competitive alerts alone are worth it.',
+    quote: 'The retention risk scores helped me keep 3 tenants who were about to leave. Saved me months of vacancy.',
     savings: '$6,400/year',
     avatarBg: 'bg-teal-500'
   },
@@ -143,8 +144,8 @@ const testimonials = [
 
 const faqs = [
   {
-    question: 'What counts as a property?',
-    answer: 'Each unique rental unit counts as one property. A duplex with 2 units = 2 properties.'
+    question: 'What counts as a unit?',
+    answer: 'Each unique rental unit counts toward your plan limit. A duplex = 2 units. A 10-unit apartment building = 10 units.'
   },
   {
     question: 'Can I cancel anytime?',
@@ -181,12 +182,12 @@ export default function LandlordPricing() {
             For Property Managers & Landlords
           </Badge>
           
-          <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-            Never Lose Money to Vacancy Again
+          <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight" data-testid="text-landlord-pricing-title">
+            Stop Losing Money to Turnover
           </h1>
           
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Monitor your properties, track competitors, optimize pricing, and maximize renewals - all in one platform.
+            Retention intelligence that helps you keep tenants, reduce vacancy, and protect your rental income.
           </p>
 
           <div className="flex items-center justify-center gap-6 text-sm text-gray-500 mb-8">
@@ -241,11 +242,13 @@ export default function LandlordPricing() {
               key={plan.id}
               variant={plan.popular ? 'highlighted' : 'elevated'}
               className={`relative border border-gray-200 ${plan.popular ? 'scale-105 z-10 border-purple-300 shadow-lg' : ''}`}
+              data-testid={`card-pricing-${plan.id}`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                   <Badge variant="success" size="lg">
-                    ⭐ Most Popular
+                    <Star className="w-3 h-3 mr-1" />
+                    Most Popular
                   </Badge>
                 </div>
               )}
@@ -272,12 +275,12 @@ export default function LandlordPricing() {
                   )}
                 </div>
 
-                {/* Properties Limit */}
+                {/* Units Limit */}
                 <div className="p-4 rounded-lg bg-gray-50 border border-gray-200 mb-6">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600 text-sm">Properties</span>
+                    <span className="text-gray-600 text-sm">Units</span>
                     <span className="text-gray-900 font-bold">
-                      {plan.maxProperties ? `Up to ${plan.maxProperties}` : 'Unlimited'}
+                      {plan.maxUnits ? `Up to ${plan.maxUnits}` : 'Unlimited'}
                     </span>
                   </div>
                 </div>
@@ -388,20 +391,20 @@ export default function LandlordPricing() {
         </div>
 
         {/* ROI Calculator */}
-        <Card variant="elevated" className="p-12 mb-20 text-center bg-gradient-to-br from-purple-50 to-blue-50">
+        <Card variant="elevated" className="p-12 mb-20 text-center bg-gradient-to-br from-purple-50 to-blue-50" data-testid="card-roi-calculator">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             The Math is Simple
           </h2>
           <p className="text-gray-600 text-lg mb-8">
-            One prevented vacancy pays for 12+ months of service
+            One vacancy costs you $4,200+. This platform is $19/month.
           </p>
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="p-6 rounded-xl bg-white border border-gray-200 shadow-sm">
               <div className="text-4xl font-bold text-red-500 mb-2">
-                $1,200+
+                $4,200+
               </div>
               <div className="text-gray-600">
-                Cost of one vacancy (turnover + lost rent)
+                Average cost per vacancy (turnover + lost rent + make-ready)
               </div>
             </div>
             <div className="flex items-center justify-center">
@@ -409,7 +412,7 @@ export default function LandlordPricing() {
             </div>
             <div className="p-6 rounded-xl bg-green-50 border border-green-200">
               <div className="text-4xl font-bold text-green-600 mb-2">
-                $49-199
+                $19-99
               </div>
               <div className="text-gray-600">
                 Monthly subscription cost

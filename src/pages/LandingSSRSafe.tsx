@@ -68,9 +68,9 @@ const LandingSSRSafe = () => {
             <Link to="/auth" data-testid="link-signin">
               <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100">Sign In</Button>
             </Link>
-            <Link to="/signup" data-testid="link-signup">
+            <Link to="/dashboard" data-testid="link-get-started">
               <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                Get Started
+                Get Started Free
               </Button>
             </Link>
           </div>
@@ -95,9 +95,9 @@ const LandingSSRSafe = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/signup">
+                <Link to="/dashboard" data-testid="link-hero-cta">
                   <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg">
-                    Start Free Trial
+                    Search Apartments Free
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
@@ -106,11 +106,11 @@ const LandingSSRSafe = () => {
               <div className="flex items-center gap-6 text-sm text-gray-500">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>No credit card required</span>
+                  <span>No signup required</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>14-day free trial</span>
+                  <span>Free to search</span>
                 </div>
               </div>
             </div>
@@ -167,7 +167,7 @@ const LandingSSRSafe = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Solutions for Everyone in Real Estate
+              Built for Every Side of the Rental Market
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Whether you're searching, managing, or selling properties - we've got you covered
@@ -176,13 +176,13 @@ const LandingSSRSafe = () => {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Renters */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 hover:shadow-xl transition-shadow">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 hover:shadow-xl transition-shadow" data-testid="card-renter">
               <div className="bg-blue-600 text-white w-16 h-16 rounded-xl flex items-center justify-center mb-6">
                 <Home className="w-8 h-8" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">For Renters</h3>
               <p className="text-gray-600 mb-6">
-                Find your perfect home with AI-powered search and negotiation tools
+                Find your perfect home with AI-powered search and built-in negotiation leverage
               </p>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
@@ -191,62 +191,62 @@ const LandingSSRSafe = () => {
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Market intelligence & negotiation leverage</span>
+                  <span className="text-gray-700">Negotiation leverage scores for every listing</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">True cost analysis (commute + lifestyle)</span>
+                  <span className="text-gray-700">True cost analysis (commute + lifestyle + hidden fees)</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
                   <span className="text-gray-700">Save searches & track offers</span>
                 </li>
               </ul>
-              <Button className="w-full bg-blue-600 hover:bg-blue-700" asChild>
-                <Link to="/signup">Get Started Free</Link>
+              <Button className="w-full bg-blue-600 hover:bg-blue-700" asChild data-testid="button-renter-cta">
+                <Link to="/dashboard">Get Started Free</Link>
               </Button>
             </div>
 
             {/* Landlords */}
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 hover:shadow-xl transition-shadow">
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 hover:shadow-xl transition-shadow" data-testid="card-landlord">
               <div className="bg-purple-600 text-white w-16 h-16 rounded-xl flex items-center justify-center mb-6">
                 <Building className="w-8 h-8" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">For Landlords</h3>
               <p className="text-gray-600 mb-6">
-                Optimize your portfolio and reduce vacancies with market intelligence
+                Reduce vacancy, retain tenants, and stop losing money to turnover
               </p>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Portfolio dashboard & analytics</span>
+                  <span className="text-gray-700">Retention risk scores for every unit</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Competitive intelligence alerts</span>
+                  <span className="text-gray-700">Vacancy cost calculator with action recommendations</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Renewal optimizer to reduce turnover</span>
+                  <span className="text-gray-700">Renewal deadline tracking & alerts</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Pre-built email templates</span>
+                  <span className="text-gray-700">Market context — see what renters actually want nearby</span>
                 </li>
               </ul>
-              <Button className="w-full bg-purple-600 hover:bg-purple-700" asChild>
-                <Link to="/landlord-pricing">View Pricing</Link>
+              <Button className="w-full bg-purple-600 hover:bg-purple-700" asChild data-testid="button-landlord-cta">
+                <Link to="/landlord-pricing">View Plans</Link>
               </Button>
             </div>
 
             {/* Agents */}
-            <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-8 hover:shadow-xl transition-shadow">
+            <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-8 hover:shadow-xl transition-shadow" data-testid="card-agent">
               <div className="bg-orange-600 text-white w-16 h-16 rounded-xl flex items-center justify-center mb-6">
                 <Briefcase className="w-8 h-8" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">For Agents & Brokers</h3>
               <p className="text-gray-600 mb-6">
-                Manage clients and close more deals with powerful broker tools
+                Manage clients and close more deals with AI-powered market intelligence
               </p>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-start">
@@ -255,7 +255,7 @@ const LandingSSRSafe = () => {
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Lead capture & tracking system</span>
+                  <span className="text-gray-700">Lead capture & matching system</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
@@ -263,11 +263,11 @@ const LandingSSRSafe = () => {
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Activity tracking dashboard</span>
+                  <span className="text-gray-700">Market insights to advise clients better</span>
                 </li>
               </ul>
-              <Button className="w-full bg-orange-600 hover:bg-orange-700" asChild>
-                <Link to="/agent-pricing">View Pricing</Link>
+              <Button className="w-full bg-orange-600 hover:bg-orange-700" asChild data-testid="button-agent-cta">
+                <Link to="/agent-pricing">View Plans</Link>
               </Button>
             </div>
           </div>
@@ -300,9 +300,9 @@ const LandingSSRSafe = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <Link to="/signup">
+              <Link to="/dashboard" data-testid="link-cta-bottom">
                 <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold">
-                  Start Your Free Trial
+                  Search Apartments Free
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
@@ -316,15 +316,15 @@ const LandingSSRSafe = () => {
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-sm text-blue-100">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
-                <span>14-day free trial</span>
+                <span>Free to search</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
-                <span>No credit card required</span>
+                <span>No signup required</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
-                <span>Cancel anytime</span>
+                <span>Pay only for savings data</span>
               </div>
             </div>
           </div>
