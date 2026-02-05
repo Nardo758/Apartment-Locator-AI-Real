@@ -38,8 +38,15 @@ An AI-powered apartment locator application that helps users find apartments, an
   - Auth page reads URL params and shows user-type-specific UI (icons, badges, descriptions)
   - After signup/login, redirects to appropriate destination:
     - Renters → `/dashboard`
-    - Landlords → `/landlord-onboarding` → `/portfolio-dashboard`
+    - Landlords → `/landlord-onboarding` → `/landlord-dashboard` or `/portfolio-dashboard`
     - Agents → `/agent-onboarding` → `/agent-dashboard`
+- **Landlord Dashboard**: New unified dashboard at `/landlord-dashboard` mirroring UnifiedDashboard pattern
+  - Dark gradient theme (bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900)
+  - MarketIntelBar with landlord-specific metrics (portfolio value, avg rent, vacancy rate)
+  - LeftPanelSidebar with PortfolioSummaryWidget, PropertyFilters, CompetitionSetManager, AlertsWidget
+  - Map/List toggle view with property cards
+  - All components use `authenticatedFetch()` for consistent 401 handling
+  - Mock data fallback when API endpoints don't exist yet
 - **API Routes**: RESTful endpoints for properties, saved apartments, search history, preferences, market data, auth, and payments
 
 ## Project Architecture

@@ -35,6 +35,7 @@ import DataExport from "./pages/DataExport";
 import DataManagement from "./pages/DataManagement";
 import Admin from "./pages/Admin";
 import PortfolioDashboard from "./pages/PortfolioDashboard";
+import LandlordDashboard from "./pages/LandlordDashboard";
 import LandlordPricing from "./pages/LandlordPricing";
 import LandlordOnboarding from "./pages/LandlordOnboarding";
 import LeaseVerification from "./pages/LeaseVerification";
@@ -172,6 +173,16 @@ const App = () => (
                         <PortfolioDashboard />
                       </ProtectedRoute>
                     } />
+                    <Route path="/landlord-dashboard" element={
+                      <ProtectedRoute allowedUserTypes={['landlord']}>
+                        <LandlordDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/landlord/settings" element={
+                      <ProtectedRoute allowedUserTypes={['landlord']}>
+                        <LandlordSettings />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/email-templates" element={
                       <ProtectedRoute allowedUserTypes={['landlord']}>
                         <EmailTemplates />
@@ -185,11 +196,6 @@ const App = () => (
                     <Route path="/verify-lease" element={
                       <ProtectedRoute allowedUserTypes={['landlord']}>
                         <LeaseVerification />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/landlord/settings" element={
-                      <ProtectedRoute allowedUserTypes={['landlord']}>
-                        <LandlordSettings />
                       </ProtectedRoute>
                     } />
                     
