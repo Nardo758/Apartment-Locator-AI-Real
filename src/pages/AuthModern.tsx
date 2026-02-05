@@ -24,7 +24,7 @@ const AuthModern = () => {
   
   const [isSignUp, setIsSignUp] = useState(urlMode === 'signup');
   const [loading, setLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Prevents race condition in redirect
+  const [isFormSubmitting, setIsFormSubmitting] = useState(false); // Prevents auto-redirect during form submission
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -32,15 +32,8 @@ const AuthModern = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
 
-  // Set user type from URL param on mount
-  useEffect(() => {
-    if (urlUserType && ['renter', 'landlord', 'agent'].includes(urlUserType)) {
-      setUserType(urlUserType);
-    }
-  }, [urlUserType, setUserType]);
-
-  // Redirect helper based on user type
-  const getRedirectPath = (type: UserType | null): string => {
+  // Redirect helper based on user type - for NEW signups, go to onboarding
+  const getSignupRedirectPath = (type: UserType | null): string => {
     switch (type) {
       case 'admin':
         return '/admin';
@@ -50,17 +43,40 @@ const AuthModern = () => {
         return '/agent-onboarding';
       case 'renter':
       default:
+        return '/program-ai'; // Renters go to AI program flow
+    }
+  };
+
+  // Redirect helper for EXISTING users (sign-in) - go to dashboard
+  const getSigninRedirectPath = (type: UserType | null): string => {
+    switch (type) {
+      case 'admin':
+        return '/admin';
+      case 'landlord':
+        return '/landlord-dashboard';
+      case 'agent':
+        return '/agent-dashboard';
+      case 'renter':
+      default:
         return '/dashboard';
     }
   };
 
-  // Only redirect for already-authenticated users visiting the page (not during form submission)
+  // Only redirect for already-authenticated users who land on auth page directly (not during form submission)
+  // This handles the case where a logged-in user navigates to /auth
   useEffect(() => {
-    if (isAuthenticated && !isSubmitting && !loading) {
-      const redirectPath = getRedirectPath(urlUserType || userType);
-      navigate(redirectPath);
+    // Skip redirect if we're in the middle of form submission
+    if (isFormSubmitting || loading) {
+      return;
     }
-  }, [isAuthenticated, navigate, urlUserType, userType, isSubmitting, loading]);
+    
+    // Only redirect if user is already authenticated BEFORE interacting with the form
+    if (isAuthenticated && userType) {
+      // Use signin redirect since they already have an account
+      const redirectPath = getSigninRedirectPath(userType);
+      navigate(redirectPath, { replace: true });
+    }
+  }, [isAuthenticated, navigate, userType, isFormSubmitting, loading]);
 
   const handleSignUp = async (e: FormEvent) => {
     e.preventDefault();
@@ -70,21 +86,29 @@ const AuthModern = () => {
     }
 
     setLoading(true);
-    setIsSubmitting(true); // Prevent useEffect redirect during submission
+    setIsFormSubmitting(true); // Prevent useEffect auto-redirect during submission
     setError('');
 
     try {
+      // Determine the target user type BEFORE any async operations
+      // Priority: URL parameter > existing context value > default to renter
+      const targetUserType: UserType = urlUserType || 'renter';
+      
+      // Register the user
       await register(email, password, email.split('@')[0]);
       
-      // Set the user type in database after registration if we have one from URL
-      const targetUserType = urlUserType || userType;
-      if (targetUserType) {
-        await setUserType(targetUserType);
-      }
+      // Set the user type in database - await to ensure it completes
+      await setUserType(targetUserType);
+      
+      // Small delay to ensure state is fully propagated
+      await new Promise(resolve => setTimeout(resolve, 50));
       
       toast.success('Account created successfully!');
-      const redirectPath = getRedirectPath(targetUserType);
-      navigate(redirectPath);
+      
+      // Navigate DIRECTLY to the correct path based on the URL user type
+      // Don't rely on state - use the known targetUserType
+      const redirectPath = getSignupRedirectPath(targetUserType);
+      navigate(redirectPath, { replace: true });
     } catch (error: unknown) {
       console.error('Sign up error:', error);
       const message = error instanceof Error ? error.message : String(error);
@@ -93,7 +117,7 @@ const AuthModern = () => {
       } else {
         setError(message || 'Failed to create account');
       }
-      setIsSubmitting(false); // Reset on error so user can try again
+      setIsFormSubmitting(false); // Reset on error so user can try again
     } finally {
       setLoading(false);
     }
@@ -102,22 +126,28 @@ const AuthModern = () => {
   const handleSignIn = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setIsSubmitting(true); // Prevent useEffect redirect during submission
+    setIsFormSubmitting(true); // Prevent useEffect auto-redirect during submission
     setError('');
 
     try {
+      // Login first to get the user's existing data
       await login(email, password);
       
-      // For sign-in, we need to check if URL specifies a different user type
-      // and update it if the user is switching types
-      const targetUserType = urlUserType || userType;
-      if (urlUserType && urlUserType !== userType) {
+      // If URL specifies a user type, update the user's type
+      // Otherwise, the login() function already sets userType from the database
+      if (urlUserType) {
         await setUserType(urlUserType);
+        // Small delay to ensure state is fully propagated
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
       
       toast.success('Welcome back!');
-      const redirectPath = getRedirectPath(targetUserType);
-      navigate(redirectPath);
+      
+      // For sign-in, use signin redirect (to dashboard, not onboarding)
+      // If URL specified a type, use that; otherwise use the user's existing type from login
+      const redirectType = urlUserType || userType;
+      const redirectPath = getSigninRedirectPath(redirectType);
+      navigate(redirectPath, { replace: true });
     } catch (error: unknown) {
       console.error('Sign in error:', error);
       const message = error instanceof Error ? error.message : String(error);
@@ -126,7 +156,7 @@ const AuthModern = () => {
       } else {
         setError(message || 'Failed to sign in');
       }
-      setIsSubmitting(false); // Reset on error so user can try again
+      setIsFormSubmitting(false); // Reset on error so user can try again
     } finally {
       setLoading(false);
     }
