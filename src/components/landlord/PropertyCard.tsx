@@ -82,7 +82,7 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
 
   // Calculate average competitor rent
   const avgCompetitorRent = property.competitorComparison?.length
-    ? property.competitorComparison.reduce((sum, c) => sum + (c.rent || 0), 0) / property.competitorComparison.length
+    ? property.competitorComparison?.reduce((sum, c) => sum + (c.rent || 0), 0) / (property.competitorComparison?.length || 1)
     : null;
 
   return (
@@ -219,7 +219,7 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
         </div>
 
         {/* Competitor Comparison */}
-        {property.competitorComparison && property.competitorComparison.length > 0 && (
+        {property.competitorComparison && (property.competitorComparison?.length || 0) > 0 && (
           <div className="mb-4 p-4 rounded-xl bg-purple-900/20 border border-purple-500/30">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
@@ -273,7 +273,7 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
         )}
 
         {/* Competitor Activity */}
-        {property.competitorConcessions.length > 0 && (
+        {(property.competitorConcessions?.length || 0) > 0 && (
           <div className="mb-4 p-4 rounded-xl bg-orange-900/20 border border-orange-500/30">
             <div className="flex items-center gap-2 mb-3">
               <AlertTriangle className="w-4 h-4 text-orange-400" />
@@ -282,7 +282,7 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
               </span>
             </div>
             <div className="space-y-2">
-              {property.competitorConcessions.map((concession, idx) => (
+              {property.competitorConcessions?.map((concession, idx) => (
                 <div key={idx} className="text-sm text-white/70 flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
                   <span className="font-medium text-white">{concession.property}:</span>
