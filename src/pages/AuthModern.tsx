@@ -24,6 +24,7 @@ const AuthModern = () => {
   
   const [isSignUp, setIsSignUp] = useState(urlMode === 'signup');
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Prevents race condition in redirect
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -53,12 +54,13 @@ const AuthModern = () => {
     }
   };
 
+  // Only redirect for already-authenticated users visiting the page (not during form submission)
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !isSubmitting && !loading) {
       const redirectPath = getRedirectPath(urlUserType || userType);
       navigate(redirectPath);
     }
-  }, [isAuthenticated, navigate, urlUserType, userType]);
+  }, [isAuthenticated, navigate, urlUserType, userType, isSubmitting, loading]);
 
   const handleSignUp = async (e: FormEvent) => {
     e.preventDefault();
@@ -68,6 +70,7 @@ const AuthModern = () => {
     }
 
     setLoading(true);
+    setIsSubmitting(true); // Prevent useEffect redirect during submission
     setError('');
 
     try {
@@ -90,6 +93,7 @@ const AuthModern = () => {
       } else {
         setError(message || 'Failed to create account');
       }
+      setIsSubmitting(false); // Reset on error so user can try again
     } finally {
       setLoading(false);
     }
@@ -98,12 +102,21 @@ const AuthModern = () => {
   const handleSignIn = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setIsSubmitting(true); // Prevent useEffect redirect during submission
     setError('');
 
     try {
       await login(email, password);
+      
+      // For sign-in, we need to check if URL specifies a different user type
+      // and update it if the user is switching types
+      const targetUserType = urlUserType || userType;
+      if (urlUserType && urlUserType !== userType) {
+        await setUserType(urlUserType);
+      }
+      
       toast.success('Welcome back!');
-      const redirectPath = getRedirectPath(urlUserType || userType);
+      const redirectPath = getRedirectPath(targetUserType);
       navigate(redirectPath);
     } catch (error: unknown) {
       console.error('Sign in error:', error);
@@ -113,6 +126,7 @@ const AuthModern = () => {
       } else {
         setError(message || 'Failed to sign in');
       }
+      setIsSubmitting(false); // Reset on error so user can try again
     } finally {
       setLoading(false);
     }
