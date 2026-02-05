@@ -3,8 +3,17 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createServer as createViteServer, createLogger } from "vite";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
+const getServerDir = (): string => {
+  try {
+    if (typeof import.meta !== 'undefined' && import.meta.url) {
+      return path.dirname(fileURLToPath(import.meta.url));
+    }
+  } catch {}
+  return process.cwd();
+};
+
+const __dirname = getServerDir();
 
 const viteLogger = createLogger();
 

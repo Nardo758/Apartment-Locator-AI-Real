@@ -16,6 +16,8 @@ import {
   deals,
   dealNotes,
   agentLeads,
+  submarkets,
+  apiKeys,
   type Property,
   type SavedApartment,
   type SearchHistory,
@@ -31,6 +33,8 @@ import {
   type Deal,
   type DealNote,
   type AgentLead,
+  type Submarket,
+  type ApiKey,
   type InsertProperty,
   type InsertSavedApartment,
   type InsertSearchHistory,
@@ -46,6 +50,7 @@ import {
   type InsertDeal,
   type InsertDealNote,
   type InsertAgentLead,
+  type InsertApiKey,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -191,6 +196,15 @@ export interface IStorage {
   createDealNote(data: InsertDealNote): Promise<DealNote>;
   updateDealNote(id: string, userId: string, note: string): Promise<DealNote | undefined>;
   deleteDealNote(id: string, userId: string): Promise<void>;
+  
+  // JEDI API - Market Intelligence
+  getPropertiesByCity(city: string, submarket?: string): Promise<Property[]>;
+  getSubmarketsByCity(city: string): Promise<Submarket[]>;
+  
+  // JEDI API - API Keys
+  getApiKeyByHash(keyHash: string): Promise<ApiKey | undefined>;
+  createApiKey(data: InsertApiKey): Promise<ApiKey>;
+  updateApiKeyUsage(keyId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1255,6 +1269,60 @@ export class DatabaseStorage implements IStorage {
       recentActivities,
       upcomingFollowUps,
     };
+  }
+
+  // JEDI API - Market Intelligence
+  async getPropertiesByCity(city: string, submarket?: string): Promise<Property[]> {
+    const conditions = [
+      eq(properties.isActive, true),
+      ilike(properties.city, city),
+    ];
+
+    const result = await db
+      .select()
+      .from(properties)
+      .where(and(...conditions))
+      .orderBy(desc(properties.lastUpdated))
+      .limit(500);
+
+    return result;
+  }
+
+  async getSubmarketsByCity(city: string): Promise<Submarket[]> {
+    const result = await db
+      .select()
+      .from(submarkets)
+      .where(ilike(submarkets.city, city))
+      .orderBy(submarkets.name);
+
+    return result;
+  }
+
+  // JEDI API - API Keys
+  async getApiKeyByHash(keyHash: string): Promise<ApiKey | undefined> {
+    const result = await db
+      .select()
+      .from(apiKeys)
+      .where(eq(apiKeys.keyHash, keyHash))
+      .limit(1);
+
+    return result[0];
+  }
+
+  async createApiKey(data: InsertApiKey): Promise<ApiKey> {
+    const [apiKey] = await db.insert(apiKeys).values(data).returning();
+    return apiKey;
+  }
+
+  async updateApiKeyUsage(keyId: string): Promise<void> {
+    await db
+      .update(apiKeys)
+      .set({
+        lastUsedAt: new Date(),
+        requestCount: sql`COALESCE(${apiKeys.requestCount}, 0) + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(apiKeys.id, keyId));
   }
 }
 

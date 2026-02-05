@@ -168,6 +168,49 @@ export const marketSnapshots = pgTable("market_snapshots", {
   aiRecommendation: text("ai_recommendation"),
 });
 
+export const submarkets = pgTable("submarkets", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 255 }).notNull(),
+  city: varchar("city", { length: 100 }).notNull(),
+  state: varchar("state", { length: 50 }).notNull(),
+  zipCodes: json("zip_codes").$type<string[]>().default([]),
+  boundaries: json("boundaries").$type<{
+    north: number;
+    south: number;
+    east: number;
+    west: number;
+  }>(),
+  propertyCount: integer("property_count").default(0),
+  totalUnits: integer("total_units").default(0),
+  avgRent: decimal("avg_rent", { precision: 10, scale: 2 }),
+  vacancyRate: decimal("vacancy_rate", { precision: 5, scale: 4 }),
+  rentGrowth30d: decimal("rent_growth_30d", { precision: 5, scale: 4 }),
+  avgOpportunityScore: decimal("avg_opportunity_score", { precision: 4, scale: 2 }),
+  negotiationSuccessRate: decimal("negotiation_success_rate", { precision: 5, scale: 4 }),
+  marketPressure: varchar("market_pressure", { length: 50 }),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const apiKeys = pgTable("api_keys", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  keyHash: varchar("key_hash", { length: 255 }).notNull().unique(),
+  keyPrefix: varchar("key_prefix", { length: 20 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  permissions: json("permissions").$type<{
+    endpoints: string[];
+    rateLimit: number;
+    tier: 'free' | 'basic' | 'premium' | 'enterprise';
+  }>().default({ endpoints: ['/api/jedi/*'], rateLimit: 1000, tier: 'free' }),
+  lastUsedAt: timestamp("last_used_at"),
+  expiresAt: timestamp("expires_at"),
+  isActive: boolean("is_active").default(true),
+  requestCount: integer("request_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const purchases = pgTable("purchases", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id"),
@@ -502,6 +545,8 @@ export const insertClientActivitySchema = createInsertSchema(clientActivity).omi
 export const insertDealSchema = createInsertSchema(deals).omit({ id: true, createdAt: true, updatedAt: true, stageChangedAt: true });
 export const insertDealNoteSchema = createInsertSchema(dealNotes).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAgentLeadSchema = createInsertSchema(agentLeads).omit({ id: true, createdAt: true, updatedAt: true, lostAt: true, convertedToClientAt: true });
+export const insertSubmarketSchema = createInsertSchema(submarkets).omit({ id: true, createdAt: true, lastUpdated: true });
+export const insertApiKeySchema = createInsertSchema(apiKeys).omit({ id: true, createdAt: true, updatedAt: true });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
@@ -523,6 +568,8 @@ export type InsertClientActivity = z.infer<typeof insertClientActivitySchema>;
 export type InsertDeal = z.infer<typeof insertDealSchema>;
 export type InsertDealNote = z.infer<typeof insertDealNoteSchema>;
 export type InsertAgentLead = z.infer<typeof insertAgentLeadSchema>;
+export type InsertSubmarket = z.infer<typeof insertSubmarketSchema>;
+export type InsertApiKey = z.infer<typeof insertApiKeySchema>;
 
 export type User = typeof users.$inferSelect;
 export type Property = typeof properties.$inferSelect;
@@ -544,6 +591,8 @@ export type ClientActivity = typeof clientActivity.$inferSelect;
 export type Deal = typeof deals.$inferSelect;
 export type DealNote = typeof dealNotes.$inferSelect;
 export type AgentLead = typeof agentLeads.$inferSelect;
+export type Submarket = typeof submarkets.$inferSelect;
+export type ApiKey = typeof apiKeys.$inferSelect;
 
 // =====================================================
 // RELATIONS - Drizzle ORM Relations for Easy Querying
