@@ -144,7 +144,7 @@ export default function ProtectedRoute({
 function getUserDashboard(userType: UserType): string {
   switch (userType) {
     case 'landlord':
-      return '/portfolio-dashboard';
+      return '/landlord-dashboard';
     case 'agent':
       return '/agent-dashboard';
     case 'admin':

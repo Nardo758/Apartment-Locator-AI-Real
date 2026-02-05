@@ -24,7 +24,7 @@ export function getDefaultDashboard(userType: UserType | null): string {
     case 'renter':
       return '/dashboard';
     case 'landlord':
-      return '/portfolio-dashboard';
+      return '/landlord-dashboard';
     case 'agent':
       return '/agent-dashboard';
     case 'admin':
@@ -164,6 +164,7 @@ export function canAccessRoute(
   // Landlord-specific routes
   const landlordRoutes = [
     '/landlord-onboarding',
+    '/landlord-dashboard',
     '/portfolio-dashboard',
     '/email-templates',
     '/renewal-optimizer',
@@ -246,6 +247,7 @@ export function getNavigationItems(userType: UserType | null): NavigationItem[] 
       break;
     case 'landlord':
       typeSpecificItems = [
+        { label: 'Dashboard', path: '/landlord-dashboard', icon: 'LayoutDashboard' },
         { label: 'Portfolio', path: '/portfolio-dashboard', icon: 'Building' },
         { label: 'Renewal Optimizer', path: '/renewal-optimizer', icon: 'RefreshCw' },
         { label: 'Email Templates', path: '/email-templates', icon: 'Mail' },

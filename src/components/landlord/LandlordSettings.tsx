@@ -456,8 +456,8 @@ const LandlordSettings = () => {
                     View your recent alerts in the dashboard or navigate to the Portfolio
                     Dashboard to see all alerts for your properties.
                   </p>
-                  <Button variant="outline" onClick={() => window.location.href = '/portfolio-dashboard'}>
-                    View Portfolio Dashboard
+                  <Button variant="outline" onClick={() => window.location.href = '/landlord-dashboard'}>
+                    View Landlord Dashboard
                   </Button>
                 </div>
               </div>

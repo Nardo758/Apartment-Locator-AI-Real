@@ -314,7 +314,7 @@ export default function LandlordOnboarding() {
                 <Button
                   size="lg"
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-md hover:shadow-lg transition-all"
-                  onClick={() => navigate('/portfolio-dashboard')}
+                  onClick={() => navigate('/landlord-dashboard')}
                 >
                   Go to Dashboard
                   <ArrowRight className="w-5 h-5 ml-2" />
