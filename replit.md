@@ -24,12 +24,15 @@ An AI-powered apartment locator application that helps users find apartments, an
 - **Backend**: Express server with Drizzle ORM for database operations
 - **Database**: PostgreSQL with tables for properties, saved apartments, search history, user preferences, market snapshots, users, and user POIs
 - **Authentication**: JWT-based auth with bcrypt password hashing (signup, signin, /me endpoints)
-  - Centralized auth helper (`src/lib/authHelpers.ts`) with `getAuthToken()`, `getAuthHeaders()`, and `authenticatedFetch()`
+  - Centralized auth helper (`src/lib/authHelpers.ts`) with `getAuthToken()`, `getAuthHeaders()`, `authenticatedFetch()`, and `handleUnauthorized()`
   - Token stored in localStorage as `auth_token` (consistent across all components)
+  - `authenticatedFetch()` auto-injects Bearer token and handles 401 responses with user redirect
+  - `handleUnauthorized()` clears token and redirects to `/auth?redirect={currentPath}` for session recovery
   - Header component integrates with useUser hook for dynamic auth state display
   - Shows "Sign In" button when not authenticated, user dropdown menu when logged in
   - Sign Out option available in both desktop dropdown and mobile menu
   - ProtectedRoute component available for securing authenticated-only pages
+  - All landlord components use `authenticatedFetch()` for consistent 401 handling
 - **User Type Flows**: Three user types (renter, landlord, agent) with dedicated flows
   - Pricing pages link to `/auth?type={userType}&mode=signup&plan={planId}`
   - Auth page reads URL params and shows user-type-specific UI (icons, badges, descriptions)
