@@ -5,20 +5,20 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white rounded-xl shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40 hover:-translate-y-0.5",
+        default: "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5",
         destructive:
           "bg-destructive text-destructive-foreground rounded-xl hover:bg-destructive/90 hover:-translate-y-0.5",
         outline:
-          "border-2 border-white/20 bg-white/5 text-white rounded-xl backdrop-blur-sm hover:bg-white/10 hover:border-white/40 hover:-translate-y-0.5",
+          "border-2 border-gray-300 dark:border-white/20 bg-white dark:bg-white/5 text-gray-700 dark:text-white rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 hover:border-gray-400 dark:hover:border-white/40 hover:-translate-y-0.5",
         secondary:
-          "bg-white/5 border border-white/20 text-white rounded-xl backdrop-blur-sm hover:bg-white/10 hover:border-white/40",
-        ghost: "text-white/80 rounded-lg hover:bg-white/5 hover:text-white",
+          "bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/20 text-gray-700 dark:text-white rounded-xl hover:bg-gray-200 dark:hover:bg-white/10 hover:border-gray-400 dark:hover:border-white/40",
+        ghost: "text-gray-700 dark:text-white/80 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white",
         link: "text-primary underline-offset-4 hover:underline",
-        "gradient-primary": "bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white rounded-xl shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40 hover:-translate-y-0.5",
+        "gradient-primary": "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5",
         "gradient-secondary": "bg-gradient-to-r from-[#4ecdc4] to-[#44a08d] text-white rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40 hover:-translate-y-0.5",
-        "hero": "bg-white/5 text-white border-2 border-white/20 rounded-xl backdrop-blur-sm hover:bg-white/10 hover:border-white/40",
-        "premium": "bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white rounded-xl shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40 hover:-translate-y-0.5",
-        "glass": "bg-white/5 text-white border border-white/10 rounded-xl backdrop-blur-sm hover:bg-white/8 hover:border-purple-500/30",
+        "hero": "bg-white/90 dark:bg-white/5 text-gray-700 dark:text-white border-2 border-gray-300 dark:border-white/20 rounded-xl backdrop-blur-sm hover:bg-white dark:hover:bg-white/10 hover:border-gray-400 dark:hover:border-white/40",
+        "premium": "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5",
+        "glass": "bg-white/80 dark:bg-white/5 text-gray-700 dark:text-white border border-gray-200 dark:border-white/10 rounded-xl backdrop-blur-sm hover:bg-white/90 dark:hover:bg-white/8 hover:border-gray-300 dark:hover:border-purple-500/30",
         "danger": "bg-red-500 text-white rounded-xl hover:bg-red-600 hover:-translate-y-0.5",
       },
       size: {
