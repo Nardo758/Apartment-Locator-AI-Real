@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { authFetchJson } from '@/lib/authHelpers';
 import { LeadCaptureForm } from '@/components/agent/LeadCaptureForm';
 import { ClientPortfolio } from '@/components/agent/ClientPortfolio';
 import { CommissionCalculator } from '@/components/agent/CommissionCalculator';
@@ -20,67 +21,172 @@ import {
   Target,
   Clock,
   CheckCircle,
-  ArrowUpRight
+  ArrowUpRight,
+  Eye,
+  Mail,
+  Phone
 } from 'lucide-react';
 
 type TabType = 'overview' | 'clients' | 'lead-capture' | 'calculator' | 'reports';
 
+interface AgentDashboardSummary {
+  totalClients: number;
+  activeClients: number;
+  clientsByStage: Record<string, number>;
+  clientsByPriority: Record<string, number>;
+  recentActivities: Array<{
+    id: string;
+    activityType: string;
+    title: string;
+    description?: string | null;
+    createdAt: string;
+  }>;
+  upcomingFollowUps: Array<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    priority?: string | null;
+    nextFollowUp?: string | null;
+  }>;
+}
+
+interface AgentRevenueSummary {
+  totalRevenue: number;
+  totalTransactions: number;
+  avgMonthlyRevenue: number;
+  avgTransactionValue: number;
+  yoyGrowth: number;
+}
+
+interface AgentRevenueResponse {
+  summary: AgentRevenueSummary;
+  timeline: Array<{
+    period: string;
+    total: { revenue: number; transactions: number };
+  }>;
+}
+
+interface AgentPipelineResponse {
+  summary: {
+    overallConversionRate: number;
+    totalDeals: number;
+  };
+}
+
 export default function AgentDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [summary, setSummary] = useState<AgentDashboardSummary | null>(null);
+  const [revenue, setRevenue] = useState<AgentRevenueSummary | null>(null);
+  const [pipeline, setPipeline] = useState<AgentPipelineResponse | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   
   // Set page title
   useEffect(() => {
     document.title = 'Agent Dashboard | Apartment Locator AI';
   }, []);
 
-  const stats = {
-    totalClients: 8,
-    activeDeals: 5,
-    monthlyCommissions: 2625,
-    projectedRevenue: 31500,
-    thisMonthLeads: 12,
-    conversionRate: 62,
-    avgCommission: 525,
-    nextMoveIn: '5 days'
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      setLoadError(null);
+      const [summaryResult, revenueResult, pipelineResult] = await Promise.all([
+        authFetchJson<AgentDashboardSummary>('/api/agent/dashboard/summary'),
+        authFetchJson<AgentRevenueResponse>('/api/agent/analytics/revenue'),
+        authFetchJson<AgentPipelineResponse>('/api/agent/analytics/pipeline'),
+      ]);
+
+      if (summaryResult.success) {
+        setSummary(summaryResult.data);
+      } else {
+        setLoadError(summaryResult.error);
+      }
+
+      if (revenueResult.success) {
+        setRevenue(revenueResult.data.summary);
+      }
+
+      if (pipelineResult.success) {
+        setPipeline(pipelineResult.data);
+      }
+    };
+
+    loadDashboardData();
+  }, []);
+
+  const stats = useMemo(() => {
+    const monthlyRevenue = revenue?.avgMonthlyRevenue ?? 0;
+    const projectedRevenue = revenue ? revenue.avgMonthlyRevenue * 12 : 0;
+    const conversionRate = pipeline?.summary?.overallConversionRate ?? 0;
+
+    const stages = summary?.clientsByStage || {};
+    const activeStages = ['lead', 'viewing', 'negotiating', 'contract', 'showing', 'qualified', 'offer'];
+    const activeDeals = activeStages.reduce((sum, stage) => sum + (stages[stage] || 0), 0) || summary?.activeClients || 0;
+
+    return {
+      totalClients: summary?.totalClients ?? 0,
+      activeDeals,
+      monthlyCommissions: monthlyRevenue,
+      projectedRevenue,
+      conversionRate: Math.round(conversionRate),
+      avgCommission: revenue?.avgTransactionValue ?? 0,
+    };
+  }, [summary, revenue, pipeline]);
+
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return 'Recently';
+    const diffMs = date.getTime() - Date.now();
+    const isFuture = diffMs > 0;
+    const minutes = Math.max(1, Math.floor(Math.abs(diffMs) / 60000));
+    if (minutes < 60) return `${isFuture ? 'in ' : ''}${minutes} min${isFuture ? '' : ' ago'}`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${isFuture ? 'in ' : ''}${hours} hours${isFuture ? '' : ' ago'}`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${isFuture ? 'in ' : ''}${days} days${isFuture ? '' : ' ago'}`;
+    return date.toLocaleDateString('en-US');
   };
 
-  const recentActivity = [
-    { 
-      type: 'lead', 
-      message: 'New lead: David Kim added', 
-      time: '2 hours ago',
-      icon: Users,
-      color: 'text-purple-600'
-    },
-    { 
-      type: 'offer', 
-      message: 'Sarah Johnson made an offer on 2-bed in Manhattan', 
-      time: '5 hours ago',
-      icon: FileText,
-      color: 'text-blue-600'
-    },
-    { 
-      type: 'viewing', 
-      message: 'Emily Rodriguez scheduled 3 property viewings', 
-      time: '1 day ago',
-      icon: Calendar,
-      color: 'text-green-600'
-    },
-    { 
-      type: 'closed', 
-      message: 'James Wilson signed lease - $630 commission!', 
-      time: '3 days ago',
-      icon: CheckCircle,
-      color: 'text-green-600'
-    }
-  ];
+  const recentActivity = useMemo(() => {
+    if (summary?.recentActivities?.length) {
+      const iconMap = {
+        note: { icon: FileText, color: 'text-blue-600' },
+        call: { icon: Phone, color: 'text-green-600' },
+        email: { icon: Mail, color: 'text-purple-600' },
+        meeting: { icon: Calendar, color: 'text-orange-600' },
+        viewing: { icon: Eye, color: 'text-indigo-600' },
+        offer: { icon: FileText, color: 'text-blue-600' },
+        contract: { icon: CheckCircle, color: 'text-green-600' },
+      } as const;
 
-  const upcomingTasks = [
-    { task: 'Follow up with Sarah Johnson', priority: 'high', due: 'Today' },
-    { task: 'Property viewing with Michael Chen', priority: 'high', due: 'Tomorrow' },
-    { task: 'Send market report to Lisa Anderson', priority: 'medium', due: 'Feb 10' },
-    { task: 'Update client portfolio photos', priority: 'low', due: 'Feb 15' }
-  ];
+      return summary.recentActivities.map((activity) => {
+        const mapping = iconMap[activity.activityType as keyof typeof iconMap] || {
+          icon: Clock,
+          color: 'text-gray-600',
+        };
+
+        return {
+          type: activity.activityType,
+          message: activity.title || 'Activity logged',
+          time: formatRelativeTime(activity.createdAt),
+          icon: mapping.icon,
+          color: mapping.color,
+        };
+      });
+    }
+
+    return [];
+  }, [summary]);
+
+  const upcomingTasks = useMemo(() => {
+    if (summary?.upcomingFollowUps?.length) {
+      return summary.upcomingFollowUps.map((client) => ({
+        task: `Follow up with ${client.firstName} ${client.lastName}`,
+        priority: client.priority || 'medium',
+        due: client.nextFollowUp ? formatRelativeTime(client.nextFollowUp) : 'Upcoming',
+      }));
+    }
+
+    return [];
+  }, [summary]);
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
@@ -138,6 +244,13 @@ export default function AgentDashboard() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {loadError && (
+          <Card className="mb-6 border-red-200 bg-red-50">
+            <CardContent className="p-4 text-red-700">
+              Failed to load dashboard data: {loadError}
+            </CardContent>
+          </Card>
+        )}
         {/* Tab Navigation */}
         <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
           {tabs.map((tab) => {
@@ -175,7 +288,9 @@ export default function AgentDashboard() {
                   </div>
                   <p className="text-sm text-gray-600 mb-1">Total Clients</p>
                   <p className="text-3xl font-bold text-gray-900 mb-1">{stats.totalClients}</p>
-                  <p className="text-xs text-green-600">+2 this month</p>
+                  <p className="text-xs text-green-600">
+                    {summary ? 'Updated just now' : 'Loading...'}
+                  </p>
                 </CardContent>
               </Card>
 
@@ -235,20 +350,26 @@ export default function AgentDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {recentActivity.map((activity, idx) => {
-                      const Icon = activity.icon;
-                      return (
-                        <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                          <div className={`${activity.color} mt-0.5`}>
-                            <Icon className="w-5 h-5" />
+                    {recentActivity.length === 0 ? (
+                      <div className="text-sm text-gray-500">
+                        No recent activity yet.
+                      </div>
+                    ) : (
+                      recentActivity.map((activity, idx) => {
+                        const Icon = activity.icon;
+                        return (
+                          <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div className={`${activity.color} mt-0.5`}>
+                              <Icon className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-gray-900 text-sm">{activity.message}</p>
+                              <p className="text-gray-500 text-xs mt-1">{activity.time}</p>
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <p className="text-gray-900 text-sm">{activity.message}</p>
-                            <p className="text-gray-500 text-xs mt-1">{activity.time}</p>
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -264,21 +385,27 @@ export default function AgentDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {upcomingTasks.map((task, idx) => (
-                      <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <input 
-                          type="checkbox" 
-                          className="w-4 h-4 rounded border-gray-300 bg-white checked:bg-teal-600"
-                        />
-                        <div className="flex-1">
-                          <p className="text-gray-900 text-sm">{task.task}</p>
-                          <p className="text-gray-500 text-xs mt-1">Due: {task.due}</p>
-                        </div>
-                        <Badge className={getPriorityColor(task.priority)}>
-                          {task.priority}
-                        </Badge>
+                    {upcomingTasks.length === 0 ? (
+                      <div className="text-sm text-gray-500">
+                        No upcoming tasks scheduled.
                       </div>
-                    ))}
+                    ) : (
+                      upcomingTasks.map((task, idx) => (
+                        <div key={idx} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                          <input 
+                            type="checkbox" 
+                            className="w-4 h-4 rounded border-gray-300 bg-white checked:bg-teal-600"
+                          />
+                          <div className="flex-1">
+                            <p className="text-gray-900 text-sm">{task.task}</p>
+                            <p className="text-gray-500 text-xs mt-1">Due: {task.due}</p>
+                          </div>
+                          <Badge className={getPriorityColor(task.priority)}>
+                            {task.priority}
+                          </Badge>
+                        </div>
+                      ))
+                    )}
                   </div>
                   <Button variant="outline" className="w-full mt-4 border-gray-300">
                     <Plus className="w-4 h-4 mr-2" />
