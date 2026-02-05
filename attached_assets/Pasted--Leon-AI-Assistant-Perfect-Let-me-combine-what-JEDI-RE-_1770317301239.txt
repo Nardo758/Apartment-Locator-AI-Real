@@ -1,0 +1,249 @@
+> Leon AI Assistant:
+Perfect! Let me combine what JEDI RE needs with what ApartmentIQ can provide into one unified API spec:
+
+📡 ApartmentIQ → JEDI RE Unified API
+
+Endpoint 1: Market Intelligence Feed (Primary Integration)
+
+GET /api/jedi/market-data?city=Atlanta&submarket=Midtown&date_from=2026-01-01
+
+Response Structure:
+
+{
+  "market_summary": {
+    "city": "Atlanta",
+    "submarket": "Midtown",
+    "date_range": "2026-01-01 to 2026-02-05",
+    
+    // Supply Metrics (JEDI needs)
+    "total_properties": 45,
+    "total_units": 12543,
+    "available_units": 2546,
+    "vacancy_rate": 0.203,
+    "avg_days_on_market": 23,
+    
+    // Pricing (JEDI needs + ApartmentIQ intelligence)
+    "avg_rent_studio": 1450,
+    "avg_rent_1bed": 1650,
+    "avg_rent_2bed": 2200,
+    "avg_rent_3bed": 2850,
+    "avg_rent_overall": 1982,
+    "rent_growth_rate_30d": 0.021,
+    "rent_growth_rate_90d": 0.045,
+    
+    // Demand Signals (ApartmentIQ proprietary)
+    "avg_opportunity_score": 7.2,
+    "concessions_prevalence": 0.68,
+    "avg_concessions_pct": 0.083,
+    "avg_savings_potential": 245,
+    "negotiation_success_rate": 0.73,
+    
+    // Market Pressure (Combined intelligence)
+    "supply_demand_ratio": 1.15,
+    "listing_volume_trend": "increasing",
+    "seasonal_factor": 0.92,
+    "market_saturation": "high"
+  },
+  
+  "properties": [
+    {
+      // Property Identity
+      "id": "prop_123",
+      "name": "The Atlantic",
+      "address": "123 Peachtree St",
+      "lat": 33.7490,
+      "lng": -84.3880,
+      "submarket": "Midtown",
+      
+      // Supply (JEDI needs)
+      "total_units": 250,
+      "available_units": 12,
+      "vacancy_rate": 0.048,
+      "days_on_market": 18,
+      
+      // Pricing (Both need)
+      "rent_studio": 1450,
+      "rent_1bed": 1650,
+      "rent_2bed": 2200,
+      "rent_3bed": 2850,
+      "rent_avg": 1950,
+      "price_change_30d": -50,
+      "price_change_90d": -120,
+      
+      // Building Quality (JEDI needs)
+      "building_class": "A",
+      "year_built": 2018,
+      "unit_mix": {
+        "studio_pct": 10,
+        "one_bed_pct": 45,
+        "two_bed_pct": 35,
+        "three_bed_pct": 10
+      },
+      "amenities": ["pool", "gym", "parking", "pet_friendly"],
+      "sqft_avg": 850,
+      
+      // Market Intelligence (ApartmentIQ proprietary)
+      "opportunity_score": 8.5,
+      "negotiation_success_rate": 0.82,
+      "recommended_concessions": [
+        "1 month free (0.083 rent reduction)",
+        "$500 waived fees"
+      ],
+      "concessions_current": "1 month free",
+      "leverage_factors": [
+        "vacancy_duration_high",
+        "market_saturation",
+        "price_reduction_trend"
+      ],
+      "estimated_savings": 325,
+      
+      // Comparables (ApartmentIQ intelligence)
+      "comparable_avg_rent": 2050,
+      "price_vs_market": -0.049,
+      
+      // Data Quality
+      "last_scraped": "2026-02-05T10:30:00Z",
+      "data_source": "apartments_com",
+      "confidence_score": 0.95
+    }
+  ],
+  
+  "total_properties": 45,
+  "page": 1,
+  "per_page": 50
+}
+
+
+Endpoint 2: Timeseries / Trends (Signal Processing)
+
+GET /api/jedi/trends?submarket=Midtown&period=weekly&lookback=90
+
+Response:
+
+{
+  "submarket": "Midtown",
+  "city": "Atlanta",
+  "period": "weekly",
+  "observations": [
+    {
+      "date": "2026-02-03",
+      
+      // Core Metrics
+      "avg_rent": 1982,
+      "vacancy_rate": 0.203,
+      "total_supply": 12543,
+      "available_units": 2546,
+      "listings_active": 156,
+      
+      // Intelligence Signals
+      "avg_opportunity_score": 7.2,
+      "concessions_prevalence": 0.68,
+      "avg_days_on_market": 23,
+      "negotiation_success_rate": 0.73,
+      
+      // Demand Heatmap
+      "search_activity_index": 142,
+      "application_volume": 89,
+      
+      // Seasonal Adjustment
+      "seasonal_factor": 0.92
+    }
+  ]
+}
+
+
+Endpoint 3: Submarket Overview (Geography)
+
+GET /api/jedi/submarkets?city=Atlanta
+
+Response:
+
+{
+  "submarkets": [
+    {
+      "name": "Midtown",
+      "city": "Atlanta",
+
+> Leon AI Assistant:
+"zip_codes": ["30308", "30309"],
+      
+      // Supply
+      "properties_count": 45,
+      "total_units": 12543,
+      "vacancy_rate": 0.203,
+      
+      // Pricing
+      "avg_rent": 1982,
+      "rent_growth_30d": 0.021,
+      
+      // Intelligence
+      "avg_opportunity_score": 7.2,
+      "negotiation_success_rate": 0.73,
+      "market_pressure": "buyer_market"
+    }
+  ]
+}
+
+
+🎯 What JEDI RE Gets:
+
+For Signal Processing Engine:
+
+• ✅ Historical rent trends (timeseries)
+• ✅ Vacancy rate trends
+• ✅ Supply/demand signals
+• ✅ Seasonal patterns
+• ✅ BONUS: Negotiation success rates = demand pressure indicator
+For Carrying Capacity Engine:
+
+• ✅ Total units per submarket
+• ✅ Unit mix percentages
+• ✅ Building class distribution
+• ✅ Existing supply counts
+For Imbalance Detector:
+
+• ✅ Rent growth rates
+• ✅ Vacancy rates
+• ✅ Days on market (supply pressure)
+• ✅ BONUS: Concession prevalence = market stress indicator
+Proprietary Intelligence (Premium Data):
+
+• 🔥 Opportunity scores → Market softness indicator
+• 🔥 Negotiation success rates → Demand strength
+• 🔥 Concession prevalence → Supply pressure
+• 🔥 Price change trends → Market direction
+• 🔥 Search/demand heatmaps → Future demand signals
+
+🚀 Integration Value Proposition
+
+For ApartmentIQ:
+
+• Your data becomes the intelligence layer for B2B real estate analysis
+• Opens institutional/developer market (new revenue stream)
+• Your negotiation intelligence = proprietary market signal
+For JEDI RE:
+
+• Real-time property-level data (vs quarterly CoStar)
+• Market pressure indicators (concessions, negotiation rates)
+• Consumer demand signals (search activity)
+• Fresher data (daily scrapes vs months-old reports)
+
+📋 Next Steps
+
+Option 1: Start Simple (1-2 days)
+
+• Build Endpoint 1 only (market data feed)
+• JEDI RE pulls daily for Atlanta
+• Test integration with Signal Processing Engine
+Option 2: Full Integration (1 week)
+
+• All 3 endpoints
+• Authentication (API keys)
+• Rate limiting
+• Documentation
+Option 3: Revenue Model (if B2B future)
+
+• Free tier: Basic property data
+• Paid tier: Opportunity scores + intelligence
+• Enterprise: Full feed + historical data
+Which approach do you want? I can help design the actual Express endpoints or just document the spec for you to build.
