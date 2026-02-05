@@ -9,6 +9,7 @@ import {
 } from '@/components/landlord';
 import { Button } from '@/components/ui/button';
 import { Plus, Download, Settings } from 'lucide-react';
+import { getAuthToken } from '@/lib/authHelpers';
 
 interface Property {
   id: string;
@@ -84,10 +85,9 @@ export default function LandlordDashboard() {
       if (filters.vacancyRisk && filters.vacancyRisk !== 'all') params.append('vacancyRisk', filters.vacancyRisk);
       if (filters.competitionSet) params.append('competitionSetId', filters.competitionSet);
 
+      const token = getAuthToken();
       const response = await fetch(`/api/landlord/properties?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       });
 
       if (!response.ok) {
@@ -105,10 +105,9 @@ export default function LandlordDashboard() {
 
   const fetchCities = async () => {
     try {
+      const token = getAuthToken();
       const response = await fetch('/api/landlord/properties/cities', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       });
       if (response.ok) {
         const data = await response.json();
@@ -121,14 +120,13 @@ export default function LandlordDashboard() {
 
   const fetchCompetitionSets = async () => {
     try {
-      const response = await fetch('/api/landlord/competition-sets', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+      const token = getAuthToken();
+      const response = await fetch('/api/competition-sets', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       });
       if (response.ok) {
         const data = await response.json();
-        setCompetitionSets(data.competitionSets || []);
+        setCompetitionSets(data.sets || []);
       }
     } catch (error) {
       console.error('Error fetching competition sets:', error);

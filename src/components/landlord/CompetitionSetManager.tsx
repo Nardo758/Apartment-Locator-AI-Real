@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CompetitionSetDialog } from './CompetitionSetDialog';
 import { useToast } from '@/hooks/use-toast';
+import { getAuthToken, getAuthHeaders } from '@/lib/authHelpers';
 import {
   Plus,
   Edit,
@@ -47,11 +48,10 @@ interface Property {
 }
 
 interface CompetitionSetManagerProps {
-  userId: string;
-  authToken: string;
+  userId?: string;
 }
 
-export function CompetitionSetManager({ userId, authToken }: CompetitionSetManagerProps) {
+export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
   const [competitionSets, setCompetitionSets] = useState<CompetitionSet[]>([]);
   const [userProperties, setUserProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,13 +61,15 @@ export function CompetitionSetManager({ userId, authToken }: CompetitionSetManag
   const [expandedSetId, setExpandedSetId] = useState<string | null>(null);
   const { toast } = useToast();
 
+  const getHeaders = (): HeadersInit => {
+    return getAuthHeaders();
+  };
+
   // Fetch competition sets
   const fetchCompetitionSets = async () => {
     try {
       const response = await fetch('/api/competition-sets', {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        },
+        headers: getHeaders(),
       });
 
       if (!response.ok) {
@@ -89,11 +91,8 @@ export function CompetitionSetManager({ userId, authToken }: CompetitionSetManag
   // Fetch user properties (for the dialog)
   const fetchUserProperties = async () => {
     try {
-      // TODO: Replace with actual endpoint for landlord properties
-      const response = await fetch(`/api/landlord/properties?userId=${userId}`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        },
+      const response = await fetch('/api/landlord/properties', {
+        headers: getHeaders(),
       });
 
       if (response.ok) {
@@ -102,7 +101,6 @@ export function CompetitionSetManager({ userId, authToken }: CompetitionSetManag
       }
     } catch (error) {
       console.error('Error fetching user properties:', error);
-      // Don't show error toast here as this is less critical
     }
   };
 
@@ -118,15 +116,13 @@ export function CompetitionSetManager({ userId, authToken }: CompetitionSetManag
     };
 
     loadData();
-  }, [userId, authToken]);
+  }, []);
 
   // Fetch detailed competition set (with competitors)
   const fetchCompetitionSetDetails = async (setId: string) => {
     try {
       const response = await fetch(`/api/competition-sets/${setId}`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        },
+        headers: getHeaders(),
       });
 
       if (!response.ok) {
@@ -165,7 +161,7 @@ export function CompetitionSetManager({ userId, authToken }: CompetitionSetManag
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          ...getHeaders(),
         },
         body: JSON.stringify({
           name: formData.name,
@@ -191,7 +187,7 @@ export function CompetitionSetManager({ userId, authToken }: CompetitionSetManag
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${authToken}`,
+                  ...getHeaders(),
                 },
                 body: JSON.stringify(competitor),
               });
@@ -231,9 +227,7 @@ export function CompetitionSetManager({ userId, authToken }: CompetitionSetManag
     try {
       const response = await fetch(`/api/competition-sets/${setId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        },
+        headers: getHeaders(),
       });
 
       if (!response.ok) {

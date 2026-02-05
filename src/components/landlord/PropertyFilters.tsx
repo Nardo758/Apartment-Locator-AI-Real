@@ -18,6 +18,7 @@ import {
   Users,
   RotateCcw
 } from 'lucide-react';
+import { getAuthHeaders } from '@/lib/authHelpers';
 
 export interface PropertyFilterOptions {
   city?: string;
@@ -64,9 +65,7 @@ export function PropertyFilters({
   const fetchCities = async () => {
     try {
       const response = await fetch('/api/landlord/properties/cities', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        headers: getAuthHeaders(),
       });
       if (response.ok) {
         const data = await response.json();
@@ -79,14 +78,12 @@ export function PropertyFilters({
 
   const fetchCompetitionSets = async () => {
     try {
-      const response = await fetch('/api/landlord/competition-sets', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+      const response = await fetch('/api/competition-sets', {
+        headers: getAuthHeaders(),
       });
       if (response.ok) {
         const data = await response.json();
-        setCompetitionSets(data.competitionSets || []);
+        setCompetitionSets(data.sets || []);
       }
     } catch (error) {
       console.error('Error fetching competition sets:', error);

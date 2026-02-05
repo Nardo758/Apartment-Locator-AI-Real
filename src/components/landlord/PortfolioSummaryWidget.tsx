@@ -12,6 +12,7 @@ import {
   Percent
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { getAuthHeaders } from '@/lib/authHelpers';
 
 interface PortfolioSummary {
   totalProperties: number;
@@ -42,7 +43,7 @@ export function PortfolioSummaryWidget({ userId, className = '' }: PortfolioSumm
         const response = await fetch('/api/landlord/portfolio/summary', {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            ...getAuthHeaders(),
           },
         });
 
