@@ -300,25 +300,20 @@ const LandingSSRSafe = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <Button
-                asChild
-                size="lg"
-                className="!bg-white !text-blue-600 hover:!bg-gray-100 px-8 py-3 text-lg font-semibold"
+              <Link 
+                to="/pricing" 
                 data-testid="link-cta-bottom"
+                className="inline-flex items-center justify-center bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold rounded-md shadow-lg transition-colors"
               >
-                <Link to="/pricing">
-                  Search Apartments Free
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="!border-white !bg-transparent !text-white hover:!bg-white hover:!text-blue-600 px-8 py-3 text-lg font-semibold"
+                Search Apartments Free
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+              <Link 
+                to="/pricing"
+                className="inline-flex items-center justify-center bg-blue-700 text-white hover:bg-blue-800 px-8 py-3 text-lg font-semibold rounded-md shadow-lg transition-colors"
               >
-                <Link to="/pricing">View Market Intel</Link>
-              </Button>
+                View Market Intel
+              </Link>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-sm text-blue-100">
