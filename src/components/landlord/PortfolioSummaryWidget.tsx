@@ -108,7 +108,7 @@ export function PortfolioSummaryWidget({ userId, className = '' }: PortfolioSumm
       <CardContent className="space-y-4">
         {/* Property Count Stats */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="p-4 rounded-xl bg-muted/50 border border-border">
+          <div className="p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Building2 className="w-4 h-4 text-primary" />
               <span className="text-xs text-muted-foreground">Total</span>
@@ -178,7 +178,7 @@ export function PortfolioSummaryWidget({ userId, className = '' }: PortfolioSumm
 
         {/* Revenue Stats */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-4 rounded-xl bg-muted/50 border border-border">
+          <div className="p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
               <span className="text-xs text-muted-foreground">Revenue</span>
@@ -196,7 +196,7 @@ export function PortfolioSummaryWidget({ userId, className = '' }: PortfolioSumm
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-muted/50 border border-border">
+          <div className="p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <HomeIcon className="w-4 h-4 text-primary" />
               <span className="text-xs text-muted-foreground">Avg Rent</span>

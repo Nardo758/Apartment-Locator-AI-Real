@@ -84,7 +84,7 @@ export function MarketComparisonWidget({
 
         {/* Trends */}
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="p-3 rounded-lg bg-muted/50 border border-border">
+          <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-blue-400" />
               <span className="text-xs text-muted-foreground">7-Day</span>
@@ -97,7 +97,7 @@ export function MarketComparisonWidget({
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-muted/50 border border-border">
+          <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Calendar className="w-4 h-4 text-purple-400" />
               <span className="text-xs text-muted-foreground">30-Day</span>
@@ -110,7 +110,7 @@ export function MarketComparisonWidget({
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-muted/50 border border-border">
+          <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Home className="w-4 h-4 text-green-400" />
               <span className="text-xs text-muted-foreground">New</span>

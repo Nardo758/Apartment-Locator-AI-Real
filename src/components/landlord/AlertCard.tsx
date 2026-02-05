@@ -151,7 +151,7 @@ export function AlertCard({ alert, onDismiss, onTakeAction }: AlertCardProps) {
         </div>
 
         {/* Competitor Info */}
-        <div className="grid grid-cols-2 gap-3 mb-4 p-4 rounded-xl bg-muted/50 border border-border">
+        <div className="grid grid-cols-2 gap-3 mb-4 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-border">
           <div>
             <div className="text-xs text-muted-foreground mb-1">Competitor Property</div>
             <div className="text-foreground font-semibold flex items-center gap-2">

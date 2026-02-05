@@ -76,7 +76,7 @@ export function CompetitorActivityFeed({ alerts, maxItems = 10 }: CompetitorActi
                   </div>
 
                   {/* Activity card */}
-                  <div className="bg-muted/50 rounded-xl border border-border p-4 hover:bg-muted transition-colors">
+                  <div className="bg-gray-100 dark:bg-gray-800 rounded-xl border border-border p-4 hover:bg-muted transition-colors">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">

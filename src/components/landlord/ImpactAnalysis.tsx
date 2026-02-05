@@ -111,7 +111,7 @@ export function ImpactAnalysis({ alerts }: ImpactAnalysisProps) {
           </div>
 
           <div className="grid grid-cols-4 gap-4">
-            <div className="bg-muted/50 rounded-xl p-4 border border-border">
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 border border-border">
               <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
                 <Home className="w-4 h-4" />
                 Properties at Risk
@@ -122,7 +122,7 @@ export function ImpactAnalysis({ alerts }: ImpactAnalysisProps) {
               </div>
             </div>
 
-            <div className="bg-muted/50 rounded-xl p-4 border border-border">
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 border border-border">
               <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
                 <DollarSign className="w-4 h-4" />
                 Revenue at Risk
@@ -133,7 +133,7 @@ export function ImpactAnalysis({ alerts }: ImpactAnalysisProps) {
               <div className="text-xs text-red-400 mt-1">per month</div>
             </div>
 
-            <div className="bg-muted/50 rounded-xl p-4 border border-border">
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 border border-border">
               <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
                 <AlertTriangle className="w-4 h-4" />
                 Critical Alerts
@@ -142,7 +142,7 @@ export function ImpactAnalysis({ alerts }: ImpactAnalysisProps) {
               <div className="text-xs text-muted-foreground mt-1">Immediate action needed</div>
             </div>
 
-            <div className="bg-muted/50 rounded-xl p-4 border border-border">
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 border border-border">
               <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
                 <Target className="w-4 h-4" />
                 High Priority
@@ -199,7 +199,7 @@ export function ImpactAnalysis({ alerts }: ImpactAnalysisProps) {
                     </div>
                   </div>
 
-                  <div className={`flex items-center justify-between p-3 rounded-lg bg-muted/50 border ${risk.border}`}>
+                  <div className={`flex items-center justify-between p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border ${risk.border}`}>
                     <div className="flex items-center gap-2">
                       <TrendingDown className={`w-5 h-5 ${risk.text}`} />
                       <div>

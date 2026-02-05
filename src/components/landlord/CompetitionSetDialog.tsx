@@ -262,7 +262,7 @@ export function CompetitionSetDialog({
                 }}
                 placeholder="e.g., Downtown Premium Competitors"
                 className={cn(
-                  'mt-2 bg-muted/50 border-border text-foreground',
+                  'mt-2 bg-gray-100 dark:bg-gray-800 border-border text-foreground',
                   errors.name && 'border-red-500'
                 )}
               />
@@ -281,7 +281,7 @@ export function CompetitionSetDialog({
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Describe what this competition set is tracking..."
                 rows={4}
-                className="mt-2 bg-muted/50 border-border text-foreground resize-none"
+                className="mt-2 bg-gray-100 dark:bg-gray-800 border-border text-foreground resize-none"
               />
             </div>
           </div>
@@ -312,7 +312,7 @@ export function CompetitionSetDialog({
                       'p-4 rounded-lg border cursor-pointer transition-all',
                       formData.ownPropertyIds.includes(property.id)
                         ? 'bg-purple-500/20 border-purple-500/50'
-                        : 'bg-muted/50 border-border hover:bg-muted/80'
+                        : 'bg-gray-100 dark:bg-gray-800 border-border hover:bg-muted/80'
                     )}
                   >
                     <div className="flex items-start justify-between">
@@ -356,7 +356,7 @@ export function CompetitionSetDialog({
                   onChange={(e) => setCompetitorSearch(e.target.value)}
                   placeholder="Search by address, city, or zip code..."
                   onKeyDown={(e) => e.key === 'Enter' && handleSearchCompetitors()}
-                  className="bg-muted/50 border-border text-foreground"
+                  className="bg-gray-100 dark:bg-gray-800 border-border text-foreground"
                 />
                 <Button
                   onClick={handleSearchCompetitors}
@@ -395,7 +395,7 @@ export function CompetitionSetDialog({
                   onChange={(e) => setManualCompetitorAddress(e.target.value)}
                   placeholder="123 Main St, City, State ZIP"
                   onKeyDown={(e) => e.key === 'Enter' && handleManualAdd()}
-                  className="bg-muted/50 border-border text-foreground"
+                  className="bg-gray-100 dark:bg-gray-800 border-border text-foreground"
                 />
                 <Button
                   onClick={handleManualAdd}
@@ -417,7 +417,7 @@ export function CompetitionSetDialog({
                   {formData.competitors.map((competitor, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border"
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border border-border"
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <MapPin className="w-4 h-4 text-purple-400 flex-shrink-0" />
@@ -461,7 +461,7 @@ export function CompetitionSetDialog({
               Configure how you want to be notified about competitor activity:
             </p>
 
-            <div className="p-4 rounded-lg bg-muted/50 border border-border">
+            <div className="p-4 rounded-lg bg-gray-100 dark:bg-gray-800 border border-border">
               <div className="flex items-center justify-between">
                 <div className="flex items-start gap-3">
                   <Bell className="w-5 h-5 text-purple-400 mt-0.5" />
@@ -566,7 +566,7 @@ export function CompetitionSetDialog({
                       'w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all',
                       isCompleted && 'bg-purple-500 border-purple-500',
                       isActive && 'bg-purple-500/20 border-purple-500',
-                      !isActive && !isCompleted && 'bg-muted/50 border-border'
+                      !isActive && !isCompleted && 'bg-gray-100 dark:bg-gray-800 border-border'
                     )}
                   >
                     {isCompleted ? (

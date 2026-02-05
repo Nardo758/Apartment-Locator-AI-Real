@@ -374,7 +374,7 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
 
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-4 mb-4">
-                  <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                  <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border border-border">
                     <div className="flex items-center gap-2 mb-1">
                       <MapPin className="w-4 h-4 text-blue-400" />
                       <span className="text-xs text-muted-foreground">Your Properties</span>
@@ -384,7 +384,7 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                  <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border border-border">
                     <div className="flex items-center gap-2 mb-1">
                       <Users className="w-4 h-4 text-purple-400" />
                       <span className="text-xs text-muted-foreground">Competitors</span>
@@ -394,7 +394,7 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                  <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border border-border">
                     <div className="flex items-center gap-2 mb-1">
                       <Bell className="w-4 h-4 text-green-400" />
                       <span className="text-xs text-muted-foreground">Status</span>
@@ -420,7 +420,7 @@ export function CompetitionSetManager({ userId }: CompetitionSetManagerProps) {
                         set.competitors.map((competitor) => (
                           <div
                             key={competitor.id}
-                            className="p-3 rounded-lg bg-muted/50 border border-border"
+                            className="p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border border-border"
                           >
                             <div className="flex items-start justify-between">
                               <div className="flex-1">

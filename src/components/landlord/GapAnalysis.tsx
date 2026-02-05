@@ -381,7 +381,7 @@ const GapAnalysis: React.FC<GapAnalysisProps> = ({
 
                           <p className="text-sm text-muted-foreground">{gap.description}</p>
 
-                          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                          <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 space-y-2">
                             <div className="flex items-start gap-2">
                               <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0" />
                               <div>

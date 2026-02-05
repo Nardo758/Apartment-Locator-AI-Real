@@ -151,7 +151,7 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-muted/50 border border-border">
+          <div className="p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border border-border">
             <div className="text-sm text-muted-foreground mb-2">Market Avg</div>
             <div className="text-2xl font-bold text-foreground">
               ${property.marketAvgRent?.toLocaleString() || '0'}/mo
@@ -239,7 +239,7 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
             </div>
             <div className="space-y-2">
               {property.competitorComparison?.slice(0, 3).map((comp, idx) => (
-                <div key={idx} className="flex items-center justify-between text-sm p-2 rounded bg-muted/50">
+                <div key={idx} className="flex items-center justify-between text-sm p-2 rounded bg-gray-100 dark:bg-gray-800">
                   <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                     <span className="font-medium text-foreground">{comp.propertyName}</span>
@@ -314,7 +314,7 @@ export function PropertyCard({ property, onEdit, onViewDetails, className = '' }
 
         {/* Tenant Info (if occupied) */}
         {property.status === 'occupied' && property.tenant && (
-          <div className="mb-4 p-3 rounded-lg bg-muted/50 border border-border">
+          <div className="mb-4 p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border border-border">
             <div className="flex items-center justify-between text-sm">
               <div className="text-muted-foreground">Tenant: <span className="text-foreground font-medium">{property.tenant}</span></div>
               {property.leaseEndDate && (

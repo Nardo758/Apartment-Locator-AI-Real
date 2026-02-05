@@ -162,7 +162,7 @@ const PricingComparisonTable: React.FC<PricingComparisonTableProps> = ({
                   <TableRow className="border-t-2">
                     <TableCell colSpan={7} className="h-2 p-0 bg-muted/30" />
                   </TableRow>
-                  <TableRow className="bg-muted/50 font-semibold">
+                  <TableRow className="bg-gray-100 dark:bg-gray-800 font-semibold">
                     <TableCell>Market Average</TableCell>
                     <TableCell className="text-center">—</TableCell>
                     <TableCell className="text-center">—</TableCell>
