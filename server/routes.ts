@@ -23,6 +23,7 @@ import {
 import { z } from "zod";
 import { registerPaymentRoutes } from "./routes/payments";
 import { registerLeaseVerificationRoutes } from "./routes/lease-verification";
+import { registerJediRoutes } from "./routes/jedi";
 
 declare global {
   namespace Express {
@@ -3651,4 +3652,7 @@ export async function registerRoutes(app: Express): Promise<void> {
   
   // Register lease verification routes
   registerLeaseVerificationRoutes(app);
+  
+  // Register JEDI API routes for B2B market intelligence
+  registerJediRoutes(app);
 }
