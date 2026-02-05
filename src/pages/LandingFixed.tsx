@@ -261,12 +261,18 @@ const LandingFixed = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
             <Link to="/signup">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold">
+              <Button size="lg" variant="outline" className="!bg-white !text-blue-600 hover:!bg-gray-100 px-8 py-3 text-lg font-semibold !border-white">
                 Start Your Free Trial
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <PaymentButton />
+            <PaymentButton 
+              size="lg"
+              variant="outline"
+              className="!bg-blue-900 !text-white hover:!bg-blue-800 !border-white px-8 py-3 text-lg font-semibold"
+            >
+              Get Pro Access
+            </PaymentButton>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-sm text-blue-100">
