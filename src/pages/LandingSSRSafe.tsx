@@ -235,7 +235,7 @@ const LandingSSRSafe = () => {
                 </li>
               </ul>
               <Button className="w-full bg-purple-600 hover:bg-purple-700" asChild data-testid="button-landlord-cta">
-                <Link to="/auth?type=landlord&mode=signup">Get Started</Link>
+                <Link to="/landlord-pricing">Get Started</Link>
               </Button>
             </div>
 
@@ -267,7 +267,7 @@ const LandingSSRSafe = () => {
                 </li>
               </ul>
               <Button className="w-full bg-orange-600 hover:bg-orange-700" asChild data-testid="button-agent-cta">
-                <Link to="/auth?type=agent&mode=signup">Get Started</Link>
+                <Link to="/agent-pricing">Get Started</Link>
               </Button>
             </div>
           </div>
