@@ -75,6 +75,18 @@ export const properties = pgTable("properties", {
   lastOccupiedDate: timestamp("last_occupied_date"),
   targetRent: decimal("target_rent", { precision: 10, scale: 2 }),
   actualRent: decimal("actual_rent", { precision: 10, scale: 2 }),
+  // Retention Intelligence fields
+  unitNumber: varchar("unit_number", { length: 50 }),
+  tenantName: varchar("tenant_name", { length: 255 }),
+  marketRent: decimal("market_rent", { precision: 10, scale: 2 }),
+  retentionRiskScore: integer("retention_risk_score").default(0),
+  lastRiskCalculation: timestamp("last_risk_calculation"),
+  riskFactors: json("risk_factors").$type<Array<{
+    name: string;
+    score: number;
+    detail: string;
+    impact: 'low' | 'medium' | 'high';
+  }>>().default([]),
 });
 
 export const savedApartments = pgTable("saved_apartments", {
@@ -274,6 +286,13 @@ export const alertPreferences = pgTable("alert_preferences", {
   quietHoursEnd: varchar("quiet_hours_end", { length: 5 }), // e.g., '08:00'
   priceThreshold: decimal("price_threshold", { precision: 10, scale: 2 }).default("50.00"),
   vacancyThreshold: integer("vacancy_threshold").default(30),
+  // Retention-specific alert preferences
+  renewalReminders: boolean("renewal_reminders").default(true),
+  vacancyCostUpdates: boolean("vacancy_cost_updates").default(true),
+  riskEscalation: boolean("risk_escalation").default(true),
+  retentionWins: boolean("retention_wins").default(true),
+  deliveryEmailDigest: boolean("delivery_email_digest").default(false),
+  digestDay: varchar("digest_day", { length: 10 }).default("monday"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

@@ -47,6 +47,7 @@ import AgentPricing from "./pages/AgentPricing";
 import AgentOnboarding from "./pages/AgentOnboarding";
 import UserTypeSelection from "./pages/UserTypeSelection";
 import LandlordSettings from "./components/landlord/LandlordSettings";
+import LandlordRetentionDashboard from "./pages/LandlordRetentionDashboard";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
@@ -174,6 +175,11 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/landlord-dashboard" element={
+                      <ProtectedRoute allowedUserTypes={['landlord']}>
+                        <LandlordRetentionDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/landlord-dashboard-old" element={
                       <ProtectedRoute allowedUserTypes={['landlord']}>
                         <LandlordDashboard />
                       </ProtectedRoute>
