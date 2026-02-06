@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, useEffect, useRef, useCallback, type FormEvent } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,10 +12,12 @@ import { ModernLoading } from '@/components/modern/ModernLoading';
 import { useUser } from '@/hooks/useUser';
 import type { UserType } from '@/components/routing/ProtectedRoute';
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+
 const AuthModern = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { isAuthenticated, loading: userLoading, login, register, setUserType, userType } = useUser();
+  const { isAuthenticated, loading: userLoading, login, googleLogin, register, setUserType, userType } = useUser();
   
   // Get URL parameters
   const urlUserType = searchParams.get('type') as UserType | null;
@@ -31,6 +33,7 @@ const AuthModern = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+  const googleButtonRef = useRef<HTMLDivElement>(null);
 
   // Redirect helper based on user type - for NEW signups, go to onboarding
   const getSignupRedirectPath = (type: UserType | null): string => {
@@ -83,6 +86,80 @@ const AuthModern = () => {
       navigate(redirectPath, { replace: true });
     }
   }, [isAuthenticated, navigate, userType, isFormSubmitting, loading]);
+
+  const handleGoogleCallback = useCallback(async (response: { credential: string }) => {
+    setLoading(true);
+    setIsFormSubmitting(true);
+    setError('');
+
+    try {
+      const targetUserType: UserType = urlUserType || 'renter';
+      const googleUser = await googleLogin(response.credential);
+
+      if (!googleUser.userType) {
+        await setUserType(targetUserType);
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 50));
+      toast.success(googleUser.userType ? 'Welcome back!' : 'Account created successfully!');
+
+      const redirectPath = googleUser.userType
+        ? getSigninRedirectPath(googleUser.userType as UserType)
+        : getSignupRedirectPath(targetUserType);
+      navigate(redirectPath, { replace: true });
+    } catch (error: unknown) {
+      console.error('Google sign-in error:', error);
+      const message = error instanceof Error ? error.message : String(error);
+      setError(message || 'Google sign-in failed');
+      setIsFormSubmitting(false);
+    } finally {
+      setLoading(false);
+    }
+  }, [urlUserType, googleLogin, setUserType, navigate]);
+
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID || !googleButtonRef.current) return;
+
+    if ((window as any).google?.accounts?.id) {
+      (window as any).google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCallback,
+      });
+      (window as any).google.accounts.id.renderButton(googleButtonRef.current, {
+        theme: 'outline',
+        size: 'large',
+        width: '100%',
+        text: isSignUp ? 'signup_with' : 'signin_with',
+      });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      if ((window as any).google?.accounts?.id && googleButtonRef.current) {
+        (window as any).google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleGoogleCallback,
+        });
+        (window as any).google.accounts.id.renderButton(googleButtonRef.current, {
+          theme: 'outline',
+          size: 'large',
+          width: '100%',
+          text: isSignUp ? 'signup_with' : 'signin_with',
+        });
+      }
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+  }, [handleGoogleCallback, isSignUp]);
 
   const handleSignUp = async (e: FormEvent) => {
     e.preventDefault();
@@ -362,6 +439,20 @@ const AuthModern = () => {
                   )}
                 </Button>
               </form>
+
+              {GOOGLE_CLIENT_ID && (
+                  <div className="mt-4" data-testid="google-auth-section">
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-border" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">or</span>
+                      </div>
+                    </div>
+                    <div ref={googleButtonRef} data-testid="button-google-signin" className="flex justify-center" />
+                  </div>
+                )}
 
               {/* Toggle Sign In/Up */}
               <div className="text-center pt-4 border-t border-gray-200">

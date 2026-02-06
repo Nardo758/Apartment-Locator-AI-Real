@@ -140,6 +140,11 @@ export const api = {
     return res.json();
   },
 
+  async googleAuth(credential: string): Promise<AuthResponse> {
+    const res = await apiRequest("POST", "/api/auth/google", { credential });
+    return res.json();
+  },
+
   async getMe(token: string): Promise<{ user: AuthUser }> {
     const res = await fetch("/api/auth/me", {
       headers: { Authorization: `Bearer ${token}` },

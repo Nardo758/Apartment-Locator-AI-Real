@@ -31,10 +31,136 @@ const PRICE_IDS = {
   agent_brokerage_annual: process.env.STRIPE_PRICE_AGENT_BROKERAGE_ANNUAL || 'price_agent_brokerage_annual',
 };
 
+const PLAN_AMOUNTS: Record<string, number> = {
+  per_property: 199,
+  basic: 999,
+  pro: 2999,
+  premium: 9999,
+};
+
+const PLAN_LABELS: Record<string, string> = {
+  per_property: 'Single Property Unlock',
+  basic: 'Basic — 7 days',
+  pro: 'Pro — 30 days',
+  premium: 'Premium — 90 days',
+};
+
 export function registerPaymentRoutes(app: Express): void {
-  
+
   // ============================================
-  // RENTER: One-Time Payment ($49)
+  // RENTER: Create Payment Intent (two-step paywall)
+  // ============================================
+
+  app.post("/api/payments/create-intent", async (req: Request, res: Response) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({
+          error: "Stripe not configured. Add STRIPE_SECRET_KEY to environment variables.",
+        });
+      }
+
+      const { planId, guestEmail, guestName, propertyId } = req.body;
+
+      const amount = PLAN_AMOUNTS[planId] || PLAN_AMOUNTS.pro;
+      const description = PLAN_LABELS[planId] || 'Apartment Locator AI - Full Access';
+
+      const intentParams: Stripe.PaymentIntentCreateParams = {
+        amount,
+        currency: 'usd',
+        description,
+        metadata: {
+          planId: planId || 'pro',
+          ...(propertyId ? { propertyId } : {}),
+          ...(guestEmail ? { guestEmail } : {}),
+        },
+      };
+
+      if (guestEmail) {
+        const existingCustomers = await stripe.customers.list({ email: guestEmail, limit: 1 });
+        let customer;
+        if (existingCustomers.data.length > 0) {
+          customer = existingCustomers.data[0];
+        } else {
+          customer = await stripe.customers.create({
+            email: guestEmail,
+            name: guestName || undefined,
+          });
+        }
+        intentParams.customer = customer.id;
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create(intentParams);
+
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error) {
+      console.error("Create intent error:", error);
+      res.status(500).json({ error: "Failed to create payment intent" });
+    }
+  });
+
+  // ============================================
+  // RENTER: Verify Payment
+  // ============================================
+
+  app.post("/api/payments/verify", async (req: Request, res: Response) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ error: "Stripe not configured" });
+      }
+
+      const { paymentIntentId } = req.body;
+
+      if (!paymentIntentId) {
+        return res.status(400).json({ error: "paymentIntentId is required" });
+      }
+
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ error: "Payment has not succeeded", status: paymentIntent.status });
+      }
+
+      const planId = paymentIntent.metadata?.planId;
+      const propertyId = paymentIntent.metadata?.propertyId;
+      const guestEmail = paymentIntent.metadata?.guestEmail;
+
+      if (guestEmail) {
+        const [existingUser] = await db.select().from(users).where(eq(users.email, guestEmail.toLowerCase()));
+
+        if (existingUser) {
+          if (planId === 'per_property' && propertyId) {
+            console.log(`Property ${propertyId} unlocked for user ${existingUser.id}`);
+          } else {
+            const daysMap: Record<string, number> = { basic: 7, pro: 30, premium: 90 };
+            const days = daysMap[planId || ''] || 30;
+            const expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + days);
+
+            await db.update(users).set({
+              accessExpiresAt: expiresAt,
+              accessPlanType: planId || 'pro',
+              propertyAnalysesUsed: 0,
+              propertyAnalysesLimit: planId === 'basic' ? 5 : null,
+              subscriptionTier: planId || 'pro',
+              subscriptionStatus: 'active',
+            }).where(eq(users.id, existingUser.id));
+          }
+        }
+      }
+
+      res.json({
+        success: true,
+        planId,
+        propertyId: propertyId || null,
+      });
+    } catch (error) {
+      console.error("Verify payment error:", error);
+      res.status(500).json({ error: "Failed to verify payment" });
+    }
+  });
+
+  // ============================================
+  // RENTER: One-Time Payment ($49) — Legacy
   // ============================================
   
   app.post("/api/payments/create-renter-checkout", async (req: Request, res: Response) => {

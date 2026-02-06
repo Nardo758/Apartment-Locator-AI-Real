@@ -22,6 +22,7 @@ import {
   getUserById,
   getUserByEmail,
   updateUserType,
+  findOrCreateGoogleUser,
   type AuthUser 
 } from "./auth";
 import { z } from "zod";
@@ -158,6 +159,54 @@ export async function registerRoutes(app: Express): Promise<void> {
     } catch (error) {
       console.error("Signin error:", error);
       res.status(500).json({ error: "Failed to sign in" });
+    }
+  });
+
+  // Google OAuth — verify Google ID token and sign in or create account
+  app.post("/api/auth/google", async (req, res) => {
+    try {
+      const { credential } = req.body;
+
+      if (!credential) {
+        return res.status(400).json({ error: "Google credential is required" });
+      }
+
+      const googleRes = await fetch(
+        `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`
+      );
+
+      if (!googleRes.ok) {
+        return res.status(401).json({ error: "Invalid Google credential" });
+      }
+
+      const payload = await googleRes.json() as {
+        email?: string;
+        email_verified?: string;
+        name?: string;
+        picture?: string;
+        aud?: string;
+      };
+
+      if (!payload.email) {
+        return res.status(400).json({ error: "Google account has no email" });
+      }
+
+      const expectedClientId = process.env.GOOGLE_CLIENT_ID;
+      if (expectedClientId && payload.aud !== expectedClientId) {
+        return res.status(401).json({ error: "Token audience mismatch" });
+      }
+
+      const user = await findOrCreateGoogleUser(
+        payload.email,
+        payload.name,
+        payload.picture
+      );
+      const token = generateToken(user);
+
+      res.json({ user, token });
+    } catch (error) {
+      console.error("Google auth error:", error);
+      res.status(500).json({ error: "Google authentication failed" });
     }
   });
 

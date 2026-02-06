@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { TrendingDown, Clock, DollarSign, Target, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useRenterIntelligence } from '@/hooks/useRenterIntelligence';
 import { RenterUnitCard } from './RenterUnitCard';
-import { UnlockModal } from './UnlockModal';
-import { useAccessStatus } from '@/hooks/useAccessStatus';
-import { authenticatedFetch } from '@/lib/authHelpers';
-import { queryClient } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
+import { PaywallModal } from '@/components/PaywallModal';
+import { usePaywall } from '@/hooks/usePaywall';
 import type { ApartmentIQData } from '@/lib/pricing-engine';
 
 interface Property {
@@ -35,51 +32,23 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
     getAverageDealScore
   } = useRenterIntelligence(properties);
 
-  const { isPropertyUnlocked, refetch: refetchAccess } = useAccessStatus();
-  const { toast } = useToast();
-  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
-  const [selectedPropertyName, setSelectedPropertyName] = useState<string | undefined>();
+  const {
+    isPaywallOpen,
+    paywallPropertyId,
+    openPaywall,
+    closePaywall,
+    isPropertyUnlocked,
+    unlockProperty,
+    resetPaywallState,
+  } = usePaywall();
 
-  const handleUnlockSingle = async (propertyId: string) => {
-    try {
-      const res = await authenticatedFetch('/api/access/unlock-property', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ propertyId }),
-      });
-      if (res.ok) {
-        toast({ title: 'Property unlocked', description: 'You now have access to this property\'s savings data.' });
-        queryClient.invalidateQueries({ queryKey: ['/api/access/status'] });
-        setUnlockModalOpen(false);
-      }
-    } catch {
-      toast({ title: 'Unlock failed', description: 'Please try again.', variant: 'destructive' });
+  const handlePaymentSuccess = () => {
+    if (paywallPropertyId) {
+      unlockProperty(paywallPropertyId);
+    } else {
+      resetPaywallState();
     }
-  };
-
-  const handleSelectPlan = async (planType: 'basic' | 'pro' | 'premium') => {
-    try {
-      const res = await authenticatedFetch('/api/access/activate-plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planType }),
-      });
-      if (res.ok) {
-        const planNames = { basic: 'Basic', pro: 'Pro', premium: 'Premium' };
-        toast({ title: `${planNames[planType]} plan activated`, description: 'You now have full access to all savings data.' });
-        queryClient.invalidateQueries({ queryKey: ['/api/access/status'] });
-        setUnlockModalOpen(false);
-      }
-    } catch {
-      toast({ title: 'Plan activation failed', description: 'Please try again.', variant: 'destructive' });
-    }
-  };
-
-  const openUnlockModal = (propertyId: string, propertyName?: string) => {
-    setSelectedPropertyId(propertyId);
-    setSelectedPropertyName(propertyName);
-    setUnlockModalOpen(true);
+    closePaywall();
   };
 
   if (loading) {
@@ -137,10 +106,9 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Market Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Great Deals</CardTitle>
             <TrendingDown className="h-4 w-4 text-green-600" />
           </CardHeader>
@@ -153,7 +121,7 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Negotiable Units</CardTitle>
             <Target className="h-4 w-4 text-blue-600" />
           </CardHeader>
@@ -166,7 +134,7 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg Potential Savings</CardTitle>
             <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
@@ -181,7 +149,7 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Market Condition</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -198,7 +166,6 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
         </Card>
       </div>
 
-      {/* Deal Distribution */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -255,32 +222,30 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
         </CardContent>
       </Card>
 
-      {/* Immediate Opportunities */}
       {immediateOpportunities.length > 0 && (
-        <Card className="border-green-200 bg-green-50">
+        <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-green-800">
+            <CardTitle className="flex items-center gap-2 text-green-800 dark:text-green-400">
               <CheckCircle className="w-5 h-5" />
               Immediate Opportunities ({immediateOpportunities.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-green-700 mb-4">
+            <p className="text-sm text-green-700 dark:text-green-300 mb-4">
               These units are ready for negotiation right now. Landlords are motivated and timing is optimal.
             </p>
             <div className="grid gap-4">
               {immediateOpportunities.slice(0, 3).map(propertyId => {
                 const property = properties.find(p => p.id === propertyId);
-                const isLocked = !isPropertyUnlocked(propertyId);
+                const unlocked = isPropertyUnlocked(propertyId);
                 return property ? (
                   <RenterUnitCard 
                     key={propertyId} 
                     property={property} 
                     dealIntelligence={dealIntelligence[propertyId]}
                     compact
-                    locked={isLocked}
-                    onUnlockSingle={() => openUnlockModal(propertyId, property.apartmentIQData?.propertyName)}
-                    onGetPlan={() => openUnlockModal(propertyId, property.apartmentIQData?.propertyName)}
+                    locked={!unlocked}
+                    onUnlockClick={() => openPaywall(propertyId)}
                   />
                 ) : null;
               })}
@@ -289,7 +254,6 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
         </Card>
       )}
 
-      {/* All Units Sorted by Deal Score */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -304,15 +268,14 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
           <div className="space-y-4">
             {sortedByDealScore.map(propertyId => {
               const property = properties.find(p => p.id === propertyId);
-              const isLocked = !isPropertyUnlocked(propertyId);
+              const unlocked = isPropertyUnlocked(propertyId);
               return property ? (
                 <RenterUnitCard 
                   key={propertyId} 
                   property={property} 
                   dealIntelligence={dealIntelligence[propertyId]}
-                  locked={isLocked}
-                  onUnlockSingle={() => openUnlockModal(propertyId, property.apartmentIQData?.propertyName)}
-                  onGetPlan={() => openUnlockModal(propertyId, property.apartmentIQData?.propertyName)}
+                  locked={!unlocked}
+                  onUnlockClick={() => openPaywall(propertyId)}
                 />
               ) : null;
             })}
@@ -320,12 +283,13 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
         </CardContent>
       </Card>
 
-      <UnlockModal
-        isOpen={unlockModalOpen}
-        onClose={() => setUnlockModalOpen(false)}
-        propertyName={selectedPropertyName}
-        onUnlockSingle={() => selectedPropertyId && handleUnlockSingle(selectedPropertyId)}
-        onSelectPlan={handleSelectPlan}
+      <PaywallModal
+        isOpen={isPaywallOpen}
+        onClose={closePaywall}
+        potentialSavings={getTotalPotentialSavings()}
+        propertiesCount={properties.length}
+        onPaymentSuccess={handlePaymentSuccess}
+        propertyId={paywallPropertyId}
       />
     </div>
   );

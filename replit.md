@@ -33,6 +33,12 @@ An AI-powered apartment locator application that helps users find apartments, an
   - Sign Out option available in both desktop dropdown and mobile menu
   - ProtectedRoute component available for securing authenticated-only pages
   - All landlord components use `authenticatedFetch()` for consistent 401 handling
+- **Google OAuth**: Server-side token verification via Google's tokeninfo endpoint
+  - `findOrCreateGoogleUser` in `server/auth.ts` creates/finds users with verified Google emails
+  - `POST /api/auth/google` endpoint verifies Google ID tokens and issues JWT
+  - Frontend Google Identity Services button renders only when `VITE_GOOGLE_CLIENT_ID` is set
+  - `googleLogin` method in useUser hook handles token storage and user type migration
+  - Audience check against `GOOGLE_CLIENT_ID` env var for security
 - **User Type Flows**: Three user types (renter, landlord, agent) with dedicated flows
   - Pricing pages link to `/auth?type={userType}&mode=signup&plan={planId}`
   - Auth page reads URL params and shows user-type-specific UI (icons, badges, descriptions)
@@ -62,11 +68,13 @@ An AI-powered apartment locator application that helps users find apartments, an
   - Savings data (deal score, potential savings, negotiation tips, timing advice) is blurred/locked
   - Two unlock options: per-property unlock ($1.99) or time-based plan purchase
   - Plans: Basic ($9.99/7d, 5 analyses), Pro ($29.99/30d, unlimited), Premium ($99.99/90d, unlimited + concierge)
-  - Database: `property_unlocks` table tracks individual unlocks; users table has `accessExpiresAt`, `accessPlanType`, `propertyAnalysesUsed/Limit`
-  - Components: `LockedSavingsOverlay`, `UnlockModal`, updated `RenterUnitCard` with locked/unlocked state
-  - Hook: `useAccessStatus` checks user's access status via `/api/access/status`
-  - Backend endpoints: `/api/access/status`, `/api/access/unlock-property`, `/api/access/activate-plan`
-  - Payment stubs ready for Stripe integration
+  - `PaywallModal`: Two-step flow (plan selection then checkout) prevents premature Stripe initialization
+  - `SavingsDataGate`: Blur-and-overlay component replaces old `LockedSavingsOverlay`
+  - `usePaywall` hook: Tracks per-property unlocks in localStorage, checks subscription status from UserContext
+  - Payment endpoints: `POST /api/payments/create-intent` creates Stripe PaymentIntent after plan selection
+  - Payment verification: `POST /api/payments/verify` confirms payment and updates user subscription
+  - `RenterUnitCard` uses `SavingsDataGate` for clean locked/unlocked state rendering
+  - `RenterDashboard` uses `PaywallModal` and `usePaywall` for paywall flow management
 - **API Routes**: RESTful endpoints for properties, saved apartments, search history, preferences, market data, auth, and payments
 
 ## Project Architecture
@@ -143,7 +151,9 @@ An AI-powered apartment locator application that helps users find apartments, an
 - `GET /api/access/unlocked-properties/:userId` - Get unlocked property IDs
 - `POST /api/access/unlock-property` - Unlock single property (stub - needs Stripe)
 - `POST /api/access/activate-plan` - Activate time-based plan (stub - needs Stripe)
-- `POST /api/payments/create-checkout` - Create payment checkout session (stub - needs Stripe config)
+- `POST /api/payments/create-intent` - Create Stripe PaymentIntent for selected plan
+- `POST /api/payments/verify` - Verify payment and update user subscription
+- `POST /api/auth/google` - Google OAuth: verify Google ID token and sign in/create account
 
 **Health**
 - `GET /api/health` - Health check
@@ -156,7 +166,8 @@ The following secrets must be configured in Replit Secrets:
 - **VITE_GOOGLE_MAPS_API_KEY** - Google Maps API key for map features
 
 Optional (for future features):
-- STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET - For payment processing
+- STRIPE_SECRET_KEY, VITE_STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET - For payment processing
+- VITE_GOOGLE_CLIENT_ID, GOOGLE_CLIENT_ID - For Google OAuth sign-in
 
 ## Development Commands
 - `npm run dev` - Start development server (Express + Vite)
