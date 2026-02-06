@@ -68,9 +68,9 @@ const LandingSSRSafe = () => {
             <Link to="/auth" data-testid="link-signin">
               <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100">Sign In</Button>
             </Link>
-            <Link to="/pricing" data-testid="link-get-started">
+            <Link to="/auth?type=renter&mode=signup" data-testid="link-get-started">
               <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                Get Started Free
+                Search For Free
               </Button>
             </Link>
           </div>
@@ -95,9 +95,9 @@ const LandingSSRSafe = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/pricing" data-testid="link-hero-cta">
+                <Link to="/auth?type=renter&mode=signup" data-testid="link-hero-cta">
                   <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg">
-                    Search Apartments Free
+                    Search For Free
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
@@ -203,7 +203,7 @@ const LandingSSRSafe = () => {
                 </li>
               </ul>
               <Button className="w-full bg-blue-600 hover:bg-blue-700" asChild data-testid="button-renter-cta">
-                <Link to="/pricing">Get Started Free</Link>
+                <Link to="/auth?type=renter&mode=signup">Search For Free</Link>
               </Button>
             </div>
 
@@ -235,7 +235,7 @@ const LandingSSRSafe = () => {
                 </li>
               </ul>
               <Button className="w-full bg-purple-600 hover:bg-purple-700" asChild data-testid="button-landlord-cta">
-                <Link to="/landlord-pricing">Get Started</Link>
+                <Link to="/auth?type=landlord&mode=signup">Protect Your Revenue</Link>
               </Button>
             </div>
 
@@ -267,7 +267,7 @@ const LandingSSRSafe = () => {
                 </li>
               </ul>
               <Button className="w-full bg-orange-600 hover:bg-orange-700" asChild data-testid="button-agent-cta">
-                <Link to="/agent-pricing">Get Started</Link>
+                <Link to="/auth?type=agent&mode=signup">Grow Your Business</Link>
               </Button>
             </div>
           </div>
