@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { eq, desc, and, gte, lte, ilike, or, sql } from "drizzle-orm";
+import { eq, desc, and, gte, lte, ilike, or, sql, inArray } from "drizzle-orm";
 import {
   properties,
   savedApartments,
@@ -113,6 +113,17 @@ export interface IStorage {
     avgRentPerSqFt: number;
   }>;
   
+  // Lease Intelligence
+  getLeaseIntelligence(landlordId: string, propertyIds: string[]): Promise<{
+    propertyId: string;
+    expiringNext30Days: number;
+    expiringNext90Days: number;
+    avgCurrentLease: number;
+    marketRate: number;
+    renewalRate: number;
+    rolloverRiskScore: number;
+  }[]>;
+
   // Competition Sets
   getCompetitionSets(userId: string, options?: { limit?: number; offset?: number }): Promise<{ sets: (CompetitionSet & { competitorCount: number })[]; total: number }>;
   getCompetitionSetById(id: string, userId: string): Promise<CompetitionSet | undefined>;
@@ -424,6 +435,99 @@ export class DatabaseStorage implements IStorage {
       totalSquareFeet,
       avgRentPerSqFt: Math.round(avgRentPerSqFt * 100) / 100,
     };
+  }
+
+  async getLeaseIntelligence(landlordId: string, propertyIds: string[]) {
+    const now = new Date();
+    const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const in90Days = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+
+    const conditions = [
+      eq(properties.landlordId, landlordId),
+      eq(properties.isLandlordOwned, true),
+    ];
+    if (propertyIds.length > 0) {
+      conditions.push(inArray(properties.id, propertyIds));
+    }
+
+    const props = await db.select()
+      .from(properties)
+      .where(and(...conditions));
+
+    const grouped = new Map<string, typeof props>();
+    for (const p of props) {
+      const key = p.id;
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key)!.push(p);
+    }
+
+    const results: {
+      propertyId: string;
+      expiringNext30Days: number;
+      expiringNext90Days: number;
+      avgCurrentLease: number;
+      marketRate: number;
+      renewalRate: number;
+      rolloverRiskScore: number;
+    }[] = [];
+
+    for (const [propertyId, units] of grouped) {
+      let expiring30 = 0;
+      let expiring90 = 0;
+      let totalRent = 0;
+      let rentCount = 0;
+      let totalMarket = 0;
+      let marketCount = 0;
+      let occupiedCount = 0;
+      let totalRiskScore = 0;
+      let riskScoreCount = 0;
+
+      for (const u of units) {
+        if (u.leaseEndDate) {
+          const end = new Date(u.leaseEndDate);
+          if (end <= in30Days && end >= now) expiring30++;
+          if (end <= in90Days && end >= now) expiring90++;
+        }
+
+        if (u.actualRent) {
+          totalRent += Number(u.actualRent);
+          rentCount++;
+        }
+
+        if (u.marketRent) {
+          totalMarket += Number(u.marketRent);
+          marketCount++;
+        } else if (u.targetRent) {
+          totalMarket += Number(u.targetRent);
+          marketCount++;
+        }
+
+        if (u.occupancyStatus === 'occupied') {
+          occupiedCount++;
+        }
+
+        if (u.retentionRiskScore !== null && u.retentionRiskScore !== undefined) {
+          totalRiskScore += Number(u.retentionRiskScore);
+          riskScoreCount++;
+        }
+      }
+
+      const totalUnits = units.length;
+      const renewalRate = totalUnits > 0 ? (occupiedCount / totalUnits) * 100 : 0;
+      const avgRiskScore = riskScoreCount > 0 ? totalRiskScore / riskScoreCount : 0;
+
+      results.push({
+        propertyId,
+        expiringNext30Days: expiring30,
+        expiringNext90Days: expiring90,
+        avgCurrentLease: rentCount > 0 ? Math.round((totalRent / rentCount) * 100) / 100 : 0,
+        marketRate: marketCount > 0 ? Math.round((totalMarket / marketCount) * 100) / 100 : 0,
+        renewalRate: Math.round(renewalRate * 100) / 100,
+        rolloverRiskScore: Math.round(avgRiskScore * 100) / 100,
+      });
+    }
+
+    return results;
   }
 
   async getSavedApartments(userId: string): Promise<SavedApartment[]> {

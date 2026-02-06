@@ -688,6 +688,28 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
+  // POST /api/landlord/lease-intel - Get lease intelligence for properties
+  app.post("/api/landlord/lease-intel", authMiddleware, async (req, res) => {
+    try {
+      if (req.user!.userType !== 'landlord' && req.user!.userType !== 'admin') {
+        return res.status(403).json({
+          error: "Access denied. Landlord account required."
+        });
+      }
+
+      const { propertyIds } = req.body;
+      if (!Array.isArray(propertyIds)) {
+        return res.status(400).json({ error: "propertyIds must be an array" });
+      }
+
+      const intel = await storage.getLeaseIntelligence(req.user!.id, propertyIds);
+      res.json(intel);
+    } catch (error) {
+      console.error("Error fetching lease intelligence:", error);
+      res.status(500).json({ error: "Failed to fetch lease intelligence" });
+    }
+  });
+
   // Competition Sets Endpoints
   
   // 1. POST /api/competition-sets - Create a new competition set

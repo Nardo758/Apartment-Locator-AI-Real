@@ -35,7 +35,8 @@ I want iterative development. Ask before making major changes.
 - **User Type Flows**: Dedicated onboarding and dashboard flows for Renters, Landlords, and Agents, determined by URL parameters during signup.
 - **Location Cost Model**: Calculates "True Monthly Cost" by factoring in commute, parking, groceries, and gym expenses. This model uses `LocationCostContext` for state management and localStorage persistence.
 - **Payment Processing**: Integrated with Stripe via Replit's managed connector. It uses `stripe-replit-sync` for database synchronization of Stripe entities and manages webhooks.
-- **API Routes**: Comprehensive RESTful API for properties, saved apartments, search history, user preferences, market data, authentication, and payments.
+- **API Routes**: Comprehensive RESTful API for properties, saved apartments, search history, user preferences, market data, authentication, payments, and lease intelligence.
+- **Lease Intelligence Client**: `src/lib/apartmentiq-client.ts` provides `ApartmentIQClient` class with `fetchLeaseIntel(propertyIds)` for retrieving lease expiration, market rate, renewal rate, and rollover risk data per property. Backend route: `POST /api/landlord/lease-intel`.
 
 ### System Design Choices
 - **Database Schema**: Utilizes PostgreSQL with Drizzle ORM, featuring tables for `users`, `renter_profiles`, `properties`, `saved_apartments`, `search_history`, `user_preferences`, `market_snapshots`, `user_pois`, `submarkets`, `purchases`, `subscriptions`, `invoices`, `property_unlocks`, `lease_verifications`, `competition_sets`, `competition_set_competitors`, `pricing_alerts`, `alert_preferences`, `agent_clients`, `client_activity`, `deals`, `deal_notes`, `agent_leads`, and `api_keys`.
