@@ -710,6 +710,25 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
+  // POST /api/renter/lease-intel - Get lease intelligence for renters (any property)
+  app.post("/api/renter/lease-intel", authMiddleware, async (req, res) => {
+    try {
+      const { propertyIds } = req.body;
+      if (!Array.isArray(propertyIds) || propertyIds.length === 0) {
+        return res.status(400).json({ error: "propertyIds must be a non-empty array" });
+      }
+      if (propertyIds.length > 20) {
+        return res.status(400).json({ error: "Maximum 20 properties per request" });
+      }
+
+      const intel = await storage.getRenterLeaseIntelligence(propertyIds);
+      res.json(intel);
+    } catch (error) {
+      console.error("Error fetching renter lease intelligence:", error);
+      res.status(500).json({ error: "Failed to fetch lease intelligence" });
+    }
+  });
+
   // Competition Sets Endpoints
   
   // 1. POST /api/competition-sets - Create a new competition set

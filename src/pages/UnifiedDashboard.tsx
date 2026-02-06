@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock } from 'lucide-react';
+import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +17,8 @@ import { useLocationCostContext } from '@/contexts/LocationCostContext';
 import { calculateApartmentCosts, formatCurrency } from '@/services/locationCostService';
 import type { ApartmentLocationCost } from '@/types/locationCost.types';
 import { api } from '@/lib/api';
+import { useRenterLeaseIntel } from '@/hooks/useRenterLeaseIntel';
+import { RenterLeaseIntelBadges } from '@/components/renter/RenterLeaseIntelBadges';
 
 interface POI {
   id: string;
@@ -172,6 +174,10 @@ export default function UnifiedDashboard() {
   const [properties, setProperties] = useState<PropertyData[]>(MOCK_PROPERTIES);
   const [marketData, setMarketData] = useState(MOCK_MARKET_DATA);
   const [dataError, setDataError] = useState<string | null>(null);
+
+  const propertyIds = useMemo(() => properties.map(p => p.id), [properties]);
+  const { data: leaseIntelData } = useRenterLeaseIntel(propertyIds);
+
   const [pois, setPois] = useState<POI[]>([
     { id: '1', name: 'My Office', address: '123 Main St, Orlando, FL', category: 'work', coordinates: { lat: 28.5383, lng: -81.3792 } },
   ]);
@@ -444,7 +450,7 @@ export default function UnifiedDashboard() {
                         </SavingsDataGate>
                       </div>
 
-                      <div className="flex items-center gap-2 mt-3">
+                      <div className="flex items-center gap-2 mt-3 flex-wrap">
                         <Badge variant="outline">{property.bedrooms} bd / {property.bathrooms} ba</Badge>
                         {property.commuteMinutes && (
                           <Badge variant="secondary">{property.commuteMinutes} min commute</Badge>
@@ -453,6 +459,10 @@ export default function UnifiedDashboard() {
                           <Badge variant="outline">P incl.</Badge>
                         )}
                       </div>
+
+                      {leaseIntelData[property.id] && (
+                        <RenterLeaseIntelBadges data={leaseIntelData[property.id]} compact />
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -521,6 +531,26 @@ export default function UnifiedDashboard() {
                   </CardContent>
                 </Card>
               </SavingsDataGate>
+            )}
+
+            {selectedPropertyId && leaseIntelData[selectedPropertyId] && (
+              <Card data-testid="card-selected-property-intel">
+                <CardHeader className="py-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Target className="w-4 h-4" />
+                    Lease Intelligence: {propertiesWithCosts.find(p => p.id === selectedPropertyId)?.name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <SavingsDataGate
+                    isUnlocked={userIsSubscribed || isPropertyUnlocked(selectedPropertyId)}
+                    onUnlockClick={() => openPaywall(selectedPropertyId)}
+                    hint="Full negotiation insights & deal analysis"
+                  >
+                    <RenterLeaseIntelBadges data={leaseIntelData[selectedPropertyId]} />
+                  </SavingsDataGate>
+                </CardContent>
+              </Card>
             )}
           </main>
         </div>
