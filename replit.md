@@ -57,6 +57,16 @@ An AI-powered apartment locator application that helps users find apartments, an
   - Types in `src/types/retention.types.ts`: RetentionUnit, RetentionAlert, PortfolioHealth, RetentionMetrics
   - Mock data fallback until API endpoints are implemented
   - All interactive elements have data-testid attributes for testing
+- **Freemium Renter Flow**: Gated savings data with unlock options
+  - Free renters can search and see property listings with basic info (name, location, rent, beds/baths)
+  - Savings data (deal score, potential savings, negotiation tips, timing advice) is blurred/locked
+  - Two unlock options: per-property unlock ($1.99) or time-based plan purchase
+  - Plans: Basic ($9.99/7d, 5 analyses), Pro ($29.99/30d, unlimited), Premium ($99.99/90d, unlimited + concierge)
+  - Database: `property_unlocks` table tracks individual unlocks; users table has `accessExpiresAt`, `accessPlanType`, `propertyAnalysesUsed/Limit`
+  - Components: `LockedSavingsOverlay`, `UnlockModal`, updated `RenterUnitCard` with locked/unlocked state
+  - Hook: `useAccessStatus` checks user's access status via `/api/access/status`
+  - Backend endpoints: `/api/access/status`, `/api/access/unlock-property`, `/api/access/activate-plan`
+  - Payment stubs ready for Stripe integration
 - **API Routes**: RESTful endpoints for properties, saved apartments, search history, preferences, market data, auth, and payments
 
 ## Project Architecture
@@ -128,7 +138,11 @@ An AI-powered apartment locator application that helps users find apartments, an
 - `GET /api/market-snapshots/:city/:state` - Get market data
 - `POST /api/market-snapshots` - Create market snapshot
 
-**Payments**
+**Access & Payments**
+- `GET /api/access/status` - Check user's access status (plan or per-property)
+- `GET /api/access/unlocked-properties/:userId` - Get unlocked property IDs
+- `POST /api/access/unlock-property` - Unlock single property (stub - needs Stripe)
+- `POST /api/access/activate-plan` - Activate time-based plan (stub - needs Stripe)
 - `POST /api/payments/create-checkout` - Create payment checkout session (stub - needs Stripe config)
 
 **Health**

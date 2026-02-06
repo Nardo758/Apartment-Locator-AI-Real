@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { RenterDealIntelligence } from '@/lib/renter-intelligence';
 import type { ApartmentIQData } from '@/lib/pricing-engine';
+import { LockedSavingsOverlay } from './LockedSavingsOverlay';
 
 interface Property {
   id: string;
@@ -29,12 +30,18 @@ interface RenterUnitCardProps {
   property: Property;
   dealIntelligence: RenterDealIntelligence;
   compact?: boolean;
+  locked?: boolean;
+  onUnlockSingle?: () => void;
+  onGetPlan?: () => void;
 }
 
 export const RenterUnitCard: React.FC<RenterUnitCardProps> = ({ 
   property, 
   dealIntelligence, 
-  compact = false 
+  compact = false,
+  locked = false,
+  onUnlockSingle,
+  onGetPlan,
 }) => {
   const { apartmentIQData } = property;
   
@@ -135,14 +142,14 @@ export const RenterUnitCard: React.FC<RenterUnitCardProps> = ({
         {/* Deal Score */}
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">Deal Score</span>
-          <div className="flex items-center gap-2">
+          <div className={`flex items-center gap-2 ${locked ? 'filter blur-[8px] select-none pointer-events-none' : ''}`} data-testid="display-deal-score">
             <Progress value={dealIntelligence.dealScore} className="w-20 h-2" />
             <span className="font-bold text-sm">{dealIntelligence.dealScore}/100</span>
           </div>
         </div>
 
         {/* Key Metrics Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+        <div className={`grid grid-cols-2 lg:grid-cols-4 gap-3 text-sm ${locked ? 'filter blur-[8px] select-none pointer-events-none' : ''}`} data-testid="display-key-metrics">
           <div className="space-y-1">
             <div className="flex items-center gap-1 text-muted-foreground">
               <Calendar className="w-3 h-3" />
@@ -185,34 +192,43 @@ export const RenterUnitCard: React.FC<RenterUnitCardProps> = ({
         </div>
 
         {/* Potential Savings */}
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <DollarSign className="w-4 h-4 text-green-600" />
-            <span className="font-medium text-green-800">Potential Savings</span>
-          </div>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-green-700">Monthly Range</p>
-              <p className="font-bold text-green-800">
-                {formatCurrency(dealIntelligence.potentialSavings.monthlyRange[0])} - {formatCurrency(dealIntelligence.potentialSavings.monthlyRange[1])}
-              </p>
+        <div className="relative" data-testid="section-potential-savings">
+          <div className={`bg-green-50 border border-green-200 rounded-lg p-3 ${locked ? 'filter blur-[8px] select-none pointer-events-none' : ''}`}>
+            <div className="flex items-center gap-2 mb-2">
+              <DollarSign className="w-4 h-4 text-green-600" />
+              <span className="font-medium text-green-800">Potential Savings</span>
             </div>
-            <div>
-              <p className="text-green-700">Annual Savings</p>
-              <p className="font-bold text-green-800">
-                {formatCurrency(dealIntelligence.potentialSavings.annualSavings)}
-              </p>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-green-700">Monthly Range</p>
+                <p className="font-bold text-green-800">
+                  {formatCurrency(dealIntelligence.potentialSavings.monthlyRange[0])} - {formatCurrency(dealIntelligence.potentialSavings.monthlyRange[1])}
+                </p>
+              </div>
+              <div>
+                <p className="text-green-700">Annual Savings</p>
+                <p className="font-bold text-green-800">
+                  {formatCurrency(dealIntelligence.potentialSavings.annualSavings)}
+                </p>
+              </div>
             </div>
+            {dealIntelligence.potentialSavings.oneTimeConcessions > 0 && (
+              <p className="text-xs text-green-700 mt-1">
+                + {formatCurrency(dealIntelligence.potentialSavings.oneTimeConcessions)} in existing concessions
+              </p>
+            )}
           </div>
-          {dealIntelligence.potentialSavings.oneTimeConcessions > 0 && (
-            <p className="text-xs text-green-700 mt-1">
-              + {formatCurrency(dealIntelligence.potentialSavings.oneTimeConcessions)} in existing concessions
-            </p>
+          {locked && onUnlockSingle && onGetPlan && (
+            <LockedSavingsOverlay
+              onUnlockSingle={onUnlockSingle}
+              onGetPlan={onGetPlan}
+              savingsHint="Savings data available"
+            />
           )}
         </div>
 
         {/* Timing Advice */}
-        <div className="flex items-center justify-between p-3 rounded-lg border">
+        <div className={`flex items-center justify-between p-3 rounded-lg border ${locked ? 'filter blur-[8px] select-none pointer-events-none' : ''}`} data-testid="display-timing-advice">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4" />
             <span className="font-medium">Timing Advice</span>
@@ -226,7 +242,7 @@ export const RenterUnitCard: React.FC<RenterUnitCardProps> = ({
           <>
             {/* Negotiation Tips */}
             {dealIntelligence.negotiationTips.length > 0 && (
-              <div className="space-y-2">
+              <div className={`space-y-2 ${locked ? 'filter blur-[8px] select-none pointer-events-none' : ''}`} data-testid="display-negotiation-tips">
                 <div className="flex items-center gap-2">
                   <Lightbulb className="w-4 h-4 text-yellow-600" />
                   <span className="font-medium">Negotiation Tips</span>
@@ -240,7 +256,7 @@ export const RenterUnitCard: React.FC<RenterUnitCardProps> = ({
             )}
 
             {/* Landlord Desperation Indicator */}
-            <div className="flex items-center justify-between text-sm">
+            <div className={`flex items-center justify-between text-sm ${locked ? 'filter blur-[8px] select-none pointer-events-none' : ''}`} data-testid="display-landlord-status">
               <span className="text-muted-foreground">Landlord Status</span>
               <span className={`font-medium capitalize ${
                 dealIntelligence.landlordDesperation === 'desperate' ? 'text-green-600' :
@@ -261,12 +277,13 @@ export const RenterUnitCard: React.FC<RenterUnitCardProps> = ({
                   dealIntelligence.timing.advice === 'negotiate_now' ? 'bg-green-600 hover:bg-green-700' :
                   'bg-blue-600 hover:bg-blue-700'
                 }
+                data-testid="button-primary-action"
               >
                 {dealIntelligence.timing.advice === 'apply_immediately' ? 'Apply Now' :
                  dealIntelligence.timing.advice === 'negotiate_now' ? 'Negotiate' :
                  'Monitor'}
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" data-testid="button-view-details">
                 View Details
               </Button>
             </div>

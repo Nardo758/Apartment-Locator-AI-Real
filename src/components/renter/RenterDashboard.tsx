@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TrendingDown, Clock, DollarSign, Target, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useRenterIntelligence } from '@/hooks/useRenterIntelligence';
 import { RenterUnitCard } from './RenterUnitCard';
+import { UnlockModal } from './UnlockModal';
+import { useAccessStatus } from '@/hooks/useAccessStatus';
+import { authenticatedFetch } from '@/lib/authHelpers';
+import { queryClient } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 import type { ApartmentIQData } from '@/lib/pricing-engine';
 
 interface Property {
@@ -29,6 +34,53 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
     getTotalPotentialSavings,
     getAverageDealScore
   } = useRenterIntelligence(properties);
+
+  const { isPropertyUnlocked, refetch: refetchAccess } = useAccessStatus();
+  const { toast } = useToast();
+  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
+  const [selectedPropertyName, setSelectedPropertyName] = useState<string | undefined>();
+
+  const handleUnlockSingle = async (propertyId: string) => {
+    try {
+      const res = await authenticatedFetch('/api/access/unlock-property', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ propertyId }),
+      });
+      if (res.ok) {
+        toast({ title: 'Property unlocked', description: 'You now have access to this property\'s savings data.' });
+        queryClient.invalidateQueries({ queryKey: ['/api/access/status'] });
+        setUnlockModalOpen(false);
+      }
+    } catch {
+      toast({ title: 'Unlock failed', description: 'Please try again.', variant: 'destructive' });
+    }
+  };
+
+  const handleSelectPlan = async (planType: 'basic' | 'pro' | 'premium') => {
+    try {
+      const res = await authenticatedFetch('/api/access/activate-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planType }),
+      });
+      if (res.ok) {
+        const planNames = { basic: 'Basic', pro: 'Pro', premium: 'Premium' };
+        toast({ title: `${planNames[planType]} plan activated`, description: 'You now have full access to all savings data.' });
+        queryClient.invalidateQueries({ queryKey: ['/api/access/status'] });
+        setUnlockModalOpen(false);
+      }
+    } catch {
+      toast({ title: 'Plan activation failed', description: 'Please try again.', variant: 'destructive' });
+    }
+  };
+
+  const openUnlockModal = (propertyId: string, propertyName?: string) => {
+    setSelectedPropertyId(propertyId);
+    setSelectedPropertyName(propertyName);
+    setUnlockModalOpen(true);
+  };
 
   if (loading) {
     return (
@@ -219,12 +271,16 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
             <div className="grid gap-4">
               {immediateOpportunities.slice(0, 3).map(propertyId => {
                 const property = properties.find(p => p.id === propertyId);
+                const isLocked = !isPropertyUnlocked(propertyId);
                 return property ? (
                   <RenterUnitCard 
                     key={propertyId} 
                     property={property} 
                     dealIntelligence={dealIntelligence[propertyId]}
                     compact
+                    locked={isLocked}
+                    onUnlockSingle={() => openUnlockModal(propertyId, property.apartmentIQData?.propertyName)}
+                    onGetPlan={() => openUnlockModal(propertyId, property.apartmentIQData?.propertyName)}
                   />
                 ) : null;
               })}
@@ -248,17 +304,29 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
           <div className="space-y-4">
             {sortedByDealScore.map(propertyId => {
               const property = properties.find(p => p.id === propertyId);
+              const isLocked = !isPropertyUnlocked(propertyId);
               return property ? (
                 <RenterUnitCard 
                   key={propertyId} 
                   property={property} 
                   dealIntelligence={dealIntelligence[propertyId]}
+                  locked={isLocked}
+                  onUnlockSingle={() => openUnlockModal(propertyId, property.apartmentIQData?.propertyName)}
+                  onGetPlan={() => openUnlockModal(propertyId, property.apartmentIQData?.propertyName)}
                 />
               ) : null;
             })}
           </div>
         </CardContent>
       </Card>
+
+      <UnlockModal
+        isOpen={unlockModalOpen}
+        onClose={() => setUnlockModalOpen(false)}
+        propertyName={selectedPropertyName}
+        onUnlockSingle={() => selectedPropertyId && handleUnlockSingle(selectedPropertyId)}
+        onSelectPlan={handleSelectPlan}
+      />
     </div>
   );
 };

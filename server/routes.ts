@@ -1,5 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { storage } from "./storage";
+import { db } from "./db";
+import { eq, and } from "drizzle-orm";
 import {
   insertPropertySchema,
   insertSavedApartmentSchema,
@@ -9,6 +11,8 @@ import {
   insertUserPoiSchema,
   insertCompetitionSetSchema,
   insertCompetitionSetCompetitorSchema,
+  users,
+  propertyUnlocks,
 } from "@shared/schema";
 import { 
   createUser, 
@@ -3646,6 +3650,159 @@ export async function registerRoutes(app: Express): Promise<void> {
   // ============================================
   // END AGENT DEAL PIPELINE ENDPOINTS
   // ============================================
+
+  // ============================================
+  // RENTER ACCESS / FREEMIUM ENDPOINTS
+  // ============================================
+
+  app.get("/api/access/status", authMiddleware, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const unlocks = await db.select({ propertyId: propertyUnlocks.propertyId })
+        .from(propertyUnlocks)
+        .where(eq(propertyUnlocks.userId, userId));
+
+      const unlockedPropertyIds = unlocks.map(u => u.propertyId);
+      const now = new Date();
+      const hasPlanAccess = user.accessExpiresAt ? new Date(user.accessExpiresAt) > now : false;
+
+      let accessType: 'plan' | 'single' | 'none' = 'none';
+      if (hasPlanAccess) {
+        accessType = 'plan';
+      } else if (unlockedPropertyIds.length > 0) {
+        accessType = 'single';
+      }
+
+      res.json({
+        hasAccess: hasPlanAccess,
+        accessType,
+        planType: user.accessPlanType || null,
+        expiresAt: user.accessExpiresAt ? user.accessExpiresAt.toISOString() : null,
+        analysesUsed: user.propertyAnalysesUsed || 0,
+        analysesLimit: user.propertyAnalysesLimit || null,
+        unlockedPropertyIds,
+      });
+    } catch (error) {
+      console.error("Error fetching access status:", error);
+      res.status(500).json({ error: "Failed to fetch access status" });
+    }
+  });
+
+  app.get("/api/access/unlocked-properties/:userId", authMiddleware, async (req, res) => {
+    try {
+      if (req.user!.id !== req.params.userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const unlocks = await db.select({ propertyId: propertyUnlocks.propertyId })
+        .from(propertyUnlocks)
+        .where(eq(propertyUnlocks.userId, req.params.userId));
+
+      res.json(unlocks.map(u => u.propertyId));
+    } catch (error) {
+      console.error("Error fetching unlocked properties:", error);
+      res.status(500).json({ error: "Failed to fetch unlocked properties" });
+    }
+  });
+
+  app.post("/api/access/unlock-property", authMiddleware, async (req, res) => {
+    try {
+      const schema = z.object({ propertyId: z.string().uuid() });
+      const parseResult = schema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ error: "Invalid data", details: parseResult.error.errors });
+      }
+
+      const { propertyId } = parseResult.data;
+      const userId = req.user!.id;
+
+      const existing = await db.select()
+        .from(propertyUnlocks)
+        .where(and(eq(propertyUnlocks.userId, userId), eq(propertyUnlocks.propertyId, propertyId)));
+
+      if (existing.length > 0) {
+        return res.json(existing[0]);
+      }
+
+      const [unlock] = await db.insert(propertyUnlocks).values({
+        userId,
+        propertyId,
+        unlockType: "single",
+      }).returning();
+
+      res.status(201).json(unlock);
+    } catch (error) {
+      console.error("Error unlocking property:", error);
+      res.status(500).json({ error: "Failed to unlock property" });
+    }
+  });
+
+  app.post("/api/access/activate-plan", authMiddleware, async (req, res) => {
+    try {
+      const schema = z.object({
+        planType: z.enum(["basic", "pro", "premium"]),
+      });
+      const parseResult = schema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ error: "Invalid data", details: parseResult.error.errors });
+      }
+
+      const { planType } = parseResult.data;
+      const userId = req.user!.id;
+      const now = new Date();
+
+      let daysToAdd: number;
+      let analysesLimit: number | null;
+
+      switch (planType) {
+        case "basic":
+          daysToAdd = 7;
+          analysesLimit = 5;
+          break;
+        case "pro":
+          daysToAdd = 30;
+          analysesLimit = null;
+          break;
+        case "premium":
+          daysToAdd = 90;
+          analysesLimit = null;
+          break;
+      }
+
+      const expiresAt = new Date(now.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
+
+      await db.update(users).set({
+        accessExpiresAt: expiresAt,
+        accessPlanType: planType,
+        propertyAnalysesUsed: 0,
+        propertyAnalysesLimit: analysesLimit,
+        updatedAt: now,
+      }).where(eq(users.id, userId));
+
+      const unlocks = await db.select({ propertyId: propertyUnlocks.propertyId })
+        .from(propertyUnlocks)
+        .where(eq(propertyUnlocks.userId, userId));
+
+      res.json({
+        hasAccess: true,
+        accessType: 'plan' as const,
+        planType,
+        expiresAt: expiresAt.toISOString(),
+        analysesUsed: 0,
+        analysesLimit,
+        unlockedPropertyIds: unlocks.map(u => u.propertyId),
+      });
+    } catch (error) {
+      console.error("Error activating plan:", error);
+      res.status(500).json({ error: "Failed to activate plan" });
+    }
+  });
 
   // Register payment routes
   registerPaymentRoutes(app);
