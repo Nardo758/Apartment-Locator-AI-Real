@@ -32,7 +32,182 @@ const PRICE_IDS = {
 };
 
 export function registerPaymentRoutes(app: Express): void {
-  
+
+  // ============================================
+  // RENTER: Per-Property Unlock ($1.99)
+  // ============================================
+
+  app.post("/api/payments/create-property-unlock", async (req: Request, res: Response) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({
+          error: "Stripe not configured. Add STRIPE_SECRET_KEY to environment variables."
+        });
+      }
+
+      const { email, name, userId, propertyId } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+      if (!propertyId) {
+        return res.status(400).json({ error: "Property ID is required" });
+      }
+
+      // Create or get customer
+      let customer;
+      const existingCustomers = await stripe.customers.list({ email, limit: 1 });
+
+      if (existingCustomers.data.length > 0) {
+        customer = existingCustomers.data[0];
+      } else {
+        customer = await stripe.customers.create({
+          email,
+          name,
+          metadata: { userId: userId || '', userType: 'renter' }
+        });
+      }
+
+      // Create checkout session for per-property unlock
+      const session = await stripe.checkout.sessions.create({
+        customer: customer.id,
+        mode: 'payment',
+        payment_method_types: ['card'],
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Property Savings Data Unlock',
+              description: `Unlock deal score, savings data, and negotiation tips for one property`
+            },
+            unit_amount: 199, // $1.99
+          },
+          quantity: 1,
+        }],
+        success_url: `${process.env.FRONTEND_URL || 'http://localhost:5000'}/property/${propertyId}?unlocked=true&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5000'}/property/${propertyId}?canceled=true`,
+        metadata: {
+          userId: userId || '',
+          email,
+          userType: 'renter',
+          productType: 'per_property_unlock',
+          propertyId,
+        }
+      });
+
+      res.json({
+        sessionId: session.id,
+        url: session.url,
+        customerId: customer.id
+      });
+    } catch (error: any) {
+      console.error("Create property unlock checkout error:", error);
+      res.status(500).json({
+        error: "Failed to create checkout session",
+        details: error.message
+      });
+    }
+  });
+
+  // ============================================
+  // RENTER: Create Payment Intent (for inline Stripe Elements)
+  // ============================================
+
+  app.post("/api/payments/create-intent", async (req: Request, res: Response) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({
+          error: "Stripe not configured. Add STRIPE_SECRET_KEY to environment variables."
+        });
+      }
+
+      const { guestEmail, guestName, searchCriteria, propertyId } = req.body;
+
+      // Determine amount: per-property ($1.99) vs full unlock ($49)
+      const isPropertyUnlock = !!propertyId;
+      const amount = isPropertyUnlock ? 199 : 4900;
+      const description = isPropertyUnlock
+        ? 'Property Savings Data Unlock'
+        : 'Apartment Locator AI - Full Access';
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount,
+        currency: 'usd',
+        description,
+        receipt_email: guestEmail || undefined,
+        metadata: {
+          guestEmail: guestEmail || '',
+          guestName: guestName || '',
+          productType: isPropertyUnlock ? 'per_property_unlock' : 'one_time_unlock',
+          propertyId: propertyId || '',
+          searchCriteria: searchCriteria ? JSON.stringify(searchCriteria) : '',
+        },
+      });
+
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error("Create payment intent error:", error);
+      res.status(500).json({
+        error: "Failed to create payment intent",
+        details: error.message
+      });
+    }
+  });
+
+  // ============================================
+  // RENTER: Verify Payment (after inline Stripe Elements payment)
+  // ============================================
+
+  app.post("/api/payments/verify", async (req: Request, res: Response) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ error: "Stripe not configured" });
+      }
+
+      const { paymentIntentId } = req.body;
+
+      if (!paymentIntentId) {
+        return res.status(400).json({ error: "Payment intent ID is required" });
+      }
+
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({
+          error: "Payment not completed",
+          status: paymentIntent.status
+        });
+      }
+
+      const { guestEmail, productType, propertyId } = paymentIntent.metadata;
+
+      // Record the purchase
+      await db.insert(purchases).values({
+        guestEmail: guestEmail || paymentIntent.receipt_email || '',
+        amount: paymentIntent.amount,
+        currency: paymentIntent.currency || 'usd',
+        stripePaymentIntentId: paymentIntent.id,
+        stripeCustomerId: typeof paymentIntent.customer === 'string' ? paymentIntent.customer : null,
+        status: 'completed',
+        productType: productType || 'one_time_unlock',
+        searchCriteria: propertyId ? { propertyId } : undefined,
+        unlockedAt: new Date(),
+      });
+
+      res.json({
+        success: true,
+        productType: productType || 'one_time_unlock',
+        propertyId: propertyId || null,
+      });
+    } catch (error: any) {
+      console.error("Verify payment error:", error);
+      res.status(500).json({
+        error: "Failed to verify payment",
+        details: error.message
+      });
+    }
+  });
+
   // ============================================
   // RENTER: One-Time Payment ($49)
   // ============================================

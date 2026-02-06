@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  MapPin, 
-  Calendar, 
-  Users, 
-  Car, 
-  Wifi, 
-  Dumbbell, 
+import {
+  ArrowLeft,
+  MapPin,
+  Calendar,
+  Users,
+  Car,
+  Wifi,
+  Dumbbell,
   Waves,
   Shield,
   Zap,
@@ -42,16 +42,27 @@ import { designSystem } from '@/lib/design-system';
 import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import ModernCard from '@/components/modern/ModernCard';
 import Breadcrumb from '@/components/Breadcrumb';
+import { SavingsDataGate } from '@/components/SavingsDataGate';
+import { usePaywall } from '@/hooks/usePaywall';
+import { PaywallModal } from '@/components/PaywallModal';
 
 const PropertyDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { 
+  const {
     selectedProperty,
     setSelectedProperty,
     favoriteProperties,
-    toggleFavorite 
+    toggleFavorite
   } = usePropertyState();
+  const {
+    isPaywallOpen,
+    closePaywall,
+    canViewSavingsData,
+    triggerSavingsPaywall,
+    trackOfferGeneration,
+    resetPaywallState,
+  } = usePaywall();
   
   const [property, setProperty] = useState<Property | null>(selectedProperty);
   type AiAnalysis = {
@@ -159,11 +170,18 @@ const PropertyDetails: React.FC = () => {
   };
 
   const handleGenerateOffer = () => {
-    if (property) {
-      setSelectedProperty(property);
-      navigate('/generate-offer');
-    }
+    if (!property) return;
+    if (!trackOfferGeneration(property.id)) return; // Paywall triggered
+    setSelectedProperty(property);
+    navigate('/generate-offer');
   };
+
+  const handlePaywallSuccess = () => {
+    resetPaywallState();
+    closePaywall();
+  };
+
+  const savingsUnlocked = property ? canViewSavingsData(property?.id) : false;
 
   if (loading) {
     return (
@@ -333,66 +351,72 @@ const PropertyDetails: React.FC = () => {
                 </div>
               </div>
 
-              {/* Pricing Analysis */}
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-6 border border-green-200 dark:border-green-800">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/30">
-                    <DollarSign className="w-6 h-6 text-green-600" />
+              {/* Pricing Analysis — gated for free users */}
+              <SavingsDataGate
+                isUnlocked={savingsUnlocked}
+                onUnlockClick={() => triggerSavingsPaywall(property.id)}
+                hint="AI Pricing Analysis available"
+              >
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-6 border border-green-200 dark:border-green-800">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/30">
+                      <DollarSign className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className={`${designSystem.typography.subheadingLarge} text-green-800 dark:text-green-400`}>
+                        AI Pricing Analysis
+                      </h3>
+                      <p className="text-sm text-green-700 dark:text-green-500">
+                        Based on market data and negotiation opportunities
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className={`${designSystem.typography.subheadingLarge} text-green-800 dark:text-green-400`}>
-                      AI Pricing Analysis
-                    </h3>
-                    <p className="text-sm text-green-700 dark:text-green-500">
-                      Based on market data and negotiation opportunities
-                    </p>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-3 gap-4 mb-6">
-                  <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <div className="text-xs text-muted-foreground mb-1">Original Price</div>
-                    <div className="text-lg font-semibold text-muted-foreground line-through">
-                      ${property.originalPrice.toLocaleString()}/mo
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                      <div className="text-xs text-muted-foreground mb-1">Original Price</div>
+                      <div className="text-lg font-semibold text-muted-foreground line-through">
+                        ${property.originalPrice.toLocaleString()}/mo
+                      </div>
+                    </div>
+                    <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                      <div className="text-xs text-muted-foreground mb-1">AI Predicted</div>
+                      <div className="text-lg font-semibold text-blue-600">
+                        ${aiPredicted.toLocaleString()}/mo
+                      </div>
+                    </div>
+                    <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                      <div className="text-xs text-muted-foreground mb-1">Your Savings</div>
+                      <div className="text-lg font-semibold text-green-600">
+                        ${potentialSavings.toLocaleString()}/mo
+                      </div>
                     </div>
                   </div>
-                  <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <div className="text-xs text-muted-foreground mb-1">AI Predicted</div>
-                    <div className="text-lg font-semibold text-blue-600">
-                      ${aiPredicted.toLocaleString()}/mo
-                    </div>
-                  </div>
-                  <div className="text-center p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <div className="text-xs text-muted-foreground mb-1">Your Savings</div>
-                    <div className="text-lg font-semibold text-green-600">
-                      ${potentialSavings.toLocaleString()}/mo
-                    </div>
-                  </div>
-                </div>
 
-                {/* Concession Value Line Item */}
-                <div className="flex items-center justify-center mb-2">
-                  <div className="text-sm">
-                    <span className="text-muted-foreground">Concession Value: </span>
-                    <span className="font-semibold text-green-600">${monthlyConcession.toLocaleString()}/mo</span>
+                  {/* Concession Value Line Item */}
+                  <div className="flex items-center justify-center mb-2">
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Concession Value: </span>
+                      <span className="font-semibold text-green-600">${monthlyConcession.toLocaleString()}/mo</span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-green-200 dark:border-green-800">
-                  <div className="text-center">
-                    <div className="text-xs text-muted-foreground mb-1">Monthly Savings</div>
-                    <div className="text-2xl font-bold text-green-600">
-                      ${totalMonthlySavings.toLocaleString()}
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-green-200 dark:border-green-800">
+                    <div className="text-center">
+                      <div className="text-xs text-muted-foreground mb-1">Monthly Savings</div>
+                      <div className="text-2xl font-bold text-green-600">
+                        ${totalMonthlySavings.toLocaleString()}
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xs text-muted-foreground mb-1">Annual Savings</div>
-                    <div className="text-2xl font-bold text-green-600">
-                      ${annualSavings.toLocaleString()}
+                    <div className="text-center">
+                      <div className="text-xs text-muted-foreground mb-1">Annual Savings</div>
+                      <div className="text-2xl font-bold text-green-600">
+                        ${annualSavings.toLocaleString()}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </SavingsDataGate>
             </ModernCard>
 
             {/* Image Gallery */}
@@ -542,68 +566,80 @@ const PropertyDetails: React.FC = () => {
               </div>
             </ModernCard>
               
-            {/* AI Analysis */}
+            {/* AI Analysis — gated */}
             {aiAnalysis && (
-              <ModernCard 
-                title="AI Opportunity Analysis"
-                icon={<Target className="w-6 h-6 text-blue-600" />}
-                animate
-                animationDelay={100}
-                className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20"
+              <SavingsDataGate
+                isUnlocked={savingsUnlocked}
+                onUnlockClick={() => triggerSavingsPaywall(property.id)}
+                hint="AI Opportunity Analysis available"
               >
-                <div className="text-center mb-6">
-                  <div className="text-4xl font-bold text-blue-600 mb-2">
-                    {Math.round(aiAnalysis.opportunityScore || 0)}%
+                <ModernCard
+                  title="AI Opportunity Analysis"
+                  icon={<Target className="w-6 h-6 text-blue-600" />}
+                  animate
+                  animationDelay={100}
+                  className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20"
+                >
+                  <div className="text-center mb-6">
+                    <div className="text-4xl font-bold text-blue-600 mb-2">
+                      {Math.round(aiAnalysis.opportunityScore || 0)}%
+                    </div>
+                    <div className="text-sm text-muted-foreground mb-3">Opportunity Score</div>
+                    <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                      {aiAnalysis.tier}
+                    </Badge>
                   </div>
-                  <div className="text-sm text-muted-foreground mb-3">Opportunity Score</div>
-                  <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                    {aiAnalysis.tier}
-                  </Badge>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span>Success Rate</span>
-                    <span className="font-medium">{Math.round((aiAnalysis.successRate || 0) * 100)}%</span>
+
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span>Success Rate</span>
+                      <span className="font-medium">{Math.round((aiAnalysis.successRate || 0) * 100)}%</span>
+                    </div>
+                    <Progress value={(aiAnalysis.successRate || 0) * 100} className="h-3" />
                   </div>
-                  <Progress value={(aiAnalysis.successRate || 0) * 100} className="h-3" />
-                </div>
-                
-                <div className="mt-4 p-4 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                  <div className="text-sm font-medium text-blue-800 dark:text-blue-400 mb-1">AI Recommendation</div>
-                  <div className="text-xs text-blue-700 dark:text-blue-500">{aiAnalysis.recommendation}</div>
-                </div>
-              </ModernCard>
+
+                  <div className="mt-4 p-4 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                    <div className="text-sm font-medium text-blue-800 dark:text-blue-400 mb-1">AI Recommendation</div>
+                    <div className="text-xs text-blue-700 dark:text-blue-500">{aiAnalysis.recommendation}</div>
+                  </div>
+                </ModernCard>
+              </SavingsDataGate>
             )}
 
-            {/* Concessions */}
-            <ModernCard 
-              title="Predicted Concessions"
-              icon={<TrendingUp className="w-6 h-6 text-green-600" />}
-              animate
-              animationDelay={200}
-              className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20"
+            {/* Concessions — gated */}
+            <SavingsDataGate
+              isUnlocked={savingsUnlocked}
+              onUnlockClick={() => triggerSavingsPaywall(property.id)}
+              hint="Predicted Concessions available"
             >
-              <div className="space-y-3">
-                {property.concessions.map((concession, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <div>
-                      <div className="font-medium text-sm">{concession.type}</div>
-                      <div className="text-xs text-muted-foreground">{concession.value}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`text-sm font-bold ${
-                        concession.color === 'green' ? 'text-green-600' :
-                        concession.color === 'yellow' ? 'text-yellow-600' : 'text-orange-600'
-                      }`}>
-                        {concession.probability}%
+              <ModernCard
+                title="Predicted Concessions"
+                icon={<TrendingUp className="w-6 h-6 text-green-600" />}
+                animate
+                animationDelay={200}
+                className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20"
+              >
+                <div className="space-y-3">
+                  {property.concessions.map((concession, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                      <div>
+                        <div className="font-medium text-sm">{concession.type}</div>
+                        <div className="text-xs text-muted-foreground">{concession.value}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground">probability</div>
+                      <div className="text-right">
+                        <div className={`text-sm font-bold ${
+                          concession.color === 'green' ? 'text-green-600' :
+                          concession.color === 'yellow' ? 'text-yellow-600' : 'text-orange-600'
+                        }`}>
+                          {concession.probability}%
+                        </div>
+                        <div className="text-xs text-muted-foreground">probability</div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </ModernCard>
+                  ))}
+                </div>
+              </ModernCard>
+            </SavingsDataGate>
 
             {/* Contact Information */}
             <ModernCard 
@@ -664,6 +700,15 @@ const PropertyDetails: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        isOpen={isPaywallOpen}
+        onClose={closePaywall}
+        potentialSavings={annualSavings || 0}
+        propertiesCount={1}
+        onPaymentSuccess={handlePaywallSuccess}
+      />
     </div>
   );
 };

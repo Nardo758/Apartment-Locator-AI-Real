@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { logUserActionError } from '@/lib/errorLogger';
+import { useUser } from '@/hooks/useUser';
 
 /**
  * Paywall Hook
- * 
+ *
  * Manages paywall triggers and tracking:
+ * - Checks real subscription status from UserContext
  * - 3 property views limit for free users
  * - AI score access attempts
  * - Offer generation attempts
- * - Tracks paywall impressions
+ * - Per-property unlock tracking
  */
 
 interface PaywallState {
@@ -17,10 +19,11 @@ interface PaywallState {
   lastImpressionTimestamp: number | null;
   hasShownPaywall: boolean;
   triggeredBy: string | null;
+  unlockedPropertyIds: string[];
 }
 
 interface PaywallTrigger {
-  type: 'property_view' | 'ai_score' | 'offer_generation' | 'advanced_feature';
+  type: 'property_view' | 'ai_score' | 'offer_generation' | 'advanced_feature' | 'savings_data';
   propertyId?: string;
   featureName?: string;
 }
@@ -28,23 +31,33 @@ interface PaywallTrigger {
 const STORAGE_KEY = 'apartmentiq-paywall-state';
 const FREE_PROPERTY_VIEW_LIMIT = 3;
 
+/** Subscription tiers that grant full savings data access */
+const PAID_TIERS = ['basic', 'pro', 'premium', 'renter_paid'];
+
 export function usePaywall() {
+  const { user, isAuthenticated } = useUser();
+
   const [paywallState, setPaywallState] = useState<PaywallState>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        return {
+          ...parsed,
+          unlockedPropertyIds: parsed.unlockedPropertyIds || [],
+        };
       }
     } catch (error) {
       logUserActionError('Failed to load paywall state', error as Error);
     }
-    
+
     return {
       propertyViewCount: 0,
       paywallImpressions: 0,
       lastImpressionTimestamp: null,
       hasShownPaywall: false,
       triggeredBy: null,
+      unlockedPropertyIds: [],
     };
   });
 
@@ -61,31 +74,66 @@ export function usePaywall() {
   }, [paywallState]);
 
   /**
+   * Check if the current user has a paid subscription that grants savings access
+   */
+  const userHasPaidAccess = useCallback((): boolean => {
+    if (!isAuthenticated || !user) return false;
+
+    const tier = user.subscriptionTier?.toLowerCase() || 'free';
+    const status = user.subscriptionStatus?.toLowerCase() || 'inactive';
+
+    // User has paid if they have a paid tier AND an active status
+    if (PAID_TIERS.includes(tier) && (status === 'active' || status === 'trialing')) {
+      return true;
+    }
+
+    return false;
+  }, [isAuthenticated, user]);
+
+  /**
+   * Check if a specific property has been individually unlocked ($1.99)
+   */
+  const isPropertyUnlocked = useCallback((propertyId: string): boolean => {
+    return paywallState.unlockedPropertyIds.includes(propertyId);
+  }, [paywallState.unlockedPropertyIds]);
+
+  /**
+   * Check if user can see savings data for a given property
+   * - Paid users: always yes
+   * - Free users: only if they've unlocked that specific property
+   */
+  const canViewSavingsData = useCallback((propertyId?: string): boolean => {
+    if (userHasPaidAccess()) return true;
+    if (propertyId && isPropertyUnlocked(propertyId)) return true;
+    return false;
+  }, [userHasPaidAccess, isPropertyUnlocked]);
+
+  /**
    * Check if user should see paywall
    */
   const shouldShowPaywall = useCallback((trigger: PaywallTrigger): boolean => {
-    // TODO: Check user subscription status from UserContext
-    // For now, assume user is free if they haven't subscribed
-    const userIsSubscribed = false; // Replace with actual check
-    
-    if (userIsSubscribed) {
+    if (userHasPaidAccess()) return false;
+
+    // If this is about a specific property that's been unlocked, don't paywall
+    if (trigger.propertyId && isPropertyUnlocked(trigger.propertyId)) {
       return false;
     }
 
     switch (trigger.type) {
       case 'property_view':
         return paywallState.propertyViewCount >= FREE_PROPERTY_VIEW_LIMIT;
-      
+
+      case 'savings_data':
       case 'ai_score':
       case 'offer_generation':
       case 'advanced_feature':
         // Premium features always show paywall for free users
         return true;
-      
+
       default:
         return false;
     }
-  }, [paywallState.propertyViewCount]);
+  }, [paywallState.propertyViewCount, userHasPaidAccess, isPropertyUnlocked]);
 
   /**
    * Track a property view
@@ -97,7 +145,7 @@ export function usePaywall() {
     }));
 
     const trigger: PaywallTrigger = { type: 'property_view', propertyId };
-    
+
     if (shouldShowPaywall(trigger)) {
       setCurrentTrigger(trigger);
       setIsPaywallOpen(true);
@@ -110,14 +158,14 @@ export function usePaywall() {
    */
   const trackAIScoreAccess = useCallback((propertyId: string) => {
     const trigger: PaywallTrigger = { type: 'ai_score', propertyId };
-    
+
     if (shouldShowPaywall(trigger)) {
       setCurrentTrigger(trigger);
       setIsPaywallOpen(true);
       trackPaywallImpression('ai_score_access');
       return false; // Blocked
     }
-    
+
     return true; // Allowed
   }, [shouldShowPaywall]);
 
@@ -126,14 +174,14 @@ export function usePaywall() {
    */
   const trackOfferGeneration = useCallback((propertyId: string) => {
     const trigger: PaywallTrigger = { type: 'offer_generation', propertyId };
-    
+
     if (shouldShowPaywall(trigger)) {
       setCurrentTrigger(trigger);
       setIsPaywallOpen(true);
       trackPaywallImpression('offer_generation');
       return false; // Blocked
     }
-    
+
     return true; // Allowed
   }, [shouldShowPaywall]);
 
@@ -142,16 +190,26 @@ export function usePaywall() {
    */
   const trackAdvancedFeature = useCallback((featureName: string) => {
     const trigger: PaywallTrigger = { type: 'advanced_feature', featureName };
-    
+
     if (shouldShowPaywall(trigger)) {
       setCurrentTrigger(trigger);
       setIsPaywallOpen(true);
       trackPaywallImpression(`advanced_feature_${featureName}`);
       return false; // Blocked
     }
-    
+
     return true; // Allowed
   }, [shouldShowPaywall]);
+
+  /**
+   * Open the paywall for savings data gating
+   */
+  const triggerSavingsPaywall = useCallback((propertyId?: string) => {
+    const trigger: PaywallTrigger = { type: 'savings_data', propertyId };
+    setCurrentTrigger(trigger);
+    setIsPaywallOpen(true);
+    trackPaywallImpression('savings_data');
+  }, []);
 
   /**
    * Track paywall impression
@@ -164,25 +222,7 @@ export function usePaywall() {
       hasShownPaywall: true,
       triggeredBy,
     }));
-
-    // Send analytics event
-    try {
-      // TODO: Integrate with analytics service (Google Analytics, Mixpanel, etc.)
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'paywall_impression', {
-          triggered_by: triggeredBy,
-          impression_count: paywallState.paywallImpressions + 1,
-        });
-      }
-
-      console.log('Paywall impression tracked:', {
-        triggeredBy,
-        impressionCount: paywallState.paywallImpressions + 1,
-      });
-    } catch (error) {
-      logUserActionError('Failed to track paywall impression', error as Error);
-    }
-  }, [paywallState.paywallImpressions]);
+  }, []);
 
   /**
    * Close paywall
@@ -193,7 +233,17 @@ export function usePaywall() {
   }, []);
 
   /**
-   * Reset paywall state (after successful payment)
+   * Mark a specific property as unlocked (after $1.99 per-property purchase)
+   */
+  const unlockProperty = useCallback((propertyId: string) => {
+    setPaywallState((prev) => ({
+      ...prev,
+      unlockedPropertyIds: [...new Set([...prev.unlockedPropertyIds, propertyId])],
+    }));
+  }, []);
+
+  /**
+   * Reset paywall state (after successful full-access payment)
    */
   const resetPaywallState = useCallback(() => {
     const newState: PaywallState = {
@@ -202,10 +252,11 @@ export function usePaywall() {
       lastImpressionTimestamp: null,
       hasShownPaywall: false,
       triggeredBy: null,
+      unlockedPropertyIds: [],
     };
-    
+
     setPaywallState(newState);
-    
+
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
     } catch (error) {
@@ -227,15 +278,22 @@ export function usePaywall() {
     propertyViewCount: paywallState.propertyViewCount,
     paywallImpressions: paywallState.paywallImpressions,
     hasShownPaywall: paywallState.hasShownPaywall,
-    
+
+    // Access checks
+    userHasPaidAccess,
+    canViewSavingsData,
+    isPropertyUnlocked,
+
     // Actions
     trackPropertyView,
     trackAIScoreAccess,
     trackOfferGeneration,
     trackAdvancedFeature,
+    triggerSavingsPaywall,
     closePaywall,
+    unlockProperty,
     resetPaywallState,
-    
+
     // Helpers
     getRemainingViews,
     shouldShowPaywall,

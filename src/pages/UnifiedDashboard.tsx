@@ -14,6 +14,9 @@ import { useLocationCostContext } from '@/contexts/LocationCostContext';
 import { calculateApartmentCosts, formatCurrency } from '@/services/locationCostService';
 import type { ApartmentLocationCost } from '@/types/locationCost.types';
 import { api } from '@/lib/api';
+import { SavingsDataGate } from '@/components/SavingsDataGate';
+import { usePaywall } from '@/hooks/usePaywall';
+import { PaywallModal } from '@/components/PaywallModal';
 
 interface POI {
   id: string;
@@ -69,6 +72,14 @@ const GROCERY_STORE_MAP: Record<string, 'walmart' | 'wholefoods' | 'traderjoes' 
 
 export default function UnifiedDashboard() {
   const { inputs, gasPrice, isCalculating, setIsCalculating } = useLocationCostContext();
+  const {
+    isPaywallOpen,
+    closePaywall,
+    canViewSavingsData,
+    triggerSavingsPaywall,
+    resetPaywallState,
+  } = usePaywall();
+  const savingsUnlocked = canViewSavingsData();
   
   // Set page title
   useEffect(() => {
@@ -404,14 +415,26 @@ export default function UnifiedDashboard() {
                         {property.trueCost && (
                           <div className="border-l pl-4">
                             <p className="text-xs text-muted-foreground">True Cost</p>
-                            <p className="font-bold text-primary text-lg">{formatCurrency(property.trueCost)}</p>
+                            <SavingsDataGate
+                              isUnlocked={savingsUnlocked}
+                              onUnlockClick={() => triggerSavingsPaywall()}
+                              compact
+                            >
+                              <p className="font-bold text-primary text-lg">{formatCurrency(property.trueCost)}</p>
+                            </SavingsDataGate>
                           </div>
                         )}
 
                         {property.locationCosts && property.locationCosts > 0 && (
                           <div className="border-l pl-4">
                             <p className="text-xs text-muted-foreground">Location Costs</p>
-                            <p className="text-sm text-orange-500">+{formatCurrency(property.locationCosts)}</p>
+                            <SavingsDataGate
+                              isUnlocked={savingsUnlocked}
+                              onUnlockClick={() => triggerSavingsPaywall()}
+                              compact
+                            >
+                              <p className="text-sm text-orange-500">+{formatCurrency(property.locationCosts)}</p>
+                            </SavingsDataGate>
                           </div>
                         )}
                       </div>
@@ -440,9 +463,15 @@ export default function UnifiedDashboard() {
                       Cost Comparison
                     </CardTitle>
                     {potentialSavings > 0 && (
-                      <Badge variant="default" className="bg-green-500">
-                        Save up to {formatCurrency(potentialSavings)}/mo!
-                      </Badge>
+                      <SavingsDataGate
+                        isUnlocked={savingsUnlocked}
+                        onUnlockClick={() => triggerSavingsPaywall()}
+                        compact
+                      >
+                        <Badge variant="default" className="bg-green-500">
+                          Save up to {formatCurrency(potentialSavings)}/mo!
+                        </Badge>
+                      </SavingsDataGate>
                     )}
                   </div>
                 </CardHeader>
@@ -473,10 +502,26 @@ export default function UnifiedDashboard() {
                           </TableCell>
                           <TableCell className="text-right">{formatCurrency(property.baseRent)}</TableCell>
                           <TableCell className="text-right text-orange-500">
-                            {property.locationCosts ? `+${formatCurrency(property.locationCosts)}` : '-'}
+                            {property.locationCosts ? (
+                              <SavingsDataGate
+                                isUnlocked={savingsUnlocked}
+                                onUnlockClick={() => triggerSavingsPaywall()}
+                                compact
+                              >
+                                <span>+{formatCurrency(property.locationCosts)}</span>
+                              </SavingsDataGate>
+                            ) : '-'}
                           </TableCell>
                           <TableCell className="text-right font-bold text-primary">
-                            {property.trueCost ? formatCurrency(property.trueCost) : '-'}
+                            {property.trueCost ? (
+                              <SavingsDataGate
+                                isUnlocked={savingsUnlocked}
+                                onUnlockClick={() => triggerSavingsPaywall()}
+                                compact
+                              >
+                                <span>{formatCurrency(property.trueCost)}</span>
+                              </SavingsDataGate>
+                            ) : '-'}
                           </TableCell>
                           <TableCell className="text-right">
                             {property.commuteMinutes ? `${property.commuteMinutes} min` : '-'}
@@ -491,6 +536,18 @@ export default function UnifiedDashboard() {
           </main>
         </div>
       </div>
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        isOpen={isPaywallOpen}
+        onClose={closePaywall}
+        potentialSavings={potentialSavings * 12}
+        propertiesCount={propertiesWithCosts.length}
+        onPaymentSuccess={() => {
+          resetPaywallState();
+          closePaywall();
+        }}
+      />
     </div>
   );
 }

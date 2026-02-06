@@ -161,15 +161,15 @@ export function PaywallModal({
             </div>
           </div>
 
-          {/* Value Prop */}
+          {/* Value Prop — no actual dollar amounts to prevent data leaks */}
           <div className="bg-white rounded-lg p-4 mb-4">
             <div className="text-center">
-              <p className="text-sm text-gray-600 mb-1">You could save</p>
+              <p className="text-sm text-gray-600 mb-1">Renters save an average of</p>
               <p className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">
-                ${potentialSavings.toLocaleString()}/year
+                $2,400/year
               </p>
               <p className="text-sm text-gray-600 mt-1">
-                across {propertiesCount} properties
+                with AI-powered negotiation insights
               </p>
             </div>
           </div>
