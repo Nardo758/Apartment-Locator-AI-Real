@@ -299,20 +299,6 @@ const LandingSSRSafe = () => {
               Join thousands of successful renters who've found their ideal homes with AI-powered intelligence.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-              <Link to="/pricing" data-testid="link-cta-bottom">
-                <Button variant="cta-light" size="lg" data-testid="button-cta-search">
-                  Search Apartments Free
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              <Link to="/pricing">
-                <Button variant="cta-dark" size="lg" data-testid="button-cta-market">
-                  View Market Intel
-                </Button>
-              </Link>
-            </div>
-
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-sm text-blue-100">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
