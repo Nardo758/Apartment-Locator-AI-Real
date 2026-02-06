@@ -19,6 +19,7 @@ interface UserContextType {
   userType: UserType | null;
   setUserType: (type: UserType) => Promise<void>;
   login: (email: string, password: string) => Promise<User>;
+  googleLogin: (credential: string) => Promise<User>;
   logout: () => void;
   register: (email: string, password: string, name?: string) => Promise<void>;
 }
@@ -122,6 +123,31 @@ export const UserProvider = ({ children }: { children: ReactNode }): ReactNode =
     return loggedInUser;
   };
 
+  const googleLogin = async (credential: string): Promise<User> => {
+    const { user: googleUser, token } = await api.googleAuth(credential);
+    localStorage.setItem(TOKEN_KEY, token);
+
+    setUser(googleUser);
+    setUserTypeState(googleUser.userType || null);
+
+    // Migrate localStorage userType to database if needed
+    const storedUserType = userTypeStorage.get();
+    if (storedUserType && !googleUser.userType) {
+      try {
+        await api.updateUserType(token, storedUserType);
+        const updatedUser = { ...googleUser, userType: storedUserType };
+        setUser(updatedUser);
+        setUserTypeState(storedUserType);
+        userTypeStorage.clear();
+        return updatedUser;
+      } catch (error) {
+        console.error('Failed to migrate userType to database:', error);
+      }
+    }
+
+    return googleUser;
+  };
+
   const logout = () => {
     localStorage.removeItem(TOKEN_KEY);
     userTypeStorage.clear();
@@ -152,13 +178,14 @@ export const UserProvider = ({ children }: { children: ReactNode }): ReactNode =
   };
 
   return (
-    <UserContext.Provider value={{ 
-      user, 
-      loading, 
+    <UserContext.Provider value={{
+      user,
+      loading,
       isAuthenticated: !!user,
       userType,
       setUserType,
       login,
+      googleLogin,
       logout,
       register
     }}>
@@ -177,6 +204,7 @@ export const useUser = () => {
       userType: null,
       setUserType: async () => {},
       login: async (): Promise<User> => { throw new Error('UserProvider not found'); },
+      googleLogin: async (): Promise<User> => { throw new Error('UserProvider not found'); },
       logout: () => {},
       register: async () => {},
     };

@@ -131,7 +131,7 @@ export async function getUserByEmail(email: string): Promise<AuthUser | null> {
 
 export async function updateUserType(userId: string, userType: string): Promise<AuthUser | null> {
   const [user] = await db.update(users)
-    .set({ 
+    .set({
       userType,
       updatedAt: new Date()
     })
@@ -141,6 +141,43 @@ export async function updateUserType(userId: string, userType: string): Promise<
   if (!user) {
     return null;
   }
+
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    userType: user.userType,
+    subscriptionTier: user.subscriptionTier,
+    subscriptionStatus: user.subscriptionStatus,
+  };
+}
+
+/**
+ * Find or create a user from Google OAuth.
+ * If the email exists, returns the existing user.
+ * If not, creates a new user with a random password hash (they'll auth via Google).
+ */
+export async function findOrCreateGoogleUser(
+  email: string,
+  name?: string,
+  avatarUrl?: string,
+): Promise<AuthUser> {
+  const existing = await getUserByEmail(email);
+  if (existing) {
+    return existing;
+  }
+
+  // Create a new user with a random password hash (Google-only auth)
+  const randomPassword = require("crypto").randomBytes(32).toString("hex");
+  const passwordHash = await hashPassword(randomPassword);
+
+  const [user] = await db.insert(users).values({
+    email: email.toLowerCase(),
+    passwordHash,
+    name: name || email.split("@")[0],
+    emailVerified: true, // Google emails are verified
+    avatarUrl: avatarUrl || null,
+  }).returning();
 
   return {
     id: user.id,
