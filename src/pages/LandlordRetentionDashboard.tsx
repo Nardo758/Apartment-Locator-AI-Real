@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Map, List, Settings, User } from "lucide-react";
+import { Building2, Map, List, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useUser";
 import { authFetchJson } from "@/lib/authHelpers";
@@ -77,7 +77,7 @@ const MOCK_ALERTS: RetentionAlert[] = [
 
 export default function LandlordRetentionDashboard() {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { user, logout } = useUser();
   const [selectedUnit, setSelectedUnit] = useState<RetentionUnit | null>(null);
   const [filter, setFilter] = useState<RetentionFilter>("All");
   const [viewMode, setViewMode] = useState<"map" | "list">("map");
@@ -140,7 +140,7 @@ export default function LandlordRetentionDashboard() {
           const sqft = property.squareFeetMin ?? property.squareFeetMax ?? 0;
           const rent = toNumber(property.actualRent ?? property.targetRent, 0);
           const marketRent = toNumber(property.marketRent, rent);
-          const status = property.occupancyStatus === 'vacant' ? 'vacant' : 'occupied';
+          const status: 'occupied' | 'vacant' = property.occupancyStatus === 'vacant' ? 'vacant' : 'occupied';
           const risk = property.retentionRiskScore ?? 0;
           const lat = toNumber(property.latitude, 30.2672);
           const lng = toNumber(property.longitude, -97.7431);
@@ -279,7 +279,7 @@ export default function LandlordRetentionDashboard() {
             LANDLORD
           </span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
@@ -289,9 +289,22 @@ export default function LandlordRetentionDashboard() {
             <Settings className="h-4 w-4 mr-1" />
             Settings
           </Button>
-          <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-semibold text-indigo-700 border-2 border-indigo-300 cursor-pointer" data-testid="user-avatar">
+          <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-semibold text-indigo-700 border-2 border-indigo-300" data-testid="user-avatar">
             {user?.name?.split(' ').map(n => n[0]).join('') || 'LP'}
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              logout();
+              navigate('/');
+            }}
+            className="text-red-600"
+            data-testid="button-logout"
+          >
+            <LogOut className="h-4 w-4 mr-1" />
+            Sign Out
+          </Button>
         </div>
       </header>
 
