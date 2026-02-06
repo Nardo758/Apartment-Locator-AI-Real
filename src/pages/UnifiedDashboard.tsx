@@ -78,6 +78,7 @@ export default function UnifiedDashboard() {
     openPaywall,
     closePaywall,
     unlockProperty,
+    activatePlan,
     isPropertyUnlocked,
     userIsSubscribed,
   } = usePaywall();
@@ -530,8 +531,12 @@ export default function UnifiedDashboard() {
         onClose={closePaywall}
         potentialSavings={potentialSavings * 12}
         propertiesCount={propertiesWithCosts.length}
-        onPaymentSuccess={() => {
-          if (paywallPropertyId) {
+        onPaymentSuccess={(planId?: string) => {
+          if (planId === 'per_property' && paywallPropertyId) {
+            unlockProperty(paywallPropertyId);
+          } else if (planId && ['basic', 'pro', 'premium'].includes(planId)) {
+            activatePlan(planId);
+          } else if (paywallPropertyId) {
             unlockProperty(paywallPropertyId);
           }
           closePaywall();

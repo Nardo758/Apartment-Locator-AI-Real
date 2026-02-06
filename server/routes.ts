@@ -3803,7 +3803,7 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   app.post("/api/access/unlock-property", authMiddleware, async (req, res) => {
     try {
-      const schema = z.object({ propertyId: z.string().uuid() });
+      const schema = z.object({ propertyId: z.string().min(1) });
       const parseResult = schema.safeParse(req.body);
       if (!parseResult.success) {
         return res.status(400).json({ error: "Invalid data", details: parseResult.error.errors });
@@ -3812,21 +3812,32 @@ export async function registerRoutes(app: Express): Promise<void> {
       const { propertyId } = parseResult.data;
       const userId = req.user!.id;
 
-      const existing = await db.select()
-        .from(propertyUnlocks)
-        .where(and(eq(propertyUnlocks.userId, userId), eq(propertyUnlocks.propertyId, propertyId)));
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (uuidRegex.test(propertyId)) {
+        const existing = await db.select()
+          .from(propertyUnlocks)
+          .where(and(eq(propertyUnlocks.userId, userId), eq(propertyUnlocks.propertyId, propertyId)));
 
-      if (existing.length > 0) {
-        return res.json(existing[0]);
+        if (existing.length > 0) {
+          return res.json(existing[0]);
+        }
+
+        const [unlock] = await db.insert(propertyUnlocks).values({
+          userId,
+          propertyId,
+          unlockType: "single",
+        }).returning();
+
+        return res.status(201).json(unlock);
       }
 
-      const [unlock] = await db.insert(propertyUnlocks).values({
+      res.status(201).json({
+        id: `local-${propertyId}`,
         userId,
         propertyId,
         unlockType: "single",
-      }).returning();
-
-      res.status(201).json(unlock);
+        createdAt: new Date().toISOString(),
+      });
     } catch (error) {
       console.error("Error unlocking property:", error);
       res.status(500).json({ error: "Failed to unlock property" });

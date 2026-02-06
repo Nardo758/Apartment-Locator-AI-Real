@@ -39,11 +39,16 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
     closePaywall,
     isPropertyUnlocked,
     unlockProperty,
+    activatePlan,
     resetPaywallState,
   } = usePaywall();
 
-  const handlePaymentSuccess = () => {
-    if (paywallPropertyId) {
+  const handlePaymentSuccess = (planId?: string) => {
+    if (planId === 'per_property' && paywallPropertyId) {
+      unlockProperty(paywallPropertyId);
+    } else if (planId && ['basic', 'pro', 'premium'].includes(planId)) {
+      activatePlan(planId);
+    } else if (paywallPropertyId) {
       unlockProperty(paywallPropertyId);
     } else {
       resetPaywallState();

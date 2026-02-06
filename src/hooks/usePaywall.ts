@@ -9,6 +9,7 @@ interface PaywallState {
   hasShownPaywall: boolean;
   triggeredBy: string | null;
   unlockedPropertyIds: string[];
+  activePlan: string | null;
 }
 
 interface PaywallTrigger {
@@ -40,6 +41,7 @@ export function usePaywall() {
       hasShownPaywall: false,
       triggeredBy: null,
       unlockedPropertyIds: [],
+      activePlan: null,
     };
   });
 
@@ -56,10 +58,11 @@ export function usePaywall() {
   }, [paywallState]);
 
   const userIsSubscribed = !!(
-    user &&
-    user.subscriptionTier &&
-    user.subscriptionTier !== 'free' &&
-    user.subscriptionStatus === 'active'
+    (user &&
+      user.subscriptionTier &&
+      user.subscriptionTier !== 'free' &&
+      user.subscriptionStatus === 'active') ||
+    paywallState.activePlan
   );
 
   const isPropertyUnlocked = useCallback(
@@ -208,6 +211,13 @@ export function usePaywall() {
     }));
   }, []);
 
+  const activatePlan = useCallback((planId: string) => {
+    setPaywallState((prev) => ({
+      ...prev,
+      activePlan: planId,
+    }));
+  }, []);
+
   const resetPaywallState = useCallback(() => {
     const newState: PaywallState = {
       propertyViewCount: 0,
@@ -216,6 +226,7 @@ export function usePaywall() {
       hasShownPaywall: false,
       triggeredBy: null,
       unlockedPropertyIds: [],
+      activePlan: null,
     };
 
     setPaywallState(newState);
@@ -247,6 +258,7 @@ export function usePaywall() {
     trackAdvancedFeature,
     closePaywall,
     unlockProperty,
+    activatePlan,
     resetPaywallState,
 
     getRemainingViews,
