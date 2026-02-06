@@ -1,13 +1,26 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { X, CheckCircle, Lock, Sparkles, ArrowRight, Zap, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { authenticatedFetch, isAuthenticated } from '@/lib/authHelpers';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, type Stripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
+let stripePromiseCache: Promise<Stripe | null> | null = null;
+
+async function getStripePromise(): Promise<Stripe | null> {
+  if (stripePromiseCache) return stripePromiseCache;
+  try {
+    const res = await fetch('/api/stripe/publishable-key');
+    if (!res.ok) return null;
+    const { publishableKey } = await res.json();
+    if (!publishableKey) return null;
+    stripePromiseCache = loadStripe(publishableKey);
+    return stripePromiseCache;
+  } catch {
+    return null;
+  }
+}
 
 interface PaywallModalProps {
   isOpen: boolean;
@@ -117,8 +130,21 @@ export function PaywallModal({
   const [error, setError] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [stripeInstance, setStripeInstance] = useState<Stripe | null>(null);
+  const [stripeConfigured, setStripeConfigured] = useState(false);
+  const stripeChecked = useRef(false);
 
-  const stripeConfigured = !!(stripePublishableKey && stripePromise);
+  useEffect(() => {
+    if (isOpen && !stripeChecked.current) {
+      stripeChecked.current = true;
+      getStripePromise().then((s) => {
+        if (s) {
+          setStripeInstance(s);
+          setStripeConfigured(true);
+        }
+      });
+    }
+  }, [isOpen]);
 
   const plans: PlanOption[] = [
     ...(propertyId
@@ -453,7 +479,7 @@ export function PaywallModal({
               Back to plans
             </button>
 
-            <Elements stripe={stripePromise} options={{ clientSecret }}>
+            <Elements stripe={stripeInstance} options={{ clientSecret }}>
               <StripeCheckoutForm
                 onSuccess={handleStripeSuccess}
                 onError={handleStripeError}
