@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home } from 'lucide-react';
+import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +10,9 @@ import Header from '@/components/Header';
 import MarketIntelBar from '@/components/dashboard/MarketIntelBar';
 import LeftPanelSidebar, { type LifestyleInputs, type CostCategory, type POICategory } from '@/components/dashboard/LeftPanelSidebar';
 import InteractivePropertyMap from '@/components/maps/InteractivePropertyMap';
+import { SavingsDataGate } from '@/components/SavingsDataGate';
+import { PaywallModal } from '@/components/PaywallModal';
+import { usePaywall } from '@/hooks/usePaywall';
 import { useLocationCostContext } from '@/contexts/LocationCostContext';
 import { calculateApartmentCosts, formatCurrency } from '@/services/locationCostService';
 import type { ApartmentLocationCost } from '@/types/locationCost.types';
@@ -69,8 +72,16 @@ const GROCERY_STORE_MAP: Record<string, 'walmart' | 'wholefoods' | 'traderjoes' 
 
 export default function UnifiedDashboard() {
   const { inputs, gasPrice, isCalculating, setIsCalculating } = useLocationCostContext();
+  const {
+    isPaywallOpen,
+    paywallPropertyId,
+    openPaywall,
+    closePaywall,
+    unlockProperty,
+    isPropertyUnlocked,
+    userIsSubscribed,
+  } = usePaywall();
   
-  // Set page title
   useEffect(() => {
     document.title = 'Renter Dashboard | Apartment Locator AI';
   }, []);
@@ -401,19 +412,28 @@ export default function UnifiedDashboard() {
                           <p className="font-medium">{formatCurrency(property.baseRent)}</p>
                         </div>
                         
-                        {property.trueCost && (
-                          <div className="border-l pl-4">
-                            <p className="text-xs text-muted-foreground">True Cost</p>
-                            <p className="font-bold text-primary text-lg">{formatCurrency(property.trueCost)}</p>
-                          </div>
-                        )}
+                        <SavingsDataGate
+                          isUnlocked={userIsSubscribed || isPropertyUnlocked(property.id)}
+                          onUnlockClick={() => openPaywall(property.id)}
+                          hint="True cost & savings analysis"
+                          compact
+                        >
+                          <div className="flex items-center gap-4">
+                            {property.trueCost && (
+                              <div className="border-l pl-4">
+                                <p className="text-xs text-muted-foreground">True Cost</p>
+                                <p className="font-bold text-primary text-lg">{formatCurrency(property.trueCost)}</p>
+                              </div>
+                            )}
 
-                        {property.locationCosts && property.locationCosts > 0 && (
-                          <div className="border-l pl-4">
-                            <p className="text-xs text-muted-foreground">Location Costs</p>
-                            <p className="text-sm text-orange-500">+{formatCurrency(property.locationCosts)}</p>
+                            {property.locationCosts && property.locationCosts > 0 && (
+                              <div className="border-l pl-4">
+                                <p className="text-xs text-muted-foreground">Location Costs</p>
+                                <p className="text-sm text-orange-500">+{formatCurrency(property.locationCosts)}</p>
+                              </div>
+                            )}
                           </div>
-                        )}
+                        </SavingsDataGate>
                       </div>
 
                       <div className="flex items-center gap-2 mt-3">
@@ -432,65 +452,85 @@ export default function UnifiedDashboard() {
             )}
 
             {results.length > 0 && (
-              <Card data-testid="cost-comparison-table">
-                <CardHeader className="py-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <TrendingDown className="w-4 h-4 text-green-500" />
-                      Cost Comparison
-                    </CardTitle>
-                    {potentialSavings > 0 && (
-                      <Badge variant="default" className="bg-green-500">
-                        Save up to {formatCurrency(potentialSavings)}/mo!
-                      </Badge>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Property</TableHead>
-                        <TableHead className="text-right">Rent</TableHead>
-                        <TableHead className="text-right">Location Costs</TableHead>
-                        <TableHead className="text-right">True Cost</TableHead>
-                        <TableHead className="text-right">Commute</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {propertiesWithCosts.map((property) => (
-                        <TableRow 
-                          key={property.id}
-                          className={`cursor-pointer ${property.savingsRank === 1 ? 'bg-green-500/10' : ''}`}
-                          onClick={() => setSelectedPropertyId(property.id)}
-                          data-testid={`row-property-${property.id}`}
-                        >
-                          <TableCell className="font-medium">
-                            <div className="flex items-center gap-2">
-                              {property.savingsRank === 1 && <Star className="w-4 h-4 text-green-500" />}
-                              {property.name}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">{formatCurrency(property.baseRent)}</TableCell>
-                          <TableCell className="text-right text-orange-500">
-                            {property.locationCosts ? `+${formatCurrency(property.locationCosts)}` : '-'}
-                          </TableCell>
-                          <TableCell className="text-right font-bold text-primary">
-                            {property.trueCost ? formatCurrency(property.trueCost) : '-'}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {property.commuteMinutes ? `${property.commuteMinutes} min` : '-'}
-                          </TableCell>
+              <SavingsDataGate
+                isUnlocked={userIsSubscribed}
+                onUnlockClick={() => openPaywall()}
+                hint="Full cost comparison available"
+              >
+                <Card data-testid="cost-comparison-table">
+                  <CardHeader className="py-3">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <TrendingDown className="w-4 h-4 text-green-500" />
+                        Cost Comparison
+                      </CardTitle>
+                      {potentialSavings > 0 && (
+                        <Badge variant="default" className="bg-green-500">
+                          Save up to {formatCurrency(potentialSavings)}/mo!
+                        </Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Property</TableHead>
+                          <TableHead className="text-right">Rent</TableHead>
+                          <TableHead className="text-right">Location Costs</TableHead>
+                          <TableHead className="text-right">True Cost</TableHead>
+                          <TableHead className="text-right">Commute</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
+                      </TableHeader>
+                      <TableBody>
+                        {propertiesWithCosts.map((property) => (
+                          <TableRow 
+                            key={property.id}
+                            className={`cursor-pointer ${property.savingsRank === 1 ? 'bg-green-500/10' : ''}`}
+                            onClick={() => setSelectedPropertyId(property.id)}
+                            data-testid={`row-property-${property.id}`}
+                          >
+                            <TableCell className="font-medium">
+                              <div className="flex items-center gap-2">
+                                {property.savingsRank === 1 && <Star className="w-4 h-4 text-green-500" />}
+                                {property.name}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">{formatCurrency(property.baseRent)}</TableCell>
+                            <TableCell className="text-right text-orange-500">
+                              {property.locationCosts ? `+${formatCurrency(property.locationCosts)}` : '-'}
+                            </TableCell>
+                            <TableCell className="text-right font-bold text-primary">
+                              {property.trueCost ? formatCurrency(property.trueCost) : '-'}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {property.commuteMinutes ? `${property.commuteMinutes} min` : '-'}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </SavingsDataGate>
             )}
           </main>
         </div>
       </div>
+
+      <PaywallModal
+        isOpen={isPaywallOpen}
+        onClose={closePaywall}
+        potentialSavings={potentialSavings * 12}
+        propertiesCount={propertiesWithCosts.length}
+        onPaymentSuccess={() => {
+          if (paywallPropertyId) {
+            unlockProperty(paywallPropertyId);
+          }
+          closePaywall();
+        }}
+        propertyId={paywallPropertyId}
+      />
     </div>
   );
 }
