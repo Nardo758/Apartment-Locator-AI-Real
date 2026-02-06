@@ -79,6 +79,10 @@ export interface UnifiedAIInputs {
   zipCode?: string;
   moveInDate?: Date;
   
+  // Current Lease Info (Step 1)
+  currentRentalRate?: number;
+  leaseExpirationDate?: string; // ISO date string (YYYY-MM-DD)
+  
   // POIs (Step 2)
   pointsOfInterest: PointOfInterest[];
   
@@ -237,7 +241,7 @@ export const SETUP_STEPS: SetupStep[] = [
     icon: 'MapPin',
     required: true,
     estimatedMinutes: 2,
-    fields: ['location', 'zipCode', 'budget', 'bedrooms', 'moveInDate'],
+    fields: ['location', 'zipCode', 'budget', 'bedrooms', 'moveInDate', 'currentRentalRate', 'leaseExpirationDate'],
   },
   {
     id: 2,

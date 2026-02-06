@@ -6,6 +6,8 @@ import {
   ShoppingCart,
   Plus,
   ChevronDown,
+  Calendar,
+  DollarSign,
   ChevronRight,
   Trash2,
   Car,
@@ -96,6 +98,10 @@ interface LeftPanelSidebarProps {
   onCalculate: () => void;
   isCalculating?: boolean;
   className?: string;
+  currentRentalRate?: number | string;
+  onCurrentRentalRateChange?: (value: string) => void;
+  leaseExpirationDate?: string;
+  onLeaseExpirationDateChange?: (value: string) => void;
 }
 
 const COMMUTE_MODES = [
@@ -152,6 +158,10 @@ export default function LeftPanelSidebar({
   onCalculate,
   isCalculating = false,
   className = '',
+  currentRentalRate,
+  onCurrentRentalRateChange,
+  leaseExpirationDate,
+  onLeaseExpirationDateChange,
 }: LeftPanelSidebarProps) {
   const [expandedSections, setExpandedSections] = useState({
     locations: true,
@@ -380,7 +390,42 @@ export default function LeftPanelSidebar({
           </CollapsibleTrigger>
           <CollapsibleContent>
             <CardContent className="pt-0 space-y-4">
-              <div className="space-y-3">
+              {onCurrentRentalRateChange && onLeaseExpirationDateChange && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                    <DollarSign className="w-3 h-3" />
+                    CURRENT LEASE
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs">Current Rent ($/mo)</Label>
+                    <Input
+                      type="number"
+                      placeholder="e.g., 1800"
+                      value={currentRentalRate || ''}
+                      onChange={(e) => onCurrentRentalRateChange(e.target.value)}
+                      className="h-8 text-sm"
+                      data-testid="input-sidebar-current-rent"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      Lease Expires
+                    </Label>
+                    <Input
+                      type="date"
+                      value={leaseExpirationDate || ''}
+                      onChange={(e) => onLeaseExpirationDateChange(e.target.value)}
+                      className="h-8 text-sm"
+                      data-testid="input-sidebar-lease-expiration"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="border-t pt-3 space-y-3">
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <Car className="w-3 h-3" />
                   COMMUTE

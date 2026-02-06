@@ -187,6 +187,9 @@ export default function UnifiedDashboard() {
     customCategories: [],
   });
   
+  const [currentRentalRate, setCurrentRentalRate] = useState('');
+  const [leaseExpirationDate, setLeaseExpirationDate] = useState('');
+
   const [filters, setFilters] = useState<{
     minBudget: number;
     maxBudget: number;
@@ -331,6 +334,10 @@ export default function UnifiedDashboard() {
               onFiltersChange={setFilters}
               onCalculate={handleCalculate}
               isCalculating={isCalculating}
+              currentRentalRate={currentRentalRate}
+              onCurrentRentalRateChange={setCurrentRentalRate}
+              leaseExpirationDate={leaseExpirationDate}
+              onLeaseExpirationDateChange={setLeaseExpirationDate}
             />
           </aside>
 

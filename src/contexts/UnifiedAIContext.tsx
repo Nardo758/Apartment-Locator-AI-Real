@@ -20,6 +20,8 @@ const DEFAULT_INPUTS: UnifiedAIInputs = {
   budget: 2500,
   location: '',
   zipCode: '',
+  currentRentalRate: undefined,
+  leaseExpirationDate: undefined,
   pointsOfInterest: [],
   commutePreferences: {
     daysPerWeek: 5,

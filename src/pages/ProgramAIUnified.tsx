@@ -10,7 +10,7 @@ import {
   Brain, MapPin, Navigation, Car, TrendingUp, 
   Home, DollarSign, Plus, X, Save, ArrowRight,
   Briefcase, Dumbbell, ShoppingCart, Baby, GraduationCap,
-  CheckCircle2, AlertCircle
+  CheckCircle2, AlertCircle, Calendar
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,6 +41,7 @@ export default function ProgramAIUnified() {
   const {
     location, zipCode, budget, aiPreferences, pointsOfInterest,
     commutePreferences, marketContext, setupProgress, completedSteps,
+    currentRentalRate, leaseExpirationDate,
     updateInputs, addPOI, removePOI, updateMarketContext
   } = useUnifiedAI();
 
@@ -50,6 +51,8 @@ export default function ProgramAIUnified() {
     zipCode: zipCode || '',
     budget: budget || 2500,
     bedrooms: aiPreferences.bedrooms || '1',
+    currentRentalRate: currentRentalRate || '',
+    leaseExpirationDate: leaseExpirationDate || '',
   });
 
   const [newPOI, setNewPOI] = useState<Partial<PointOfInterest>>({
@@ -85,6 +88,8 @@ export default function ProgramAIUnified() {
       location: formData.location,
       zipCode: formData.zipCode,
       budget: formData.budget,
+      currentRentalRate: formData.currentRentalRate ? Number(formData.currentRentalRate) : undefined,
+      leaseExpirationDate: formData.leaseExpirationDate || undefined,
       aiPreferences: {
         ...aiPreferences,
         bedrooms: formData.bedrooms,
@@ -242,6 +247,39 @@ export default function ProgramAIUnified() {
                     {option}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            <div className="mt-4 grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-green-600" />
+                  Current Rental Rate
+                </Label>
+                <Input
+                  type="number"
+                  placeholder="e.g., 1800"
+                  value={formData.currentRentalRate}
+                  onChange={(e) => setFormData({ ...formData, currentRentalRate: e.target.value })}
+                  className="h-12"
+                  data-testid="input-current-rental-rate"
+                />
+                <p className="text-xs text-gray-500">What you currently pay per month</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-orange-600" />
+                  Lease Expiration Date
+                </Label>
+                <Input
+                  type="date"
+                  value={formData.leaseExpirationDate}
+                  onChange={(e) => setFormData({ ...formData, leaseExpirationDate: e.target.value })}
+                  className="h-12"
+                  data-testid="input-lease-expiration"
+                />
+                <p className="text-xs text-gray-500">When your current lease ends</p>
               </div>
             </div>
           </div>
