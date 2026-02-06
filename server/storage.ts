@@ -18,6 +18,7 @@ import {
   agentLeads,
   submarkets,
   apiKeys,
+  renterProfiles,
   type Property,
   type SavedApartment,
   type SearchHistory,
@@ -35,6 +36,7 @@ import {
   type AgentLead,
   type Submarket,
   type ApiKey,
+  type RenterProfile,
   type InsertProperty,
   type InsertSavedApartment,
   type InsertSearchHistory,
@@ -51,6 +53,7 @@ import {
   type InsertDealNote,
   type InsertAgentLead,
   type InsertApiKey,
+  type InsertRenterProfile,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -197,6 +200,10 @@ export interface IStorage {
   updateDealNote(id: string, userId: string, note: string): Promise<DealNote | undefined>;
   deleteDealNote(id: string, userId: string): Promise<void>;
   
+  // Renter Profile
+  getRenterProfile(userId: string): Promise<RenterProfile | undefined>;
+  upsertRenterProfile(data: InsertRenterProfile): Promise<RenterProfile>;
+
   // JEDI API - Market Intelligence
   getPropertiesByCity(city: string, submarket?: string): Promise<Property[]>;
   getSubmarketsByCity(city: string): Promise<Submarket[]>;
@@ -1323,6 +1330,35 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
       })
       .where(eq(apiKeys.id, keyId));
+  }
+
+  async getRenterProfile(userId: string): Promise<RenterProfile | undefined> {
+    const result = await db
+      .select()
+      .from(renterProfiles)
+      .where(eq(renterProfiles.userId, userId))
+      .limit(1);
+
+    return result[0];
+  }
+
+  async upsertRenterProfile(data: InsertRenterProfile): Promise<RenterProfile> {
+    const existing = await this.getRenterProfile(data.userId);
+    
+    if (existing) {
+      const [updated] = await db
+        .update(renterProfiles)
+        .set({ ...data, updatedAt: new Date() })
+        .where(eq(renterProfiles.userId, data.userId))
+        .returning();
+      return updated;
+    }
+    
+    const [created] = await db
+      .insert(renterProfiles)
+      .values(data)
+      .returning();
+    return created;
   }
 }
 

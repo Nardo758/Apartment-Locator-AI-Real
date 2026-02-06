@@ -11,6 +11,7 @@ import {
   insertUserPoiSchema,
   insertCompetitionSetSchema,
   insertCompetitionSetCompetitorSchema,
+  insertRenterProfileSchema,
   users,
   propertyUnlocks,
 } from "@shared/schema";
@@ -444,6 +445,46 @@ export async function registerRoutes(app: Express): Promise<void> {
     } catch (error) {
       console.error("Error deleting POI:", error);
       res.status(500).json({ error: "Failed to delete POI" });
+    }
+  });
+
+  // ============================================
+  // RENTER PROFILE ENDPOINTS
+  // ============================================
+
+  app.get("/api/renter-profile", authMiddleware, async (req, res) => {
+    try {
+      const profile = await storage.getRenterProfile(req.user!.id);
+      if (!profile) {
+        return res.json(null);
+      }
+      res.json(profile);
+    } catch (error) {
+      console.error("Error fetching renter profile:", error);
+      res.status(500).json({ error: "Failed to fetch renter profile" });
+    }
+  });
+
+  app.post("/api/renter-profile", authMiddleware, async (req, res) => {
+    try {
+      const profileData = {
+        ...req.body,
+        userId: req.user!.id,
+      };
+
+      const parseResult = insertRenterProfileSchema.safeParse(profileData);
+      if (!parseResult.success) {
+        return res.status(400).json({
+          error: "Invalid profile data",
+          details: parseResult.error.errors,
+        });
+      }
+
+      const profile = await storage.upsertRenterProfile(parseResult.data);
+      res.json(profile);
+    } catch (error) {
+      console.error("Error saving renter profile:", error);
+      res.status(500).json({ error: "Failed to save renter profile" });
     }
   });
 

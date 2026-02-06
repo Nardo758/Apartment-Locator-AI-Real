@@ -137,6 +137,9 @@ export const userPois = pgTable("user_pois", {
   longitude: decimal("longitude", { precision: 11, scale: 8 }).notNull(),
   notes: text("notes"),
   priority: integer("priority"),
+  priorityLevel: varchar("priority_level", { length: 20 }).default("medium"),
+  transportMode: varchar("transport_mode", { length: 20 }).default("driving"),
+  maxCommuteTime: integer("max_commute_time"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -529,6 +532,33 @@ export const agentLeads = pgTable("agent_leads", {
   lostReason: varchar("lost_reason", { length: 255 }),
 });
 
+export const renterProfiles = pgTable("renter_profiles", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+  currentRent: integer("current_rent"),
+  leaseExpirationDate: timestamp("lease_expiration_date"),
+  budget: integer("budget"),
+  moveInDate: timestamp("move_in_date"),
+  preferredLocation: varchar("preferred_location", { length: 255 }),
+  preferredZipCode: varchar("preferred_zip_code", { length: 20 }),
+  commuteDaysPerWeek: integer("commute_days_per_week").default(5),
+  commuteMode: varchar("commute_mode", { length: 20 }).default("driving"),
+  vehicleMpg: integer("vehicle_mpg").default(28),
+  gasPrice: decimal("gas_price", { precision: 5, scale: 2 }),
+  transitPass: integer("transit_pass").default(0),
+  timeValuePerHour: integer("time_value_per_hour"),
+  preferredBedrooms: varchar("preferred_bedrooms", { length: 20 }),
+  preferredBathrooms: varchar("preferred_bathrooms", { length: 20 }),
+  requiredAmenities: json("required_amenities").$type<string[]>().default([]),
+  dealBreakers: json("deal_breakers").$type<string[]>().default([]),
+  lifestylePriorities: json("lifestyle_priorities").$type<string[]>().default([]),
+  setupProgress: integer("setup_progress").default(0),
+  completedSteps: json("completed_steps").$type<number[]>().default([]),
+  hasCompletedSetup: boolean("has_completed_setup").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const propertyUnlocks = pgTable("property_unlocks", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -560,6 +590,7 @@ export const insertDealNoteSchema = createInsertSchema(dealNotes).omit({ id: tru
 export const insertAgentLeadSchema = createInsertSchema(agentLeads).omit({ id: true, createdAt: true, updatedAt: true, lostAt: true, convertedToClientAt: true });
 export const insertSubmarketSchema = createInsertSchema(submarkets).omit({ id: true, createdAt: true, lastUpdated: true });
 export const insertApiKeySchema = createInsertSchema(apiKeys).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertRenterProfileSchema = createInsertSchema(renterProfiles).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPropertyUnlockSchema = createInsertSchema(propertyUnlocks).omit({ id: true, createdAt: true });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -584,6 +615,7 @@ export type InsertDealNote = z.infer<typeof insertDealNoteSchema>;
 export type InsertAgentLead = z.infer<typeof insertAgentLeadSchema>;
 export type InsertSubmarket = z.infer<typeof insertSubmarketSchema>;
 export type InsertApiKey = z.infer<typeof insertApiKeySchema>;
+export type InsertRenterProfile = z.infer<typeof insertRenterProfileSchema>;
 export type InsertPropertyUnlock = z.infer<typeof insertPropertyUnlockSchema>;
 
 export type User = typeof users.$inferSelect;
@@ -608,6 +640,7 @@ export type DealNote = typeof dealNotes.$inferSelect;
 export type AgentLead = typeof agentLeads.$inferSelect;
 export type Submarket = typeof submarkets.$inferSelect;
 export type ApiKey = typeof apiKeys.$inferSelect;
+export type RenterProfile = typeof renterProfiles.$inferSelect;
 export type PropertyUnlock = typeof propertyUnlocks.$inferSelect;
 
 // =====================================================
@@ -622,6 +655,10 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   preferences: one(userPreferences, {
     fields: [users.id],
     references: [userPreferences.userId],
+  }),
+  renterProfile: one(renterProfiles, {
+    fields: [users.id],
+    references: [renterProfiles.userId],
   }),
   pois: many(userPois),
   subscriptions: many(subscriptions),
@@ -804,6 +841,14 @@ export const agentLeadsRelations = relations(agentLeads, ({ one }) => ({
   convertedClient: one(agentClients, {
     fields: [agentLeads.convertedClientId],
     references: [agentClients.id],
+  }),
+}));
+
+// Renter Profile Relations
+export const renterProfilesRelations = relations(renterProfiles, ({ one }) => ({
+  user: one(users, {
+    fields: [renterProfiles.userId],
+    references: [users.id],
   }),
 }));
 

@@ -111,13 +111,30 @@ An AI-powered apartment locator application that helps users find apartments, an
 ```
 
 ### Database Schema
-- **users**: User accounts with email, password hash, subscription tier/status
-- **properties**: Property listings with details, amenities, pricing
+- **users**: User accounts with email, password hash, subscription tier/status, user type (renter/landlord/agent)
+- **renter_profiles**: Renter-specific onboarding data (current rent, lease expiry, budget, commute preferences, setup progress)
+- **properties**: Property listings with details, amenities, pricing, landlord/retention fields
 - **saved_apartments**: User-saved properties with notes and ratings
 - **search_history**: User search parameter history
 - **user_preferences**: User notification and filter preferences
 - **market_snapshots**: Market analytics and trends by city
-- **user_pois**: User points of interest (custom locations)
+- **user_pois**: User points of interest with priority level, transport mode, max commute time
+- **submarkets**: Submarket boundaries, rent stats, opportunity scores
+- **purchases**: One-time property unlock purchases (Stripe integration)
+- **subscriptions**: User subscription plans (Stripe integration)
+- **invoices**: Billing invoices linked to subscriptions
+- **property_unlocks**: Per-property unlock records for freemium gating
+- **lease_verifications**: Lease verification submissions for savings validation
+- **competition_sets**: Landlord competition set groupings
+- **competition_set_competitors**: Competitor properties within sets
+- **pricing_alerts**: Price change, concession, vacancy risk alerts
+- **alert_preferences**: User notification delivery preferences
+- **agent_clients**: Agent CRM client records
+- **client_activity**: Agent-client interaction history
+- **deals**: Agent deal pipeline tracking
+- **deal_notes**: Notes on deals
+- **agent_leads**: Agent lead management with scoring
+- **api_keys**: JEDI RE B2B API key management
 
 ### API Endpoints
 **Authentication**
@@ -141,6 +158,10 @@ An AI-powered apartment locator application that helps users find apartments, an
 - `GET /api/pois/:userId` - Get user POIs
 - `POST /api/pois` - Create POI
 - `DELETE /api/pois/:userId/:poiId` - Delete POI
+
+**Renter Profile**
+- `GET /api/renter-profile` - Get current user's renter profile (requires auth)
+- `POST /api/renter-profile` - Create/update renter profile (requires auth)
 
 **Market Data**
 - `GET /api/market-snapshots/:city/:state` - Get market data
