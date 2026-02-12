@@ -1,7 +1,12 @@
 import type { Express, Request, Response } from "express";
+import Stripe from "stripe";
 import { db } from "../db";
-import { leaseVerifications } from "@shared/schema";
+import { leaseVerifications, purchases } from "@shared/schema";
 import { eq } from "drizzle-orm";
+
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-12-18" })
+  : null;
 
 export function registerLeaseVerificationRoutes(app: Express): void {
   // Submit lease for verification
@@ -21,11 +26,17 @@ export function registerLeaseVerificationRoutes(app: Express): void {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
+      // Validate finalRent is a valid positive number
+      const parsedRent = parseInt(finalRent, 10);
+      if (isNaN(parsedRent) || parsedRent <= 0 || parsedRent > 100000) {
+        return res.status(400).json({ error: "Invalid rent amount" });
+      }
+
       // Create verification record
       const [verification] = await db.insert(leaseVerifications).values({
         purchaseId,
         propertyName,
-        finalRent: parseInt(finalRent),
+        finalRent: parsedRent,
         leaseSignedDate: new Date(leaseSignedDate),
         moveInDate: new Date(moveInDate),
         leaseFileUrl,
@@ -41,10 +52,7 @@ export function registerLeaseVerificationRoutes(app: Express): void {
       });
     } catch (error: any) {
       console.error("Submit lease error:", error);
-      res.status(500).json({
-        error: "Failed to submit lease",
-        details: error.message
-      });
+      res.status(500).json({ error: "Failed to submit lease" });
     }
   });
 
@@ -53,6 +61,10 @@ export function registerLeaseVerificationRoutes(app: Express): void {
     try {
       const { verificationId } = req.params;
       const { originalAskingRent, predictedRent } = req.body;
+
+      if (!originalAskingRent || typeof originalAskingRent !== "number" || originalAskingRent <= 0) {
+        return res.status(400).json({ error: "originalAskingRent is required and must be a positive number" });
+      }
 
       // Get verification record
       const [verification] = await db.select()
@@ -117,10 +129,7 @@ export function registerLeaseVerificationRoutes(app: Express): void {
       });
     } catch (error: any) {
       console.error("Verify lease error:", error);
-      res.status(500).json({
-        error: "Failed to verify lease",
-        details: error.message
-      });
+      res.status(500).json({ error: "Failed to verify lease" });
     }
   });
 
@@ -142,16 +151,34 @@ export function registerLeaseVerificationRoutes(app: Express): void {
         return res.status(400).json({ error: "Lease not yet verified" });
       }
 
-      // TODO: Process refund via Stripe
-      // const refund = await stripe.refunds.create({
-      //   payment_intent: verification.purchaseId,
-      //   amount: verification.refundAmount * 100, // cents
-      //   reason: "requested_by_customer",
-      //   metadata: {
-      //     verification_id: verificationId,
-      //     savings_verified: verification.actualSavings
-      //   }
-      // });
+      if (!stripe) {
+        return res.status(503).json({ error: "Stripe not configured" });
+      }
+
+      if (!verification.refundAmount || verification.refundAmount <= 0) {
+        return res.status(400).json({ error: "No refund amount eligible" });
+      }
+
+      // Look up the original purchase to get the payment intent
+      const [purchase] = await db.select()
+        .from(purchases)
+        .where(eq(purchases.id, verification.purchaseId));
+
+      if (!purchase || !purchase.stripePaymentIntentId) {
+        return res.status(400).json({ error: "Original payment not found for refund" });
+      }
+
+      // Process refund via Stripe
+      const refund = await stripe.refunds.create({
+        payment_intent: purchase.stripePaymentIntentId,
+        amount: verification.refundAmount * 100, // Convert dollars to cents
+        reason: "requested_by_customer",
+        metadata: {
+          verification_id: verificationId,
+          savings_verified: String(verification.actualSavings ?? 0),
+          refund_tier: verification.refundTier ?? "none",
+        },
+      });
 
       // Update verification record
       await db.update(leaseVerifications)
@@ -164,14 +191,12 @@ export function registerLeaseVerificationRoutes(app: Express): void {
       res.json({
         success: true,
         message: `Refund of $${verification.refundAmount} processed successfully`,
-        refundAmount: verification.refundAmount
+        refundAmount: verification.refundAmount,
+        stripeRefundId: refund.id,
       });
     } catch (error: any) {
       console.error("Process refund error:", error);
-      res.status(500).json({
-        error: "Failed to process refund",
-        details: error.message
-      });
+      res.status(500).json({ error: "Failed to process refund" });
     }
   });
 
@@ -197,10 +222,7 @@ export function registerLeaseVerificationRoutes(app: Express): void {
       });
     } catch (error: any) {
       console.error("Get verification status error:", error);
-      res.status(500).json({
-        error: "Failed to get verification status",
-        details: error.message
-      });
+      res.status(500).json({ error: "Failed to get verification status" });
     }
   });
 
@@ -231,10 +253,7 @@ export function registerLeaseVerificationRoutes(app: Express): void {
       });
     } catch (error: any) {
       console.error("Get demand forecast error:", error);
-      res.status(500).json({
-        error: "Failed to get demand forecast",
-        details: error.message
-      });
+      res.status(500).json({ error: "Failed to get demand forecast" });
     }
   });
 }

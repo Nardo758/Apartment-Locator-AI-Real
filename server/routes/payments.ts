@@ -5,9 +5,19 @@ import { purchases, subscriptions, invoices, users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import express from "express";
 
-const stripe = process.env.STRIPE_SECRET_KEY 
+const isProduction = process.env.NODE_ENV === "production";
+
+const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-12-18" })
   : null;
+
+function getFrontendUrl(): string {
+  if (process.env.FRONTEND_URL) return process.env.FRONTEND_URL;
+  if (isProduction) {
+    throw new Error("FRONTEND_URL must be set in production");
+  }
+  return "http://localhost:5000";
+}
 
 // Stripe Price IDs - These should be set in environment variables for production
 const PRICE_IDS = {
@@ -81,8 +91,8 @@ export function registerPaymentRoutes(app: Express): void {
           },
           quantity: 1,
         }],
-        success_url: `${process.env.FRONTEND_URL || 'http://localhost:5000'}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5000'}/pricing?canceled=true`,
+        success_url: `${getFrontendUrl()}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${getFrontendUrl()}/pricing?canceled=true`,
         metadata: {
           userId: userId || '',
           email,
@@ -98,10 +108,7 @@ export function registerPaymentRoutes(app: Express): void {
       });
     } catch (error: any) {
       console.error("Create renter checkout error:", error);
-      res.status(500).json({ 
-        error: "Failed to create checkout session",
-        details: error.message 
-      });
+      res.status(500).json({ error: "Failed to create checkout session" });
     }
   });
 
@@ -155,8 +162,8 @@ export function registerPaymentRoutes(app: Express): void {
           price: priceId,
           quantity: 1,
         }],
-        success_url: `${process.env.FRONTEND_URL || 'http://localhost:5000'}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5000'}/pricing?canceled=true`,
+        success_url: `${getFrontendUrl()}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${getFrontendUrl()}/pricing?canceled=true`,
         subscription_data: {
           trial_period_days: planType.startsWith('landlord') ? 14 : 7, // 14 days for landlords, 7 for agents
           metadata: {
@@ -180,10 +187,7 @@ export function registerPaymentRoutes(app: Express): void {
       });
     } catch (error: any) {
       console.error("Create subscription checkout error:", error);
-      res.status(500).json({ 
-        error: "Failed to create subscription checkout",
-        details: error.message 
-      });
+      res.status(500).json({ error: "Failed to create subscription checkout" });
     }
   });
 
@@ -228,10 +232,7 @@ export function registerPaymentRoutes(app: Express): void {
       });
     } catch (error: any) {
       console.error("Cancel subscription error:", error);
-      res.status(500).json({ 
-        error: "Failed to cancel subscription",
-        details: error.message 
-      });
+      res.status(500).json({ error: "Failed to cancel subscription" });
     }
   });
 
@@ -265,10 +266,7 @@ export function registerPaymentRoutes(app: Express): void {
       });
     } catch (error: any) {
       console.error("Get subscription status error:", error);
-      res.status(500).json({ 
-        error: "Failed to get subscription status",
-        details: error.message 
-      });
+      res.status(500).json({ error: "Failed to get subscription status" });
     }
   });
 
@@ -307,10 +305,7 @@ export function registerPaymentRoutes(app: Express): void {
       });
     } catch (error: any) {
       console.error("Check payment status error:", error);
-      res.status(500).json({ 
-        error: "Failed to check payment status",
-        details: error.message 
-      });
+      res.status(500).json({ error: "Failed to check payment status" });
     }
   });
 
@@ -582,10 +577,7 @@ export function registerPaymentRoutes(app: Express): void {
         res.json({ received: true });
       } catch (error: any) {
         console.error("[Webhook] Error processing webhook:", error);
-        res.status(500).json({ 
-          error: "Webhook processing failed",
-          details: error.message 
-        });
+        res.status(500).json({ error: "Webhook processing failed" });
       }
     }
   );

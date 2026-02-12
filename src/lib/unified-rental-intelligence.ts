@@ -50,12 +50,10 @@ export class UnifiedRentalIntelligenceEngine {
 
     // Check cache first
     if (this.isCacheValid(cacheKey)) {
-      console.log('Using cached unified intelligence');
       return this.cache.get(cacheKey)!;
     }
 
     try {
-      console.log(`Generating complete rental intelligence for ${location}`);
 
       // Fetch market data
       const marketData = await this.getMarketDataWithFallback(location);
@@ -97,7 +95,6 @@ export class UnifiedRentalIntelligenceEngine {
       this.cache.set(cacheKey, intelligence);
       this.cacheExpiry.set(cacheKey, new Date(Date.now() + 2 * 60 * 60 * 1000)); // 2 hour cache
 
-      console.log(`✅ Complete intelligence generated for ${location}`);
       return intelligence;
 
     } catch (error) {

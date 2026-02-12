@@ -19,10 +19,8 @@ export const useUnifiedRentalIntelligence = (
     setError(null);
 
     try {
-      console.log(`🧠 Generating unified intelligence for ${location}`);
       const result = await engine.getCompleteRentalIntelligence(location, currentRent, propertyValue);
       setIntelligence(result);
-      console.log(`✅ Intelligence complete: ${result.combinedInsights.length} insights, ${result.overallLeverageScore}/100 leverage`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Intelligence generation failed';
       console.error('Unified intelligence error:', errorMessage);
