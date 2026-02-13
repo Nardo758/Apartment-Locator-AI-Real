@@ -225,21 +225,13 @@ export default function SavedAndOffers() {
       {/* Page Header */}
       <div className="bg-white border-b border-gray-200 shadow-sm pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text mb-2">
-                My Apartments
-              </h1>
-              <p className="text-gray-600">
-                Track your favorite properties and negotiation progress
-              </p>
-            </div>
-            {activeTab === 'saved' && selectedProperties.length > 0 && (
-              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600">
-                Compare Selected ({selectedProperties.length})
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            )}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text mb-2">
+              My Apartments
+            </h1>
+            <p className="text-gray-600">
+              Track your favorite properties and negotiation progress
+            </p>
           </div>
 
           {/* Tabs */}
@@ -275,7 +267,7 @@ export default function SavedAndOffers() {
         {activeTab === 'saved' && (
           <div>
             {/* Controls */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between gap-3 flex-wrap mb-6">
               <div className="flex items-center gap-3">
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
@@ -293,6 +285,12 @@ export default function SavedAndOffers() {
                 </Button>
               </div>
               <div className="flex items-center gap-3">
+                {selectedProperties.length > 0 && (
+                  <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600">
+                    Compare Selected ({selectedProperties.length})
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                )}
                 <Button variant="outline" size="sm">
                   <Download className="w-4 h-4 mr-2" />
                   Export
