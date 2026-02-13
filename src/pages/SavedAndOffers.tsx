@@ -223,7 +223,7 @@ export default function SavedAndOffers() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pb-20">
       <Header onSignOut={handleSignOut} />
       {/* Page Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm pt-16">
+      <div className="bg-white border-b border-gray-200 shadow-sm pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
             <div>
