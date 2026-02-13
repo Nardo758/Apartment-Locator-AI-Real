@@ -1,0 +1,27 @@
+Review my codebase for production readiness. The following changes were recently made and need to be verified working correctly:
+
+1. **Server (server/index.ts)**: Added CORS middleware (cors package), express-rate-limit on /api/auth/ (20 req/15min), /api/payments/ (10 req/15min), and /api/ (100 req/min). Added environment variable validation at startup for DATABASE_URL and JWT_SECRET, with warnings for STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, and FRONTEND_URL in production. Port is now configurable via process.env.PORT with fallback to 5000.
+
+2. **API Security (server/routes/payments.ts, server/routes/lease-verification.ts)**: Removed all `details: error.message` from error responses to prevent internal info leakage. Stripe redirect URLs now use a getFrontendUrl() helper that throws in production if FRONTEND_URL is not set.
+
+3. **Stripe Refund (server/routes/lease-verification.ts)**: Implemented actual Stripe refund processing - looks up the original purchase's stripePaymentIntentId and calls stripe.refunds.create(). Added input validation for rent amounts (parseInt with range 1-100000).
+
+4. **Auth in API Requests (src/lib/queryClient.ts)**: All apiRequest() and getQueryFn() calls now include Bearer JWT token from localStorage via getAuthHeaders(). 401 responses trigger automatic redirect to /auth page.
+
+5. **Code Splitting (src/App.tsx, vite.config.ts)**: 30+ pages use React.lazy() with Suspense fallback. Vite config has manualChunks for vendor-react, vendor-ui, vendor-charts, vendor-query. Main bundle reduced from 1,453 kB to 293 kB.
+
+6. **Error Safety (src/contexts/OnboardingFlowContext.tsx)**: All JSON.parse and parseInt calls from localStorage wrapped in try-catch to prevent crashes from corrupted data.
+
+7. **New dependencies**: cors, express-rate-limit, @types/cors
+
+8. **.env.example** created with all required environment variables documented. .env added to .gitignore.
+
+Please verify:
+- The app builds successfully (npm run build)
+- No TypeScript errors
+- All routes still render correctly
+- Auth flow works (login, protected routes, token handling)
+- Stripe payment and subscription flows still work
+- Rate limiting doesn't block normal usage
+- CORS allows the frontend to communicate with the backend
+- Lazy-loaded pages show the loading spinner then render properly
