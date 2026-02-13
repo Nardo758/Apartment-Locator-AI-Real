@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
@@ -16,36 +16,59 @@ import {
   XCircle,
   Clock,
   TrendingUp,
-  DollarSign,
   Home,
   MapPin,
   Calendar,
   Star,
-  ArrowRight
+  ArrowRight,
+  Loader2,
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useUser } from '@/hooks/useUser';
 
 type Tab = 'saved' | 'offers';
 type ViewMode = 'grid' | 'list';
 
-interface SavedProperty {
+interface SavedApartment {
   id: string;
-  name: string;
-  address: string;
-  city: string;
-  state: string;
-  rent: number;
-  trueCost: number;
-  smartScore: number;
-  bedrooms: number;
-  bathrooms: number;
-  image: string;
-  savedDate: string;
-  notes?: string;
+  userId: string;
+  apartmentId: string;
+  notes: string | null;
+  rating: number | null;
+  createdAt: string;
+}
+
+interface Property {
+  id: string;
+  name: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  bedroomsMin: number | null;
+  bedroomsMax: number | null;
+  bathroomsMin: number | null;
+  bathroomsMax: number | null;
+  images: string[] | null;
+  amenities: string[] | null;
+  squareFeetMin: number | null;
+  squareFeetMax: number | null;
+  sentimentScore: number | null;
+}
+
+interface SavedPropertyWithDetails {
+  saved: SavedApartment;
+  property: Property | null;
 }
 
 interface Offer {
   id: string;
   propertyName: string;
+  propertyId?: string;
   address: string;
   city: string;
   state: string;
@@ -59,133 +82,138 @@ interface Offer {
   nextStep?: string;
 }
 
-// Mock data
-const mockSavedProperties: SavedProperty[] = [
-  {
-    id: '1',
-    name: 'ARIUM Downtown',
-    address: '1234 Main St, Unit 205',
-    city: 'Austin',
-    state: 'TX',
-    rent: 2200,
-    trueCost: 2387,
-    smartScore: 92,
-    bedrooms: 2,
-    bathrooms: 2,
-    image: 'https://via.placeholder.com/400x300',
-    savedDate: '2026-02-03',
-    notes: 'Love the location, close to work'
-  },
-  {
-    id: '2',
-    name: 'The Domain',
-    address: '5678 Oak Ave, Unit 8B',
-    city: 'Austin',
-    state: 'TX',
-    rent: 2400,
-    trueCost: 2450,
-    smartScore: 88,
-    bedrooms: 2,
-    bathrooms: 2,
-    image: 'https://via.placeholder.com/400x300',
-    savedDate: '2026-02-02',
-    notes: 'Great amenities'
-  },
-  {
-    id: '3',
-    name: 'Mueller District',
-    address: '999 Congress Ave, Apt 12',
-    city: 'Austin',
-    state: 'TX',
-    rent: 1900,
-    trueCost: 2045,
-    smartScore: 85,
-    bedrooms: 1,
-    bathrooms: 1,
-    image: 'https://via.placeholder.com/400x300',
-    savedDate: '2026-02-01'
-  }
-];
+// Offers stored locally until backend endpoint is built
+const OFFERS_STORAGE_KEY = 'renter_offers';
 
-const mockOffers: Offer[] = [
-  {
-    id: '1',
-    propertyName: 'ARIUM Downtown',
-    address: '1234 Main St, Unit 205',
-    city: 'Austin',
-    state: 'TX',
-    askingRent: 2200,
-    offerAmount: 2100,
-    status: 'pending',
-    sentDate: '2026-02-03',
-    nextStep: 'Follow up in 3 days (Feb 6)'
-  },
-  {
-    id: '2',
-    propertyName: 'The Domain',
-    address: '5678 Oak Ave, Unit 8B',
-    city: 'Austin',
-    state: 'TX',
-    askingRent: 2400,
-    offerAmount: 2300,
-    status: 'accepted',
-    sentDate: '2026-02-01',
-    responseDate: '2026-02-02',
-    landlordResponse: 'Accepted! Move-in March 1.',
-    nextStep: 'Sign lease by Feb 15'
-  },
-  {
-    id: '3',
-    propertyName: 'Riverside Towers',
-    address: '2468 River Rd, #305',
-    city: 'Austin',
-    state: 'TX',
-    askingRent: 2000,
-    offerAmount: 1900,
-    status: 'declined',
-    sentDate: '2026-01-30',
-    responseDate: '2026-01-31',
-    landlordResponse: 'Already rented to another tenant'
-  },
-  {
-    id: '4',
-    propertyName: 'Downtown Lofts',
-    address: '7890 Market St, Unit 402',
-    city: 'Austin',
-    state: 'TX',
-    askingRent: 2500,
-    offerAmount: 2350,
-    status: 'countered',
-    sentDate: '2026-02-02',
-    responseDate: '2026-02-03',
-    counterOffer: 2425,
-    landlordResponse: 'Can do $2,425/mo with 1 month free',
-    nextStep: 'Respond to counter offer'
+function loadOffers(): Offer[] {
+  try {
+    const saved = localStorage.getItem(OFFERS_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
   }
-];
+}
+
+function persistOffers(offers: Offer[]) {
+  localStorage.setItem(OFFERS_STORAGE_KEY, JSON.stringify(offers));
+}
 
 export default function SavedAndOffers() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { user, logout } = useUser();
   const [activeTab, setActiveTab] = useState<Tab>('saved');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [savedProperties] = useState(mockSavedProperties);
-  const [offers] = useState(mockOffers);
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
+  const [offers, setOffers] = useState<Offer[]>(loadOffers);
+
+  // Persist offers to localStorage when they change
+  useEffect(() => {
+    persistOffers(offers);
+  }, [offers]);
+
+  // Fetch saved apartments from API
+  const { data: savedApartments = [], isLoading: loadingSaved, error: savedError, refetch: refetchSaved } = useQuery<SavedApartment[]>({
+    queryKey: [`/api/saved-apartments/${user?.id}`],
+    enabled: !!user?.id,
+  });
+
+  // Fetch property details for each saved apartment
+  const { data: propertyDetails = {} } = useQuery<Record<string, Property>>({
+    queryKey: ['property-details', savedApartments.map(s => s.apartmentId)],
+    enabled: savedApartments.length > 0,
+    queryFn: async () => {
+      const details: Record<string, Property> = {};
+      const token = localStorage.getItem('auth_token') || '';
+      await Promise.all(
+        savedApartments.map(async (saved) => {
+          try {
+            const res = await fetch(`/api/properties/${saved.apartmentId}`, {
+              headers: { 'Authorization': `Bearer ${token}` },
+            });
+            if (res.ok) {
+              details[saved.apartmentId] = await res.json();
+            }
+          } catch {
+            // Property may have been deleted
+          }
+        })
+      );
+      return details;
+    },
+  });
+
+  // Combine saved apartments with property details
+  const savedWithDetails: SavedPropertyWithDetails[] = savedApartments.map(saved => ({
+    saved,
+    property: propertyDetails[saved.apartmentId] || null,
+  }));
+
+  // Remove saved apartment mutation
+  const removeMutation = useMutation({
+    mutationFn: async (apartmentId: string) => {
+      await apiRequest('DELETE', `/api/saved-apartments/${user?.id}/${apartmentId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/saved-apartments/${user?.id}`] });
+    },
+  });
 
   const handleSignOut = () => {
-    // Clear any auth tokens/session data
-    localStorage.removeItem('auth_token');
-    sessionStorage.clear();
-    // Redirect to landing page
+    logout();
     navigate('/');
   };
 
   const handleSelectProperty = (id: string) => {
-    if (selectedProperties.includes(id)) {
-      setSelectedProperties(selectedProperties.filter(p => p !== id));
-    } else {
-      setSelectedProperties([...selectedProperties, id]);
-    }
+    setSelectedProperties(prev =>
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    );
+  };
+
+  const handleRemoveSaved = (apartmentId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    removeMutation.mutate(apartmentId);
+  };
+
+  const handleViewDetails = (propertyId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/property/${propertyId}`);
+  };
+
+  const handleMakeOffer = (propertyId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/generate-offer?propertyId=${propertyId}`);
+  };
+
+  const handleExport = useCallback(() => {
+    if (savedWithDetails.length === 0) return;
+    const rows = savedWithDetails.map(({ saved, property }) => ({
+      name: property?.name || 'Unknown',
+      address: property?.address || '',
+      city: property?.city || '',
+      state: property?.state || '',
+      rent: property?.minPrice || '',
+      bedrooms: property?.bedroomsMin || '',
+      bathrooms: property?.bathroomsMin || '',
+      notes: saved.notes || '',
+      savedDate: new Date(saved.createdAt).toLocaleDateString(),
+    }));
+    const headers = Object.keys(rows[0]);
+    const csv = [
+      headers.join(','),
+      ...rows.map(row => headers.map(h => `"${row[h as keyof typeof row] ?? ''}"`).join(','))
+    ].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'saved-apartments.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [savedWithDetails]);
+
+  const handleRemoveOffer = (offerId: string) => {
+    setOffers(prev => prev.filter(o => o.id !== offerId));
   };
 
   const statusConfig = {
@@ -219,6 +247,18 @@ export default function SavedAndOffers() {
     }
   };
 
+  const getPropertyImage = (property: Property | null): string => {
+    if (property?.images && property.images.length > 0) {
+      return property.images[0];
+    }
+    return '';
+  };
+
+  const getSmartScore = (property: Property | null): number => {
+    if (property?.sentimentScore) return Math.round(property.sentimentScore * 100);
+    return 0;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pb-20">
       <Header onSignOut={handleSignOut} />
@@ -234,12 +274,19 @@ export default function SavedAndOffers() {
                 Track your favorite properties and negotiation progress
               </p>
             </div>
-            {activeTab === 'saved' && selectedProperties.length > 0 && (
-              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600">
-                Compare Selected ({selectedProperties.length})
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            )}
+            <div className="flex items-center gap-3">
+              {activeTab === 'saved' && selectedProperties.length > 0 && (
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600">
+                  Compare Selected ({selectedProperties.length})
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              )}
+              {activeTab === 'saved' && (
+                <Button variant="outline" size="sm" onClick={() => refetchSaved()}>
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Tabs */}
@@ -253,7 +300,7 @@ export default function SavedAndOffers() {
               }`}
             >
               <Heart className="w-4 h-4 inline mr-2" />
-              Saved Properties ({savedProperties.length})
+              Saved Properties ({savedApartments.length})
             </button>
             <button
               onClick={() => setActiveTab('offers')}
@@ -293,114 +340,187 @@ export default function SavedAndOffers() {
                 </Button>
               </div>
               <div className="flex items-center gap-3">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={handleExport} disabled={savedWithDetails.length === 0}>
                   <Download className="w-4 h-4 mr-2" />
-                  Export
+                  Export CSV
                 </Button>
               </div>
             </div>
 
-            {/* Property Grid */}
-            {savedProperties.length === 0 ? (
+            {/* Loading State */}
+            {loadingSaved && (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+                <span className="ml-3 text-gray-600">Loading saved properties...</span>
+              </div>
+            )}
+
+            {/* Error State */}
+            {savedError && (
+              <Card className="p-8 text-center bg-white shadow-2xl">
+                <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                  Failed to load saved properties
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  {savedError instanceof Error ? savedError.message : 'Please try again'}
+                </p>
+                <Button onClick={() => refetchSaved()}>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Retry
+                </Button>
+              </Card>
+            )}
+
+            {/* Empty State */}
+            {!loadingSaved && !savedError && savedWithDetails.length === 0 && (
               <Card className="p-12 text-center bg-white shadow-2xl">
                 <Heart className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">
                   No saved properties yet
                 </h3>
                 <p className="text-gray-500 mb-4">
-                  Start saving properties you're interested in
+                  Browse apartments and save the ones you like to compare them here
                 </p>
-                <Button>Browse Properties</Button>
+                <Button onClick={() => navigate('/dashboard')}>Browse Properties</Button>
               </Card>
-            ) : (
+            )}
+
+            {/* Property Grid */}
+            {!loadingSaved && savedWithDetails.length > 0 && (
               <div className={viewMode === 'grid' ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
-                {savedProperties.map((property) => (
-                  <Card
-                    key={property.id}
-                    hover
-                    className={`overflow-hidden cursor-pointer bg-white shadow-2xl ${
-                      selectedProperties.includes(property.id) ? 'ring-2 ring-blue-500' : ''
-                    }`}
-                    onClick={() => handleSelectProperty(property.id)}
-                  >
-                    {/* Property Image */}
-                    <div className="relative h-48">
-                      <img
-                        src={property.image}
-                        alt={property.name}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute top-3 right-3">
-                        <Badge variant="primary" size="sm">
-                          <Star className="w-3 h-3 mr-1" />
-                          {property.smartScore}
-                        </Badge>
+                {savedWithDetails.map(({ saved, property }) => {
+                  const image = getPropertyImage(property);
+                  const smartScore = getSmartScore(property);
+                  const rent = property?.minPrice || 0;
+                  const name = property?.name || 'Unknown Property';
+                  const address = property?.address || 'Address unavailable';
+
+                  return (
+                    <Card
+                      key={saved.id}
+                      className={`overflow-hidden cursor-pointer bg-white shadow-lg hover:shadow-xl transition-shadow ${
+                        selectedProperties.includes(saved.apartmentId) ? 'ring-2 ring-blue-500' : ''
+                      }`}
+                      onClick={() => handleSelectProperty(saved.apartmentId)}
+                    >
+                      {/* Property Image */}
+                      <div className="relative h-48 bg-gradient-to-br from-blue-100 to-indigo-100">
+                        {image ? (
+                          <img
+                            src={image}
+                            alt={name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Home className="w-16 h-16 text-blue-300" />
+                          </div>
+                        )}
+                        {smartScore > 0 && (
+                          <div className="absolute top-3 right-3">
+                            <Badge className="bg-blue-600 text-white">
+                              <Star className="w-3 h-3 mr-1" />
+                              {smartScore}
+                            </Badge>
+                          </div>
+                        )}
+                        {selectedProperties.includes(saved.apartmentId) && (
+                          <div className="absolute top-3 left-3">
+                            <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
+                              <CheckCircle className="w-4 h-4 text-white" />
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      {selectedProperties.includes(property.id) && (
-                        <div className="absolute top-3 left-3">
-                          <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
-                            <CheckCircle className="w-4 h-4 text-white" />
+
+                      {/* Property Details */}
+                      <div className="p-5">
+                        <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">
+                          {name}
+                        </h3>
+                        <div className="flex items-center text-gray-500 text-sm mb-3">
+                          <MapPin className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
+                          <span className="truncate">{address}</span>
+                          {property?.city && (
+                            <span className="ml-1 text-gray-400">
+                              {property.city}, {property.state}
+                            </span>
+                          )}
+                        </div>
+
+                        {rent > 0 && (
+                          <div className="mb-3">
+                            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+                              ${rent.toLocaleString()}
+                            </span>
+                            <span className="text-xs text-gray-500 ml-1">/ month</span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
+                          {property?.bedroomsMin != null && (
+                            <div className="flex items-center gap-1">
+                              <Home className="w-3.5 h-3.5" />
+                              {property.bedroomsMin}bd / {property.bathroomsMin || 1}ba
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {new Date(saved.createdAt).toLocaleDateString()}
                           </div>
                         </div>
-                      )}
-                    </div>
 
-                    {/* Property Details */}
-                    <div className="p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">
-                        {property.name}
-                      </h3>
-                      <div className="flex items-center text-gray-600 text-sm mb-4">
-                        <MapPin className="w-4 h-4 mr-1" />
-                        {property.address}
-                      </div>
-
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
-                            ${property.rent}
+                        {saved.notes && (
+                          <div className="p-2.5 rounded-lg bg-blue-50 border border-blue-100 text-sm text-gray-600 mb-3">
+                            {saved.notes}
                           </div>
-                          <div className="text-xs text-gray-500">per month</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-600">TRUE COST</div>
-                          <div className="text-lg font-bold text-blue-600">
-                            ${property.trueCost}
+                        )}
+
+                        {saved.rating && (
+                          <div className="flex items-center gap-1 mb-3">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${i < (saved.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'}`}
+                              />
+                            ))}
                           </div>
+                        )}
+
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            onClick={(e) => handleViewDetails(saved.apartmentId, e)}
+                          >
+                            View Details
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="flex-1"
+                            onClick={(e) => handleMakeOffer(saved.apartmentId, e)}
+                          >
+                            Make Offer
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleRemoveSaved(saved.apartmentId, e)}
+                            disabled={removeMutation.isPending}
+                          >
+                            {removeMutation.isPending ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            )}
+                          </Button>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                        <div className="flex items-center gap-1">
-                          <Home className="w-4 h-4" />
-                          {property.bedrooms}bd / {property.bathrooms}ba
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          Saved {property.savedDate}
-                        </div>
-                      </div>
-
-                      {property.notes && (
-                        <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-sm text-gray-700 mb-4">
-                          {property.notes}
-                        </div>
-                      )}
-
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="flex-1">
-                          View Details
-                        </Button>
-                        <Button size="sm" className="flex-1">
-                          Make Offer
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -416,9 +536,9 @@ export default function SavedAndOffers() {
                   No offers made yet
                 </h3>
                 <p className="text-gray-500 mb-4">
-                  Start negotiating on properties you're interested in
+                  Save properties and generate negotiation offers to track them here
                 </p>
-                <Button>Browse Properties</Button>
+                <Button onClick={() => navigate('/dashboard')}>Browse Properties</Button>
               </Card>
             ) : (
               offers.map((offer) => {
@@ -426,7 +546,7 @@ export default function SavedAndOffers() {
                 const savings = offer.askingRent - offer.offerAmount;
 
                 return (
-                  <Card key={offer.id} className={`border-l-4 ${status.borderColor} bg-white shadow-2xl`}>
+                  <Card key={offer.id} className={`border-l-4 ${status.borderColor} bg-white shadow-lg`}>
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
@@ -435,11 +555,7 @@ export default function SavedAndOffers() {
                               {offer.propertyName}
                             </h3>
                             <Badge
-                              variant={
-                                offer.status === 'accepted' ? 'success' :
-                                offer.status === 'declined' ? 'error' :
-                                offer.status === 'countered' ? 'primary' : 'warning'
-                              }
+                              className={`${status.bgColor} ${status.color} border ${status.borderColor}`}
                             >
                               {status.icon}
                               <span className="ml-2">{status.label}</span>
@@ -450,6 +566,13 @@ export default function SavedAndOffers() {
                             {offer.address}, {offer.city}, {offer.state}
                           </div>
                         </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveOffer(offer.id)}
+                        >
+                          <Trash2 className="w-4 h-4 text-gray-400" />
+                        </Button>
                       </div>
 
                       {/* Offer Details */}
@@ -457,30 +580,30 @@ export default function SavedAndOffers() {
                         <div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
                           <div className="text-gray-600 text-sm mb-1">Asking Rent</div>
                           <div className="text-2xl font-bold text-gray-900">
-                            ${offer.askingRent}
+                            ${offer.askingRent.toLocaleString()}
                           </div>
                         </div>
                         <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
                           <div className="text-blue-600 text-sm mb-1">Your Offer</div>
                           <div className="text-2xl font-bold text-blue-600">
-                            ${offer.offerAmount}
+                            ${offer.offerAmount.toLocaleString()}
                           </div>
                         </div>
                         {offer.counterOffer && (
                           <div className="p-4 rounded-lg bg-purple-50 border border-purple-200">
                             <div className="text-purple-600 text-sm mb-1">Counter Offer</div>
                             <div className="text-2xl font-bold text-purple-600">
-                              ${offer.counterOffer}
+                              ${offer.counterOffer.toLocaleString()}
                             </div>
                           </div>
                         )}
                         <div className="p-4 rounded-lg bg-green-50 border border-green-200">
                           <div className="text-green-600 text-sm mb-1">Potential Savings</div>
                           <div className="text-2xl font-bold text-green-600">
-                            ${savings}/mo
+                            ${savings.toLocaleString()}/mo
                           </div>
                           <div className="text-xs text-green-600 mt-1">
-                            ${savings * 12}/year
+                            ${(savings * 12).toLocaleString()}/year
                           </div>
                         </div>
                       </div>
@@ -489,14 +612,14 @@ export default function SavedAndOffers() {
                       <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
-                          <span>Sent: {offer.sentDate}</span>
+                          <span>Sent: {new Date(offer.sentDate).toLocaleDateString()}</span>
                         </div>
                         {offer.responseDate && (
                           <>
-                            <span>→</span>
+                            <span className="text-gray-400">→</span>
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4" />
-                              <span>Responded: {offer.responseDate}</span>
+                              <span>Responded: {new Date(offer.responseDate).toLocaleDateString()}</span>
                             </div>
                           </>
                         )}
@@ -504,11 +627,11 @@ export default function SavedAndOffers() {
 
                       {/* Landlord Response */}
                       {offer.landlordResponse && (
-                        <div className={`p-4 rounded-lg mb-4 ${status.bgColor.replace(/\/\d+/, '/20')} border ${status.borderColor}`}>
+                        <div className={`p-4 rounded-lg mb-4 ${status.bgColor} border ${status.borderColor}`}>
                           <div className="flex items-start gap-3">
-                            <MessageSquare className={`w-5 h-5 ${status.color.replace('400', '600')} flex-shrink-0 mt-0.5`} />
+                            <MessageSquare className={`w-5 h-5 ${status.color} flex-shrink-0 mt-0.5`} />
                             <div>
-                              <div className={`font-semibold ${status.color.replace('400', '600')} mb-1`}>
+                              <div className={`font-semibold ${status.color} mb-1`}>
                                 Landlord Response:
                               </div>
                               <div className="text-gray-700">
@@ -531,40 +654,27 @@ export default function SavedAndOffers() {
                       {/* Actions */}
                       <div className="flex gap-3">
                         {offer.status === 'pending' && (
-                          <>
-                            <Button variant="outline" size="sm">
-                              <MessageSquare className="w-4 h-4 mr-2" />
-                              Message Landlord
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              Withdraw Offer
-                            </Button>
-                          </>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveOffer(offer.id)}
+                          >
+                            Withdraw Offer
+                          </Button>
                         )}
                         {offer.status === 'accepted' && (
-                          <>
-                            <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                              <FileText className="w-4 h-4 mr-2" />
-                              View Lease
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              <Download className="w-4 h-4 mr-2" />
-                              Download Docs
-                            </Button>
-                          </>
+                          <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => navigate('/verify-lease')}>
+                            <FileText className="w-4 h-4 mr-2" />
+                            Submit Lease for Verification
+                          </Button>
                         )}
-                        {offer.status === 'countered' && (
-                          <>
-                            <Button size="sm">
-                              Accept Counter (${offer.counterOffer})
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              Make New Offer
-                            </Button>
-                          </>
+                        {offer.status === 'countered' && offer.propertyId && (
+                          <Button size="sm" onClick={() => navigate(`/generate-offer?propertyId=${offer.propertyId}`)}>
+                            Make New Offer
+                          </Button>
                         )}
                         {offer.status === 'declined' && (
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => handleRemoveOffer(offer.id)}>
                             Archive
                           </Button>
                         )}
