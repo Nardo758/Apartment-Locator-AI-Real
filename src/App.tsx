@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,44 +12,55 @@ import { LocationCostProvider } from "./contexts/LocationCostContext";
 import { UnifiedAIProvider } from "./contexts/UnifiedAIContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/routing/ProtectedRoute";
-import LandingSSRSafe from "./pages/LandingSSRSafe";
-import About from "./pages/About";
-import AIFormulaNew from "./pages/AIFormulaNew";
-import PropertyDetails from "./pages/PropertyDetails";
-import GenerateOffer from "./pages/GenerateOffer";
-import MarketIntel from "./pages/MarketIntel";
-import NotFound from "./pages/NotFound";
-import AuthModern from "./pages/AuthModern";
-import ProgramAIUnified from "./pages/ProgramAIUnified";
-import UnifiedDashboard from "./pages/UnifiedDashboard";
-import Profile from "./pages/Profile";
-import Billing from "./pages/Billing";
-import Help from "./pages/Help";
-import Contact from "./pages/Contact";
-import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import Pricing from "./pages/Pricing";
-import Success from "./pages/Success";
-import OffersMade from "./pages/OffersMade";
-import DataExport from "./pages/DataExport";
-import DataManagement from "./pages/DataManagement";
-import Admin from "./pages/Admin";
-import PortfolioDashboard from "./pages/PortfolioDashboard";
-import LandlordDashboard from "./pages/LandlordDashboard";
-import LandlordPricing from "./pages/LandlordPricing";
-import LandlordOnboarding from "./pages/LandlordOnboarding";
-import LeaseVerification from "./pages/LeaseVerification";
-import SavedAndOffers from "./pages/SavedAndOffers";
-import EmailTemplates from "./pages/EmailTemplates";
-import RenewalOptimizer from "./pages/RenewalOptimizer";
-import AgentDashboard from "./pages/AgentDashboard";
-import AgentPricing from "./pages/AgentPricing";
-import AgentOnboarding from "./pages/AgentOnboarding";
-import UserTypeSelection from "./pages/UserTypeSelection";
-import LandlordSettings from "./components/landlord/LandlordSettings";
-import LandlordRetentionDashboard from "./pages/LandlordRetentionDashboard";
 import "./lib/data-tracker"; // Initialize data tracking
+
+// Eagerly loaded pages (landing, auth, common public pages)
+import LandingSSRSafe from "./pages/LandingSSRSafe";
+import AuthModern from "./pages/AuthModern";
+import NotFound from "./pages/NotFound";
+
+// Lazy loaded pages - split into separate chunks for better performance
+const About = lazy(() => import("./pages/About"));
+const AIFormulaNew = lazy(() => import("./pages/AIFormulaNew"));
+const PropertyDetails = lazy(() => import("./pages/PropertyDetails"));
+const GenerateOffer = lazy(() => import("./pages/GenerateOffer"));
+const MarketIntel = lazy(() => import("./pages/MarketIntel"));
+const ProgramAIUnified = lazy(() => import("./pages/ProgramAIUnified"));
+const UnifiedDashboard = lazy(() => import("./pages/UnifiedDashboard"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Billing = lazy(() => import("./pages/Billing"));
+const Help = lazy(() => import("./pages/Help"));
+const Contact = lazy(() => import("./pages/Contact"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Success = lazy(() => import("./pages/Success"));
+const OffersMade = lazy(() => import("./pages/OffersMade"));
+const DataExport = lazy(() => import("./pages/DataExport"));
+const DataManagement = lazy(() => import("./pages/DataManagement"));
+const Admin = lazy(() => import("./pages/Admin"));
+const PortfolioDashboard = lazy(() => import("./pages/PortfolioDashboard"));
+const LandlordDashboard = lazy(() => import("./pages/LandlordDashboard"));
+const LandlordPricing = lazy(() => import("./pages/LandlordPricing"));
+const LandlordOnboarding = lazy(() => import("./pages/LandlordOnboarding"));
+const LeaseVerification = lazy(() => import("./pages/LeaseVerification"));
+const SavedAndOffers = lazy(() => import("./pages/SavedAndOffers"));
+const EmailTemplates = lazy(() => import("./pages/EmailTemplates"));
+const RenewalOptimizer = lazy(() => import("./pages/RenewalOptimizer"));
+const AgentDashboard = lazy(() => import("./pages/AgentDashboard"));
+const AgentPricing = lazy(() => import("./pages/AgentPricing"));
+const AgentOnboarding = lazy(() => import("./pages/AgentOnboarding"));
+const UserTypeSelection = lazy(() => import("./pages/UserTypeSelection"));
+const LandlordSettings = lazy(() => import("./components/landlord/LandlordSettings"));
+const LandlordRetentionDashboard = lazy(() => import("./pages/LandlordRetentionDashboard"));
+
+// Loading fallback for lazy-loaded pages
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+);
 
 
 const App = () => (
@@ -63,6 +75,7 @@ const App = () => (
                 <Sonner />
                 <BrowserRouter>
                 <OnboardingFlowProvider>
+                <Suspense fallback={<PageLoader />}>
                   <Routes>
                     {/* Public Routes - No Authentication Required */}
                     <Route path="/" element={<LandingSSRSafe />} />
@@ -227,6 +240,7 @@ const App = () => (
                     {/* 404 Catch-all */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
+                </Suspense>
                 </OnboardingFlowProvider>
               </BrowserRouter>
             </TooltipProvider>

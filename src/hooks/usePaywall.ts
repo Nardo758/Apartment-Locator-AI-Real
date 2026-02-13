@@ -175,10 +175,6 @@ export function usePaywall() {
         });
       }
 
-      console.log('Paywall impression tracked:', {
-        triggeredBy,
-        impressionCount: paywallState.paywallImpressions + 1,
-      });
     } catch (error) {
       logUserActionError('Failed to track paywall impression', error as Error);
     }
