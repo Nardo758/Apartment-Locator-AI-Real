@@ -179,19 +179,15 @@ app.use((req, res, next) => {
   const isDev = app.get("env") === "development" && !isProduction;
   const forceVite = process.env.FORCE_VITE === "true";
 
-  if (forceVite) {
+  if (isDev || forceVite) {
     await setupVite(app, server);
   } else {
     try {
       serveStatic(app);
       log("Serving static build assets");
     } catch (error) {
-      if (isDev) {
-        log(`Static build not found, falling back to Vite: ${(error as Error).message}`);
-        await setupVite(app, server);
-      } else {
-        throw error;
-      }
+      log(`Static build not found, falling back to Vite: ${(error as Error).message}`);
+      await setupVite(app, server);
     }
   }
 
