@@ -29,9 +29,9 @@ I want iterative development. Ask before making major changes.
 - **Freemium Renter Flow**: Gated savings data. Free users see basic property info; detailed savings data (deal score, potential savings, negotiation tips) is blurred. Unlocks are available per-property ($1.99) or via time-based plans (Basic: $9.99/7d, Pro: $29.99/30d, Premium: $99.99/90d).
 
 ### Technical Implementations
-- **Backend**: Express 5.x with TypeScript, using Drizzle ORM for PostgreSQL database interactions.
-- **Frontend**: React 18 with Vite, TailwindCSS, and Shadcn/UI components.
-- **Authentication**: JWT-based authentication with bcrypt hashing. `authenticatedFetch()` auto-injects Bearer tokens and handles 401 responses by redirecting to `/auth`. Google OAuth is supported with server-side token verification.
+- **Backend**: Express 5.x with TypeScript, using Drizzle ORM for PostgreSQL database interactions. CORS configured, rate limiting on `/api/auth/` (20/15min), `/api/payments/` (10/15min), `/api/` (100/min). Environment validation at startup for DATABASE_URL and JWT_SECRET.
+- **Frontend**: React 18 with Vite, TailwindCSS, and Shadcn/UI components. All 30+ pages use React.lazy() with Suspense for code splitting.
+- **Authentication**: JWT-based authentication with bcrypt hashing. `authenticatedFetch()` auto-injects Bearer tokens and handles 401 responses by redirecting to `/auth`. `queryClient.ts` also injects Bearer tokens via `getAuthHeaders()` in both `apiRequest()` and `getQueryFn()`, with automatic 401 redirect. Google OAuth is supported with server-side token verification.
 - **User Type Flows**: Dedicated onboarding and dashboard flows for Renters, Landlords, and Agents, determined by URL parameters during signup.
 - **Location Cost Model**: Calculates "True Monthly Cost" by factoring in commute, parking, groceries, and gym expenses. This model uses `LocationCostContext` for state management and localStorage persistence.
 - **Payment Processing**: Integrated with Stripe via Replit's managed connector. It uses `stripe-replit-sync` for database synchronization of Stripe entities and manages webhooks.

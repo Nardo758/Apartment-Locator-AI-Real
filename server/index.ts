@@ -1,4 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
+import rateLimit from "express-rate-limit";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { createServer } from "http";
@@ -7,7 +9,66 @@ import { runMigrations } from 'stripe-replit-sync';
 import { getStripeSync } from "./stripeClient";
 import { WebhookHandlers } from "./webhookHandlers";
 
+const isProduction = process.env.NODE_ENV === "production";
+
+function validateEnv() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL is required but not set");
+  }
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is required but not set");
+  }
+  if (isProduction) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      log("WARNING: STRIPE_SECRET_KEY not set in production");
+    }
+    if (!process.env.STRIPE_WEBHOOK_SECRET) {
+      log("WARNING: STRIPE_WEBHOOK_SECRET not set in production");
+    }
+    if (!process.env.FRONTEND_URL) {
+      log("WARNING: FRONTEND_URL not set in production - Stripe redirects may fail");
+    }
+  }
+}
+
+validateEnv();
+
 const app = express();
+
+app.use(cors({
+  origin: isProduction
+    ? process.env.FRONTEND_URL || `https://${process.env.REPLIT_DOMAINS?.split(',')[0]}`
+    : true,
+  credentials: true,
+}));
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests, please try again later" },
+});
+
+const paymentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests, please try again later" },
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests, please try again later" },
+});
+
+app.use("/api/auth/", authLimiter);
+app.use("/api/payments/", paymentLimiter);
+app.use("/api/", apiLimiter);
 
 async function initStripe() {
   const databaseUrl = process.env.DATABASE_URL;
@@ -115,7 +176,7 @@ app.use((req, res, next) => {
 
   const server = createServer(app);
 
-  const isDev = app.get("env") === "development" && process.env.NODE_ENV !== "production";
+  const isDev = app.get("env") === "development" && !isProduction;
   const forceVite = process.env.FORCE_VITE === "true";
 
   if (forceVite) {
@@ -134,7 +195,7 @@ app.use((req, res, next) => {
     }
   }
 
-  const port = 5000;
+  const port = parseInt(process.env.PORT || "5000", 10);
   server.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
   });

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,45 +12,56 @@ import { LocationCostProvider } from "./contexts/LocationCostContext";
 import { UnifiedAIProvider } from "./contexts/UnifiedAIContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/routing/ProtectedRoute";
-import LandingSSRSafe from "./pages/LandingSSRSafe";
-import About from "./pages/About";
-import AIFormulaNew from "./pages/AIFormulaNew";
-import PropertyDetails from "./pages/PropertyDetails";
-import GenerateOffer from "./pages/GenerateOffer";
-import MarketIntel from "./pages/MarketIntel";
-import NotFound from "./pages/NotFound";
-import AuthModern from "./pages/AuthModern";
-import ProgramAIUnified from "./pages/ProgramAIUnified";
-import UnifiedDashboard from "./pages/UnifiedDashboard";
-import Profile from "./pages/Profile";
-import Billing from "./pages/Billing";
-import Help from "./pages/Help";
-import Contact from "./pages/Contact";
-import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import Pricing from "./pages/Pricing";
-import Success from "./pages/Success";
-import OffersMade from "./pages/OffersMade";
-import DataExport from "./pages/DataExport";
-import DataManagement from "./pages/DataManagement";
-import Admin from "./pages/Admin";
-import PortfolioDashboard from "./pages/PortfolioDashboard";
-import LandlordDashboard from "./pages/LandlordDashboard";
-import LandlordPricing from "./pages/LandlordPricing";
-import LandlordOnboarding from "./pages/LandlordOnboarding";
-import LeaseVerification from "./pages/LeaseVerification";
-import SavedAndOffers from "./pages/SavedAndOffers";
-import EmailTemplates from "./pages/EmailTemplates";
-import RenewalOptimizer from "./pages/RenewalOptimizer";
-import AgentDashboard from "./pages/AgentDashboard";
-import AgentPricing from "./pages/AgentPricing";
-import AgentOnboarding from "./pages/AgentOnboarding";
-import UserTypeSelection from "./pages/UserTypeSelection";
-import LandlordSettings from "./components/landlord/LandlordSettings";
-import LandlordRetentionDashboard from "./pages/LandlordRetentionDashboard";
-import "./lib/data-tracker"; // Initialize data tracking
+import "./lib/data-tracker";
 
+const LandingSSRSafe = lazy(() => import("./pages/LandingSSRSafe"));
+const About = lazy(() => import("./pages/About"));
+const AIFormulaNew = lazy(() => import("./pages/AIFormulaNew"));
+const PropertyDetails = lazy(() => import("./pages/PropertyDetails"));
+const GenerateOffer = lazy(() => import("./pages/GenerateOffer"));
+const MarketIntel = lazy(() => import("./pages/MarketIntel"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AuthModern = lazy(() => import("./pages/AuthModern"));
+const ProgramAIUnified = lazy(() => import("./pages/ProgramAIUnified"));
+const UnifiedDashboard = lazy(() => import("./pages/UnifiedDashboard"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Billing = lazy(() => import("./pages/Billing"));
+const Help = lazy(() => import("./pages/Help"));
+const Contact = lazy(() => import("./pages/Contact"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Success = lazy(() => import("./pages/Success"));
+const OffersMade = lazy(() => import("./pages/OffersMade"));
+const DataExport = lazy(() => import("./pages/DataExport"));
+const DataManagement = lazy(() => import("./pages/DataManagement"));
+const Admin = lazy(() => import("./pages/Admin"));
+const PortfolioDashboard = lazy(() => import("./pages/PortfolioDashboard"));
+const LandlordDashboard = lazy(() => import("./pages/LandlordDashboard"));
+const LandlordPricing = lazy(() => import("./pages/LandlordPricing"));
+const LandlordOnboarding = lazy(() => import("./pages/LandlordOnboarding"));
+const LeaseVerification = lazy(() => import("./pages/LeaseVerification"));
+const SavedAndOffers = lazy(() => import("./pages/SavedAndOffers"));
+const EmailTemplates = lazy(() => import("./pages/EmailTemplates"));
+const RenewalOptimizer = lazy(() => import("./pages/RenewalOptimizer"));
+const AgentDashboard = lazy(() => import("./pages/AgentDashboard"));
+const AgentPricing = lazy(() => import("./pages/AgentPricing"));
+const AgentOnboarding = lazy(() => import("./pages/AgentOnboarding"));
+const UserTypeSelection = lazy(() => import("./pages/UserTypeSelection"));
+const LandlordSettings = lazy(() => import("./components/landlord/LandlordSettings"));
+const LandlordRetentionDashboard = lazy(() => import("./pages/LandlordRetentionDashboard"));
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-screen" data-testid="display-page-loader">
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-foreground" />
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </div>
+    </div>
+  );
+}
 
 const App = () => (
   <ErrorBoundary>
@@ -63,33 +75,29 @@ const App = () => (
                 <Sonner />
                 <BrowserRouter>
                 <OnboardingFlowProvider>
+                  <Suspense fallback={<PageLoader />}>
                   <Routes>
-                    {/* Public Routes - No Authentication Required */}
                     <Route path="/" element={<LandingSSRSafe />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/pricing" element={<Pricing />} />
                     <Route path="/landlord-pricing" element={<LandlordPricing />} />
                     <Route path="/agent-pricing" element={<AgentPricing />} />
                     
-                    {/* Auth Routes */}
                     <Route path="/auth" element={<AuthModern />} />
                     <Route path="/signup" element={<AuthModern />} />
                     <Route path="/trial" element={<AuthModern />} />
                     
-                    {/* Support & Legal - Public Access */}
                     <Route path="/help" element={<Help />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/terms" element={<TermsOfService />} />
                     <Route path="/privacy" element={<PrivacyPolicy />} />
                     
-                    {/* User Type Selection - Requires Auth */}
                     <Route path="/user-type" element={
                       <ProtectedRoute requireAuth>
                         <UserTypeSelection />
                       </ProtectedRoute>
                     } />
                     
-                    {/* Renter Dashboard - Requires Account */}
                     <Route path="/dashboard" element={
                       <ProtectedRoute requireAuth>
                         <UnifiedDashboard />
@@ -116,7 +124,6 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     
-                    {/* Renter-Specific Routes */}
                     <Route path="/program-ai" element={
                       <ProtectedRoute allowedUserTypes={['renter']}>
                         <ProgramAIUnified />
@@ -163,7 +170,6 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     
-                    {/* Landlord-Specific Routes */}
                     <Route path="/landlord-onboarding" element={
                       <ProtectedRoute allowedUserTypes={['landlord']}>
                         <LandlordOnboarding />
@@ -205,7 +211,6 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     
-                    {/* Agent-Specific Routes */}
                     <Route path="/agent-onboarding" element={
                       <ProtectedRoute allowedUserTypes={['agent']}>
                         <AgentOnboarding />
@@ -217,16 +222,15 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     
-                    {/* Admin Routes */}
                     <Route path="/admin" element={
                       <ProtectedRoute allowedUserTypes={['admin']}>
                         <Admin />
                       </ProtectedRoute>
                     } />
                     
-                    {/* 404 Catch-all */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
+                  </Suspense>
                 </OnboardingFlowProvider>
               </BrowserRouter>
             </TooltipProvider>

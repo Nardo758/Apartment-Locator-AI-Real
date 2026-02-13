@@ -4,6 +4,7 @@ import { purchases, subscriptions, invoices, users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { getUncachableStripeClient } from "../stripeClient";
 import { sql } from "drizzle-orm";
+import { getFrontendUrl } from "../lib/frontend-url";
 
 const PLAN_AMOUNTS: Record<string, number> = {
   per_property: 199,
@@ -157,8 +158,8 @@ export function registerPaymentRoutes(app: Express): void {
           },
           quantity: 1,
         }],
-        success_url: `${process.env.FRONTEND_URL || 'https://' + (process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.FRONTEND_URL || 'https://' + (process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000')}/pricing?canceled=true`,
+        success_url: `${getFrontendUrl()}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${getFrontendUrl()}/pricing?canceled=true`,
         metadata: {
           userId: userId || '',
           email,
@@ -206,8 +207,8 @@ export function registerPaymentRoutes(app: Express): void {
         mode: 'subscription',
         payment_method_types: ['card'],
         line_items: [{ price: priceId, quantity: 1 }],
-        success_url: `${process.env.FRONTEND_URL || 'https://' + (process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.FRONTEND_URL || 'https://' + (process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000')}/pricing?canceled=true`,
+        success_url: `${getFrontendUrl()}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${getFrontendUrl()}/pricing?canceled=true`,
         metadata: {
           userId: userId || '',
           email,

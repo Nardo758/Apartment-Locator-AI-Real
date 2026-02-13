@@ -1,10 +1,19 @@
 import type { Express, Request, Response } from "express";
 import { db } from "../db";
-import { leaseVerifications } from "@shared/schema";
+import { leaseVerifications, purchases } from "@shared/schema";
 import { eq } from "drizzle-orm";
+import { getUncachableStripeClient } from "../stripeClient";
+import { getFrontendUrl } from "../lib/frontend-url";
+
+function parseRent(value: unknown): number | null {
+  const parsed = parseInt(String(value), 10);
+  if (isNaN(parsed) || parsed < 1 || parsed > 100000) {
+    return null;
+  }
+  return parsed;
+}
 
 export function registerLeaseVerificationRoutes(app: Express): void {
-  // Submit lease for verification
   app.post("/api/lease-verification/submit", async (req: Request, res: Response) => {
     try {
       const {
@@ -13,7 +22,7 @@ export function registerLeaseVerificationRoutes(app: Express): void {
         finalRent,
         leaseSignedDate,
         moveInDate,
-        leaseFileUrl, // S3 URL after upload
+        leaseFileUrl,
         guestEmail
       } = req.body;
 
@@ -21,11 +30,15 @@ export function registerLeaseVerificationRoutes(app: Express): void {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      // Create verification record
+      const parsedRent = parseRent(finalRent);
+      if (parsedRent === null) {
+        return res.status(400).json({ error: "Invalid rent amount. Must be between 1 and 100,000" });
+      }
+
       const [verification] = await db.insert(leaseVerifications).values({
         purchaseId,
         propertyName,
-        finalRent: parseInt(finalRent),
+        finalRent: parsedRent,
         leaseSignedDate: new Date(leaseSignedDate),
         moveInDate: new Date(moveInDate),
         leaseFileUrl,
@@ -41,20 +54,21 @@ export function registerLeaseVerificationRoutes(app: Express): void {
       });
     } catch (error: any) {
       console.error("Submit lease error:", error);
-      res.status(500).json({
-        error: "Failed to submit lease",
-        details: error.message
-      });
+      res.status(500).json({ error: "Failed to submit lease" });
     }
   });
 
-  // Verify lease and calculate refund
   app.post("/api/lease-verification/verify/:verificationId", async (req: Request, res: Response) => {
     try {
       const { verificationId } = req.params;
       const { originalAskingRent, predictedRent } = req.body;
 
-      // Get verification record
+      const parsedOriginal = parseRent(originalAskingRent);
+      const parsedPredicted = parseRent(predictedRent);
+      if (parsedOriginal === null || parsedPredicted === null) {
+        return res.status(400).json({ error: "Invalid rent amounts. Must be between 1 and 100,000" });
+      }
+
       const [verification] = await db.select()
         .from(leaseVerifications)
         .where(eq(leaseVerifications.id, verificationId));
@@ -63,12 +77,10 @@ export function registerLeaseVerificationRoutes(app: Express): void {
         return res.status(404).json({ error: "Verification not found" });
       }
 
-      // Calculate savings
       const actualRent = verification.finalRent;
-      const monthlySavings = originalAskingRent - actualRent;
+      const monthlySavings = parsedOriginal - actualRent;
       const annualSavings = monthlySavings * 12;
 
-      // Determine refund tier
       let refundAmount = 0;
       let refundPercentage = 0;
       let tier = "none";
@@ -85,13 +97,12 @@ export function registerLeaseVerificationRoutes(app: Express): void {
         refundAmount = 10;
         refundPercentage = 20;
         tier = "bronze";
-      } else if (actualRent === predictedRent) {
+      } else if (actualRent === parsedPredicted) {
         refundAmount = 5;
         refundPercentage = 10;
         tier = "accuracy_bonus";
       }
 
-      // Update verification record
       await db.update(leaseVerifications)
         .set({
           status: "verified",
@@ -99,8 +110,8 @@ export function registerLeaseVerificationRoutes(app: Express): void {
           actualSavings: monthlySavings,
           refundAmount,
           refundTier: tier,
-          originalAskingRent,
-          predictedRent,
+          originalAskingRent: parsedOriginal,
+          predictedRent: parsedPredicted,
         })
         .where(eq(leaseVerifications.id, verificationId));
 
@@ -117,19 +128,14 @@ export function registerLeaseVerificationRoutes(app: Express): void {
       });
     } catch (error: any) {
       console.error("Verify lease error:", error);
-      res.status(500).json({
-        error: "Failed to verify lease",
-        details: error.message
-      });
+      res.status(500).json({ error: "Failed to verify lease" });
     }
   });
 
-  // Process refund via Stripe
   app.post("/api/lease-verification/refund/:verificationId", async (req: Request, res: Response) => {
     try {
       const { verificationId } = req.params;
 
-      // Get verification record
       const [verification] = await db.select()
         .from(leaseVerifications)
         .where(eq(leaseVerifications.id, verificationId));
@@ -142,18 +148,30 @@ export function registerLeaseVerificationRoutes(app: Express): void {
         return res.status(400).json({ error: "Lease not yet verified" });
       }
 
-      // TODO: Process refund via Stripe
-      // const refund = await stripe.refunds.create({
-      //   payment_intent: verification.purchaseId,
-      //   amount: verification.refundAmount * 100, // cents
-      //   reason: "requested_by_customer",
-      //   metadata: {
-      //     verification_id: verificationId,
-      //     savings_verified: verification.actualSavings
-      //   }
-      // });
+      if (!verification.refundAmount || verification.refundAmount <= 0) {
+        return res.status(400).json({ error: "No refund eligible for this verification" });
+      }
 
-      // Update verification record
+      const [purchase] = await db.select()
+        .from(purchases)
+        .where(eq(purchases.id, verification.purchaseId));
+
+      if (!purchase || !purchase.stripePaymentIntentId) {
+        return res.status(400).json({ error: "Original payment not found for refund" });
+      }
+
+      const stripe = await getUncachableStripeClient();
+      const paymentIntentId: string = String(purchase.stripePaymentIntentId);
+      const refund = await stripe.refunds.create({
+        payment_intent: paymentIntentId as string,
+        amount: verification.refundAmount * 100,
+        reason: "requested_by_customer",
+        metadata: {
+          verification_id: verificationId,
+          savings_verified: String(verification.actualSavings ?? 0),
+        }
+      });
+
       await db.update(leaseVerifications)
         .set({
           status: "refunded",
@@ -164,18 +182,15 @@ export function registerLeaseVerificationRoutes(app: Express): void {
       res.json({
         success: true,
         message: `Refund of $${verification.refundAmount} processed successfully`,
-        refundAmount: verification.refundAmount
+        refundAmount: verification.refundAmount,
+        stripeRefundId: refund.id,
       });
     } catch (error: any) {
       console.error("Process refund error:", error);
-      res.status(500).json({
-        error: "Failed to process refund",
-        details: error.message
-      });
+      res.status(500).json({ error: "Failed to process refund" });
     }
   });
 
-  // Get verification status
   app.get("/api/lease-verification/status/:purchaseId", async (req: Request, res: Response) => {
     try {
       const { purchaseId } = req.params;
@@ -197,27 +212,21 @@ export function registerLeaseVerificationRoutes(app: Express): void {
       });
     } catch (error: any) {
       console.error("Get verification status error:", error);
-      res.status(500).json({
-        error: "Failed to get verification status",
-        details: error.message
-      });
+      res.status(500).json({ error: "Failed to get verification status" });
     }
   });
 
-  // Get demand forecasting data (admin/analytics)
   app.get("/api/lease-verification/demand-forecast", async (req: Request, res: Response) => {
     try {
-      // Get all verifications with lease expiration data from purchases
       const forecasts = await db.select()
         .from(leaseVerifications)
         .orderBy(leaseVerifications.moveInDate);
 
-      // Group by month for demand forecasting
       const demandByMonth: Record<string, number> = {};
       
       forecasts.forEach((verification) => {
         if (verification.moveInDate) {
-          const month = verification.moveInDate.toISOString().slice(0, 7); // YYYY-MM
+          const month = verification.moveInDate.toISOString().slice(0, 7);
           demandByMonth[month] = (demandByMonth[month] || 0) + 1;
         }
       });
@@ -231,10 +240,7 @@ export function registerLeaseVerificationRoutes(app: Express): void {
       });
     } catch (error: any) {
       console.error("Get demand forecast error:", error);
-      res.status(500).json({
-        error: "Failed to get demand forecast",
-        details: error.message
-      });
+      res.status(500).json({ error: "Failed to get demand forecast" });
     }
   });
 }

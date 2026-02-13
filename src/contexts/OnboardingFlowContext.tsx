@@ -3,38 +3,48 @@ import { useNavigate } from 'react-router-dom';
 import { OnboardingStep, OnboardingFlowData, defaultFlowData, defaultSteps, OnboardingFlowContextType } from './onboarding-flow-utils'
 import { OnboardingFlowContext } from './onboarding-flow-context'
 
-// use defaults from onboarding-flow-utils
-
-// The context object is provided from `onboarding-flow-context.ts` to keep
-// this file exporting only the provider component for fast-refresh safety.
-
 interface OnboardingFlowProviderProps {
   children: ReactNode;
+}
+
+function safeParseInt(value: string | null, fallback: number): number {
+  if (!value) return fallback;
+  try {
+    const parsed = parseInt(value, 10);
+    return isNaN(parsed) ? fallback : parsed;
+  } catch {
+    return fallback;
+  }
+}
+
+function safeParseJSON<T>(value: string | null, fallback: T): T {
+  if (!value) return fallback;
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return fallback;
+  }
 }
 
 export const OnboardingFlowProvider: React.FC<OnboardingFlowProviderProps> = ({ children }) => {
   const navigate = useNavigate();
   
-  // Load from localStorage if available
   const [currentStep, setCurrentStep] = useState(() => {
-    const saved = localStorage.getItem('onboardingCurrentStep');
-    return saved ? parseInt(saved, 10) : 0;
+    return safeParseInt(localStorage.getItem('onboardingCurrentStep'), 0);
   });
   
   const [flowData, setFlowData] = useState<OnboardingFlowData>(() => {
-    const saved = localStorage.getItem('onboardingFlowData');
-    return saved ? { ...defaultFlowData, ...JSON.parse(saved) } : defaultFlowData;
+    const saved = safeParseJSON<Partial<OnboardingFlowData>>(localStorage.getItem('onboardingFlowData'), {});
+    return { ...defaultFlowData, ...saved };
   });
   
   const [steps, setSteps] = useState<OnboardingStep[]>(() => {
-    const saved = localStorage.getItem('onboardingSteps');
-    return saved ? JSON.parse(saved) : defaultSteps;
+    return safeParseJSON<OnboardingStep[]>(localStorage.getItem('onboardingSteps'), defaultSteps);
   });
   
   const totalSteps = steps.length;
   const isComplete = steps.every(step => step.completed || !step.required);
   
-  // Auto-save to localStorage
   useEffect(() => {
     localStorage.setItem('onboardingCurrentStep', currentStep.toString());
   }, [currentStep]);
@@ -47,7 +57,6 @@ export const OnboardingFlowProvider: React.FC<OnboardingFlowProviderProps> = ({ 
     localStorage.setItem('onboardingSteps', JSON.stringify(steps));
   }, [steps]);
   
-  // Check if current step can proceed
   const canProceed = (() => {
     const currentStepData = steps[currentStep];
     if (!currentStepData) return false;
@@ -56,11 +65,11 @@ export const OnboardingFlowProvider: React.FC<OnboardingFlowProviderProps> = ({ 
       case 'location':
         return flowData.location.length > 0;
       case 'points-of-interest':
-        return flowData.pointsOfInterest.length >= 1; // At least one POI
+        return flowData.pointsOfInterest.length >= 1;
       case 'budget-housing':
         return flowData.budget > 0 && flowData.bedrooms.length > 0;
       case 'preferences':
-        return true; // Optional step
+        return true;
       default:
         return true;
     }
@@ -94,16 +103,13 @@ export const OnboardingFlowProvider: React.FC<OnboardingFlowProviderProps> = ({ 
   };
   
   const completeOnboarding = () => {
-    // Mark all required steps as complete
     setSteps(prevSteps => 
       prevSteps.map(step => ({ ...step, completed: true }))
     );
     
-    // Clear localStorage for onboarding
     localStorage.removeItem('onboardingCurrentStep');
     localStorage.removeItem('onboardingSteps');
     
-    // Navigate to dashboard
     navigate('/dashboard');
   };
   
