@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, SlidersHorizontal, MapPin, Building2, Tag, ExternalLink, Brain, CheckCircle2, TrendingUp, DollarSign, AlertTriangle } from 'lucide-react';
+import { Search, SlidersHorizontal, MapPin, Building2, Tag, ExternalLink, Brain, CheckCircle2, TrendingUp, DollarSign, AlertTriangle, ImageOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,33 @@ interface ScrapedPropertiesBrowserProps {
 }
 
 const FREE_VISIBLE_COUNT = 2;
+
+function PropertyImage({ imageUrl, name, id }: { imageUrl?: string; name: string; id: string }) {
+  const [imgError, setImgError] = useState(false);
+
+  if (!imageUrl || imgError) {
+    return (
+      <div className="w-full h-32 bg-muted flex items-center justify-center">
+        <div className="flex flex-col items-center gap-1 text-muted-foreground">
+          <Building2 className="w-6 h-6" />
+          <span className="text-xs">No image</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full h-40 bg-muted">
+      <img
+        src={imageUrl}
+        alt={name}
+        className="w-full h-full object-cover"
+        onError={() => setImgError(true)}
+        data-testid={`img-property-${id}`}
+      />
+    </div>
+  );
+}
 
 export default function ScrapedPropertiesBrowser({ properties, isLoading }: ScrapedPropertiesBrowserProps) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -229,10 +256,11 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
           return (
             <Card
               key={property.id}
-              className={`cursor-pointer hover-elevate ${selectedPropertyId === property.id ? 'ring-2 ring-primary' : ''}`}
+              className={`cursor-pointer hover-elevate overflow-hidden ${selectedPropertyId === property.id ? 'ring-2 ring-primary' : ''}`}
               onClick={() => setSelectedPropertyId(prev => prev === property.id ? null : property.id)}
               data-testid={`card-scraped-property-${property.id}`}
             >
+              <PropertyImage imageUrl={property.image_url} name={property.name} id={property.id} />
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-2 gap-2 flex-wrap">
                   <div className="min-w-0 flex-1">
