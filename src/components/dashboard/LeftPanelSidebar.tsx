@@ -409,19 +409,6 @@ export default function LeftPanelSidebar({
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-xs flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      Lease Expires
-                    </Label>
-                    <Input
-                      type="date"
-                      value={leaseExpirationDate || ''}
-                      onChange={(e) => onLeaseExpirationDateChange(e.target.value)}
-                      className="h-8 text-sm"
-                      data-testid="input-sidebar-lease-expiration"
-                    />
-                  </div>
                 </div>
               )}
 

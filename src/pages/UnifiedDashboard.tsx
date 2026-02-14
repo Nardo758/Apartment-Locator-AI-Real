@@ -18,8 +18,6 @@ import { useUnifiedAI } from '@/contexts/UnifiedAIContext';
 import { calculateApartmentCosts, formatCurrency } from '@/services/locationCostService';
 import type { ApartmentLocationCost } from '@/types/locationCost.types';
 import { api } from '@/lib/api';
-import { useRenterLeaseIntel } from '@/hooks/useRenterLeaseIntel';
-import { RenterLeaseIntelBadges } from '@/components/renter/RenterLeaseIntelBadges';
 import { calculateSmartScore, type SmartScoreResult } from '@/lib/smart-score-engine';
 import type { ScrapedProperty, SavingsBreakdown } from '@/lib/savings-calculator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -184,7 +182,6 @@ export default function UnifiedDashboard() {
   const [dataError, setDataError] = useState<string | null>(null);
 
   const propertyIds = useMemo(() => properties.map(p => p.id), [properties]);
-  const { data: leaseIntelData } = useRenterLeaseIntel(propertyIds);
 
   const [pois, setPois] = useState<POI[]>([
     { id: '1', name: 'My Office', address: '191 Peachtree St NE, Atlanta, GA', category: 'work', coordinates: { lat: 33.7590, lng: -84.3880 } },
@@ -203,7 +200,6 @@ export default function UnifiedDashboard() {
   });
   
   const [currentRentalRate, setCurrentRentalRate] = useState('');
-  const [leaseExpirationDate, setLeaseExpirationDate] = useState('');
 
   const [filters, setFilters] = useState<{
     minBudget: number;
@@ -232,10 +228,6 @@ export default function UnifiedDashboard() {
     if (unifiedAI.currentRentalRate) {
       setCurrentRentalRate(String(unifiedAI.currentRentalRate));
     }
-    if (unifiedAI.leaseExpirationDate) {
-      setLeaseExpirationDate(unifiedAI.leaseExpirationDate);
-    }
-
     if (unifiedAI.budget && unifiedAI.budget > 0) {
       setFilters(prev => ({
         ...prev,
@@ -487,8 +479,6 @@ export default function UnifiedDashboard() {
               isCalculating={isCalculating}
               currentRentalRate={currentRentalRate}
               onCurrentRentalRateChange={setCurrentRentalRate}
-              leaseExpirationDate={leaseExpirationDate}
-              onLeaseExpirationDateChange={setLeaseExpirationDate}
             />
           </aside>
 
@@ -855,25 +845,6 @@ export default function UnifiedDashboard() {
               );
             })()}
 
-            {selectedPropertyId && leaseIntelData[selectedPropertyId] && (
-              <Card data-testid="card-selected-property-intel">
-                <CardHeader className="py-3">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Target className="w-4 h-4" />
-                    Lease Intelligence: {propertiesWithCosts.find(p => p.id === selectedPropertyId)?.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <SavingsDataGate
-                    isUnlocked={true}
-                    onUnlockClick={() => openPaywall(selectedPropertyId)}
-                    hint="Full negotiation insights & deal analysis"
-                  >
-                    <RenterLeaseIntelBadges data={leaseIntelData[selectedPropertyId]} />
-                  </SavingsDataGate>
-                </CardContent>
-              </Card>
-            )}
           </main>
         </div>
       </div>
