@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock, Target, Car, ParkingCircle, ShoppingCart, Dumbbell, Train, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
+import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock, Target, Car, ParkingCircle, ShoppingCart, Dumbbell, Train, DollarSign, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,14 +39,15 @@ interface PropertyData {
   bedrooms: number;
   bathrooms: number;
   imageUrl?: string;
+  amenities?: string[];
 }
 
 const MOCK_PROPERTIES: PropertyData[] = [
-  { id: 'apt-1', name: 'The Broadstone at Midtown', address: '1015 Northside Dr NW, Atlanta, GA 30318', coordinates: { lat: 33.7866, lng: -84.4073 }, baseRent: 1850, parkingIncluded: false, bedrooms: 2, bathrooms: 2 },
-  { id: 'apt-2', name: 'Camden Buckhead Square', address: '3060 Peachtree Rd NW, Atlanta, GA 30305', coordinates: { lat: 33.8404, lng: -84.3797 }, baseRent: 1650, parkingIncluded: true, bedrooms: 1, bathrooms: 1 },
-  { id: 'apt-3', name: 'The Exchange at Vinings', address: '2800 Paces Ferry Rd SE, Atlanta, GA 30339', coordinates: { lat: 33.8627, lng: -84.4655 }, baseRent: 1450, parkingIncluded: true, bedrooms: 2, bathrooms: 1 },
-  { id: 'apt-4', name: 'Cortland at the Battery', address: '875 Battery Ave SE, Atlanta, GA 30339', coordinates: { lat: 33.8896, lng: -84.4685 }, baseRent: 1350, parkingIncluded: true, bedrooms: 1, bathrooms: 1 },
-  { id: 'apt-5', name: 'AMLI West Plano at Granite Park', address: '2175 E West Connector, Austell, GA 30106', coordinates: { lat: 33.8148, lng: -84.6327 }, baseRent: 1275, parkingIncluded: true, bedrooms: 1, bathrooms: 1 },
+  { id: 'apt-1', name: 'The Broadstone at Midtown', address: '1015 Northside Dr NW, Atlanta, GA 30318', coordinates: { lat: 33.7866, lng: -84.4073 }, baseRent: 1850, parkingIncluded: false, bedrooms: 2, bathrooms: 2, amenities: ['gym', 'pool', 'in_unit_laundry', 'water'] },
+  { id: 'apt-2', name: 'Camden Buckhead Square', address: '3060 Peachtree Rd NW, Atlanta, GA 30305', coordinates: { lat: 33.8404, lng: -84.3797 }, baseRent: 1650, parkingIncluded: true, bedrooms: 1, bathrooms: 1, amenities: ['gym', 'trash', 'sewer'] },
+  { id: 'apt-3', name: 'The Exchange at Vinings', address: '2800 Paces Ferry Rd SE, Atlanta, GA 30339', coordinates: { lat: 33.8627, lng: -84.4655 }, baseRent: 1450, parkingIncluded: true, bedrooms: 2, bathrooms: 1, amenities: ['washer_dryer', 'water', 'trash'] },
+  { id: 'apt-4', name: 'Cortland at the Battery', address: '875 Battery Ave SE, Atlanta, GA 30339', coordinates: { lat: 33.8896, lng: -84.4685 }, baseRent: 1350, parkingIncluded: true, bedrooms: 1, bathrooms: 1, amenities: ['gym', 'pool', 'internet', 'water', 'trash'] },
+  { id: 'apt-5', name: 'AMLI West Plano at Granite Park', address: '2175 E West Connector, Austell, GA 30106', coordinates: { lat: 33.8148, lng: -84.6327 }, baseRent: 1275, parkingIncluded: true, bedrooms: 1, bathrooms: 1, amenities: [] },
 ];
 
 const MOCK_MARKET_DATA = {
@@ -122,7 +123,8 @@ export default function UnifiedDashboard() {
                 bedrooms: property.bedroomsMin || property.bedroomsMax || 0,
                 bathrooms: Number(property.bathroomsMin || property.bathroomsMax || 0),
                 imageUrl: property.images?.[0],
-              };
+                amenities: (Array.isArray(property.amenities) ? property.amenities : []) as string[],
+              } as PropertyData;
             })
             .filter((prop): prop is PropertyData => prop !== null);
 
@@ -330,6 +332,8 @@ export default function UnifiedDashboard() {
           gymMiles: costResult.gymCost.distanceToPreferredGym,
           transitSavings: costResult.transitSavings.potentialMonthlySavings,
           transitScore: costResult.transitSavings.transitScore,
+          amenitySavings: costResult.amenitySavings.totalMonthlyValue,
+          amenityNames: costResult.amenitySavings.amenityNames,
           totalLocationCosts: costResult.totalLocationCosts,
         } : undefined,
       };
@@ -549,6 +553,12 @@ export default function UnifiedDashboard() {
                         {property.parkingIncluded && (
                           <Badge variant="outline">P incl.</Badge>
                         )}
+                        {property.costBreakdown?.amenitySavings != null && property.costBreakdown.amenitySavings > 0 && (
+                          <Badge variant="default" className="bg-emerald-500 border-emerald-600">
+                            <Sparkles className="w-3 h-3 mr-1" />
+                            -{formatCurrency(property.costBreakdown.amenitySavings)} amenities
+                          </Badge>
+                        )}
                       </div>
 
                       {leaseIntelData[property.id] && (
@@ -588,6 +598,7 @@ export default function UnifiedDashboard() {
                           <TableHead className="text-right">Rent</TableHead>
                           <TableHead className="text-right">Location Costs</TableHead>
                           <TableHead className="text-right">True Cost</TableHead>
+                          <TableHead className="text-right">Amenities</TableHead>
                           <TableHead className="text-right">You Save</TableHead>
                           <TableHead className="text-right">Commute</TableHead>
                         </TableRow>
@@ -612,6 +623,11 @@ export default function UnifiedDashboard() {
                             </TableCell>
                             <TableCell className="text-right font-bold text-primary">
                               {property.trueCost ? formatCurrency(property.trueCost) : '-'}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {property.costBreakdown?.amenitySavings ? (
+                                <span className="text-emerald-600">-{formatCurrency(property.costBreakdown.amenitySavings)}</span>
+                              ) : '-'}
                             </TableCell>
                             <TableCell className="text-right">
                               {property.savingsVsMax != null && property.savingsVsMax > 0 ? (
@@ -700,6 +716,23 @@ export default function UnifiedDashboard() {
                             </div>
                           </div>
                           <span className="text-sm text-green-600">-{formatCurrency(bd.transitSavings)}</span>
+                        </div>
+                      )}
+
+                      {bd.amenitySavings > 0 && (
+                        <div className="flex items-center justify-between py-1">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-emerald-600" />
+                            <div>
+                              <span className="text-sm">Amenity Savings</span>
+                              <p className="text-xs text-muted-foreground">
+                                {bd.amenityNames && bd.amenityNames.length > 0
+                                  ? bd.amenityNames.slice(0, 3).join(', ') + (bd.amenityNames.length > 3 ? ` +${bd.amenityNames.length - 3} more` : '')
+                                  : 'Included amenities'}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-sm text-emerald-600">-{formatCurrency(bd.amenitySavings)}</span>
                         </div>
                       )}
 

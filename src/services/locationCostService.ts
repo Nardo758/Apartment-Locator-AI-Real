@@ -17,6 +17,7 @@ import type {
   DistanceMatrixResult,
   PlaceInfo,
 } from '@/types/locationCost.types';
+import { calculateAmenitySavings } from '@/lib/amenity-value-calculator';
 
 // Constants
 const WEEKS_PER_MONTH = 4.33;
@@ -37,6 +38,7 @@ export async function calculateApartmentCosts(
     coordinates: Coordinates;
     baseRent: number;
     parkingIncluded?: boolean;
+    amenities?: string[];
   }>,
   googleMapsApiKey: string,
   gasPriceData?: GasPriceData
@@ -88,13 +90,20 @@ export async function calculateApartmentCosts(
         googleMapsApiKey
       );
       
-      // Total location costs
+      // Calculate amenity savings
+      const amenityResult = calculateAmenitySavings(
+        apartment.amenities ?? [],
+        apartment.parkingIncluded
+      );
+      
+      // Total location costs (subtract amenity savings)
       const totalLocationCosts = 
         commuteCost.totalMonthly +
         parkingCost.estimatedMonthly +
         groceryCost.additionalGasCost +
         gymCost.additionalGasCost -
-        transitSavings.potentialMonthlySavings;
+        transitSavings.potentialMonthlySavings -
+        amenityResult.totalMonthlyValue;
       
       const trueMonthlyCost = apartment.baseRent + totalLocationCosts;
       
@@ -108,6 +117,10 @@ export async function calculateApartmentCosts(
         groceryCost,
         gymCost,
         transitSavings,
+        amenitySavings: {
+          totalMonthlyValue: amenityResult.totalMonthlyValue,
+          amenityNames: amenityResult.amenityNames,
+        },
         totalLocationCosts: Math.round(totalLocationCosts),
         trueMonthlyCost: Math.round(trueMonthlyCost),
         vsAverageRent: 0, // calculated after all apartments

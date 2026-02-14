@@ -50,6 +50,12 @@ export interface ApartmentLocationCost {
   gymCost: GymCost;
   transitSavings: TransitSavings;
   
+  // Amenity savings (gym, parking, utilities included in rent)
+  amenitySavings: {
+    totalMonthlyValue: number;
+    amenityNames: string[];
+  };
+  
   // Totals
   totalLocationCosts: number;
   trueMonthlyCost: number;
