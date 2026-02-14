@@ -11,6 +11,7 @@ import MarketIntelBar from '@/components/dashboard/MarketIntelBar';
 import LeftPanelSidebar, { type LifestyleInputs, type CostCategory, type POICategory } from '@/components/dashboard/LeftPanelSidebar';
 import InteractivePropertyMap from '@/components/maps/InteractivePropertyMap';
 import { useLocationCostContext } from '@/contexts/LocationCostContext';
+import { useUnifiedAI } from '@/contexts/UnifiedAIContext';
 import { calculateApartmentCosts, formatCurrency } from '@/services/locationCostService';
 import type { ApartmentLocationCost } from '@/types/locationCost.types';
 import { api } from '@/lib/api';
@@ -69,6 +70,7 @@ const GROCERY_STORE_MAP: Record<string, 'walmart' | 'wholefoods' | 'traderjoes' 
 
 export default function UnifiedDashboard() {
   const { inputs, gasPrice, isCalculating, setIsCalculating } = useLocationCostContext();
+  const unifiedAI = useUnifiedAI();
   
   // Set page title
   useEffect(() => {
@@ -78,8 +80,10 @@ export default function UnifiedDashboard() {
   useEffect(() => {
     const loadDashboardData = async () => {
       setDataError(null);
-      const defaultCity = 'Orlando';
-      const defaultState = 'FL';
+      // Use location from UnifiedAI context if available
+      const locationParts = unifiedAI.location.split(',').map(s => s.trim());
+      const defaultCity = locationParts[0] || 'Orlando';
+      const defaultState = locationParts[1] || 'FL';
 
       try {
         const fetched = await api.getProperties({ city: defaultCity, state: defaultState, limit: 25 });
@@ -151,7 +155,7 @@ export default function UnifiedDashboard() {
     };
 
     loadDashboardData();
-  }, []);
+  }, [unifiedAI.location]); // Reload when user's location changes
   
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [sortBy, setSortBy] = useState<SortField>('trueCost');
@@ -160,20 +164,37 @@ export default function UnifiedDashboard() {
   const [properties, setProperties] = useState<PropertyData[]>(MOCK_PROPERTIES);
   const [marketData, setMarketData] = useState(MOCK_MARKET_DATA);
   const [dataError, setDataError] = useState<string | null>(null);
-  const [pois, setPois] = useState<POI[]>([
-    { id: '1', name: 'My Office', address: '123 Main St, Orlando, FL', category: 'work', coordinates: { lat: 28.5383, lng: -81.3792 } },
-  ]);
+  // Initialize POIs from UnifiedAI context
+  const [pois, setPois] = useState<POI[]>(() => {
+    if (unifiedAI.pointsOfInterest.length > 0) {
+      return unifiedAI.pointsOfInterest.map(poi => ({
+        id: poi.id || `poi-${Date.now()}-${Math.random()}`,
+        name: poi.name,
+        address: poi.address,
+        category: poi.category as POICategory,
+        coordinates: poi.coordinates || { lat: 28.5383, lng: -81.3792 }, // Default coords if missing
+      }));
+    }
+    // Default POI if none saved
+    return [
+      { id: '1', name: 'My Office', address: '123 Main St, Orlando, FL', category: 'work', coordinates: { lat: 28.5383, lng: -81.3792 } },
+    ];
+  });
   
-  const [lifestyleInputs, setLifestyleInputs] = useState<LifestyleInputs>({
-    workAddress: '',
-    commuteDays: 5,
-    commuteMode: 'driving',
-    vehicleMpg: 28,
-    groceryTrips: 2,
-    preferredStore: 'Any nearby store',
-    hasGym: false,
-    gymVisits: 3,
-    customCategories: [],
+  // Initialize state from UnifiedAI context (data from Program Your AI)
+  const [lifestyleInputs, setLifestyleInputs] = useState<LifestyleInputs>(() => {
+    const workPOI = unifiedAI.pointsOfInterest.find(poi => poi.category === 'work');
+    return {
+      workAddress: workPOI?.address || '',
+      commuteDays: unifiedAI.commutePreferences.daysPerWeek,
+      commuteMode: 'driving',
+      vehicleMpg: unifiedAI.commutePreferences.vehicleMpg,
+      groceryTrips: 2,
+      preferredStore: 'Any nearby store',
+      hasGym: false,
+      gymVisits: 3,
+      customCategories: [],
+    };
   });
   
   const [filters, setFilters] = useState<{
@@ -181,12 +202,12 @@ export default function UnifiedDashboard() {
     maxBudget: number;
     bedrooms: number[];
     amenities: string[];
-  }>({
-    minBudget: 1000,
-    maxBudget: 2500,
-    bedrooms: [1, 2],
-    amenities: [],
-  });
+  }>(() => ({
+    minBudget: Math.max(1000, unifiedAI.budget - 500),
+    maxBudget: unifiedAI.budget || 2500,
+    bedrooms: unifiedAI.aiPreferences.bedrooms ? [parseInt(unifiedAI.aiPreferences.bedrooms)] : [1, 2],
+    amenities: unifiedAI.aiPreferences.amenities || [],
+  }));
 
   const calculationProperties = useMemo(
     () => (properties.length > 0 ? properties : MOCK_PROPERTIES),

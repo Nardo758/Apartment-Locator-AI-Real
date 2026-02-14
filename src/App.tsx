@@ -48,6 +48,7 @@ import AgentOnboarding from "./pages/AgentOnboarding";
 import UserTypeSelection from "./pages/UserTypeSelection";
 import LandlordSettings from "./components/landlord/LandlordSettings";
 import LandlordRetentionDashboard from "./pages/LandlordRetentionDashboard";
+import BrowseScrapedProperties from "./pages/BrowseScrapedProperties";
 import "./lib/data-tracker"; // Initialize data tracking
 
 
@@ -135,6 +136,11 @@ const App = () => (
                     <Route path="/saved-properties" element={
                       <ProtectedRoute allowedUserTypes={['renter']}>
                         <SavedAndOffers />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/browse-properties" element={
+                      <ProtectedRoute allowedUserTypes={['renter']}>
+                        <BrowseScrapedProperties />
                       </ProtectedRoute>
                     } />
                     <Route path="/property/:id" element={

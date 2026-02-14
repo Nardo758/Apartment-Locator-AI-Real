@@ -24,6 +24,7 @@ const Header = ({ onSignOut }: HeaderProps) => {
 
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', active: true },
+    { path: '/browse-properties', label: 'Browse Properties' },
     { path: '/market-intel', label: 'Market Intel' },
     { path: '/saved-properties', label: 'My Apartments' },
     { path: '/ai-formula', label: 'AI Formula' }

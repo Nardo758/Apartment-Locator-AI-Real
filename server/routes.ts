@@ -24,6 +24,7 @@ import { z } from "zod";
 import { registerPaymentRoutes } from "./routes/payments";
 import { registerLeaseVerificationRoutes } from "./routes/lease-verification";
 import { registerJediRoutes } from "./routes/jedi";
+import scrapedDataRouter from "./routes/scraped-data";
 
 declare global {
   namespace Express {
@@ -3655,4 +3656,7 @@ export async function registerRoutes(app: Express): Promise<void> {
   
   // Register JEDI API routes for B2B market intelligence
   registerJediRoutes(app);
+  
+  // Register scraped data routes (from apartment-scraper-worker)
+  app.use('/api/scraped-data', scrapedDataRouter);
 }
