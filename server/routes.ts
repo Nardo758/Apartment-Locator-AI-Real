@@ -1,5 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { storage } from "./storage";
+import { db } from "./db";
+import { eq, and } from "drizzle-orm";
 import {
   insertPropertySchema,
   insertSavedApartmentSchema,
@@ -9,6 +11,9 @@ import {
   insertUserPoiSchema,
   insertCompetitionSetSchema,
   insertCompetitionSetCompetitorSchema,
+  insertRenterProfileSchema,
+  users,
+  propertyUnlocks,
 } from "@shared/schema";
 import { 
   createUser, 
@@ -18,15 +23,14 @@ import {
   getUserById,
   getUserByEmail,
   updateUserType,
+  findOrCreateGoogleUser,
   type AuthUser 
 } from "./auth";
 import { z } from "zod";
 import { registerPaymentRoutes } from "./routes/payments";
 import { registerLeaseVerificationRoutes } from "./routes/lease-verification";
 import { registerJediRoutes } from "./routes/jedi";
-import scrapedDataRouter from "./routes/scraped-data";
-import adminRouter from "./routes/admin";
-import jediIntegrationRouter from "./routes/jedi-integration";
+import { registerScrapedPropertyRoutes } from "./routes/scraped-properties";
 
 declare global {
   namespace Express {
@@ -157,6 +161,54 @@ export async function registerRoutes(app: Express): Promise<void> {
     } catch (error) {
       console.error("Signin error:", error);
       res.status(500).json({ error: "Failed to sign in" });
+    }
+  });
+
+  // Google OAuth — verify Google ID token and sign in or create account
+  app.post("/api/auth/google", async (req, res) => {
+    try {
+      const { credential } = req.body;
+
+      if (!credential) {
+        return res.status(400).json({ error: "Google credential is required" });
+      }
+
+      const googleRes = await fetch(
+        `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`
+      );
+
+      if (!googleRes.ok) {
+        return res.status(401).json({ error: "Invalid Google credential" });
+      }
+
+      const payload = await googleRes.json() as {
+        email?: string;
+        email_verified?: string;
+        name?: string;
+        picture?: string;
+        aud?: string;
+      };
+
+      if (!payload.email) {
+        return res.status(400).json({ error: "Google account has no email" });
+      }
+
+      const expectedClientId = process.env.GOOGLE_CLIENT_ID;
+      if (expectedClientId && payload.aud !== expectedClientId) {
+        return res.status(401).json({ error: "Token audience mismatch" });
+      }
+
+      const user = await findOrCreateGoogleUser(
+        payload.email,
+        payload.name,
+        payload.picture
+      );
+      const token = generateToken(user);
+
+      res.json({ user, token });
+    } catch (error) {
+      console.error("Google auth error:", error);
+      res.status(500).json({ error: "Google authentication failed" });
     }
   });
 
@@ -398,6 +450,46 @@ export async function registerRoutes(app: Express): Promise<void> {
   });
 
   // ============================================
+  // RENTER PROFILE ENDPOINTS
+  // ============================================
+
+  app.get("/api/renter-profile", authMiddleware, async (req, res) => {
+    try {
+      const profile = await storage.getRenterProfile(req.user!.id);
+      if (!profile) {
+        return res.json(null);
+      }
+      res.json(profile);
+    } catch (error) {
+      console.error("Error fetching renter profile:", error);
+      res.status(500).json({ error: "Failed to fetch renter profile" });
+    }
+  });
+
+  app.post("/api/renter-profile", authMiddleware, async (req, res) => {
+    try {
+      const profileData = {
+        ...req.body,
+        userId: req.user!.id,
+      };
+
+      const parseResult = insertRenterProfileSchema.safeParse(profileData);
+      if (!parseResult.success) {
+        return res.status(400).json({
+          error: "Invalid profile data",
+          details: parseResult.error.errors,
+        });
+      }
+
+      const profile = await storage.upsertRenterProfile(parseResult.data);
+      res.json(profile);
+    } catch (error) {
+      console.error("Error saving renter profile:", error);
+      res.status(500).json({ error: "Failed to save renter profile" });
+    }
+  });
+
+  // ============================================
   // LANDLORD PORTFOLIO MANAGEMENT ENDPOINTS
   // ============================================
   
@@ -594,6 +686,53 @@ export async function registerRoutes(app: Express): Promise<void> {
     } catch (error) {
       console.error("Error fetching portfolio summary:", error);
       res.status(500).json({ error: "Failed to fetch portfolio summary" });
+    }
+  });
+
+  // POST /api/landlord/lease-intel - Get lease intelligence for properties
+  app.post("/api/landlord/lease-intel", authMiddleware, async (req, res) => {
+    try {
+      if (req.user!.userType !== 'landlord' && req.user!.userType !== 'admin') {
+        return res.status(403).json({
+          error: "Access denied. Landlord account required."
+        });
+      }
+
+      const { propertyIds } = req.body;
+      if (!Array.isArray(propertyIds)) {
+        return res.status(400).json({ error: "propertyIds must be an array" });
+      }
+
+      const intel = await storage.getLeaseIntelligence(req.user!.id, propertyIds);
+      res.json(intel);
+    } catch (error) {
+      console.error("Error fetching lease intelligence:", error);
+      res.status(500).json({ error: "Failed to fetch lease intelligence" });
+    }
+  });
+
+  // POST /api/renter/lease-intel - Get lease intelligence for renters (any property)
+  app.post("/api/renter/lease-intel", authMiddleware, async (req, res) => {
+    try {
+      const { propertyIds } = req.body;
+      if (!Array.isArray(propertyIds) || propertyIds.length === 0) {
+        return res.status(400).json({ error: "propertyIds must be a non-empty array" });
+      }
+      if (propertyIds.length > 20) {
+        return res.status(400).json({ error: "Maximum 20 properties per request" });
+      }
+
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const validIds = propertyIds.filter((id: string) => uuidRegex.test(id));
+      if (validIds.length === 0) {
+        return res.json({});
+      }
+
+      const intel = await storage.getRenterLeaseIntelligence(validIds);
+      res.json(intel);
+    } catch (error) {
+      console.error("Error fetching renter lease intelligence:", error);
+      res.status(500).json({ error: "Failed to fetch lease intelligence" });
     }
   });
 
@@ -3650,6 +3789,170 @@ export async function registerRoutes(app: Express): Promise<void> {
   // END AGENT DEAL PIPELINE ENDPOINTS
   // ============================================
 
+  // ============================================
+  // RENTER ACCESS / FREEMIUM ENDPOINTS
+  // ============================================
+
+  app.get("/api/access/status", authMiddleware, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const unlocks = await db.select({ propertyId: propertyUnlocks.propertyId })
+        .from(propertyUnlocks)
+        .where(eq(propertyUnlocks.userId, userId));
+
+      const unlockedPropertyIds = unlocks.map(u => u.propertyId);
+      const now = new Date();
+      const hasPlanAccess = user.accessExpiresAt ? new Date(user.accessExpiresAt) > now : false;
+
+      let accessType: 'plan' | 'single' | 'none' = 'none';
+      if (hasPlanAccess) {
+        accessType = 'plan';
+      } else if (unlockedPropertyIds.length > 0) {
+        accessType = 'single';
+      }
+
+      res.json({
+        hasAccess: hasPlanAccess,
+        accessType,
+        planType: user.accessPlanType || null,
+        expiresAt: user.accessExpiresAt ? user.accessExpiresAt.toISOString() : null,
+        analysesUsed: user.propertyAnalysesUsed || 0,
+        analysesLimit: user.propertyAnalysesLimit || null,
+        unlockedPropertyIds,
+      });
+    } catch (error) {
+      console.error("Error fetching access status:", error);
+      res.status(500).json({ error: "Failed to fetch access status" });
+    }
+  });
+
+  app.get("/api/access/unlocked-properties/:userId", authMiddleware, async (req, res) => {
+    try {
+      if (req.user!.id !== req.params.userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const unlocks = await db.select({ propertyId: propertyUnlocks.propertyId })
+        .from(propertyUnlocks)
+        .where(eq(propertyUnlocks.userId, req.params.userId));
+
+      res.json(unlocks.map(u => u.propertyId));
+    } catch (error) {
+      console.error("Error fetching unlocked properties:", error);
+      res.status(500).json({ error: "Failed to fetch unlocked properties" });
+    }
+  });
+
+  app.post("/api/access/unlock-property", authMiddleware, async (req, res) => {
+    try {
+      const schema = z.object({ propertyId: z.string().min(1) });
+      const parseResult = schema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ error: "Invalid data", details: parseResult.error.errors });
+      }
+
+      const { propertyId } = parseResult.data;
+      const userId = req.user!.id;
+
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (uuidRegex.test(propertyId)) {
+        const existing = await db.select()
+          .from(propertyUnlocks)
+          .where(and(eq(propertyUnlocks.userId, userId), eq(propertyUnlocks.propertyId, propertyId)));
+
+        if (existing.length > 0) {
+          return res.json(existing[0]);
+        }
+
+        const [unlock] = await db.insert(propertyUnlocks).values({
+          userId,
+          propertyId,
+          unlockType: "single",
+        }).returning();
+
+        return res.status(201).json(unlock);
+      }
+
+      res.status(201).json({
+        id: `local-${propertyId}`,
+        userId,
+        propertyId,
+        unlockType: "single",
+        createdAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Error unlocking property:", error);
+      res.status(500).json({ error: "Failed to unlock property" });
+    }
+  });
+
+  app.post("/api/access/activate-plan", authMiddleware, async (req, res) => {
+    try {
+      const schema = z.object({
+        planType: z.enum(["basic", "pro", "premium"]),
+      });
+      const parseResult = schema.safeParse(req.body);
+      if (!parseResult.success) {
+        return res.status(400).json({ error: "Invalid data", details: parseResult.error.errors });
+      }
+
+      const { planType } = parseResult.data;
+      const userId = req.user!.id;
+      const now = new Date();
+
+      let daysToAdd: number;
+      let analysesLimit: number | null;
+
+      switch (planType) {
+        case "basic":
+          daysToAdd = 7;
+          analysesLimit = 5;
+          break;
+        case "pro":
+          daysToAdd = 30;
+          analysesLimit = null;
+          break;
+        case "premium":
+          daysToAdd = 90;
+          analysesLimit = null;
+          break;
+      }
+
+      const expiresAt = new Date(now.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
+
+      await db.update(users).set({
+        accessExpiresAt: expiresAt,
+        accessPlanType: planType,
+        propertyAnalysesUsed: 0,
+        propertyAnalysesLimit: analysesLimit,
+        updatedAt: now,
+      }).where(eq(users.id, userId));
+
+      const unlocks = await db.select({ propertyId: propertyUnlocks.propertyId })
+        .from(propertyUnlocks)
+        .where(eq(propertyUnlocks.userId, userId));
+
+      res.json({
+        hasAccess: true,
+        accessType: 'plan' as const,
+        planType,
+        expiresAt: expiresAt.toISOString(),
+        analysesUsed: 0,
+        analysesLimit,
+        unlockedPropertyIds: unlocks.map(u => u.propertyId),
+      });
+    } catch (error) {
+      console.error("Error activating plan:", error);
+      res.status(500).json({ error: "Failed to activate plan" });
+    }
+  });
+
   // Register payment routes
   registerPaymentRoutes(app);
   
@@ -3658,13 +3961,7 @@ export async function registerRoutes(app: Express): Promise<void> {
   
   // Register JEDI API routes for B2B market intelligence
   registerJediRoutes(app);
-  
-  // Register scraped data routes (from apartment-scraper-worker)
-  app.use('/api/scraped-data', scrapedDataRouter);
-  
-  // Register admin panel routes
-  app.use('/api/admin', authMiddleware, adminRouter);
-  
-  // Register JEDI RE integration routes
-  app.use('/api/jedi', jediIntegrationRouter);
+
+  // Register scraped property routes
+  registerScrapedPropertyRoutes(app);
 }

@@ -1,366 +1,103 @@
-/**
- * Landlord Data Engine
- * Manages all landlord-specific data from forms and user inputs
- */
-
 import { UserDataEngine } from './userDataEngine';
 
-export interface LandlordProperty {
-  id: string;
-  name: string;
-  address: string;
-  city: string;
-  state: string;
-  units: number;
-  occupancyRate: number;
-  avgRent: number;
-  concessions: string[];
-}
-
-export interface PortfolioMetrics {
-  totalProperties: number;
-  totalUnits: number;
-  occupancyRate: number;
-  avgRent: number;
-  monthlyRevenue: number;
-  annualRevenue: number;
-}
-
-export interface PricingSettings {
-  dynamicPricing: boolean;
-  minimumPrice: number;
-  maximumPrice: number;
-  seasonalAdjustments: boolean;
-  competitorTracking: boolean;
-}
-
-export interface LandlordAlert {
-  id: string;
-  type: 'vacancy' | 'maintenance' | 'lease_expiring' | 'payment_late' | 'market_change';
-  propertyId?: string;
-  unitId?: string;
-  message: string;
-  priority: 'low' | 'medium' | 'high';
-  createdAt: Date;
-  read: boolean;
-}
-
-export interface LandlordMarketTracking {
-  competitorProperties: string[]; // IDs of properties to track
-  trackedMarkets: { city: string; state: string }[];
-  pricingBenchmarks: { location: string; targetRent: number }[];
-}
-
 export interface LandlordData {
-  // Portfolio
-  properties: LandlordProperty[];
-  
-  // Metrics
-  portfolioMetrics: PortfolioMetrics;
-  
-  // Settings
-  pricingSettings: PricingSettings;
-  
-  // Alerts
-  alerts: LandlordAlert[];
-  
-  // Market Intelligence (USER INPUT DATA)
-  marketTracking: LandlordMarketTracking;
-  
-  // Contact Preferences
-  contactEmail: string;
-  contactPhone?: string;
-  preferredContactMethod: 'email' | 'phone' | 'both';
-  
-  // Business Info
-  companyName?: string;
-  licenseNumber?: string;
-  
-  // Setup
-  hasCompletedOnboarding: boolean;
-  
-  // Metadata
-  createdAt: Date;
-  updatedAt: Date;
+  portfolio: {
+    totalUnits: number;
+    occupiedUnits: number;
+    propertyIds: string[];
+  };
+  settings: {
+    defaultLeaseTermMonths: number;
+    renewalNoticeDays: number;
+    autoAlerts: boolean;
+    alertEmail: string;
+  };
+  market: {
+    targetCity: string;
+    targetState: string;
+    submarkets: string[];
+  };
+  retentionGoals: {
+    targetRetentionRate: number;
+    maxAcceptableVacancyDays: number;
+    renewalIncentiveBudget: number;
+  };
+  notifications: {
+    leaseExpirations: boolean;
+    marketChanges: boolean;
+    retentionAlerts: boolean;
+    weeklyDigest: boolean;
+  };
 }
 
-/**
- * Landlord Data Engine
- */
 export class LandlordDataEngine extends UserDataEngine<LandlordData> {
   constructor(userId: string) {
-    super(userId, 'landlord', {
-      enableCache: true,
-      autoRefresh: false,
-      debug: false,
-    });
+    super(userId, 'landlord');
   }
-  
-  /**
-   * Default landlord data structure
-   */
-  protected getDefaults(): LandlordData {
+
+  getDefaults(): LandlordData {
     return {
-      properties: [],
-      portfolioMetrics: {
-        totalProperties: 0,
+      portfolio: {
         totalUnits: 0,
-        occupancyRate: 0,
-        avgRent: 0,
-        monthlyRevenue: 0,
-        annualRevenue: 0,
+        occupiedUnits: 0,
+        propertyIds: [],
       },
-      pricingSettings: {
-        dynamicPricing: false,
-        minimumPrice: 0,
-        maximumPrice: 10000,
-        seasonalAdjustments: false,
-        competitorTracking: false,
+      settings: {
+        defaultLeaseTermMonths: 12,
+        renewalNoticeDays: 60,
+        autoAlerts: true,
+        alertEmail: '',
       },
-      alerts: [],
-      marketTracking: {
-        competitorProperties: [],
-        trackedMarkets: [],
-        pricingBenchmarks: [],
+      market: {
+        targetCity: '',
+        targetState: '',
+        submarkets: [],
       },
-      contactEmail: '',
-      contactPhone: undefined,
-      preferredContactMethod: 'email',
-      companyName: undefined,
-      licenseNumber: undefined,
-      hasCompletedOnboarding: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      retentionGoals: {
+        targetRetentionRate: 90,
+        maxAcceptableVacancyDays: 30,
+        renewalIncentiveBudget: 500,
+      },
+      notifications: {
+        leaseExpirations: true,
+        marketChanges: true,
+        retentionAlerts: true,
+        weeklyDigest: false,
+      },
     };
   }
-  
-  /**
-   * Validate landlord data
-   */
-  protected validate(data: LandlordData): boolean {
-    // Contact email required
-    if (!data.contactEmail) {
-      console.error('Contact email required');
-      return false;
+
+  async updatePortfolio(portfolio: Partial<LandlordData['portfolio']>): Promise<LandlordData> {
+    const current = this.getData()?.portfolio || this.getDefaults().portfolio;
+    return this.save({ portfolio: { ...current, ...portfolio } });
+  }
+
+  async updateSettings(settings: Partial<LandlordData['settings']>): Promise<LandlordData> {
+    const current = this.getData()?.settings || this.getDefaults().settings;
+    return this.save({ settings: { ...current, ...settings } });
+  }
+
+  async updateRetentionGoals(goals: Partial<LandlordData['retentionGoals']>): Promise<LandlordData> {
+    const current = this.getData()?.retentionGoals || this.getDefaults().retentionGoals;
+    return this.save({ retentionGoals: { ...current, ...goals } });
+  }
+
+  async addProperty(propertyId: string): Promise<LandlordData> {
+    const current = this.getData()?.portfolio.propertyIds || [];
+    if (!current.includes(propertyId)) {
+      return this.updatePortfolio({
+        propertyIds: [...current, propertyId],
+        totalUnits: current.length + 1,
+      });
     }
-    
-    return true;
+    return this.getData() || this.getDefaults();
   }
-  
-  // ============================================
-  // LANDLORD-SPECIFIC METHODS
-  // ============================================
-  
-  /**
-   * Add property
-   */
-  async addProperty(property: LandlordProperty): Promise<void> {
-    const current = await this.load();
-    const updated = {
-      properties: [...current.properties, property],
-    };
-    await this.save(updated as Partial<LandlordData>);
-    await this.recalculateMetrics();
-  }
-  
-  /**
-   * Remove property
-   */
-  async removeProperty(propertyId: string): Promise<void> {
-    const current = await this.load();
-    const updated = {
-      properties: current.properties.filter(p => p.id !== propertyId),
-    };
-    await this.save(updated as Partial<LandlordData>);
-    await this.recalculateMetrics();
-  }
-  
-  /**
-   * Update property
-   */
-  async updateProperty(propertyId: string, updates: Partial<LandlordProperty>): Promise<void> {
-    const current = await this.load();
-    const updated = {
-      properties: current.properties.map(p =>
-        p.id === propertyId ? { ...p, ...updates } : p
-      ),
-    };
-    await this.save(updated as Partial<LandlordData>);
-    await this.recalculateMetrics();
-  }
-  
-  /**
-   * Update pricing settings
-   */
-  async updatePricingSettings(settings: Partial<PricingSettings>): Promise<void> {
-    const current = await this.load();
-    const updated = {
-      pricingSettings: {
-        ...current.pricingSettings,
-        ...settings,
-      },
-    };
-    await this.save(updated as Partial<LandlordData>);
-  }
-  
-  /**
-   * Add alert
-   */
-  async addAlert(alert: LandlordAlert): Promise<void> {
-    const current = await this.load();
-    const updated = {
-      alerts: [alert, ...current.alerts].slice(0, 100), // Keep last 100
-    };
-    await this.save(updated as Partial<LandlordData>);
-  }
-  
-  /**
-   * Mark alert as read
-   */
-  async markAlertRead(alertId: string): Promise<void> {
-    const current = await this.load();
-    const updated = {
-      alerts: current.alerts.map(a =>
-        a.id === alertId ? { ...a, read: true } : a
-      ),
-    };
-    await this.save(updated as Partial<LandlordData>);
-  }
-  
-  /**
-   * Clear all alerts
-   */
-  async clearAlerts(): Promise<void> {
-    await this.save({ alerts: [] } as Partial<LandlordData>);
-  }
-  
-  /**
-   * Update contact info
-   */
-  async updateContactInfo(updates: {
-    contactEmail?: string;
-    contactPhone?: string;
-    preferredContactMethod?: 'email' | 'phone' | 'both';
-  }): Promise<void> {
-    await this.save(updates as Partial<LandlordData>);
-  }
-  
-  /**
-   * Mark onboarding complete
-   */
-  async completeOnboarding(): Promise<void> {
-    await this.save({
-      hasCompletedOnboarding: true,
-    } as Partial<LandlordData>);
-  }
-  
-  /**
-   * Recalculate portfolio metrics
-   */
-  private async recalculateMetrics(): Promise<void> {
-    const current = await this.load();
-    
-    const totalProperties = current.properties.length;
-    const totalUnits = current.properties.reduce((sum, p) => sum + p.units, 0);
-    const avgOccupancy = totalProperties > 0
-      ? current.properties.reduce((sum, p) => sum + p.occupancyRate, 0) / totalProperties
-      : 0;
-    const avgRent = totalProperties > 0
-      ? current.properties.reduce((sum, p) => sum + p.avgRent, 0) / totalProperties
-      : 0;
-    const monthlyRevenue = current.properties.reduce(
-      (sum, p) => sum + (p.avgRent * p.units * (p.occupancyRate / 100)),
-      0
-    );
-    
-    const metrics: PortfolioMetrics = {
-      totalProperties,
-      totalUnits,
-      occupancyRate: avgOccupancy,
-      avgRent,
-      monthlyRevenue,
-      annualRevenue: monthlyRevenue * 12,
-    };
-    
-    await this.save({ portfolioMetrics: metrics } as Partial<LandlordData>);
-  }
-  
-  // ============================================
-  // MARKET INTELLIGENCE METHODS
-  // ============================================
-  
-  /**
-   * Track competitor property
-   */
-  async trackCompetitor(propertyId: string): Promise<void> {
-    const current = await this.load();
-    if (!current.marketTracking.competitorProperties.includes(propertyId)) {
-      const updated = {
-        marketTracking: {
-          ...current.marketTracking,
-          competitorProperties: [...current.marketTracking.competitorProperties, propertyId],
-        },
-      };
-      await this.save(updated as Partial<LandlordData>);
-    }
-  }
-  
-  /**
-   * Untrack competitor
-   */
-  async untrackCompetitor(propertyId: string): Promise<void> {
-    const current = await this.load();
-    const updated = {
-      marketTracking: {
-        ...current.marketTracking,
-        competitorProperties: current.marketTracking.competitorProperties.filter(id => id !== propertyId),
-      },
-    };
-    await this.save(updated as Partial<LandlordData>);
-  }
-  
-  /**
-   * Track market
-   */
-  async trackMarket(city: string, state: string): Promise<void> {
-    const current = await this.load();
-    const exists = current.marketTracking.trackedMarkets.some(
-      m => m.city.toLowerCase() === city.toLowerCase() && m.state.toLowerCase() === state.toLowerCase()
-    );
-    
-    if (!exists) {
-      const updated = {
-        marketTracking: {
-          ...current.marketTracking,
-          trackedMarkets: [...current.marketTracking.trackedMarkets, { city, state }],
-        },
-      };
-      await this.save(updated as Partial<LandlordData>);
-    }
-  }
-  
-  /**
-   * Set pricing benchmark
-   */
-  async setPricingBenchmark(location: string, targetRent: number): Promise<void> {
-    const current = await this.load();
-    const existing = current.marketTracking.pricingBenchmarks.findIndex(b => b.location === location);
-    
-    let benchmarks;
-    if (existing >= 0) {
-      benchmarks = current.marketTracking.pricingBenchmarks.map((b, i) =>
-        i === existing ? { location, targetRent } : b
-      );
-    } else {
-      benchmarks = [...current.marketTracking.pricingBenchmarks, { location, targetRent }];
-    }
-    
-    const updated = {
-      marketTracking: {
-        ...current.marketTracking,
-        pricingBenchmarks: benchmarks,
-      },
-    };
-    await this.save(updated as Partial<LandlordData>);
+
+  async removeProperty(propertyId: string): Promise<LandlordData> {
+    const current = this.getData()?.portfolio.propertyIds || [];
+    return this.updatePortfolio({
+      propertyIds: current.filter(id => id !== propertyId),
+      totalUnits: Math.max(0, current.length - 1),
+    });
   }
 }

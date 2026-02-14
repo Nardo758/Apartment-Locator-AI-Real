@@ -67,9 +67,9 @@ export interface PetPolicy {
   dogsAllowed?: boolean;
   catsAllowed?: boolean;
   petSizeRestrictions?: 'none' | 'small' | 'medium' | 'large';
-  maxPetWeight?: number; // lbs
-  petDeposit?: number; // $
-  petRent?: number; // $/month
+  maxPetWeight?: number;
+  petDeposit?: number;
+  petRent?: number;
   breedRestrictions?: boolean;
 }
 
@@ -84,7 +84,7 @@ export interface ParkingOptions {
   streetParking?: boolean;
   evCharging?: boolean;
   parkingSpaces?: number;
-  parkingFee?: number; // $/month
+  parkingFee?: number;
 }
 
 // ============================================
@@ -122,7 +122,7 @@ export interface LeaseTermPreferences {
   shortTermLeaseAvailable?: boolean;
   monthToMonthAvailable?: boolean;
   flexibleLeaseLength?: boolean;
-  preferredLeaseTerm?: 6 | 9 | 12 | 15 | 18 | 24; // months
+  preferredLeaseTerm?: 6 | 9 | 12 | 15 | 18 | 24;
   moveInDateFlexibility?: 'flexible' | 'specific-date' | 'specific-month';
 }
 
@@ -132,15 +132,15 @@ export interface LeaseTermPreferences {
 
 export interface LocationPreferences {
   nearPublicTransit?: boolean;
-  maxTransitDistance?: number; // miles
-  walkabilityScoreMin?: number; // 0-100
+  maxTransitDistance?: number;
+  walkabilityScoreMin?: number;
   nearGroceryStores?: boolean;
-  maxGroceryDistance?: number; // miles
+  maxGroceryDistance?: number;
   nearParks?: boolean;
   quietNeighborhood?: boolean;
   urbanSetting?: boolean;
   suburbanSetting?: boolean;
-  maxCommuteTime?: number; // minutes
+  maxCommuteTime?: number;
 }
 
 // ============================================
@@ -148,14 +148,12 @@ export interface LocationPreferences {
 // ============================================
 
 export interface ComprehensiveApartmentPreferences {
-  // Basic Requirements
-  bedrooms: string; // 'Studio', '1', '2', '3', '4+'
-  bathrooms?: string; // '1', '1.5', '2', '2.5', '3+'
+  bedrooms: string;
+  bathrooms?: string;
   squareFootageMin?: number;
   squareFootageMax?: number;
   furnished?: boolean;
   
-  // Amenities
   buildingAmenities?: BuildingAmenities;
   inUnitFeatures?: InUnitFeatures;
   utilities?: UtilitiesServices;
@@ -166,12 +164,9 @@ export interface ComprehensiveApartmentPreferences {
   leaseTerms?: LeaseTermPreferences;
   location?: LocationPreferences;
   
-  // Deal Breakers (things user absolutely won't accept)
   dealBreakers?: string[];
-  
-  // Priority Features (ranked by importance)
-  mustHaves?: string[]; // e.g., ['in-unit laundry', 'parking', 'pets allowed']
-  niceToHaves?: string[]; // e.g., ['pool', 'gym', 'balcony']
+  mustHaves?: string[];
+  niceToHaves?: string[];
 }
 
 // ============================================
@@ -179,19 +174,19 @@ export interface ComprehensiveApartmentPreferences {
 // ============================================
 
 export interface PreferenceMatchScore {
-  totalScore: number; // 0-100
+  totalScore: number;
   matchedFeatures: string[];
   missingFeatures: string[];
   dealBreakersPresent: string[];
   mustHavesMatched: number;
   niceToHavesMatched: number;
   breakdown: {
-    basicRequirements: number; // 0-25
-    buildingAmenities: number; // 0-20
-    inUnitFeatures: number; // 0-20
-    location: number; // 0-15
-    petPolicy: number; // 0-10
-    parking: number; // 0-10
+    basicRequirements: number;
+    buildingAmenities: number;
+    inUnitFeatures: number;
+    location: number;
+    petPolicy: number;
+    parking: number;
   };
 }
 

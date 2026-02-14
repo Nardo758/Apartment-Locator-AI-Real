@@ -21,6 +21,7 @@ interface UserContextType {
   login: (email: string, password: string) => Promise<User>;
   logout: () => void;
   register: (email: string, password: string, name?: string) => Promise<void>;
+  googleLogin: (credential: string) => Promise<User>;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -151,6 +152,30 @@ export const UserProvider = ({ children }: { children: ReactNode }): ReactNode =
     }
   };
 
+  const googleLogin = async (credential: string): Promise<User> => {
+    const { user: googleUser, token } = await api.googleAuth(credential);
+    localStorage.setItem(TOKEN_KEY, token);
+    
+    setUser(googleUser);
+    setUserTypeState(googleUser.userType || null);
+    
+    const storedUserType = userTypeStorage.get();
+    if (storedUserType && !googleUser.userType) {
+      try {
+        await api.updateUserType(token, storedUserType);
+        const updatedUser = { ...googleUser, userType: storedUserType };
+        setUser(updatedUser);
+        setUserTypeState(storedUserType);
+        userTypeStorage.clear();
+        return updatedUser;
+      } catch (error) {
+        console.error('Failed to migrate userType to database:', error);
+      }
+    }
+    
+    return googleUser;
+  };
+
   return (
     <UserContext.Provider value={{ 
       user, 
@@ -160,7 +185,8 @@ export const UserProvider = ({ children }: { children: ReactNode }): ReactNode =
       setUserType,
       login,
       logout,
-      register
+      register,
+      googleLogin
     }}>
       {children}
     </UserContext.Provider>
@@ -179,6 +205,7 @@ export const useUser = () => {
       login: async (): Promise<User> => { throw new Error('UserProvider not found'); },
       logout: () => {},
       register: async () => {},
+      googleLogin: async (): Promise<User> => { throw new Error('UserProvider not found'); },
     };
   }
   return context;

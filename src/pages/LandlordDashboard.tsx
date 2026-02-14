@@ -420,7 +420,7 @@ export default function LandlordDashboard() {
           </div>
         </div>
         <MarketIntelBar
-          location="Austin, TX"
+          location="Atlanta, GA"
           medianRent={MOCK_MARKET_DATA.medianRent}
           rentChange={MOCK_MARKET_DATA.rentChange}
           daysOnMarket={MOCK_MARKET_DATA.daysOnMarket}

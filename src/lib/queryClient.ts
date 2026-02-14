@@ -1,26 +1,28 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
-import { getAuthToken, handleUnauthorized } from "./authHelpers";
+
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem('token');
+  if (token) {
+    return { 'Authorization': `Bearer ${token}` };
+  }
+  return {};
+}
+
+function handleUnauthorizedRedirect() {
+  localStorage.removeItem('token');
+  if (window.location.pathname !== '/auth') {
+    window.location.href = '/auth';
+  }
+}
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     if (res.status === 401) {
-      handleUnauthorized();
+      handleUnauthorizedRedirect();
     }
     const text = (await res.text()) || res.statusText;
     throw new Error(`${res.status}: ${text}`);
   }
-}
-
-function getHeaders(data?: unknown): Record<string, string> {
-  const headers: Record<string, string> = {};
-  const token = getAuthToken();
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-  if (data) {
-    headers["Content-Type"] = "application/json";
-  }
-  return headers;
 }
 
 export async function apiRequest(
@@ -28,9 +30,16 @@ export async function apiRequest(
   url: string,
   data?: unknown
 ): Promise<Response> {
+  const headers: Record<string, string> = {
+    ...getAuthHeaders(),
+  };
+  if (data) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const res = await fetch(url, {
     method,
-    headers: getHeaders(data),
+    headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
@@ -47,12 +56,18 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const res = await fetch(queryKey[0] as string, {
-      headers: getHeaders(),
+      headers: {
+        ...getAuthHeaders(),
+      },
       credentials: "include",
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;
+    }
+
+    if (res.status === 401) {
+      handleUnauthorizedRedirect();
     }
 
     await throwIfResNotOk(res);

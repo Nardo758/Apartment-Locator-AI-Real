@@ -1,7 +1,7 @@
 modules = ["nodejs-20", "python-3.12", "bash", "postgresql-16"]
 [agent]
 expertMode = true
-integrations = ["javascript_database:1.0.0"]
+integrations = ["javascript_database:1.0.0", "stripe:2.0.0"]
 
 [nix]
 channel = "stable-25_05"
@@ -9,7 +9,7 @@ packages = ["unzip"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["npm", "start"]
+run = ["npm", "run", "start"]
 build = ["npm", "run", "build"]
 
 [workflows]
@@ -39,3 +39,7 @@ outputType = "webview"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]

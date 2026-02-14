@@ -81,9 +81,6 @@ export interface AmenitySavingsBreakdown {
 // AMENITY DETECTION
 // ============================================
 
-/**
- * Detect amenities from property features
- */
 export function detectAmenities(property: {
   features?: string[];
   amenities?: string[];
@@ -95,14 +92,39 @@ export function detectAmenities(property: {
 }): string[] {
   const detected: string[] = [];
   
-  // Combine all text sources
+  const LEGACY_KEY_MAP: Record<string, string> = {
+    'in_unit_laundry': 'in-unit laundry',
+    'washer_dryer': 'washer dryer',
+    'in_building_laundry': 'on-site laundry',
+    'water': 'water included',
+    'electric': 'electric included',
+    'gas': 'gas included',
+    'trash': 'trash included',
+    'sewer': 'water included',
+    'heat': 'heat included',
+    'internet': 'internet included',
+    'cable': 'cable included',
+    'ac': 'air conditioning',
+    'parking': 'parking included',
+    'covered_parking': 'covered parking',
+    'garage': 'garage parking',
+    'storage': 'storage unit',
+    'bike_storage': 'bike storage',
+    'fitness_center': 'fitness',
+    'pet_friendly': 'no pet rent',
+  };
+
+  const normalizedAmenities = (property.amenities || []).map(a => {
+    const key = a.toLowerCase().replace(/[\s-]+/g, '_');
+    return LEGACY_KEY_MAP[key] || a;
+  });
+
   const allText = [
     ...(property.features || []),
-    ...(property.amenities || []),
+    ...normalizedAmenities,
     property.description || '',
   ].join(' ').toLowerCase();
   
-  // Building amenities
   if (allText.includes('gym') || allText.includes('fitness')) detected.push('gym');
   if (allText.includes('pool')) detected.push('pool');
   if (allText.includes('business center') || allText.includes('coworking')) detected.push('businessCenter');
@@ -112,7 +134,6 @@ export function detectAmenities(property: {
   if (allText.includes('concierge')) detected.push('concierge');
   if (allText.includes('doorman')) detected.push('doorman');
   
-  // Parking
   if (property.parking_type === 'included' || allText.includes('parking included')) {
     detected.push('parkingIncluded');
   }
@@ -123,18 +144,15 @@ export function detectAmenities(property: {
     detected.push('coveredParking');
   }
   
-  // Laundry
   if (property.laundry_type === 'in-unit' || allText.includes('in-unit laundry') || allText.includes('washer dryer')) {
     detected.push('laundryInUnit');
   } else if (property.laundry_type === 'in-building' || allText.includes('on-site laundry')) {
     detected.push('laundryInBuilding');
   }
   
-  // Storage
   if (allText.includes('storage unit') || allText.includes('additional storage')) detected.push('storageUnit');
   if (allText.includes('bike storage') || allText.includes('bike room')) detected.push('bikeStorage');
   
-  // Utilities
   const utilitiesIncluded = property.utilities_included || [];
   if (utilitiesIncluded.includes('heat') || allText.includes('heat included')) detected.push('heatIncluded');
   if (utilitiesIncluded.includes('water') || allText.includes('water included')) detected.push('waterIncluded');
@@ -144,10 +162,8 @@ export function detectAmenities(property: {
   if (utilitiesIncluded.includes('internet') || allText.includes('internet included')) detected.push('internetIncluded');
   if (utilitiesIncluded.includes('cable') || allText.includes('cable included')) detected.push('cableIncluded');
   
-  // Pets
   if (property.pet_policy?.no_pet_rent || allText.includes('no pet rent')) detected.push('noPetRent');
   
-  // Elevator
   if (allText.includes('elevator')) detected.push('elevatorAccess');
   
   return detected;
@@ -242,9 +258,6 @@ const AMENITY_CATEGORIES: Record<string, AmenityValue['category']> = {
 // CALCULATE AMENITY VALUE
 // ============================================
 
-/**
- * Calculate total monthly savings from included amenities
- */
 export function calculateAmenitySavings(detectedAmenities: string[]): AmenitySavingsBreakdown {
   const includedAmenities: AmenityValue[] = [];
   
@@ -288,9 +301,6 @@ export function calculateAmenitySavings(detectedAmenities: string[]): AmenitySav
 // CALCULATE TRUE COST WITH AMENITIES
 // ============================================
 
-/**
- * Calculate True Monthly Cost factoring in included amenities
- */
 export function calculateTrueCostWithAmenities(
   baseRent: number,
   commuteCost: number,
@@ -318,41 +328,34 @@ export function calculateTrueCostWithAmenities(
   trueMonthlyCost: number;
   breakdown: AmenitySavingsBreakdown;
 } {
-  // Detect amenities
   const detectedAmenities = detectAmenities(property);
-  
-  // Calculate amenity savings
   const breakdown = calculateAmenitySavings(detectedAmenities);
   
-  // Calculate additional costs (only if NOT included)
   let additionalCosts = 0;
   
-  // Parking cost (if not included)
-  if (!detectedAmenities.some(a => a.includes('parking')) && otherCosts.parking) {
+  const parkingKeys = ['parkingIncluded', 'garageParking', 'coveredParking'];
+  if (!detectedAmenities.some(a => parkingKeys.includes(a)) && otherCosts.parking) {
     additionalCosts += otherCosts.parking;
   }
   
-  // Gym cost (if no gym amenity)
   if (!detectedAmenities.includes('gym') && otherCosts.gym) {
     additionalCosts += otherCosts.gym;
   }
   
-  // Laundry cost (if no in-unit/building laundry)
-  if (!detectedAmenities.some(a => a.includes('laundry')) && otherCosts.laundry) {
+  const laundryKeys = ['laundryInUnit', 'laundryInBuilding'];
+  if (!detectedAmenities.some(a => laundryKeys.includes(a)) && otherCosts.laundry) {
     additionalCosts += otherCosts.laundry;
   }
   
-  // Utilities cost (if not included)
-  if (!detectedAmenities.some(a => a.includes('Included')) && otherCosts.utilities) {
+  const utilityKeys = ['heatIncluded', 'waterIncluded', 'electricIncluded', 'gasIncluded', 'trashIncluded', 'internetIncluded', 'cableIncluded'];
+  if (!detectedAmenities.some(a => utilityKeys.includes(a)) && otherCosts.utilities) {
     additionalCosts += otherCosts.utilities;
   }
   
-  // Grocery cost (always applies)
   if (otherCosts.grocery) {
     additionalCosts += otherCosts.grocery;
   }
   
-  // True cost = base rent + commute + additional costs - amenity savings
   const trueMonthlyCost = baseRent + commuteCost + additionalCosts - breakdown.totalMonthlySavings;
   
   return {
@@ -369,9 +372,6 @@ export function calculateTrueCostWithAmenities(
 // HELPER: USER-FRIENDLY DISPLAY
 // ============================================
 
-/**
- * Format amenity savings for display
- */
 export function formatAmenitySavings(breakdown: AmenitySavingsBreakdown): string {
   if (breakdown.includedAmenities.length === 0) {
     return 'No included amenities';

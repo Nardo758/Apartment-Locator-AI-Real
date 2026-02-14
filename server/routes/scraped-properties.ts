@@ -1,295 +1,171 @@
-/**
- * Scraped Properties API Routes
- * Queries the apartment-scraper-worker Supabase tables
- */
+import type { Express, Request, Response } from "express";
+import { createClient } from "@supabase/supabase-js";
+import { enrichPropertiesWithPhotos, getPropertyPhoto } from "../services/places-photo";
 
-import { Router } from 'express';
-import { createClient } from '@supabase/supabase-js';
-
-const router = Router();
-
-// Initialize Supabase client (same database as apartment-scraper-worker)
-const supabaseUrl = process.env.SUPABASE_URL || 'https://jdymvpasjsdbryatscux.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || '';
-
-if (!supabaseKey) {
-  console.error('Warning: SUPABASE_ANON_KEY not set. Scraped properties API will not work.');
+function getSupabaseClient() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_ANON_KEY;
+  if (!url || !key) {
+    throw new Error("SUPABASE_URL and SUPABASE_ANON_KEY must be set");
+  }
+  return createClient(url, key);
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+function mapProperty(raw: any) {
+  return {
+    id: String(raw.id),
+    property_id: raw.property_id,
+    unit_number: raw.unit_number,
+    external_id: raw.external_id,
+    source: raw.source,
+    name: raw.name || raw.unit_number || 'Unknown',
+    address: raw.address || '',
+    city: raw.city || '',
+    state: raw.state || '',
+    zip_code: raw.zip_code,
+    min_rent: raw.min_rent ?? raw.current_price ?? undefined,
+    max_rent: raw.max_rent ?? raw.current_price ?? undefined,
+    bedrooms_min: raw.bedrooms_min ?? raw.bedrooms ?? undefined,
+    bedrooms_max: raw.bedrooms_max ?? raw.bedrooms ?? undefined,
+    bathrooms_min: raw.bathrooms_min ?? raw.bathrooms ?? undefined,
+    bathrooms_max: raw.bathrooms_max ?? raw.bathrooms ?? undefined,
+    special_offers: raw.special_offers ?? raw.specials ?? undefined,
+    amenities: raw.amenities ?? raw.unit_features ?? undefined,
+    pet_policy: raw.pet_policy ?? undefined,
+    phone: raw.phone ?? undefined,
+    website_url: raw.website_url ?? raw.listing_url ?? undefined,
+    image_url: raw.image_url ?? undefined,
+    latitude: raw.latitude ?? undefined,
+    longitude: raw.longitude ?? undefined,
+    sqft: raw.sqft ?? raw.square_feet ?? undefined,
+    scraped_at: raw.scraped_at ?? raw.last_seen_at ?? undefined,
+    status: raw.status,
+    volatility_score: raw.volatility_score,
+    price_change_count: raw.price_change_count,
+  };
+}
 
-/**
- * GET /api/scraped-properties
- * Search for scraped properties with filters
- */
-router.get('/', async (req, res) => {
-  try {
-    const {
-      city,
-      state,
-      min_price,
-      max_price,
-      min_beds,
-      amenity,
-      limit = 50,
-      offset = 0,
-    } = req.query;
+export function registerScrapedPropertyRoutes(app: Express): void {
+  app.get("/api/scraped-properties", async (_req: Request, res: Response) => {
+    try {
+      const supabase = getSupabaseClient();
+      const { data, error } = await supabase
+        .from("scraped_properties")
+        .select("*")
+        .order("scraped_at", { ascending: false });
 
-    let query = supabase
-      .from('property_listings')
-      .select('*')
-      .order('min_price', { ascending: true })
-      .range(Number(offset), Number(offset) + Number(limit) - 1);
+      if (error) {
+        console.error("Supabase query error:", error);
+        return res.status(500).json({ error: "Failed to fetch scraped properties" });
+      }
 
-    // Apply filters
-    if (city) {
-      query = query.ilike('city', `%${city}%`);
-    }
-    if (state) {
-      query = query.ilike('state', state as string);
-    }
-    if (min_price) {
-      query = query.gte('min_price', Number(min_price) * 100); // Convert to cents
-    }
-    if (max_price) {
-      query = query.lte('max_price', Number(max_price) * 100);
-    }
-
-    const { data, error, count } = await query;
-
-    if (error) {
-      console.error('Error fetching properties:', error);
-      return res.status(500).json({ error: 'Failed to fetch properties' });
-    }
-
-    // Convert prices back to dollars for display
-    const properties = data?.map(p => ({
-      ...p,
-      min_price: p.min_price ? p.min_price / 100 : null,
-      max_price: p.max_price ? p.max_price / 100 : null,
-    })) || [];
-
-    res.json({
-      properties,
-      total: count,
-      limit: Number(limit),
-      offset: Number(offset),
-    });
-  } catch (error: any) {
-    console.error('Error in scraped properties search:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * GET /api/scraped-properties/:id
- * Get detailed property information including all lease rates
- */
-router.get('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Get property details
-    const { data: property, error: propError } = await supabase
-      .from('properties')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (propError || !property) {
-      return res.status(404).json({ error: 'Property not found' });
-    }
-
-    // Get lease rates
-    const { data: leaseRates, error: ratesError } = await supabase
-      .from('lease_rates')
-      .select('*')
-      .eq('property_id', id)
-      .order('price', { ascending: true });
-
-    if (ratesError) {
-      console.error('Error fetching lease rates:', ratesError);
-    }
-
-    // Get concessions
-    const { data: concessions, error: concessionsError } = await supabase
-      .from('concessions')
-      .select('*')
-      .eq('property_id', id)
-      .eq('active', true);
-
-    if (concessionsError) {
-      console.error('Error fetching concessions:', concessionsError);
-    }
-
-    // Get amenities
-    const { data: amenities, error: amenitiesError } = await supabase
-      .from('property_amenities')
-      .select('amenity_id, amenities(name)')
-      .eq('property_id', id);
-
-    if (amenitiesError) {
-      console.error('Error fetching amenities:', amenitiesError);
-    }
-
-    // Convert prices to dollars
-    const formattedRates = leaseRates?.map(rate => ({
-      ...rate,
-      price: rate.price / 100,
-    })) || [];
-
-    res.json({
-      property,
-      lease_rates: formattedRates,
-      concessions: concessions || [],
-      amenities: amenities?.map((a: any) => a.amenities?.name).filter(Boolean) || [],
-    });
-  } catch (error: any) {
-    console.error('Error fetching property details:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * GET /api/scraped-properties/:id/available-units
- * Get all available units for a property
- */
-router.get('/:id/available-units', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const { data, error } = await supabase
-      .from('available_units')
-      .select('*')
-      .eq('id', id) // This queries using the property_id through the view
-      .order('monthly_rent', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching available units:', error);
-      return res.status(500).json({ error: 'Failed to fetch available units' });
-    }
-
-    res.json({ units: data || [] });
-  } catch (error: any) {
-    console.error('Error in available units query:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * GET /api/scraped-properties/:id/concessions
- * Get active concessions for a property
- */
-router.get('/:id/concessions', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const { data, error } = await supabase
-      .from('active_concessions')
-      .select('*')
-      .eq('id', id); // Through the view
-
-    if (error) {
-      console.error('Error fetching concessions:', error);
-      return res.status(500).json({ error: 'Failed to fetch concessions' });
-    }
-
-    res.json({ concessions: data || [] });
-  } catch (error: any) {
-    console.error('Error in concessions query:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * POST /api/scraped-properties/search
- * Advanced search with multiple filters
- */
-router.post('/search', async (req, res) => {
-  try {
-    const {
-      city,
-      state,
-      min_price,
-      max_price,
-      min_beds,
-      amenity,
-      limit = 50,
-      offset = 0,
-    } = req.body;
-
-    // Use the stored procedure for complex searches
-    const { data, error } = await supabase
-      .rpc('search_properties', {
-        p_city: city || null,
-        p_state: state || null,
-        p_min_price: min_price ? min_price * 100 : null, // Convert to cents
-        p_max_price: max_price ? max_price * 100 : null,
-        p_min_beds: min_beds || null,
-        p_amenity: amenity || null,
+      const mapped = (data || []).map(mapProperty);
+      const enriched = await enrichPropertiesWithPhotos(data || [], supabase);
+      const result = mapped.map((p: any) => {
+        if (p.image_url) return p;
+        const match = enriched.find((e: any) => String(e.id) === String(p.id));
+        return match?.image_url ? { ...p, image_url: match.image_url } : p;
       });
-
-    if (error) {
-      console.error('Error in property search:', error);
-      return res.status(500).json({ error: 'Search failed' });
+      res.json(result);
+    } catch (err) {
+      console.error("Scraped properties error:", err);
+      res.status(500).json({ error: "Internal server error" });
     }
+  });
 
-    // Convert prices back to dollars
-    const properties = data?.map((p: any) => ({
-      ...p,
-      min_price: p.min_price ? p.min_price / 100 : null,
-      max_price: p.max_price ? p.max_price / 100 : null,
-    })) || [];
+  app.get("/api/scraped-properties/stats", async (_req: Request, res: Response) => {
+    try {
+      const supabase = getSupabaseClient();
+      const { data, error, count } = await supabase
+        .from("scraped_properties")
+        .select("*", { count: "exact" });
 
-    res.json({
-      properties,
-      total: properties.length,
-    });
-  } catch (error: any) {
-    console.error('Error in advanced search:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
+      if (error) {
+        console.error("Supabase stats error:", error);
+        return res.status(500).json({ error: "Failed to fetch stats" });
+      }
 
-/**
- * GET /api/scraped-properties/stats/summary
- * Get summary statistics of scraped properties
- */
-router.get('/stats/summary', async (req, res) => {
-  try {
-    const { data: totalProperties, error: propError } = await supabase
-      .from('properties')
-      .select('id', { count: 'exact', head: true });
+      const properties = (data || []).map(mapProperty);
+      const withOffers = properties.filter((p: any) => p.special_offers);
+      const rents = properties
+        .map((p: any) => p.min_rent || p.max_rent)
+        .filter((r: any) => r && r > 0);
+      const avgRent = rents.length > 0
+        ? Math.round(rents.reduce((a: number, b: number) => a + b, 0) / rents.length)
+        : 0;
 
-    const { data: totalRates, error: ratesError } = await supabase
-      .from('lease_rates')
-      .select('id', { count: 'exact', head: true });
+      res.json({
+        totalProperties: count || properties.length,
+        propertiesWithOffers: withOffers.length,
+        averageRent: avgRent,
+        cities: [...new Set(properties.map((p: any) => p.city).filter(Boolean))],
+      });
+    } catch (err) {
+      console.error("Scraped properties stats error:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
 
-    const { data: totalConcessions, error: concessionsError } = await supabase
-      .from('concessions')
-      .select('id', { count: 'exact', head: true });
+  app.get("/api/places-photo", async (req: Request, res: Response) => {
+    try {
+      const address = req.query.address as string;
+      const city = req.query.city as string;
+      const state = req.query.state as string;
+      const source = req.query.source as string | undefined;
 
-    // Get properties by city
-    const { data: cityCounts, error: cityError } = await supabase
-      .from('properties')
-      .select('city')
-      .not('city', 'is', null);
+      if (!address) {
+        return res.status(400).json({ error: "address query parameter is required" });
+      }
 
-    const cityStats = cityCounts?.reduce((acc: any, curr: any) => {
-      acc[curr.city] = (acc[curr.city] || 0) + 1;
-      return acc;
-    }, {});
+      const photoUrl = await getPropertyPhoto(address, city || "", state || "", source);
+      res.json({ photo_url: photoUrl });
+    } catch (err) {
+      console.error("Places photo lookup error:", err);
+      res.status(500).json({ error: "Failed to look up photo" });
+    }
+  });
 
-    res.json({
-      total_properties: (totalProperties as any)?.count || 0,
-      total_lease_rates: (totalRates as any)?.count || 0,
-      total_concessions: (totalConcessions as any)?.count || 0,
-      properties_by_city: cityStats || {},
-    });
-  } catch (error: any) {
-    console.error('Error fetching stats:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
+  app.get("/api/scraped-properties/:id", async (req: Request, res: Response) => {
+    try {
+      const supabase = getSupabaseClient();
+      const { data, error } = await supabase
+        .from("scraped_properties")
+        .select("*")
+        .eq("id", req.params.id)
+        .single();
 
-export default router;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          return res.status(404).json({ error: "Property not found" });
+        }
+        console.error("Supabase query error:", error);
+        return res.status(500).json({ error: "Failed to fetch property" });
+      }
+
+      const mapped = mapProperty(data);
+      if (!mapped.image_url && mapped.address && !mapped.address.startsWith("http")) {
+        const photoUrl = await getPropertyPhoto(
+          mapped.address,
+          mapped.city || "",
+          mapped.state || "",
+          data.source
+        );
+        if (photoUrl) {
+          mapped.image_url = photoUrl;
+          try {
+            await supabase
+              .from("scraped_properties")
+              .update({ image_url: photoUrl })
+              .eq("id", req.params.id);
+          } catch (err) {
+            console.error("Failed to cache photo URL:", err);
+          }
+        }
+      }
+      res.json(mapped);
+    } catch (err) {
+      console.error("Scraped property detail error:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+}

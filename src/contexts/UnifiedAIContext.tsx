@@ -20,6 +20,8 @@ const DEFAULT_INPUTS: UnifiedAIInputs = {
   budget: 2500,
   location: '',
   zipCode: '',
+  currentRentalRate: undefined,
+  leaseExpirationDate: undefined,
   pointsOfInterest: [],
   commutePreferences: {
     daysPerWeek: 5,
@@ -207,8 +209,21 @@ export function UnifiedAIProvider({ children }: UnifiedAIProviderProps) {
       // TODO: Implement full scoring logic
       // This is a placeholder that will be expanded
       
+      console.log('🧠 Calculating Smart Scores...');
+      console.log('Inputs:', inputs);
+      
+      // For now, just clear results
+      // Real implementation will:
+      // 1. Calculate location scores (distances, costs)
+      // 2. Calculate preference matches
+      // 3. Apply market intelligence
+      // 4. Factor in concessions
+      // 5. Generate Smart Score
+      
       setScoredApartments([]);
       setLastCalculated(new Date());
+      
+      console.log('✅ Scoring complete');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Scoring failed';
       console.error('Scoring error:', errorMessage);
@@ -217,41 +232,6 @@ export function UnifiedAIProvider({ children }: UnifiedAIProviderProps) {
       setIsCalculating(false);
     }
   }, [inputs]);
-
-  // Refresh from Supabase
-  const refreshFromDatabase = useCallback(async () => {
-    try {
-      const { data: { session } } = await import('@/integrations/supabase/client').then(m => m.supabase.auth.getSession());
-      
-      if (session?.user) {
-        const { data: userPrefs } = await import('@/integrations/supabase/client').then(m => 
-          m.supabase
-            .from('user_preferences')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .single()
-        );
-
-        if (userPrefs) {
-          const mergedInputs: UnifiedAIInputs = {
-            ...inputs,
-            location: userPrefs.location || inputs.location,
-            budget: userPrefs.budget || inputs.budget,
-          };
-          
-          const { progress, completedSteps, missingInputs } = calculateSetupProgress(mergedInputs);
-          mergedInputs.setupProgress = progress;
-          mergedInputs.completedSteps = completedSteps;
-          mergedInputs.missingInputs = missingInputs;
-          
-          setInputs(mergedInputs);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedInputs));
-        }
-      }
-    } catch (err) {
-      console.error('Failed to refresh from database:', err);
-    }
-  }, [inputs, calculateSetupProgress]);
 
   // Reset to defaults
   const reset = useCallback(() => {
@@ -262,74 +242,22 @@ export function UnifiedAIProvider({ children }: UnifiedAIProviderProps) {
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
-  // Load from storage on mount (Supabase + localStorage)
+  // Load from storage on mount
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        // First, try to load from Supabase (source of truth)
-        const { data: { session } } = await import('@/integrations/supabase/client').then(m => m.supabase.auth.getSession());
-        
-        if (session?.user) {
-          const { data: userPrefs } = await import('@/integrations/supabase/client').then(m => 
-            m.supabase
-              .from('user_preferences')
-              .select('*')
-              .eq('user_id', session.user.id)
-              .single()
-          );
-
-          if (userPrefs) {
-            // Merge Supabase data with current inputs
-            const mergedInputs: UnifiedAIInputs = {
-              ...inputs,
-              location: userPrefs.location || inputs.location,
-              budget: userPrefs.budget || inputs.budget,
-              // Add more fields as they exist in user_preferences
-            };
-            
-            // Calculate progress
-            const { progress, completedSteps, missingInputs } = calculateSetupProgress(mergedInputs);
-            mergedInputs.setupProgress = progress;
-            mergedInputs.completedSteps = completedSteps;
-            mergedInputs.missingInputs = missingInputs;
-            
-            setInputs(mergedInputs);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedInputs));
-            return; // Exit early if we loaded from Supabase
-          }
-        }
-        
-        // Fallback to localStorage if no Supabase data
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          const { progress, completedSteps, missingInputs } = calculateSetupProgress(parsed);
-          parsed.setupProgress = progress;
-          parsed.completedSteps = completedSteps;
-          parsed.missingInputs = missingInputs;
-          setInputs(parsed);
-        }
-      } catch (err) {
-        console.error('Failed to load unified AI inputs:', err);
-        
-        // Final fallback to localStorage
-        try {
-          const stored = localStorage.getItem(STORAGE_KEY);
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            const { progress, completedSteps, missingInputs } = calculateSetupProgress(parsed);
-            parsed.setupProgress = progress;
-            parsed.completedSteps = completedSteps;
-            parsed.missingInputs = missingInputs;
-            setInputs(parsed);
-          }
-        } catch (localErr) {
-          console.error('Failed to load from localStorage:', localErr);
-        }
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Recalculate progress in case structure changed
+        const { progress, completedSteps, missingInputs } = calculateSetupProgress(parsed);
+        parsed.setupProgress = progress;
+        parsed.completedSteps = completedSteps;
+        parsed.missingInputs = missingInputs;
+        setInputs(parsed);
       }
-    };
-    
-    loadData();
+    } catch (err) {
+      console.error('Failed to load unified AI inputs:', err);
+    }
   }, [calculateSetupProgress]);
 
   const value: UnifiedAIContextType = {
@@ -343,7 +271,6 @@ export function UnifiedAIProvider({ children }: UnifiedAIProviderProps) {
     removePOI,
     updateMarketContext,
     calculateScores,
-    refreshFromDatabase,
     reset,
   };
 

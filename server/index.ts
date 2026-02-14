@@ -5,36 +5,28 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { createServer } from "http";
 import { seedAdminUser } from "./seed-admin";
+import { runMigrations } from 'stripe-replit-sync';
+import { getStripeSync } from "./stripeClient";
+import { WebhookHandlers } from "./webhookHandlers";
 
-// ============================================
-// Environment Variable Validation
-// ============================================
 const isProduction = process.env.NODE_ENV === "production";
 
-function validateEnv(): void {
-  const required: string[] = ["DATABASE_URL", "JWT_SECRET"];
-  const missing = required.filter((key) => !process.env[key]);
-
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missing.join(", ")}`
-    );
+function validateEnv() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL is required but not set");
   }
-
-  // Warn about production-critical vars
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is required but not set");
+  }
   if (isProduction) {
-    const productionRequired = [
-      "STRIPE_SECRET_KEY",
-      "STRIPE_WEBHOOK_SECRET",
-      "FRONTEND_URL",
-    ];
-    const productionMissing = productionRequired.filter(
-      (key) => !process.env[key]
-    );
-    if (productionMissing.length > 0) {
-      console.warn(
-        `[WARNING] Missing production environment variables: ${productionMissing.join(", ")}. Some features may not work correctly.`
-      );
+    if (!process.env.STRIPE_SECRET_KEY) {
+      log("WARNING: STRIPE_SECRET_KEY not set in production");
+    }
+    if (!process.env.STRIPE_WEBHOOK_SECRET) {
+      log("WARNING: STRIPE_WEBHOOK_SECRET not set in production");
+    }
+    if (!process.env.FRONTEND_URL) {
+      log("WARNING: FRONTEND_URL not set in production - Stripe redirects may fail");
     }
   }
 }
@@ -43,54 +35,102 @@ validateEnv();
 
 const app = express();
 app.set('trust proxy', 1);
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
-// ============================================
-// CORS Configuration
-// ============================================
-app.use(
-  cors({
-    origin: isProduction
-      ? process.env.FRONTEND_URL
-      : ["http://localhost:5000", "http://localhost:3000"],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+app.use(cors({
+  origin: isProduction
+    ? process.env.FRONTEND_URL || `https://${process.env.REPLIT_DOMAINS?.split(',')[0]}`
+    : true,
+  credentials: true,
+}));
 
-// ============================================
-// Rate Limiting
-// ============================================
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // 20 attempts per window
-  message: { error: "Too many requests, please try again later" },
+  windowMs: 15 * 60 * 1000,
+  max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  message: { error: "Too many requests, please try again later" },
 });
 
 const paymentLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
-  message: { error: "Too many payment requests, please try again later" },
   standardHeaders: true,
   legacyHeaders: false,
+  message: { error: "Too many requests, please try again later" },
 });
 
 const apiLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 100, // 100 requests per minute
-  message: { error: "Rate limit exceeded, please slow down" },
+  windowMs: 60 * 1000,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false,
+  message: { error: "Too many requests, please try again later" },
 });
 
-// Apply rate limits
 app.use("/api/auth/", authLimiter);
 app.use("/api/payments/", paymentLimiter);
 app.use("/api/", apiLimiter);
+
+async function initStripe() {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    log('DATABASE_URL not set, skipping Stripe init');
+    return;
+  }
+
+  try {
+    log('Initializing Stripe schema...');
+    await runMigrations({ databaseUrl });
+    log('Stripe schema ready');
+
+    const stripeSync = await getStripeSync();
+
+    const firstDomain = process.env.REPLIT_DOMAINS?.split(',')[0];
+    if (firstDomain) {
+      log('Setting up managed webhook...');
+      const webhookBaseUrl = `https://${firstDomain}`;
+      const webhook = await stripeSync.findOrCreateManagedWebhook(
+        `${webhookBaseUrl}/api/stripe/webhook`
+      );
+      log(`Webhook configured: ${webhook.url}`);
+    }
+
+    stripeSync.syncBackfill()
+      .then(() => log('Stripe data synced'))
+      .catch((err: any) => console.error('Error syncing Stripe data:', err));
+  } catch (error) {
+    console.error('Failed to initialize Stripe:', error);
+  }
+}
+
+app.post(
+  '/api/stripe/webhook',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    const signature = req.headers['stripe-signature'];
+    if (!signature) {
+      return res.status(400).json({ error: 'Missing stripe-signature' });
+    }
+
+    try {
+      const sig = Array.isArray(signature) ? signature[0] : signature;
+
+      if (!Buffer.isBuffer(req.body)) {
+        console.error('STRIPE WEBHOOK ERROR: req.body is not a Buffer');
+        return res.status(500).json({ error: 'Webhook processing error' });
+      }
+
+      await WebhookHandlers.processWebhook(req.body as Buffer, sig);
+      res.status(200).json({ received: true });
+    } catch (error: any) {
+      console.error('Webhook error:', error.message);
+      res.status(400).json({ error: 'Webhook processing error' });
+    }
+  }
+);
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -123,6 +163,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  await initStripe();
   await seedAdminUser();
   await registerRoutes(app);
 
@@ -136,22 +177,18 @@ app.use((req, res, next) => {
 
   const server = createServer(app);
 
-  const isDev = app.get("env") === "development" && process.env.NODE_ENV !== "production";
+  const isDev = app.get("env") === "development" && !isProduction;
   const forceVite = process.env.FORCE_VITE === "true";
 
-  if (forceVite) {
+  if (isDev || forceVite) {
     await setupVite(app, server);
   } else {
     try {
       serveStatic(app);
       log("Serving static build assets");
     } catch (error) {
-      if (isDev) {
-        log(`Static build not found, falling back to Vite: ${(error as Error).message}`);
-        await setupVite(app, server);
-      } else {
-        throw error;
-      }
+      log(`Static build not found, falling back to Vite: ${(error as Error).message}`);
+      await setupVite(app, server);
     }
   }
 

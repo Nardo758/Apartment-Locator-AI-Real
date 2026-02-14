@@ -20,6 +20,8 @@ export const buttonVariants = cva(
         "premium": "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5",
         "glass": "bg-white/80 dark:bg-white/5 text-gray-700 dark:text-white border border-gray-200 dark:border-white/10 rounded-xl backdrop-blur-sm hover:bg-white/90 dark:hover:bg-white/8 hover:border-gray-300 dark:hover:border-purple-500/30",
         "danger": "bg-red-500 text-white rounded-xl hover:bg-red-600 hover:-translate-y-0.5",
+        "cta-light": "bg-white text-blue-600 rounded-xl shadow-lg hover:bg-gray-100 hover:-translate-y-0.5 border-2 border-white/80",
+        "cta-dark": "bg-blue-900 text-white rounded-xl shadow-lg hover:bg-blue-950 hover:-translate-y-0.5 border-2 border-white/30",
       },
       size: {
         default: "h-11 px-6 py-3 text-base rounded-xl",

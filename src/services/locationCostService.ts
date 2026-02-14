@@ -1,7 +1,6 @@
 // ============================================
 // LOCATION COST SERVICE
 // Core calculation logic for True Monthly Cost
-// NOW WITH AMENITY VALUE INTEGRATION! 🎯
 // ============================================
 
 import type {
@@ -18,12 +17,7 @@ import type {
   DistanceMatrixResult,
   PlaceInfo,
 } from '@/types/locationCost.types';
-
-import {
-  detectAmenities,
-  calculateAmenitySavings,
-  type AmenitySavingsBreakdown,
-} from '@/lib/amenity-value-calculator';
+import { calculateAmenitySavings, detectAmenities } from '@/lib/amenity-value-calculator';
 
 // Constants
 const WEEKS_PER_MONTH = 4.33;
@@ -44,14 +38,7 @@ export async function calculateApartmentCosts(
     coordinates: Coordinates;
     baseRent: number;
     parkingIncluded?: boolean;
-    // Amenity detection fields
-    features?: string[];
     amenities?: string[];
-    description?: string;
-    utilities_included?: string[];
-    parking_type?: string;
-    laundry_type?: string;
-    pet_policy?: any;
   }>,
   googleMapsApiKey: string,
   gasPriceData?: GasPriceData
@@ -63,21 +50,6 @@ export async function calculateApartmentCosts(
   
   for (const apartment of apartments) {
     try {
-      // ============================================
-      // NEW: Detect amenities and calculate savings
-      // ============================================
-      const detectedAmenities = detectAmenities({
-        features: apartment.features,
-        amenities: apartment.amenities,
-        description: apartment.description,
-        utilities_included: apartment.utilities_included,
-        parking_type: apartment.parking_type,
-        laundry_type: apartment.laundry_type,
-        pet_policy: apartment.pet_policy,
-      });
-      
-      const amenitySavings = calculateAmenitySavings(detectedAmenities);
-      
       // Calculate commute cost
       const commuteCost = await calculateCommuteCost(
         apartment.coordinates,
@@ -87,11 +59,10 @@ export async function calculateApartmentCosts(
         googleMapsApiKey
       );
       
-      // Calculate parking cost (only if NOT included in amenities)
-      const hasParking = detectedAmenities.some(a => a.includes('parking'));
+      // Calculate parking cost
       const parkingCost = calculateParkingCost(
         apartment.coordinates,
-        hasParking || (apartment.parkingIncluded ?? false)
+        apartment.parkingIncluded ?? false
       );
       
       // Calculate grocery cost
@@ -103,15 +74,13 @@ export async function calculateApartmentCosts(
         googleMapsApiKey
       );
       
-      // Calculate gym cost (only if NOT included in amenities)
-      const hasGym = detectedAmenities.includes('gym');
+      // Calculate gym cost
       const gymCost = await calculateGymCost(
         apartment.coordinates,
         userInputs,
         gasPrice,
         mpg,
-        googleMapsApiKey,
-        hasGym // NEW: pass whether gym is included
+        googleMapsApiKey
       );
       
       // Calculate transit savings
@@ -121,20 +90,23 @@ export async function calculateApartmentCosts(
         googleMapsApiKey
       );
       
-      // ============================================
-      // NEW: Factor in amenity savings!
-      // ============================================
-      // Only add costs for things NOT included in rent
+      // Detect and calculate amenity savings
+      const detectedAmenities = detectAmenities({
+        amenities: apartment.amenities,
+        parking_type: apartment.parkingIncluded ? 'included' : undefined,
+      });
+      const amenityResult = calculateAmenitySavings(detectedAmenities);
+      
+      // Total location costs (subtract amenity savings)
       const totalLocationCosts = 
         commuteCost.totalMonthly +
-        (hasParking ? 0 : parkingCost.estimatedMonthly) +  // Don't add if included
+        parkingCost.estimatedMonthly +
         groceryCost.additionalGasCost +
-        (hasGym ? 0 : gymCost.additionalGasCost) +        // Don't add if included
-        -transitSavings.potentialMonthlySavings;
+        gymCost.additionalGasCost -
+        transitSavings.potentialMonthlySavings -
+        amenityResult.totalMonthlySavings;
       
-      // True cost = base rent + location costs - amenity savings
-      // Amenity savings reduce effective rent (e.g., utilities included)
-      const trueMonthlyCost = apartment.baseRent + totalLocationCosts - amenitySavings.totalMonthlySavings;
+      const trueMonthlyCost = apartment.baseRent + totalLocationCosts;
       
       results.push({
         apartmentId: apartment.id,
@@ -146,8 +118,10 @@ export async function calculateApartmentCosts(
         groceryCost,
         gymCost,
         transitSavings,
-        // NEW: Include amenity savings breakdown
-        amenitySavings: amenitySavings,
+        amenitySavings: {
+          totalMonthlyValue: amenityResult.totalMonthlySavings,
+          amenityNames: amenityResult.includedAmenities.map(a => a.displayName),
+        },
         totalLocationCosts: Math.round(totalLocationCosts),
         trueMonthlyCost: Math.round(trueMonthlyCost),
         vsAverageRent: 0, // calculated after all apartments
@@ -340,19 +314,8 @@ async function calculateGymCost(
   userInputs: UserLocationInputs,
   gasPrice: number,
   mpg: number,
-  apiKey: string,
-  hasGymInBuilding: boolean = false // NEW: skip calculation if gym included
+  apiKey: string
 ): Promise<GymCost> {
-  // If gym is included in building, no additional cost!
-  if (hasGymInBuilding) {
-    return {
-      tripsPerMonth: 0,
-      additionalGasCost: 0,
-      timeCostMinutes: 0,
-      gymIncludedInBuilding: true, // NEW field
-    };
-  }
-  
   if (!userInputs.hasGymMembership) {
     return {
       tripsPerMonth: 0,

@@ -12,19 +12,16 @@ import { LocationCostProvider } from "./contexts/LocationCostContext";
 import { UnifiedAIProvider } from "./contexts/UnifiedAIContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/routing/ProtectedRoute";
-import "./lib/data-tracker"; // Initialize data tracking
+import "./lib/data-tracker";
 
-// Eagerly loaded pages (landing, auth, common public pages)
-import LandingSSRSafe from "./pages/LandingSSRSafe";
-import AuthModern from "./pages/AuthModern";
-import NotFound from "./pages/NotFound";
-
-// Lazy loaded pages - split into separate chunks for better performance
+const LandingSSRSafe = lazy(() => import("./pages/LandingSSRSafe"));
 const About = lazy(() => import("./pages/About"));
 const AIFormulaNew = lazy(() => import("./pages/AIFormulaNew"));
 const PropertyDetails = lazy(() => import("./pages/PropertyDetails"));
 const GenerateOffer = lazy(() => import("./pages/GenerateOffer"));
 const MarketIntel = lazy(() => import("./pages/MarketIntel"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AuthModern = lazy(() => import("./pages/AuthModern"));
 const ProgramAIUnified = lazy(() => import("./pages/ProgramAIUnified"));
 const UnifiedDashboard = lazy(() => import("./pages/UnifiedDashboard"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -46,6 +43,7 @@ const LandlordPricing = lazy(() => import("./pages/LandlordPricing"));
 const LandlordOnboarding = lazy(() => import("./pages/LandlordOnboarding"));
 const LeaseVerification = lazy(() => import("./pages/LeaseVerification"));
 const SavedAndOffers = lazy(() => import("./pages/SavedAndOffers"));
+const ScrapedPropertyDetail = lazy(() => import("./pages/ScrapedPropertyDetail"));
 const EmailTemplates = lazy(() => import("./pages/EmailTemplates"));
 const RenewalOptimizer = lazy(() => import("./pages/RenewalOptimizer"));
 const AgentDashboard = lazy(() => import("./pages/AgentDashboard"));
@@ -56,13 +54,16 @@ const LandlordSettings = lazy(() => import("./components/landlord/LandlordSettin
 const LandlordRetentionDashboard = lazy(() => import("./pages/LandlordRetentionDashboard"));
 const BrowseScrapedProperties = lazy(() => import("./pages/BrowseScrapedProperties"));
 
-// Loading fallback for lazy-loaded pages
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-  </div>
-);
-
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-screen" data-testid="display-page-loader">
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-foreground" />
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </div>
+    </div>
+  );
+}
 
 const App = () => (
   <ErrorBoundary>
@@ -76,34 +77,30 @@ const App = () => (
                 <Sonner />
                 <BrowserRouter>
                 <OnboardingFlowProvider>
-                <Suspense fallback={<PageLoader />}>
+                  <Suspense fallback={<PageLoader />}>
                   <Routes>
-                    {/* Public Routes - No Authentication Required */}
                     <Route path="/" element={<LandingSSRSafe />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/pricing" element={<Pricing />} />
                     <Route path="/landlord-pricing" element={<LandlordPricing />} />
                     <Route path="/agent-pricing" element={<AgentPricing />} />
                     
-                    {/* Auth Routes */}
+                    <Route path="/browse-properties" element={<BrowseScrapedProperties />} />
                     <Route path="/auth" element={<AuthModern />} />
                     <Route path="/signup" element={<AuthModern />} />
                     <Route path="/trial" element={<AuthModern />} />
                     
-                    {/* Support & Legal - Public Access */}
                     <Route path="/help" element={<Help />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/terms" element={<TermsOfService />} />
                     <Route path="/privacy" element={<PrivacyPolicy />} />
                     
-                    {/* User Type Selection - Requires Auth */}
                     <Route path="/user-type" element={
                       <ProtectedRoute requireAuth>
                         <UserTypeSelection />
                       </ProtectedRoute>
                     } />
                     
-                    {/* Renter Dashboard - Requires Account */}
                     <Route path="/dashboard" element={
                       <ProtectedRoute requireAuth>
                         <UnifiedDashboard />
@@ -130,7 +127,6 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     
-                    {/* Renter-Specific Routes */}
                     <Route path="/program-ai" element={
                       <ProtectedRoute allowedUserTypes={['renter']}>
                         <ProgramAIUnified />
@@ -147,14 +143,10 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/saved-properties" element={
-                      <ProtectedRoute allowedUserTypes={['renter']}>
-                        <SavedAndOffers />
-                      </ProtectedRoute>
+                      <SavedAndOffers />
                     } />
-                    <Route path="/browse-properties" element={
-                      <ProtectedRoute allowedUserTypes={['renter']}>
-                        <BrowseScrapedProperties />
-                      </ProtectedRoute>
+                    <Route path="/scraped-property/:id" element={
+                      <ScrapedPropertyDetail />
                     } />
                     <Route path="/property/:id" element={
                       <ProtectedRoute allowedUserTypes={['renter']}>
@@ -182,7 +174,6 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     
-                    {/* Landlord-Specific Routes */}
                     <Route path="/landlord-onboarding" element={
                       <ProtectedRoute allowedUserTypes={['landlord']}>
                         <LandlordOnboarding />
@@ -224,7 +215,6 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     
-                    {/* Agent-Specific Routes */}
                     <Route path="/agent-onboarding" element={
                       <ProtectedRoute allowedUserTypes={['agent']}>
                         <AgentOnboarding />
@@ -236,17 +226,15 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     
-                    {/* Admin Routes */}
                     <Route path="/admin" element={
                       <ProtectedRoute allowedUserTypes={['admin']}>
                         <Admin />
                       </ProtectedRoute>
                     } />
                     
-                    {/* 404 Catch-all */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                </Suspense>
+                  </Suspense>
                 </OnboardingFlowProvider>
               </BrowserRouter>
             </TooltipProvider>

@@ -275,7 +275,7 @@ const ProgramAI = () => {
   const syncWithGlobalState = useCallback(() => {
     // Sync search filters with global state
     setSearchFilters({
-      location: searchFilters.location || 'Austin, TX',
+      location: searchFilters.location || 'Atlanta, GA',
       priceRange: [0, userPreferences.budget || 2500] as [number, number],
       bedrooms: parseInt(preferences.bedrooms) || 1,
       amenities: preferences.amenities
@@ -284,7 +284,7 @@ const ProgramAI = () => {
     // Sync user preferences with global state
     setUserPreferences({
       budget: userPreferences.budget || 2500,
-      location: userPreferences.location || 'Austin, TX',
+      location: userPreferences.location || 'Atlanta, GA',
       moveInDate: userPreferences.moveInDate
     });
   }, [searchFilters, userPreferences, preferences, setSearchFilters, setUserPreferences]);

@@ -6,6 +6,9 @@ import {
   ShoppingCart,
   Plus,
   ChevronDown,
+  Calendar,
+  DollarSign,
+  Home,
   ChevronRight,
   Trash2,
   Car,
@@ -96,6 +99,14 @@ interface LeftPanelSidebarProps {
   onCalculate: () => void;
   isCalculating?: boolean;
   className?: string;
+  currentRentalRate?: number | string;
+  onCurrentRentalRateChange?: (value: string) => void;
+  preferredBedrooms?: number;
+  onPreferredBedroomsChange?: (value: number) => void;
+  preferredBathrooms?: number;
+  onPreferredBathroomsChange?: (value: number) => void;
+  preferredMinSqft?: number;
+  onPreferredMinSqftChange?: (value: number) => void;
 }
 
 const COMMUTE_MODES = [
@@ -152,6 +163,14 @@ export default function LeftPanelSidebar({
   onCalculate,
   isCalculating = false,
   className = '',
+  currentRentalRate,
+  onCurrentRentalRateChange,
+  preferredBedrooms,
+  onPreferredBedroomsChange,
+  preferredBathrooms,
+  onPreferredBathroomsChange,
+  preferredMinSqft,
+  onPreferredMinSqftChange,
 }: LeftPanelSidebarProps) {
   const [expandedSections, setExpandedSections] = useState({
     locations: true,
@@ -380,7 +399,85 @@ export default function LeftPanelSidebar({
           </CollapsibleTrigger>
           <CollapsibleContent>
             <CardContent className="pt-0 space-y-4">
-              <div className="space-y-3">
+              {onCurrentRentalRateChange && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                    <DollarSign className="w-3 h-3" />
+                    CURRENT LEASE
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">Current Rent ($/mo)</Label>
+                    <Input
+                      type="number"
+                      placeholder="e.g., 1800"
+                      value={currentRentalRate || ''}
+                      onChange={(e) => onCurrentRentalRateChange(e.target.value)}
+                      className="h-8 text-sm"
+                      data-testid="input-sidebar-current-rent"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {onPreferredBedroomsChange && onPreferredBathroomsChange && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                    <Home className="w-3 h-3" />
+                    UNIT TYPE
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 space-y-1">
+                      <Label className="text-xs">Beds</Label>
+                      <Select
+                        value={String(preferredBedrooms ?? 1)}
+                        onValueChange={(v) => onPreferredBedroomsChange(Number(v))}
+                      >
+                        <SelectTrigger className="h-8 text-sm" data-testid="select-sidebar-bedrooms">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">Studio</SelectItem>
+                          <SelectItem value="1">1 bd</SelectItem>
+                          <SelectItem value="2">2 bd</SelectItem>
+                          <SelectItem value="3">3 bd</SelectItem>
+                          <SelectItem value="4">4+ bd</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <Label className="text-xs">Baths</Label>
+                      <Select
+                        value={String(preferredBathrooms ?? 1)}
+                        onValueChange={(v) => onPreferredBathroomsChange(Number(v))}
+                      >
+                        <SelectTrigger className="h-8 text-sm" data-testid="select-sidebar-bathrooms">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1 ba</SelectItem>
+                          <SelectItem value="2">2 ba</SelectItem>
+                          <SelectItem value="3">3+ ba</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  {onPreferredMinSqftChange && (
+                    <div className="space-y-1">
+                      <Label className="text-xs">Min Sq Ft</Label>
+                      <Input
+                        type="number"
+                        placeholder="e.g., 700"
+                        value={preferredMinSqft || ''}
+                        onChange={(e) => onPreferredMinSqftChange(Number(e.target.value))}
+                        className="h-8 text-sm"
+                        data-testid="input-sidebar-min-sqft"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="border-t pt-3 space-y-3">
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <Car className="w-3 h-3" />
                   COMMUTE

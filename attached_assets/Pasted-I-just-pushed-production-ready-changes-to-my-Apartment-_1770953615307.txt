@@ -1,0 +1,53 @@
+I just pushed production-ready changes to my Apartment Locator AI platform on branch `claude/production-ready-prep-WJeo5`. I need you to pull the latest changes and verify everything integrates correctly. Here's what was changed:
+
+## Round 1 - Production Hardening (commit d0bfd4f)
+
+**server/index.ts** - Added CORS middleware with environment-aware origins, 3 rate limiters (auth: 20/15min, payments: 10/15min, API: 100/min), environment variable validation at startup, and configurable PORT via env.
+
+**server/routes/payments.ts** - Replaced all hardcoded `http://localhost:5000` URLs with a `getFrontendUrl()` helper that reads FRONTEND_URL from env (throws in production if missing). Removed `details: error.message` from all 6 error responses to prevent info disclosure.
+
+**server/routes/lease-verification.ts** - Added input validation for rent amounts (parseInt with 1-100000 range check). Implemented the Stripe refund that was a TODO stub - it now looks up `purchase.stripePaymentIntentId`, calls `stripe.refunds.create()` with amount in cents, and updates verification status to "refunded". Removed error details from all responses.
+
+**src/lib/queryClient.ts** - Added JWT Bearer token injection into all API requests via `getHeaders()`. Added 401 detection that auto-redirects to /auth.
+
+**src/App.tsx** - Converted 30+ page imports to React.lazy() with Suspense wrapper and PageLoader spinner. Only LandingSSRSafe, AuthModern, and NotFound are eagerly loaded.
+
+**vite.config.ts** - Added manual chunks for vendor splitting: vendor-react, vendor-ui, vendor-charts, vendor-query. Reduced chunk warning limit to 500kB.
+
+**src/contexts/OnboardingFlowContext.tsx** - Wrapped all JSON.parse/parseInt calls in try-catch blocks.
+
+**Removed 20+ console.log statements** across: UnifiedAIContext.tsx, unified-rental-intelligence.ts, useUnifiedRentalIntelligence.ts, apartmentiq-ai.ts, LocationIntelligence.tsx, SmartMap.tsx, redfin-scraper.ts, usePaywall.ts.
+
+**Added .env to .gitignore** and created .env.example template.
+
+## Round 2 - Page Implementations (commit 0e495c4)
+
+**src/pages/MarketIntel.tsx** - Built out all 3 tabs that were empty:
+- Competitors tab: Regional rent comparison BarChart (Austin/Dallas/Houston by bedroom count), market position PieChart, competitor listings table with 5 properties showing rent, units, vacancy, DOM, concessions, trend arrows
+- Analytics tab: 12-month rent trends AreaChart (min/median/avg/max lines), supply & demand BarChart, 5 key market stats with change badges, seasonal pricing guide with 4 seasons
+- AI Insights tab: AI recommendation panel using intelligence data (leverage score, confidence, insights count), negotiation tips, market insights grid that renders intelligence.combinedInsights when available or falls back to static cards
+
+**src/pages/SavedAndOffers.tsx** - Complete rewrite from mock data to real API integration:
+- useQuery fetching from /api/saved-apartments/:userId
+- Property details enrichment from /api/properties/:id for each saved apartment
+- Delete mutation via apiRequest('DELETE') with query cache invalidation
+- CSV export generating blob download
+- Offers stored in localStorage with try-catch (no backend endpoint yet)
+- Loading spinner, error state with retry, empty state with browse CTA
+- Functional buttons: View Details navigates to /property/:id, Make Offer navigates to /generate-offer?propertyId=, Delete calls API mutation
+
+## What I need you to do:
+
+1. Pull the latest from branch `claude/production-ready-prep-WJeo5`
+2. Run `PUPPETEER_SKIP_DOWNLOAD=true npm install` (Puppeteer chromium download will fail in Replit)
+3. Verify the build passes with `npx vite build`
+4. Make sure `.env` has all required variables per `.env.example`
+5. Start the dev server and verify:
+   - CORS headers are present on API responses
+   - Rate limiting is active (check X-RateLimit headers)
+   - MarketIntel page renders all 3 tabs with charts and data
+   - SavedAndOffers page loads, shows loading state, fetches from API
+   - Lazy-loaded pages show the spinner before loading
+   - No console.log spam in browser devtools
+6. If any API endpoints are missing (like /api/saved-apartments/:userId or /api/properties/:id), create the necessary routes in the server to support the SavedAndOffers page
+7. Report any TypeScript errors, runtime errors, or broken imports

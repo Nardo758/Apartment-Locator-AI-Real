@@ -125,16 +125,17 @@ const SmartMap: React.FC<SmartMapProps> = ({
     }
   };
 
-  const handlePOIAdd = (_poi: Omit<PointOfInterest, 'id'>) => {
-    // Handled by parent component via props
+  const handlePOIAdd = (poi: Omit<PointOfInterest, 'id'>) => {
+    // This would normally be handled by the parent component
+    console.log('Adding POI:', poi);
   };
 
-  const handlePOIRemove = (_id: string) => {
-    // Handled by parent component via props
+  const handlePOIRemove = (id: string) => {
+    console.log('Removing POI:', id);
   };
 
-  const handlePOIUpdatePriority = (_id: string, _priority: 'high' | 'medium' | 'low') => {
-    // Handled by parent component via props
+  const handlePOIUpdatePriority = (id: string, priority: 'high' | 'medium' | 'low') => {
+    console.log('Updating POI priority:', id, priority);
   };
 
   return (

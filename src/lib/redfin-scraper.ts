@@ -113,7 +113,8 @@ class RedfinRentalScraper {
   }
 
   async downloadAndParseData(dataType: string): Promise<RawData> {
-    // For browser environments, external APIs are restricted, so we use mock data
+    // For Lovable environment, external APIs are restricted, so we'll use mock data
+    console.log(`Using mock data for ${dataType} due to CORS restrictions`);
     // Return raw data that will be processed by processRawDataToMetrics
     return this.generateRawMockData();
   }

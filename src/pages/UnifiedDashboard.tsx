@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home } from 'lucide-react';
+import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock, Target, Car, ParkingCircle, ShoppingCart, Dumbbell, Train, DollarSign, ChevronDown, ChevronUp, Sparkles, Brain, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,11 +10,18 @@ import Header from '@/components/Header';
 import MarketIntelBar from '@/components/dashboard/MarketIntelBar';
 import LeftPanelSidebar, { type LifestyleInputs, type CostCategory, type POICategory } from '@/components/dashboard/LeftPanelSidebar';
 import InteractivePropertyMap from '@/components/maps/InteractivePropertyMap';
+import { SavingsDataGate } from '@/components/SavingsDataGate';
+import { PaywallModal } from '@/components/PaywallModal';
+import { usePaywall } from '@/hooks/usePaywall';
 import { useLocationCostContext } from '@/contexts/LocationCostContext';
 import { useUnifiedAI } from '@/contexts/UnifiedAIContext';
 import { calculateApartmentCosts, formatCurrency } from '@/services/locationCostService';
 import type { ApartmentLocationCost } from '@/types/locationCost.types';
 import { api } from '@/lib/api';
+import { calculateSmartScore, type SmartScoreResult } from '@/lib/smart-score-engine';
+import type { ScrapedProperty, SavingsBreakdown } from '@/lib/savings-calculator';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useSavedScrapedProperties } from '@/hooks/useSavedScrapedProperties';
 
 interface POI {
   id: string;
@@ -33,15 +40,17 @@ interface PropertyData {
   parkingIncluded: boolean;
   bedrooms: number;
   bathrooms: number;
+  sqft?: number;
   imageUrl?: string;
+  amenities?: string[];
 }
 
 const MOCK_PROPERTIES: PropertyData[] = [
-  { id: 'apt-1', name: 'The Vue at Lake Eola', address: '101 E Pine St, Orlando, FL 32801', coordinates: { lat: 28.5420, lng: -81.3729 }, baseRent: 1850, parkingIncluded: false, bedrooms: 2, bathrooms: 2 },
-  { id: 'apt-2', name: 'Camden Orange Court', address: '601 N Orange Ave, Orlando, FL 32801', coordinates: { lat: 28.5478, lng: -81.3792 }, baseRent: 1650, parkingIncluded: true, bedrooms: 1, bathrooms: 1 },
-  { id: 'apt-3', name: 'Millenia Apartments', address: '4950 Millenia Blvd, Orlando, FL 32839', coordinates: { lat: 28.4859, lng: -81.4284 }, baseRent: 1450, parkingIncluded: true, bedrooms: 2, bathrooms: 1 },
-  { id: 'apt-4', name: 'Baldwin Harbor', address: '4225 S John Young Pkwy, Orlando, FL 32839', coordinates: { lat: 28.4612, lng: -81.4098 }, baseRent: 1350, parkingIncluded: true, bedrooms: 1, bathrooms: 1 },
-  { id: 'apt-5', name: 'ARIUM MetroWest', address: '2300 S Hiawassee Rd, Orlando, FL 32835', coordinates: { lat: 28.5089, lng: -81.4567 }, baseRent: 1275, parkingIncluded: true, bedrooms: 1, bathrooms: 1 },
+  { id: 'apt-1', name: 'The Broadstone at Midtown', address: '1015 Northside Dr NW, Atlanta, GA 30318', coordinates: { lat: 33.7866, lng: -84.4073 }, baseRent: 1850, parkingIncluded: false, bedrooms: 2, bathrooms: 2, sqft: 1050, amenities: ['gym', 'pool', 'in_unit_laundry', 'water'] },
+  { id: 'apt-2', name: 'Camden Buckhead Square', address: '3060 Peachtree Rd NW, Atlanta, GA 30305', coordinates: { lat: 33.8404, lng: -84.3797 }, baseRent: 1650, parkingIncluded: true, bedrooms: 1, bathrooms: 1, sqft: 720, amenities: ['gym', 'trash', 'sewer'] },
+  { id: 'apt-3', name: 'The Exchange at Vinings', address: '2800 Paces Ferry Rd SE, Atlanta, GA 30339', coordinates: { lat: 33.8627, lng: -84.4655 }, baseRent: 1450, parkingIncluded: true, bedrooms: 2, bathrooms: 1, sqft: 950, amenities: ['washer_dryer', 'water', 'trash'] },
+  { id: 'apt-4', name: 'Cortland at the Battery', address: '875 Battery Ave SE, Atlanta, GA 30339', coordinates: { lat: 33.8896, lng: -84.4685 }, baseRent: 1350, parkingIncluded: true, bedrooms: 1, bathrooms: 1, sqft: 680, amenities: ['gym', 'pool', 'internet', 'water', 'trash'] },
+  { id: 'apt-5', name: 'AMLI West Plano at Granite Park', address: '2175 E West Connector, Austell, GA 30106', coordinates: { lat: 33.8148, lng: -84.6327 }, baseRent: 1275, parkingIncluded: true, bedrooms: 1, bathrooms: 1, sqft: 650, amenities: [] },
 ];
 
 const MOCK_MARKET_DATA = {
@@ -53,7 +62,7 @@ const MOCK_MARKET_DATA = {
   aiRecommendation: "Market conditions favor renters. Good time to negotiate!",
 };
 
-type SortField = 'trueCost' | 'baseRent' | 'commute';
+type SortField = 'trueCost' | 'baseRent' | 'commute' | 'smartScore';
 type ViewMode = 'map' | 'list';
 
 const GROCERY_STORE_MAP: Record<string, 'walmart' | 'wholefoods' | 'traderjoes' | 'kroger' | 'costco' | undefined> = {
@@ -71,8 +80,19 @@ const GROCERY_STORE_MAP: Record<string, 'walmart' | 'wholefoods' | 'traderjoes' 
 export default function UnifiedDashboard() {
   const { inputs, gasPrice, isCalculating, setIsCalculating } = useLocationCostContext();
   const unifiedAI = useUnifiedAI();
+  const {
+    isPaywallOpen,
+    paywallPropertyId,
+    openPaywall,
+    closePaywall,
+    unlockProperty,
+    activatePlan,
+    isPropertyUnlocked,
+    userIsSubscribed,
+  } = usePaywall();
   
-  // Set page title
+  const { isSaved, toggleSaveDashboard } = useSavedScrapedProperties();
+
   useEffect(() => {
     document.title = 'Renter Dashboard | Apartment Locator AI';
   }, []);
@@ -80,15 +100,8 @@ export default function UnifiedDashboard() {
   useEffect(() => {
     const loadDashboardData = async () => {
       setDataError(null);
-      // Use location from UnifiedAI context if available (NO hardcoded default)
-      if (!unifiedAI.location) {
-        console.log('No location set - user needs to complete profile');
-        return; // Don't load properties if no location set
-      }
-      
-      const locationParts = unifiedAI.location.split(',').map(s => s.trim());
-      const defaultCity = locationParts[0];
-      const defaultState = locationParts[1];
+      const defaultCity = 'Atlanta';
+      const defaultState = 'GA';
 
       try {
         const fetched = await api.getProperties({ city: defaultCity, state: defaultState, limit: 25 });
@@ -115,7 +128,8 @@ export default function UnifiedDashboard() {
                 bedrooms: property.bedroomsMin || property.bedroomsMax || 0,
                 bathrooms: Number(property.bathroomsMin || property.bathroomsMax || 0),
                 imageUrl: property.images?.[0],
-              };
+                amenities: (Array.isArray(property.amenities) ? property.amenities : []) as string[],
+              } as PropertyData;
             })
             .filter((prop): prop is PropertyData => prop !== null);
 
@@ -160,7 +174,7 @@ export default function UnifiedDashboard() {
     };
 
     loadDashboardData();
-  }, [unifiedAI.location]); // Reload when user's location changes
+  }, []);
   
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [sortBy, setSortBy] = useState<SortField>('trueCost');
@@ -169,50 +183,116 @@ export default function UnifiedDashboard() {
   const [properties, setProperties] = useState<PropertyData[]>(MOCK_PROPERTIES);
   const [marketData, setMarketData] = useState(MOCK_MARKET_DATA);
   const [dataError, setDataError] = useState<string | null>(null);
-  // Initialize POIs from UnifiedAI context
-  const [pois, setPois] = useState<POI[]>(() => {
-    if (unifiedAI.pointsOfInterest.length > 0) {
-      return unifiedAI.pointsOfInterest.map(poi => ({
-        id: poi.id || `poi-${Date.now()}-${Math.random()}`,
-        name: poi.name,
-        address: poi.address,
-        category: poi.category as POICategory,
-        coordinates: poi.coordinates || { lat: 28.5383, lng: -81.3792 }, // Default coords if missing
-      }));
-    }
-    // Default POI if none saved
-    return [
-      { id: '1', name: 'My Office', address: '123 Main St, Orlando, FL', category: 'work', coordinates: { lat: 28.5383, lng: -81.3792 } },
-    ];
+
+  const propertyIds = useMemo(() => properties.map(p => p.id), [properties]);
+
+  const [pois, setPois] = useState<POI[]>([
+    { id: '1', name: 'My Office', address: '191 Peachtree St NE, Atlanta, GA', category: 'work', coordinates: { lat: 33.7590, lng: -84.3880 } },
+  ]);
+  
+  const [lifestyleInputs, setLifestyleInputs] = useState<LifestyleInputs>({
+    workAddress: '',
+    commuteDays: 5,
+    commuteMode: 'driving',
+    vehicleMpg: 28,
+    groceryTrips: 2,
+    preferredStore: 'Any nearby store',
+    hasGym: false,
+    gymVisits: 3,
+    customCategories: [],
   });
   
-  // Initialize state from UnifiedAI context (data from Program Your AI)
-  const [lifestyleInputs, setLifestyleInputs] = useState<LifestyleInputs>(() => {
-    const workPOI = unifiedAI.pointsOfInterest.find(poi => poi.category === 'work');
-    return {
-      workAddress: workPOI?.address || '',
-      commuteDays: unifiedAI.commutePreferences.daysPerWeek,
-      commuteMode: 'driving',
-      vehicleMpg: unifiedAI.commutePreferences.vehicleMpg,
-      groceryTrips: 2,
-      preferredStore: 'Any nearby store',
-      hasGym: false,
-      gymVisits: 3,
-      customCategories: [],
-    };
-  });
-  
+  const [currentRentalRate, setCurrentRentalRate] = useState('');
+  const [preferredBedrooms, setPreferredBedrooms] = useState(1);
+  const [preferredBathrooms, setPreferredBathrooms] = useState(1);
+  const [preferredMinSqft, setPreferredMinSqft] = useState(0);
+
   const [filters, setFilters] = useState<{
     minBudget: number;
     maxBudget: number;
     bedrooms: number[];
     amenities: string[];
-  }>(() => ({
-    minBudget: Math.max(1000, unifiedAI.budget - 500),
-    maxBudget: unifiedAI.budget || 2500,
-    bedrooms: unifiedAI.aiPreferences.bedrooms ? [parseInt(unifiedAI.aiPreferences.bedrooms)] : [1, 2],
-    amenities: unifiedAI.aiPreferences.amenities || [],
-  }));
+  }>({
+    minBudget: 1000,
+    maxBudget: 2500,
+    bedrooms: [1, 2],
+    amenities: [],
+  });
+
+  useEffect(() => {
+    const cp = unifiedAI.commutePreferences;
+    const aiPois = unifiedAI.pointsOfInterest;
+
+    if (cp) {
+      setLifestyleInputs(prev => ({
+        ...prev,
+        commuteDays: cp.daysPerWeek || prev.commuteDays,
+        vehicleMpg: cp.vehicleMpg || prev.vehicleMpg,
+      }));
+    }
+
+    if (unifiedAI.currentRentalRate) {
+      setCurrentRentalRate(String(unifiedAI.currentRentalRate));
+    }
+
+    const aiPrefs = unifiedAI.aiPreferences;
+    if (aiPrefs?.bedrooms) {
+      setPreferredBedrooms(Number(aiPrefs.bedrooms) || 1);
+    }
+    if (aiPrefs?.bathrooms) {
+      setPreferredBathrooms(Number(aiPrefs.bathrooms) || 1);
+    }
+    if (aiPrefs?.sqft?.min) {
+      setPreferredMinSqft(aiPrefs.sqft.min);
+    }
+
+    if (unifiedAI.budget && unifiedAI.budget > 0) {
+      setFilters(prev => ({
+        ...prev,
+        maxBudget: unifiedAI.budget,
+      }));
+    }
+
+    if (aiPois && aiPois.length > 0) {
+      const mappedPois: POI[] = aiPois.map(p => ({
+        id: p.id,
+        name: p.name,
+        address: p.address,
+        category: (p.category || 'other') as POICategory,
+        coordinates: p.coordinates || { lat: 33.7490, lng: -84.3880 },
+      }));
+      setPois(mappedPois);
+
+      const workPoi = aiPois.find(p => p.category === 'work');
+      if (workPoi) {
+        setLifestyleInputs(prev => ({
+          ...prev,
+          workAddress: workPoi.address,
+        }));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    unifiedAI.updateInputs({
+      commutePreferences: {
+        ...unifiedAI.commutePreferences,
+        daysPerWeek: lifestyleInputs.commuteDays,
+        vehicleMpg: lifestyleInputs.vehicleMpg,
+      },
+    });
+  }, [lifestyleInputs.commuteDays, lifestyleInputs.vehicleMpg]);
+
+  useEffect(() => {
+    unifiedAI.updateInputs({
+      aiPreferences: {
+        ...unifiedAI.aiPreferences,
+        bedrooms: String(preferredBedrooms),
+        bathrooms: String(preferredBathrooms),
+        sqft: { ...unifiedAI.aiPreferences?.sqft, min: preferredMinSqft || undefined },
+      },
+    });
+  }, [preferredBedrooms, preferredBathrooms, preferredMinSqft]);
 
   const calculationProperties = useMemo(
     () => (properties.length > 0 ? properties : MOCK_PROPERTIES),
@@ -255,14 +335,82 @@ export default function UnifiedDashboard() {
   }, [inputs, lifestyleInputs, gasPrice, setIsCalculating, calculationProperties]);
 
   const propertiesWithCosts = useMemo(() => {
-    return calculationProperties.map(prop => {
+    const aiPrefs = unifiedAI.aiPreferences;
+    const aiBudget = unifiedAI.budget || 0;
+    const aiMarket = unifiedAI.marketContext;
+    const aiPoisList = unifiedAI.pointsOfInterest || [];
+    const aiCommute = unifiedAI.commutePreferences;
+
+    const mapped = calculationProperties.map(prop => {
       const costResult = results.find(r => r.apartmentId === prop.id);
+
+      const addressParts = prop.address.split(',').map(s => s.trim());
+      const scrapedAdapter: ScrapedProperty = {
+        id: prop.id,
+        name: prop.name,
+        address: prop.address,
+        city: addressParts.length >= 2 ? addressParts[addressParts.length - 2] : '',
+        state: addressParts.length >= 1 ? (addressParts[addressParts.length - 1].split(' ')[0] || '') : '',
+        min_rent: prop.baseRent,
+        max_rent: prop.baseRent,
+        bedrooms_min: prop.bedrooms,
+        bedrooms_max: prop.bedrooms,
+        bathrooms_min: prop.bathrooms,
+        bathrooms_max: prop.bathrooms,
+        amenities: prop.amenities,
+        latitude: prop.coordinates?.lat,
+        longitude: prop.coordinates?.lng,
+      };
+
+      const medianRent = marketData?.medianRent || 1700;
+      const savingsAdapter: SavingsBreakdown = {
+        monthlyRent: prop.baseRent,
+        marketMedianRent: medianRent,
+        monthlySavings: Math.max(0, medianRent - prop.baseRent),
+        annualSavings: Math.max(0, (medianRent - prop.baseRent) * 12),
+        upfrontSavings: 0,
+        monthlyConcessionsValue: 0,
+        dealScore: prop.baseRent < medianRent ? Math.min(100, Math.round(((medianRent - prop.baseRent) / medianRent) * 200)) : 30,
+        hasSpecialOffer: false,
+        specialOfferText: '',
+        savingsPercentage: medianRent > 0 ? Math.round(((medianRent - prop.baseRent) / medianRent) * 100) : 0,
+      };
+
+      const smartScore = calculateSmartScore(
+        scrapedAdapter,
+        savingsAdapter,
+        aiPrefs,
+        aiBudget,
+        aiMarket,
+        aiPoisList,
+        aiCommute,
+      );
+
       return {
         ...prop,
         trueCost: costResult?.trueMonthlyCost,
         commuteMinutes: costResult?.commuteCost.durationMinutes,
         savingsRank: costResult?.savingsRank,
         locationCosts: costResult?.totalLocationCosts,
+        savingsVsMax: undefined as number | undefined,
+        smartScore,
+        costBreakdown: costResult ? {
+          commute: costResult.commuteCost.totalMonthly,
+          commuteMinutes: costResult.commuteCost.durationMinutes,
+          commuteMiles: costResult.commuteCost.distanceMiles,
+          parking: costResult.parkingCost.estimatedMonthly,
+          parkingIncluded: costResult.parkingCost.parkingIncluded,
+          grocery: costResult.groceryCost.additionalGasCost,
+          groceryStore: costResult.groceryCost.nearestGroceryStore?.name,
+          groceryMiles: costResult.groceryCost.distanceMiles,
+          gym: costResult.gymCost.additionalGasCost,
+          gymMiles: costResult.gymCost.distanceToPreferredGym,
+          transitSavings: costResult.transitSavings.potentialMonthlySavings,
+          transitScore: costResult.transitSavings.transitScore,
+          amenitySavings: costResult.amenitySavings.totalMonthlyValue,
+          amenityNames: costResult.amenitySavings.amenityNames,
+          totalLocationCosts: costResult.totalLocationCosts,
+        } : undefined,
       };
     }).filter(prop => {
       if (prop.baseRent < filters.minBudget || prop.baseRent > filters.maxBudget) return false;
@@ -276,11 +424,23 @@ export default function UnifiedDashboard() {
           return a.baseRent - b.baseRent;
         case 'commute':
           return (a.commuteMinutes ?? 999) - (b.commuteMinutes ?? 999);
+        case 'smartScore':
+          return (b.smartScore?.overall ?? -1) - (a.smartScore?.overall ?? -1);
         default:
           return 0;
       }
     });
-  }, [results, filters, sortBy, calculationProperties]);
+
+    const filteredTrueCosts = mapped.filter(p => p.trueCost != null).map(p => p.trueCost!);
+    const maxTrueCost = filteredTrueCosts.length > 0 ? Math.max(...filteredTrueCosts) : 0;
+    mapped.forEach(p => {
+      if (p.trueCost != null && maxTrueCost > 0) {
+        p.savingsVsMax = maxTrueCost - p.trueCost;
+      }
+    });
+
+    return mapped;
+  }, [results, filters, sortBy, calculationProperties, unifiedAI.aiPreferences, unifiedAI.budget, unifiedAI.marketContext, unifiedAI.pointsOfInterest, unifiedAI.commutePreferences, marketData]);
 
   const mapProperties = useMemo(() => {
     return propertiesWithCosts.map(p => ({
@@ -324,7 +484,7 @@ export default function UnifiedDashboard() {
           </div>
         )}
         <MarketIntelBar
-          location="Orlando, FL"
+          location="Atlanta, GA"
           medianRent={marketData.medianRent}
           rentChange={marketData.rentChange}
           daysOnMarket={marketData.daysOnMarket}
@@ -346,6 +506,14 @@ export default function UnifiedDashboard() {
               onFiltersChange={setFilters}
               onCalculate={handleCalculate}
               isCalculating={isCalculating}
+              currentRentalRate={currentRentalRate}
+              onCurrentRentalRateChange={setCurrentRentalRate}
+              preferredBedrooms={preferredBedrooms}
+              onPreferredBedroomsChange={setPreferredBedrooms}
+              preferredBathrooms={preferredBathrooms}
+              onPreferredBathroomsChange={setPreferredBathrooms}
+              preferredMinSqft={preferredMinSqft}
+              onPreferredMinSqftChange={setPreferredMinSqft}
             />
           </aside>
 
@@ -378,6 +546,7 @@ export default function UnifiedDashboard() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="smartScore">Smart Score</SelectItem>
                     <SelectItem value="trueCost">True Cost</SelectItem>
                     <SelectItem value="baseRent">Base Rent</SelectItem>
                     <SelectItem value="commute">Commute Time</SelectItem>
@@ -394,129 +563,276 @@ export default function UnifiedDashboard() {
                 onPropertyClick={setSelectedPropertyId}
                 onPropertyHover={setSelectedPropertyId}
                 showConnections={true}
-                className="h-[500px]"
+                className="h-[550px]"
               />
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {propertiesWithCosts.map((property) => (
-                  <Card 
-                    key={property.id}
-                    className={`cursor-pointer transition-all hover-elevate ${selectedPropertyId === property.id ? 'ring-2 ring-primary' : ''}`}
-                    onClick={() => setSelectedPropertyId(property.id)}
-                    data-testid={`card-property-${property.id}`}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-semibold flex items-center gap-2">
-                            {property.name}
-                            {property.savingsRank === 1 && (
-                              <Badge variant="default" className="bg-green-500">
-                                <Star className="w-3 h-3 mr-1" />
-                                Best Deal
-                              </Badge>
-                            )}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">{property.address}</p>
+            ) : null}
+
+            {(viewMode === 'list' || results.length > 0) && (
+              <SavingsDataGate
+                isUnlocked={true}
+                onUnlockClick={() => openPaywall()}
+                hint="Full cost comparison available"
+              >
+                <Card data-testid="cost-comparison-table">
+                  <CardHeader className="py-3">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <TrendingDown className="w-4 h-4 text-green-500" />
+                        Cost Comparison
+                      </CardTitle>
+                      {potentialSavings > 0 && (
+                        <Badge variant="default" className="bg-green-500 border-green-600">
+                          Save up to {formatCurrency(potentialSavings)}/mo!
+                        </Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-10"></TableHead>
+                          <TableHead>Property</TableHead>
+                          <TableHead className="text-center" data-testid="header-smart-score">Smart Score</TableHead>
+                          <TableHead className="text-right">Rent</TableHead>
+                          <TableHead className="text-center">Unit Type</TableHead>
+                          <TableHead className="text-right">Sq Ft</TableHead>
+                          <TableHead className="text-right">Amenities</TableHead>
+                          <TableHead className="text-right">You Save</TableHead>
+                          <TableHead className="text-right">Commute</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {propertiesWithCosts.map((property) => (
+                          <TableRow 
+                            key={property.id}
+                            className={`cursor-pointer ${property.savingsRank === 1 ? 'bg-green-500/10' : ''}`}
+                            onClick={() => setSelectedPropertyId(property.id)}
+                            data-testid={`row-property-${property.id}`}
+                          >
+                            <TableCell className="w-10">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                data-testid={`button-save-property-${property.id}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleSaveDashboard({
+                                    id: property.id,
+                                    name: property.name,
+                                    address: property.address,
+                                    baseRent: property.baseRent,
+                                    bedrooms: property.bedrooms,
+                                    bathrooms: property.bathrooms,
+                                    sqft: property.sqft,
+                                    imageUrl: property.imageUrl,
+                                    amenities: property.amenities,
+                                  });
+                                }}
+                              >
+                                <Heart
+                                  className={`w-4 h-4 ${isSaved(property.id) ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`}
+                                />
+                              </Button>
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              <div className="flex items-center gap-2">
+                                {property.savingsRank === 1 && <Star className="w-4 h-4 text-green-500" />}
+                                {property.name}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {property.smartScore && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Badge
+                                      data-testid={`badge-smart-score-${property.id}`}
+                                      variant="outline"
+                                      className={`cursor-default ${
+                                        property.smartScore.overall >= 70
+                                          ? 'border-green-500 text-green-600 bg-green-500/10'
+                                          : property.smartScore.overall >= 40
+                                          ? 'border-amber-500 text-amber-600 bg-amber-500/10'
+                                          : 'border-red-400 text-red-500 bg-red-500/10'
+                                      }`}
+                                    >
+                                      <Brain className="w-3 h-3 mr-1" />
+                                      {property.smartScore.overall}
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="bottom" className="max-w-[220px]">
+                                    <div className="space-y-1 text-xs">
+                                      <div className="flex justify-between gap-3"><span>Location</span><span className="font-medium">{property.smartScore.locationScore}/100</span></div>
+                                      <div className="flex justify-between gap-3"><span>Preferences</span><span className="font-medium">{property.smartScore.preferenceScore}/100</span></div>
+                                      <div className="flex justify-between gap-3"><span>Market Intel</span><span className="font-medium">{property.smartScore.marketScore}/100</span></div>
+                                      <div className="flex justify-between gap-3"><span>Value</span><span className="font-medium">{property.smartScore.valueScore}/100</span></div>
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-right">{formatCurrency(property.baseRent)}</TableCell>
+                            <TableCell className="text-center" data-testid={`text-table-unit-type-${property.id}`}>
+                              {property.bedrooms} bd / {property.bathrooms} ba
+                            </TableCell>
+                            <TableCell className="text-right" data-testid={`text-table-sqft-${property.id}`}>
+                              {property.sqft ? property.sqft.toLocaleString() : '-'}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {property.costBreakdown?.amenitySavings ? (
+                                <span className="text-emerald-600">-{formatCurrency(property.costBreakdown.amenitySavings)}</span>
+                              ) : '-'}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {property.savingsVsMax != null && property.savingsVsMax > 0 ? (
+                                <span className="font-semibold text-green-600">{formatCurrency(property.savingsVsMax)}/mo</span>
+                              ) : property.savingsVsMax === 0 ? (
+                                <span className="text-muted-foreground text-xs">Most expensive</span>
+                              ) : '-'}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {property.commuteMinutes ? `${property.commuteMinutes} min` : '-'}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </SavingsDataGate>
+            )}
+
+            {selectedPropertyId && (() => {
+              const selectedProp = propertiesWithCosts.find(p => p.id === selectedPropertyId);
+              if (!selectedProp?.costBreakdown) return null;
+              const bd = selectedProp.costBreakdown;
+              const costItems = [
+                { icon: Car, label: 'Commute', value: bd.commute, detail: bd.commuteMiles ? `${bd.commuteMiles.toFixed(1)} mi, ${Math.round(bd.commuteMinutes || 0)} min each way` : undefined, color: 'text-blue-600' },
+                { icon: ParkingCircle, label: 'Parking', value: bd.parkingIncluded ? 0 : bd.parking, detail: bd.parkingIncluded ? 'Included in rent' : undefined, color: 'text-purple-600' },
+                { icon: ShoppingCart, label: 'Grocery Trips', value: bd.grocery, detail: bd.groceryStore ? `${bd.groceryStore} (${bd.groceryMiles?.toFixed(1)} mi)` : undefined, color: 'text-amber-600' },
+                { icon: Dumbbell, label: 'Gym Trips', value: bd.gym, detail: bd.gymMiles ? `${bd.gymMiles.toFixed(1)} mi away` : undefined, color: 'text-pink-600' },
+              ];
+              const totalExtras = bd.totalLocationCosts;
+
+              return (
+                <SavingsDataGate
+                  isUnlocked={true}
+                  onUnlockClick={() => openPaywall(selectedPropertyId)}
+                  hint="Full cost breakdown"
+                >
+                  <Card data-testid="card-cost-breakdown">
+                    <CardHeader className="py-3">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <DollarSign className="w-4 h-4" />
+                          Cost Breakdown: {selectedProp.name}
+                        </CardTitle>
+                        {selectedProp.savingsVsMax != null && selectedProp.savingsVsMax > 0 && (
+                          <Badge variant="default" className="bg-green-500 border-green-600">
+                            Save {formatCurrency(selectedProp.savingsVsMax)}/mo vs most expensive
+                          </Badge>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0 space-y-3">
+                      <div className="flex items-center justify-between py-2 border-b">
+                        <div className="flex items-center gap-2">
+                          <Home className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Base Rent</span>
                         </div>
+                        <span className="text-sm font-semibold">{formatCurrency(selectedProp.baseRent)}</span>
                       </div>
 
-                      <div className="flex items-center gap-4 mt-3">
-                        <div>
-                          <p className="text-xs text-muted-foreground">Base Rent</p>
-                          <p className="font-medium">{formatCurrency(property.baseRent)}</p>
+                      {costItems.map((item) => (
+                        <div key={item.label} className="flex items-center justify-between py-1">
+                          <div className="flex items-center gap-2">
+                            <item.icon className={`w-4 h-4 ${item.color}`} />
+                            <div>
+                              <span className="text-sm">{item.label}</span>
+                              {item.detail && (
+                                <p className="text-xs text-muted-foreground">{item.detail}</p>
+                              )}
+                            </div>
+                          </div>
+                          <span className={`text-sm ${(item.value || 0) > 0 ? 'text-orange-500' : 'text-green-600'}`}>
+                            {(item.value || 0) > 0 ? `+${formatCurrency(item.value || 0)}` : 'Free'}
+                          </span>
                         </div>
-                        
-                        {property.trueCost && (
-                          <div className="border-l pl-4">
-                            <p className="text-xs text-muted-foreground">True Cost</p>
-                            <p className="font-bold text-primary text-lg">{formatCurrency(property.trueCost)}</p>
-                          </div>
-                        )}
+                      ))}
 
-                        {property.locationCosts && property.locationCosts > 0 && (
-                          <div className="border-l pl-4">
-                            <p className="text-xs text-muted-foreground">Location Costs</p>
-                            <p className="text-sm text-orange-500">+{formatCurrency(property.locationCosts)}</p>
+                      {bd.transitSavings > 0 && (
+                        <div className="flex items-center justify-between py-1">
+                          <div className="flex items-center gap-2">
+                            <Train className="w-4 h-4 text-green-600" />
+                            <div>
+                              <span className="text-sm">Transit Savings</span>
+                              <p className="text-xs text-muted-foreground">Transit score: {bd.transitScore}/100</p>
+                            </div>
                           </div>
-                        )}
-                      </div>
+                          <span className="text-sm text-green-600">-{formatCurrency(bd.transitSavings)}</span>
+                        </div>
+                      )}
 
-                      <div className="flex items-center gap-2 mt-3">
-                        <Badge variant="outline">{property.bedrooms} bd / {property.bathrooms} ba</Badge>
-                        {property.commuteMinutes && (
-                          <Badge variant="secondary">{property.commuteMinutes} min commute</Badge>
-                        )}
-                        {property.parkingIncluded && (
-                          <Badge variant="outline">P incl.</Badge>
+                      {bd.amenitySavings > 0 && (
+                        <div className="flex items-center justify-between py-1">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-emerald-600" />
+                            <div>
+                              <span className="text-sm">Amenity Savings</span>
+                              <p className="text-xs text-muted-foreground">
+                                {bd.amenityNames && bd.amenityNames.length > 0
+                                  ? bd.amenityNames.slice(0, 3).join(', ') + (bd.amenityNames.length > 3 ? ` +${bd.amenityNames.length - 3} more` : '')
+                                  : 'Included amenities'}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-sm text-emerald-600">-{formatCurrency(bd.amenitySavings)}</span>
+                        </div>
+                      )}
+
+                      <div className="border-t pt-3 mt-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">Location costs</span>
+                          <span className="text-sm text-orange-500">+{formatCurrency(totalExtras)}</span>
+                        </div>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="font-semibold">True Monthly Cost</span>
+                          <span className="font-bold text-primary text-lg">{formatCurrency(selectedProp.trueCost || selectedProp.baseRent)}</span>
+                        </div>
+                        {selectedProp.savingsVsMax != null && selectedProp.savingsVsMax > 0 && (
+                          <div className="flex items-center justify-between mt-1">
+                            <span className="text-sm text-green-600 font-medium">Annual savings vs most expensive</span>
+                            <span className="text-sm font-bold text-green-600">{formatCurrency(selectedProp.savingsVsMax * 12)}/yr</span>
+                          </div>
                         )}
                       </div>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
-            )}
+                </SavingsDataGate>
+              );
+            })()}
 
-            {results.length > 0 && (
-              <Card data-testid="cost-comparison-table">
-                <CardHeader className="py-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <TrendingDown className="w-4 h-4 text-green-500" />
-                      Cost Comparison
-                    </CardTitle>
-                    {potentialSavings > 0 && (
-                      <Badge variant="default" className="bg-green-500">
-                        Save up to {formatCurrency(potentialSavings)}/mo!
-                      </Badge>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Property</TableHead>
-                        <TableHead className="text-right">Rent</TableHead>
-                        <TableHead className="text-right">Location Costs</TableHead>
-                        <TableHead className="text-right">True Cost</TableHead>
-                        <TableHead className="text-right">Commute</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {propertiesWithCosts.map((property) => (
-                        <TableRow 
-                          key={property.id}
-                          className={`cursor-pointer ${property.savingsRank === 1 ? 'bg-green-500/10' : ''}`}
-                          onClick={() => setSelectedPropertyId(property.id)}
-                          data-testid={`row-property-${property.id}`}
-                        >
-                          <TableCell className="font-medium">
-                            <div className="flex items-center gap-2">
-                              {property.savingsRank === 1 && <Star className="w-4 h-4 text-green-500" />}
-                              {property.name}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">{formatCurrency(property.baseRent)}</TableCell>
-                          <TableCell className="text-right text-orange-500">
-                            {property.locationCosts ? `+${formatCurrency(property.locationCosts)}` : '-'}
-                          </TableCell>
-                          <TableCell className="text-right font-bold text-primary">
-                            {property.trueCost ? formatCurrency(property.trueCost) : '-'}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {property.commuteMinutes ? `${property.commuteMinutes} min` : '-'}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            )}
           </main>
         </div>
       </div>
+
+      <PaywallModal
+        isOpen={isPaywallOpen}
+        onClose={closePaywall}
+        potentialSavings={potentialSavings * 12}
+        propertiesCount={propertiesWithCosts.length}
+        onPaymentSuccess={(planId?: string) => {
+          if (planId === 'per_property' && paywallPropertyId) {
+            unlockProperty(paywallPropertyId);
+          } else if (planId && ['basic', 'pro', 'premium'].includes(planId)) {
+            activatePlan(planId);
+          } else if (paywallPropertyId) {
+            unlockProperty(paywallPropertyId);
+          }
+          closePaywall();
+        }}
+        propertyId={paywallPropertyId}
+      />
     </div>
   );
 }

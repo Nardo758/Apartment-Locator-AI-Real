@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useRenterIntelligence } from '@/hooks/useRenterIntelligence';
 import { RenterUnitCard } from './RenterUnitCard';
+import { PaywallModal } from '@/components/PaywallModal';
+import { usePaywall } from '@/hooks/usePaywall';
 import type { ApartmentIQData } from '@/lib/pricing-engine';
 
 interface Property {
@@ -29,6 +31,30 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
     getTotalPotentialSavings,
     getAverageDealScore
   } = useRenterIntelligence(properties);
+
+  const {
+    isPaywallOpen,
+    paywallPropertyId,
+    openPaywall,
+    closePaywall,
+    isPropertyUnlocked,
+    unlockProperty,
+    activatePlan,
+    resetPaywallState,
+  } = usePaywall();
+
+  const handlePaymentSuccess = (planId?: string) => {
+    if (planId === 'per_property' && paywallPropertyId) {
+      unlockProperty(paywallPropertyId);
+    } else if (planId && ['basic', 'pro', 'premium'].includes(planId)) {
+      activatePlan(planId);
+    } else if (paywallPropertyId) {
+      unlockProperty(paywallPropertyId);
+    } else {
+      resetPaywallState();
+    }
+    closePaywall();
+  };
 
   if (loading) {
     return (
@@ -85,10 +111,9 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Market Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Great Deals</CardTitle>
             <TrendingDown className="h-4 w-4 text-green-600" />
           </CardHeader>
@@ -101,7 +126,7 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Negotiable Units</CardTitle>
             <Target className="h-4 w-4 text-blue-600" />
           </CardHeader>
@@ -114,7 +139,7 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg Potential Savings</CardTitle>
             <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
@@ -129,7 +154,7 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Market Condition</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -146,7 +171,6 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
         </Card>
       </div>
 
-      {/* Deal Distribution */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -203,28 +227,30 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
         </CardContent>
       </Card>
 
-      {/* Immediate Opportunities */}
       {immediateOpportunities.length > 0 && (
-        <Card className="border-green-200 bg-green-50">
+        <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-green-800">
+            <CardTitle className="flex items-center gap-2 text-green-800 dark:text-green-400">
               <CheckCircle className="w-5 h-5" />
               Immediate Opportunities ({immediateOpportunities.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-green-700 mb-4">
+            <p className="text-sm text-green-700 dark:text-green-300 mb-4">
               These units are ready for negotiation right now. Landlords are motivated and timing is optimal.
             </p>
             <div className="grid gap-4">
               {immediateOpportunities.slice(0, 3).map(propertyId => {
                 const property = properties.find(p => p.id === propertyId);
+                const unlocked = isPropertyUnlocked(propertyId);
                 return property ? (
                   <RenterUnitCard 
                     key={propertyId} 
                     property={property} 
                     dealIntelligence={dealIntelligence[propertyId]}
                     compact
+                    locked={!unlocked}
+                    onUnlockClick={() => openPaywall(propertyId)}
                   />
                 ) : null;
               })}
@@ -233,7 +259,6 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
         </Card>
       )}
 
-      {/* All Units Sorted by Deal Score */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -248,17 +273,29 @@ export const RenterDashboard: React.FC<RenterDashboardProps> = ({ properties, cl
           <div className="space-y-4">
             {sortedByDealScore.map(propertyId => {
               const property = properties.find(p => p.id === propertyId);
+              const unlocked = isPropertyUnlocked(propertyId);
               return property ? (
                 <RenterUnitCard 
                   key={propertyId} 
                   property={property} 
                   dealIntelligence={dealIntelligence[propertyId]}
+                  locked={!unlocked}
+                  onUnlockClick={() => openPaywall(propertyId)}
                 />
               ) : null;
             })}
           </div>
         </CardContent>
       </Card>
+
+      <PaywallModal
+        isOpen={isPaywallOpen}
+        onClose={closePaywall}
+        potentialSavings={getTotalPotentialSavings()}
+        propertiesCount={properties.length}
+        onPaymentSuccess={handlePaymentSuccess}
+        propertyId={paywallPropertyId}
+      />
     </div>
   );
 };

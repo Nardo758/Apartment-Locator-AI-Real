@@ -225,7 +225,7 @@ const Pricing = () => {
             </div>
 
             <div className="mt-8">
-              <Link to="/auth?mode=signup">
+              <Link to="/auth">
                 <Button className={`${designSystem.buttons.primary} ${designSystem.buttons.large}`}>
                   Start Your Free Trial Today
                 </Button>

@@ -40,6 +40,8 @@ const LocationIntelligence: React.FC<LocationIntelligenceProps> = ({ userProfile
   const preferencesCount = getAIPreferencesCount();
   const hasAIPreferences = preferencesCount > 0;
 
+  console.log('🎯 Location Intelligence loaded:', { userProfile, preferencesCount, hasAIPreferences });
+
   return (
     <div id="location-intelligence" className="w-full">
       {/* Main Container */}

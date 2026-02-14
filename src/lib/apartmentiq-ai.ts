@@ -141,6 +141,7 @@ class ApartmentIQAI {
 
   private initializeModels(): void {
     // Initialize any required model parameters or configurations
+    console.log('ApartmentIQ AI Engine initialized');
   }
 
   /**
@@ -823,4 +824,8 @@ function exampleUsage() {
   };
 }
 
-// Example usage available via exampleUsage() export
+// Run example if this is the main module
+if (typeof window !== 'undefined') {
+  // Browser environment - you can run the example
+  console.log('ApartmentIQ AI Example Result:', exampleUsage());
+}

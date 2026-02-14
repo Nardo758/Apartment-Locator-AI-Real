@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -22,10 +23,14 @@ import {
   MapPin,
   Loader2,
   Settings,
+  ArrowLeft,
+  LogOut,
+  Building2,
 } from 'lucide-react';
 
 const LandlordSettings = () => {
-  const { user } = useUser();
+  const { user, logout } = useUser();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('profile');
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
@@ -96,8 +101,48 @@ const LandlordSettings = () => {
   };
 
   return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <header className="flex justify-between items-center px-5 py-3 bg-white border-b border-gray-200 shadow-sm">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/landlord-dashboard')}
+            data-testid="button-back-dashboard"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back
+          </Button>
+          <div className="h-6 w-px bg-gray-200" />
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+            <Building2 className="h-4 w-4 text-white" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-base font-bold text-gray-900">ApartmentIQ</span>
+            <span className="text-xs text-gray-500">Settings</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-semibold text-indigo-700 border-2 border-indigo-300" data-testid="user-avatar-settings">
+            {user?.name?.split(' ').map(n => n[0]).join('') || 'LP'}
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              logout();
+              navigate('/');
+            }}
+            className="text-red-600"
+            data-testid="button-settings-logout"
+          >
+            <LogOut className="h-4 w-4 mr-1" />
+            Sign Out
+          </Button>
+        </div>
+      </header>
+
     <div className="container max-w-6xl mx-auto p-6 space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-3">
         <Settings className="h-8 w-8" />
         <div>
@@ -510,6 +555,7 @@ const LandlordSettings = () => {
 
       {/* Alert Config Dialog */}
       <AlertConfigDialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen} />
+    </div>
     </div>
   );
 };
