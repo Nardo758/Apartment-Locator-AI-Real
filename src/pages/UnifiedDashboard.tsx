@@ -231,6 +231,18 @@ export default function UnifiedDashboard() {
     if (unifiedAI.currentRentalRate) {
       setCurrentRentalRate(String(unifiedAI.currentRentalRate));
     }
+
+    const aiPrefs = unifiedAI.aiPreferences;
+    if (aiPrefs?.bedrooms) {
+      setPreferredBedrooms(Number(aiPrefs.bedrooms) || 1);
+    }
+    if (aiPrefs?.bathrooms) {
+      setPreferredBathrooms(Number(aiPrefs.bathrooms) || 1);
+    }
+    if (aiPrefs?.sqft?.min) {
+      setPreferredMinSqft(aiPrefs.sqft.min);
+    }
+
     if (unifiedAI.budget && unifiedAI.budget > 0) {
       setFilters(prev => ({
         ...prev,
@@ -267,6 +279,17 @@ export default function UnifiedDashboard() {
       },
     });
   }, [lifestyleInputs.commuteDays, lifestyleInputs.vehicleMpg]);
+
+  useEffect(() => {
+    unifiedAI.updateInputs({
+      aiPreferences: {
+        ...unifiedAI.aiPreferences,
+        bedrooms: String(preferredBedrooms),
+        bathrooms: String(preferredBathrooms),
+        sqft: { ...unifiedAI.aiPreferences?.sqft, min: preferredMinSqft || undefined },
+      },
+    });
+  }, [preferredBedrooms, preferredBathrooms, preferredMinSqft]);
 
   const calculationProperties = useMemo(
     () => (properties.length > 0 ? properties : MOCK_PROPERTIES),
