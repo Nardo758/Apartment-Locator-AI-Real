@@ -485,7 +485,7 @@ export default function UnifiedDashboard() {
                         </div>
                         
                         <SavingsDataGate
-                          isUnlocked={userIsSubscribed || isPropertyUnlocked(property.id)}
+                          isUnlocked={true}
                           onUnlockClick={() => openPaywall(property.id)}
                           hint="True cost & savings analysis"
                           compact
@@ -529,7 +529,7 @@ export default function UnifiedDashboard() {
 
             {results.length > 0 && (
               <SavingsDataGate
-                isUnlocked={userIsSubscribed}
+                isUnlocked={true}
                 onUnlockClick={() => openPaywall()}
                 hint="Full cost comparison available"
               >
@@ -601,7 +601,7 @@ export default function UnifiedDashboard() {
                 </CardHeader>
                 <CardContent className="pt-0">
                   <SavingsDataGate
-                    isUnlocked={userIsSubscribed || isPropertyUnlocked(selectedPropertyId)}
+                    isUnlocked={true}
                     onUnlockClick={() => openPaywall(selectedPropertyId)}
                     hint="Full negotiation insights & deal analysis"
                   >
