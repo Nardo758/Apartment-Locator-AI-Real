@@ -1,16 +1,19 @@
 import { useState, useMemo } from 'react';
-import { Search, SlidersHorizontal, MapPin, Building2, Tag, ExternalLink } from 'lucide-react';
+import { Search, SlidersHorizontal, MapPin, Building2, Tag, ExternalLink, Brain, CheckCircle2, TrendingUp, DollarSign, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import BlurredPropertyCard from '@/components/BlurredPropertyCard';
 import UpfrontSavingsCalculator from '@/components/UpfrontSavingsCalculator';
 import type { ScrapedProperty } from '@/lib/savings-calculator';
 import { calculatePropertySavings, formatMoney } from '@/lib/savings-calculator';
 import { usePaywall } from '@/hooks/usePaywall';
 import { PaywallModal } from '@/components/PaywallModal';
+import { useUnifiedAI } from '@/contexts/UnifiedAIContext';
+import { calculateSmartScore, getScoreColor, getScoreBgColor, getScoreLabel, type SmartScoreResult } from '@/lib/smart-score-engine';
 
 interface ScrapedPropertiesBrowserProps {
   properties: ScrapedProperty[];
@@ -21,9 +24,13 @@ const FREE_VISIBLE_COUNT = 2;
 
 export default function ScrapedPropertiesBrowser({ properties, isLoading }: ScrapedPropertiesBrowserProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<'rent-asc' | 'rent-desc' | 'deal-score' | 'savings'>('deal-score');
+  const [sortBy, setSortBy] = useState<'rent-asc' | 'rent-desc' | 'deal-score' | 'savings' | 'smart-score'>('smart-score');
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
+  const [expandedScoreId, setExpandedScoreId] = useState<string | null>(null);
+
+  const aiContext = useUnifiedAI();
+  const hasPreferences = (aiContext.aiPreferences?.amenities?.length ?? 0) > 0 || aiContext.budget > 0;
 
   const {
     isPaywallOpen,
@@ -42,11 +49,20 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
   }, [properties]);
 
   const propertiesWithSavings = useMemo(() => {
-    return properties.map(p => ({
-      property: p,
-      savings: calculatePropertySavings(p),
-    }));
-  }, [properties]);
+    return properties.map(p => {
+      const savings = calculatePropertySavings(p);
+      const smartScore = calculateSmartScore(
+        p,
+        savings,
+        aiContext.aiPreferences,
+        aiContext.budget,
+        aiContext.marketContext,
+        aiContext.pointsOfInterest,
+        aiContext.commutePreferences,
+      );
+      return { property: p, savings, smartScore };
+    });
+  }, [properties, aiContext.aiPreferences, aiContext.budget, aiContext.marketContext, aiContext.pointsOfInterest, aiContext.commutePreferences]);
 
   const filtered = useMemo(() => {
     let result = propertiesWithSavings;
@@ -65,6 +81,9 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
     }
 
     switch (sortBy) {
+      case 'smart-score':
+        result = [...result].sort((a, b) => b.smartScore.overall - a.smartScore.overall);
+        break;
       case 'rent-asc':
         result = [...result].sort((a, b) => (a.property.min_rent || 9999) - (b.property.min_rent || 9999));
         break;
@@ -141,6 +160,7 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="smart-score">Smart Score</SelectItem>
               <SelectItem value="deal-score">Best Deals</SelectItem>
               <SelectItem value="savings">Most Savings</SelectItem>
               <SelectItem value="rent-asc">Rent: Low to High</SelectItem>
@@ -180,8 +200,17 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
         />
       )}
 
+      {hasPreferences && sortBy === 'smart-score' && (
+        <div className="flex items-center gap-2 p-3 rounded-md bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
+          <Brain className="w-4 h-4 text-blue-600 shrink-0" />
+          <p className="text-xs text-blue-700 dark:text-blue-300">
+            Properties ranked by Smart Score using your AI preferences, budget, and market data.
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filtered.map(({ property, savings }, index) => {
+        {filtered.map(({ property, savings, smartScore }, index) => {
           const isVisible = userIsSubscribed || isPropertyUnlocked(property.id) || index < FREE_VISIBLE_COUNT;
 
           if (!isVisible) {
@@ -195,6 +224,8 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
             );
           }
 
+          const isScoreExpanded = expandedScoreId === property.id;
+
           return (
             <Card
               key={property.id}
@@ -204,16 +235,81 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
             >
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-2 gap-2 flex-wrap">
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <h3 className="font-semibold text-foreground">{property.name}</h3>
                     <p className="text-sm text-muted-foreground">{property.address}, {property.city}</p>
                   </div>
-                  {savings.dealScore >= 70 && (
-                    <Badge variant="default" className="bg-green-600 shrink-0">
-                      Score: {savings.dealScore}
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div
+                          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border cursor-pointer ${getScoreBgColor(smartScore.overall)}`}
+                          onClick={(e) => { e.stopPropagation(); setExpandedScoreId(prev => prev === property.id ? null : property.id); }}
+                          data-testid={`badge-smart-score-${property.id}`}
+                        >
+                          <Brain className={`w-3.5 h-3.5 ${getScoreColor(smartScore.overall)}`} />
+                          <span className={`text-sm font-bold ${getScoreColor(smartScore.overall)}`}>{smartScore.overall}</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-[200px]">
+                        <p className="font-semibold">{getScoreLabel(smartScore.overall)}</p>
+                        <p className="text-xs">Click to see breakdown</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </div>
+
+                {isScoreExpanded && (
+                  <div className="mb-3 p-3 rounded-md bg-muted/50 space-y-2" onClick={e => e.stopPropagation()} data-testid={`panel-score-breakdown-${property.id}`}>
+                    <div className="grid grid-cols-4 gap-2 text-center">
+                      <div>
+                        <MapPin className="w-3 h-3 mx-auto text-blue-600 mb-0.5" />
+                        <div className={`text-sm font-bold ${getScoreColor(smartScore.locationScore)}`}>{smartScore.locationScore}</div>
+                        <div className="text-[10px] text-muted-foreground">Location</div>
+                      </div>
+                      <div>
+                        <CheckCircle2 className="w-3 h-3 mx-auto text-purple-600 mb-0.5" />
+                        <div className={`text-sm font-bold ${getScoreColor(smartScore.preferenceScore)}`}>{smartScore.preferenceScore}</div>
+                        <div className="text-[10px] text-muted-foreground">Prefs</div>
+                      </div>
+                      <div>
+                        <TrendingUp className="w-3 h-3 mx-auto text-indigo-600 mb-0.5" />
+                        <div className={`text-sm font-bold ${getScoreColor(smartScore.marketScore)}`}>{smartScore.marketScore}</div>
+                        <div className="text-[10px] text-muted-foreground">Market</div>
+                      </div>
+                      <div>
+                        <DollarSign className="w-3 h-3 mx-auto text-green-600 mb-0.5" />
+                        <div className={`text-sm font-bold ${getScoreColor(smartScore.valueScore)}`}>{smartScore.valueScore}</div>
+                        <div className="text-[10px] text-muted-foreground">Value</div>
+                      </div>
+                    </div>
+                    {smartScore.highlights.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {smartScore.highlights.map((h, i) => (
+                          <Badge key={i} variant="secondary" className="text-[10px] px-1.5 py-0">
+                            {h}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    {smartScore.warnings.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {smartScore.warnings.map((w, i) => (
+                          <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0 text-orange-600 border-orange-300">
+                            <AlertTriangle className="w-2.5 h-2.5 mr-0.5" />
+                            {w}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    {smartScore.amenityMatches.length > 0 && (
+                      <div className="text-[10px] text-muted-foreground">
+                        Matched: {smartScore.amenityMatches.slice(0, 5).join(', ')}
+                        {smartScore.amenityMatches.length > 5 && ` +${smartScore.amenityMatches.length - 5} more`}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex items-center gap-4 mb-3 flex-wrap">
                   <div>
@@ -256,6 +352,11 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
                   )}
                   {property.pet_policy && (
                     <Badge variant="outline">{property.pet_policy}</Badge>
+                  )}
+                  {smartScore.overall >= 80 && (
+                    <Badge variant="default" className="bg-gradient-to-r from-blue-600 to-purple-600">
+                      {getScoreLabel(smartScore.overall)}
+                    </Badge>
                   )}
                 </div>
 
