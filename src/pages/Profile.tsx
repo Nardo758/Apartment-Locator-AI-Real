@@ -14,10 +14,12 @@ import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import ModernCard from '@/components/modern/ModernCard';
 import Header from '@/components/Header';
 import { dataTracker } from '@/lib/data-tracker';
+import { useUnifiedAI } from '@/contexts/UnifiedAIContext';
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const unifiedAI = useUnifiedAI();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState({
     email: '',
@@ -142,6 +144,9 @@ const Profile: React.FC = () => {
         });
 
       if (error) throw error;
+
+      // Refresh UnifiedAI context with new data from Supabase
+      await unifiedAI.refreshFromDatabase();
 
       toast({
         title: "Profile Updated",

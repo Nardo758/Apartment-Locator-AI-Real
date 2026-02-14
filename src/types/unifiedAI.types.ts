@@ -215,6 +215,7 @@ export interface UnifiedAIContext extends UnifiedAIInputs {
   removePOI: (poiId: string) => void;
   updateMarketContext: (context: Partial<MarketContext>) => void;
   calculateScores: () => Promise<void>;
+  refreshFromDatabase: () => Promise<void>;
   reset: () => void;
 }
 

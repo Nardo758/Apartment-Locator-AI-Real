@@ -80,10 +80,15 @@ export default function UnifiedDashboard() {
   useEffect(() => {
     const loadDashboardData = async () => {
       setDataError(null);
-      // Use location from UnifiedAI context if available
+      // Use location from UnifiedAI context if available (NO hardcoded default)
+      if (!unifiedAI.location) {
+        console.log('No location set - user needs to complete profile');
+        return; // Don't load properties if no location set
+      }
+      
       const locationParts = unifiedAI.location.split(',').map(s => s.trim());
-      const defaultCity = locationParts[0] || 'Orlando';
-      const defaultState = locationParts[1] || 'FL';
+      const defaultCity = locationParts[0];
+      const defaultState = locationParts[1];
 
       try {
         const fetched = await api.getProperties({ city: defaultCity, state: defaultState, limit: 25 });
