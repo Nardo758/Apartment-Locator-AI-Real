@@ -41,16 +41,17 @@ interface PropertyData {
   parkingIncluded: boolean;
   bedrooms: number;
   bathrooms: number;
+  sqft?: number;
   imageUrl?: string;
   amenities?: string[];
 }
 
 const MOCK_PROPERTIES: PropertyData[] = [
-  { id: 'apt-1', name: 'The Broadstone at Midtown', address: '1015 Northside Dr NW, Atlanta, GA 30318', coordinates: { lat: 33.7866, lng: -84.4073 }, baseRent: 1850, parkingIncluded: false, bedrooms: 2, bathrooms: 2, amenities: ['gym', 'pool', 'in_unit_laundry', 'water'] },
-  { id: 'apt-2', name: 'Camden Buckhead Square', address: '3060 Peachtree Rd NW, Atlanta, GA 30305', coordinates: { lat: 33.8404, lng: -84.3797 }, baseRent: 1650, parkingIncluded: true, bedrooms: 1, bathrooms: 1, amenities: ['gym', 'trash', 'sewer'] },
-  { id: 'apt-3', name: 'The Exchange at Vinings', address: '2800 Paces Ferry Rd SE, Atlanta, GA 30339', coordinates: { lat: 33.8627, lng: -84.4655 }, baseRent: 1450, parkingIncluded: true, bedrooms: 2, bathrooms: 1, amenities: ['washer_dryer', 'water', 'trash'] },
-  { id: 'apt-4', name: 'Cortland at the Battery', address: '875 Battery Ave SE, Atlanta, GA 30339', coordinates: { lat: 33.8896, lng: -84.4685 }, baseRent: 1350, parkingIncluded: true, bedrooms: 1, bathrooms: 1, amenities: ['gym', 'pool', 'internet', 'water', 'trash'] },
-  { id: 'apt-5', name: 'AMLI West Plano at Granite Park', address: '2175 E West Connector, Austell, GA 30106', coordinates: { lat: 33.8148, lng: -84.6327 }, baseRent: 1275, parkingIncluded: true, bedrooms: 1, bathrooms: 1, amenities: [] },
+  { id: 'apt-1', name: 'The Broadstone at Midtown', address: '1015 Northside Dr NW, Atlanta, GA 30318', coordinates: { lat: 33.7866, lng: -84.4073 }, baseRent: 1850, parkingIncluded: false, bedrooms: 2, bathrooms: 2, sqft: 1050, amenities: ['gym', 'pool', 'in_unit_laundry', 'water'] },
+  { id: 'apt-2', name: 'Camden Buckhead Square', address: '3060 Peachtree Rd NW, Atlanta, GA 30305', coordinates: { lat: 33.8404, lng: -84.3797 }, baseRent: 1650, parkingIncluded: true, bedrooms: 1, bathrooms: 1, sqft: 720, amenities: ['gym', 'trash', 'sewer'] },
+  { id: 'apt-3', name: 'The Exchange at Vinings', address: '2800 Paces Ferry Rd SE, Atlanta, GA 30339', coordinates: { lat: 33.8627, lng: -84.4655 }, baseRent: 1450, parkingIncluded: true, bedrooms: 2, bathrooms: 1, sqft: 950, amenities: ['washer_dryer', 'water', 'trash'] },
+  { id: 'apt-4', name: 'Cortland at the Battery', address: '875 Battery Ave SE, Atlanta, GA 30339', coordinates: { lat: 33.8896, lng: -84.4685 }, baseRent: 1350, parkingIncluded: true, bedrooms: 1, bathrooms: 1, sqft: 680, amenities: ['gym', 'pool', 'internet', 'water', 'trash'] },
+  { id: 'apt-5', name: 'AMLI West Plano at Granite Park', address: '2175 E West Connector, Austell, GA 30106', coordinates: { lat: 33.8148, lng: -84.6327 }, baseRent: 1275, parkingIncluded: true, bedrooms: 1, bathrooms: 1, sqft: 650, amenities: [] },
 ];
 
 const MOCK_MARKET_DATA = {
@@ -592,45 +593,30 @@ export default function UnifiedDashboard() {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-4 mt-3">
+                      <div className="flex items-center gap-4 mt-3 flex-wrap">
                         <div>
-                          <p className="text-xs text-muted-foreground">Base Rent</p>
+                          <p className="text-xs text-muted-foreground">Unit Type</p>
+                          <p className="font-medium" data-testid={`text-unit-type-${property.id}`}>{property.bedrooms} bd / {property.bathrooms} ba</p>
+                        </div>
+                        {property.sqft && (
+                          <div className="border-l pl-4">
+                            <p className="text-xs text-muted-foreground">Sq Ft</p>
+                            <p className="font-medium" data-testid={`text-sqft-${property.id}`}>{property.sqft.toLocaleString()}</p>
+                          </div>
+                        )}
+                        <div className="border-l pl-4">
+                          <p className="text-xs text-muted-foreground">Rent</p>
                           <p className="font-medium">{formatCurrency(property.baseRent)}</p>
                         </div>
-                        
-                        <SavingsDataGate
-                          isUnlocked={true}
-                          onUnlockClick={() => openPaywall(property.id)}
-                          hint="True cost & savings analysis"
-                          compact
-                        >
-                          <div className="flex items-center gap-4 flex-wrap">
-                            {property.trueCost && (
-                              <div className="border-l pl-4">
-                                <p className="text-xs text-muted-foreground">True Cost</p>
-                                <p className="font-bold text-primary text-lg">{formatCurrency(property.trueCost)}</p>
-                              </div>
-                            )}
-
-                            {property.locationCosts != null && property.locationCosts > 0 && (
-                              <div className="border-l pl-4">
-                                <p className="text-xs text-muted-foreground">Location Costs</p>
-                                <p className="text-sm text-orange-500">+{formatCurrency(property.locationCosts)}</p>
-                              </div>
-                            )}
-
-                            {property.savingsVsMax != null && property.savingsVsMax > 0 && (
-                              <div className="border-l pl-4">
-                                <p className="text-xs text-muted-foreground">You Save</p>
-                                <p className="text-sm font-semibold text-green-600">{formatCurrency(property.savingsVsMax)}/mo</p>
-                              </div>
-                            )}
+                        {property.savingsVsMax != null && property.savingsVsMax > 0 && (
+                          <div className="border-l pl-4">
+                            <p className="text-xs text-muted-foreground">You Save</p>
+                            <p className="text-sm font-semibold text-green-600">{formatCurrency(property.savingsVsMax)}/mo</p>
                           </div>
-                        </SavingsDataGate>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-2 mt-3 flex-wrap">
-                        <Badge variant="outline">{property.bedrooms} bd / {property.bathrooms} ba</Badge>
                         {property.commuteMinutes && (
                           <Badge variant="secondary">{property.commuteMinutes} min commute</Badge>
                         )}
@@ -644,10 +630,6 @@ export default function UnifiedDashboard() {
                           </Badge>
                         )}
                       </div>
-
-                      {leaseIntelData[property.id] && (
-                        <RenterLeaseIntelBadges data={leaseIntelData[property.id]} compact />
-                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -681,8 +663,8 @@ export default function UnifiedDashboard() {
                           <TableHead>Property</TableHead>
                           <TableHead className="text-center" data-testid="header-smart-score">Smart Score</TableHead>
                           <TableHead className="text-right">Rent</TableHead>
-                          <TableHead className="text-right">Location Costs</TableHead>
-                          <TableHead className="text-right">True Cost</TableHead>
+                          <TableHead className="text-center">Unit Type</TableHead>
+                          <TableHead className="text-right">Sq Ft</TableHead>
                           <TableHead className="text-right">Amenities</TableHead>
                           <TableHead className="text-right">You Save</TableHead>
                           <TableHead className="text-right">Commute</TableHead>
@@ -733,11 +715,11 @@ export default function UnifiedDashboard() {
                               )}
                             </TableCell>
                             <TableCell className="text-right">{formatCurrency(property.baseRent)}</TableCell>
-                            <TableCell className="text-right text-orange-500">
-                              {property.locationCosts ? `+${formatCurrency(property.locationCosts)}` : '-'}
+                            <TableCell className="text-center" data-testid={`text-table-unit-type-${property.id}`}>
+                              {property.bedrooms} bd / {property.bathrooms} ba
                             </TableCell>
-                            <TableCell className="text-right font-bold text-primary">
-                              {property.trueCost ? formatCurrency(property.trueCost) : '-'}
+                            <TableCell className="text-right" data-testid={`text-table-sqft-${property.id}`}>
+                              {property.sqft ? property.sqft.toLocaleString() : '-'}
                             </TableCell>
                             <TableCell className="text-right">
                               {property.costBreakdown?.amenitySavings ? (
