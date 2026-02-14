@@ -50,6 +50,27 @@ export interface ApartmentLocationCost {
   gymCost: GymCost;
   transitSavings: TransitSavings;
   
+  // NEW: Amenity savings (from included utilities, gym, parking, etc.)
+  amenitySavings?: {
+    includedAmenities: Array<{
+      amenity: string;
+      displayName: string;
+      monthlySavings: number;
+      category: string;
+      description: string;
+    }>;
+    totalMonthlySavings: number;
+    byCategory: {
+      facilities: number;
+      parking: number;
+      laundry: number;
+      storage: number;
+      utilities: number;
+      pets: number;
+      other: number;
+    };
+  };
+  
   // Totals
   totalLocationCosts: number;
   trueMonthlyCost: number;
@@ -108,6 +129,7 @@ export interface GymCost {
   tripsPerMonth: number;
   additionalGasCost: number;
   timeCostMinutes: number;
+  gymIncludedInBuilding?: boolean; // NEW: if true, no additional cost
 }
 
 export interface TransitSavings {
