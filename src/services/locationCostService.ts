@@ -17,7 +17,7 @@ import type {
   DistanceMatrixResult,
   PlaceInfo,
 } from '@/types/locationCost.types';
-import { calculateAmenitySavings } from '@/lib/amenity-value-calculator';
+import { calculateAmenitySavings, detectAmenities } from '@/lib/amenity-value-calculator';
 
 // Constants
 const WEEKS_PER_MONTH = 4.33;
@@ -90,11 +90,12 @@ export async function calculateApartmentCosts(
         googleMapsApiKey
       );
       
-      // Calculate amenity savings
-      const amenityResult = calculateAmenitySavings(
-        apartment.amenities ?? [],
-        apartment.parkingIncluded
-      );
+      // Detect and calculate amenity savings
+      const detectedAmenities = detectAmenities({
+        amenities: apartment.amenities,
+        parking_type: apartment.parkingIncluded ? 'included' : undefined,
+      });
+      const amenityResult = calculateAmenitySavings(detectedAmenities);
       
       // Total location costs (subtract amenity savings)
       const totalLocationCosts = 
@@ -103,7 +104,7 @@ export async function calculateApartmentCosts(
         groceryCost.additionalGasCost +
         gymCost.additionalGasCost -
         transitSavings.potentialMonthlySavings -
-        amenityResult.totalMonthlyValue;
+        amenityResult.totalMonthlySavings;
       
       const trueMonthlyCost = apartment.baseRent + totalLocationCosts;
       
@@ -118,8 +119,8 @@ export async function calculateApartmentCosts(
         gymCost,
         transitSavings,
         amenitySavings: {
-          totalMonthlyValue: amenityResult.totalMonthlyValue,
-          amenityNames: amenityResult.amenityNames,
+          totalMonthlyValue: amenityResult.totalMonthlySavings,
+          amenityNames: amenityResult.includedAmenities.map(a => a.displayName),
         },
         totalLocationCosts: Math.round(totalLocationCosts),
         trueMonthlyCost: Math.round(trueMonthlyCost),

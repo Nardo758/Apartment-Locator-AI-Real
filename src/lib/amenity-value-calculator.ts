@@ -1,71 +1,391 @@
+/**
+ * Amenity Value Calculator
+ * Calculates monthly dollar value of included amenities
+ * 
+ * Logic: If an amenity is included in rent, the renter doesn't pay for it elsewhere
+ * This should REDUCE the True Monthly Cost
+ */
+
+// ============================================
+// AMENITY MONTHLY VALUES
+// ============================================
+
+export const AMENITY_VALUES = {
+  // Building Amenities (facilities you'd otherwise pay for)
+  gym: 50,                    // Average gym membership
+  pool: 0,                    // Recreational, no direct savings
+  businessCenter: 0,          // Recreational/convenience
+  rooftopDeck: 0,             // Recreational
+  courtyard: 0,               // Recreational
+  packageRoom: 5,             // Prevents missed deliveries, small value
+  concierge: 0,               // Luxury convenience
+  doorman: 0,                 // Security/convenience
+  
+  // Parking
+  parkingIncluded: 150,       // Average parking spot rental
+  garageParking: 200,         // Premium covered parking
+  coveredParking: 175,        // Mid-tier covered
+  
+  // Laundry
+  laundryInUnit: 40,          // Saves ~$40/mo laundromat trips
+  laundryInBuilding: 20,      // Cheaper than laundromat, more than in-unit
+  
+  // Storage
+  storageUnit: 100,           // External storage unit rental
+  bikeStorage: 10,            // Bike parking alternative
+  
+  // Utilities (average monthly costs by region)
+  heatIncluded: 80,           // Winter heating bills
+  waterIncluded: 30,          // Water/sewer
+  electricIncluded: 90,       // Electricity
+  gasIncluded: 50,            // Natural gas
+  trashIncluded: 15,          // Trash removal
+  internetIncluded: 60,       // High-speed internet
+  cableIncluded: 80,          // Cable TV
+  
+  // Pet-Related
+  noPetDeposit: 0,            // One-time, not monthly
+  noPetRent: 25,              // If property doesn't charge pet rent
+  
+  // Other
+  elevatorAccess: 0,          // Convenience, no cost savings
+} as const;
+
+// ============================================
+// TYPES
+// ============================================
+
 export interface AmenityValue {
-  name: string;
-  monthlyValue: number;
-  category: 'fitness' | 'parking' | 'laundry' | 'utilities' | 'other';
+  amenity: string;
+  displayName: string;
+  monthlySavings: number;
+  category: 'facilities' | 'parking' | 'laundry' | 'storage' | 'utilities' | 'pets' | 'other';
+  description: string;
 }
 
-const AMENITY_VALUES: Record<string, AmenityValue> = {
-  gym: { name: 'Gym', monthlyValue: 50, category: 'fitness' },
-  fitness_center: { name: 'Fitness Center', monthlyValue: 50, category: 'fitness' },
-  pool: { name: 'Pool', monthlyValue: 30, category: 'fitness' },
-  parking: { name: 'Parking', monthlyValue: 150, category: 'parking' },
-  covered_parking: { name: 'Covered Parking', monthlyValue: 200, category: 'parking' },
-  garage: { name: 'Garage Parking', monthlyValue: 200, category: 'parking' },
-  in_unit_laundry: { name: 'In-Unit Laundry', monthlyValue: 40, category: 'laundry' },
-  washer_dryer: { name: 'Washer/Dryer', monthlyValue: 40, category: 'laundry' },
-  water: { name: 'Water Included', monthlyValue: 50, category: 'utilities' },
-  electric: { name: 'Electric Included', monthlyValue: 90, category: 'utilities' },
-  gas: { name: 'Gas Included', monthlyValue: 40, category: 'utilities' },
-  internet: { name: 'Internet Included', monthlyValue: 60, category: 'utilities' },
-  cable: { name: 'Cable Included', monthlyValue: 50, category: 'utilities' },
-  trash: { name: 'Trash Included', monthlyValue: 15, category: 'utilities' },
-  sewer: { name: 'Sewer Included', monthlyValue: 25, category: 'utilities' },
-  heat: { name: 'Heat Included', monthlyValue: 60, category: 'utilities' },
-  ac: { name: 'A/C Included', monthlyValue: 45, category: 'utilities' },
-  storage: { name: 'Storage Unit', monthlyValue: 50, category: 'other' },
-  pet_friendly: { name: 'Pet Friendly (no fee)', monthlyValue: 25, category: 'other' },
-};
-
-export interface AmenitySavingsResult {
-  totalMonthlyValue: number;
+export interface AmenitySavingsBreakdown {
   includedAmenities: AmenityValue[];
-  amenityNames: string[];
-}
-
-export function calculateAmenitySavings(
-  amenities: string[],
-  parkingIncluded?: boolean
-): AmenitySavingsResult {
-  const includedAmenities: AmenityValue[] = [];
-  const seen = new Set<string>();
-
-  for (const amenity of amenities) {
-    const key = amenity.toLowerCase().replace(/[\s-]+/g, '_');
-
-    for (const [amenityKey, amenityVal] of Object.entries(AMENITY_VALUES)) {
-      if (seen.has(amenityVal.category === 'parking' ? 'parking' : amenityKey)) continue;
-
-      if (key.includes(amenityKey) || amenityKey.includes(key)) {
-        includedAmenities.push(amenityVal);
-        seen.add(amenityVal.category === 'parking' ? 'parking' : amenityKey);
-      }
-    }
-  }
-
-  if (parkingIncluded && !seen.has('parking')) {
-    includedAmenities.push(AMENITY_VALUES.parking);
-    seen.add('parking');
-  }
-
-  const totalMonthlyValue = includedAmenities.reduce((sum, a) => sum + a.monthlyValue, 0);
-
-  return {
-    totalMonthlyValue,
-    includedAmenities,
-    amenityNames: includedAmenities.map(a => a.name),
+  totalMonthlySavings: number;
+  byCategory: {
+    facilities: number;
+    parking: number;
+    laundry: number;
+    storage: number;
+    utilities: number;
+    pets: number;
+    other: number;
   };
 }
 
-export function getAmenityValue(amenityKey: string): AmenityValue | undefined {
-  return AMENITY_VALUES[amenityKey.toLowerCase().replace(/[\s-]+/g, '_')];
+// ============================================
+// AMENITY DETECTION
+// ============================================
+
+export function detectAmenities(property: {
+  features?: string[];
+  amenities?: string[];
+  description?: string;
+  utilities_included?: string[];
+  parking_type?: string;
+  laundry_type?: string;
+  pet_policy?: any;
+}): string[] {
+  const detected: string[] = [];
+  
+  const LEGACY_KEY_MAP: Record<string, string> = {
+    'in_unit_laundry': 'in-unit laundry',
+    'washer_dryer': 'washer dryer',
+    'in_building_laundry': 'on-site laundry',
+    'water': 'water included',
+    'electric': 'electric included',
+    'gas': 'gas included',
+    'trash': 'trash included',
+    'sewer': 'water included',
+    'heat': 'heat included',
+    'internet': 'internet included',
+    'cable': 'cable included',
+    'ac': 'air conditioning',
+    'parking': 'parking included',
+    'covered_parking': 'covered parking',
+    'garage': 'garage parking',
+    'storage': 'storage unit',
+    'bike_storage': 'bike storage',
+    'fitness_center': 'fitness',
+    'pet_friendly': 'no pet rent',
+  };
+
+  const normalizedAmenities = (property.amenities || []).map(a => {
+    const key = a.toLowerCase().replace(/[\s-]+/g, '_');
+    return LEGACY_KEY_MAP[key] || a;
+  });
+
+  const allText = [
+    ...(property.features || []),
+    ...normalizedAmenities,
+    property.description || '',
+  ].join(' ').toLowerCase();
+  
+  if (allText.includes('gym') || allText.includes('fitness')) detected.push('gym');
+  if (allText.includes('pool')) detected.push('pool');
+  if (allText.includes('business center') || allText.includes('coworking')) detected.push('businessCenter');
+  if (allText.includes('rooftop')) detected.push('rooftopDeck');
+  if (allText.includes('courtyard') || allText.includes('garden')) detected.push('courtyard');
+  if (allText.includes('package') || allText.includes('parcel locker')) detected.push('packageRoom');
+  if (allText.includes('concierge')) detected.push('concierge');
+  if (allText.includes('doorman')) detected.push('doorman');
+  
+  if (property.parking_type === 'included' || allText.includes('parking included')) {
+    detected.push('parkingIncluded');
+  }
+  if (property.parking_type === 'garage' || allText.includes('garage parking')) {
+    detected.push('garageParking');
+  }
+  if (property.parking_type === 'covered' || allText.includes('covered parking')) {
+    detected.push('coveredParking');
+  }
+  
+  if (property.laundry_type === 'in-unit' || allText.includes('in-unit laundry') || allText.includes('washer dryer')) {
+    detected.push('laundryInUnit');
+  } else if (property.laundry_type === 'in-building' || allText.includes('on-site laundry')) {
+    detected.push('laundryInBuilding');
+  }
+  
+  if (allText.includes('storage unit') || allText.includes('additional storage')) detected.push('storageUnit');
+  if (allText.includes('bike storage') || allText.includes('bike room')) detected.push('bikeStorage');
+  
+  const utilitiesIncluded = property.utilities_included || [];
+  if (utilitiesIncluded.includes('heat') || allText.includes('heat included')) detected.push('heatIncluded');
+  if (utilitiesIncluded.includes('water') || allText.includes('water included')) detected.push('waterIncluded');
+  if (utilitiesIncluded.includes('electric') || allText.includes('electric included')) detected.push('electricIncluded');
+  if (utilitiesIncluded.includes('gas') || allText.includes('gas included')) detected.push('gasIncluded');
+  if (utilitiesIncluded.includes('trash') || allText.includes('trash included')) detected.push('trashIncluded');
+  if (utilitiesIncluded.includes('internet') || allText.includes('internet included')) detected.push('internetIncluded');
+  if (utilitiesIncluded.includes('cable') || allText.includes('cable included')) detected.push('cableIncluded');
+  
+  if (property.pet_policy?.no_pet_rent || allText.includes('no pet rent')) detected.push('noPetRent');
+  
+  if (allText.includes('elevator')) detected.push('elevatorAccess');
+  
+  return detected;
+}
+
+// ============================================
+// AMENITY VALUE MAPPING
+// ============================================
+
+const AMENITY_DISPLAY_NAMES: Record<string, string> = {
+  gym: 'Fitness Center',
+  pool: 'Swimming Pool',
+  businessCenter: 'Business Center',
+  rooftopDeck: 'Rooftop Deck',
+  courtyard: 'Courtyard/Garden',
+  packageRoom: 'Package Room',
+  concierge: 'Concierge Service',
+  doorman: 'Doorman',
+  parkingIncluded: 'Parking Included',
+  garageParking: 'Garage Parking',
+  coveredParking: 'Covered Parking',
+  laundryInUnit: 'In-Unit Laundry',
+  laundryInBuilding: 'In-Building Laundry',
+  storageUnit: 'Storage Unit',
+  bikeStorage: 'Bike Storage',
+  heatIncluded: 'Heat Included',
+  waterIncluded: 'Water Included',
+  electricIncluded: 'Electric Included',
+  gasIncluded: 'Gas Included',
+  trashIncluded: 'Trash Included',
+  internetIncluded: 'Internet Included',
+  cableIncluded: 'Cable Included',
+  noPetRent: 'No Pet Rent',
+  elevatorAccess: 'Elevator Access',
+};
+
+const AMENITY_DESCRIPTIONS: Record<string, string> = {
+  gym: 'Save on gym membership',
+  parkingIncluded: 'No additional parking fees',
+  garageParking: 'Premium covered parking',
+  coveredParking: 'Protected parking spot',
+  laundryInUnit: 'No laundromat trips needed',
+  laundryInBuilding: 'Cheaper than laundromat',
+  storageUnit: 'Extra storage space included',
+  bikeStorage: 'Secure bike parking',
+  heatIncluded: 'Winter heating costs covered',
+  waterIncluded: 'Water/sewer included',
+  electricIncluded: 'Electricity costs covered',
+  gasIncluded: 'Natural gas included',
+  trashIncluded: 'Trash removal included',
+  internetIncluded: 'High-speed internet',
+  cableIncluded: 'Cable TV service',
+  noPetRent: 'No monthly pet fee',
+  packageRoom: 'Secure package delivery',
+  pool: 'Recreational amenity',
+  businessCenter: 'Work from home space',
+  rooftopDeck: 'Outdoor gathering space',
+  courtyard: 'Green space access',
+  concierge: 'Concierge service',
+  doorman: '24/7 doorman',
+  elevatorAccess: 'Elevator building',
+};
+
+const AMENITY_CATEGORIES: Record<string, AmenityValue['category']> = {
+  gym: 'facilities',
+  pool: 'facilities',
+  businessCenter: 'facilities',
+  rooftopDeck: 'facilities',
+  courtyard: 'facilities',
+  packageRoom: 'facilities',
+  concierge: 'facilities',
+  doorman: 'facilities',
+  parkingIncluded: 'parking',
+  garageParking: 'parking',
+  coveredParking: 'parking',
+  laundryInUnit: 'laundry',
+  laundryInBuilding: 'laundry',
+  storageUnit: 'storage',
+  bikeStorage: 'storage',
+  heatIncluded: 'utilities',
+  waterIncluded: 'utilities',
+  electricIncluded: 'utilities',
+  gasIncluded: 'utilities',
+  trashIncluded: 'utilities',
+  internetIncluded: 'utilities',
+  cableIncluded: 'utilities',
+  noPetRent: 'pets',
+  elevatorAccess: 'other',
+};
+
+// ============================================
+// CALCULATE AMENITY VALUE
+// ============================================
+
+export function calculateAmenitySavings(detectedAmenities: string[]): AmenitySavingsBreakdown {
+  const includedAmenities: AmenityValue[] = [];
+  
+  const byCategory = {
+    facilities: 0,
+    parking: 0,
+    laundry: 0,
+    storage: 0,
+    utilities: 0,
+    pets: 0,
+    other: 0,
+  };
+  
+  for (const amenity of detectedAmenities) {
+    const value = AMENITY_VALUES[amenity as keyof typeof AMENITY_VALUES];
+    
+    if (value !== undefined) {
+      const amenityValue: AmenityValue = {
+        amenity,
+        displayName: AMENITY_DISPLAY_NAMES[amenity] || amenity,
+        monthlySavings: value,
+        category: AMENITY_CATEGORIES[amenity] || 'other',
+        description: AMENITY_DESCRIPTIONS[amenity] || '',
+      };
+      
+      includedAmenities.push(amenityValue);
+      byCategory[amenityValue.category] += value;
+    }
+  }
+  
+  const totalMonthlySavings = includedAmenities.reduce((sum, a) => sum + a.monthlySavings, 0);
+  
+  return {
+    includedAmenities,
+    totalMonthlySavings,
+    byCategory,
+  };
+}
+
+// ============================================
+// CALCULATE TRUE COST WITH AMENITIES
+// ============================================
+
+export function calculateTrueCostWithAmenities(
+  baseRent: number,
+  commuteCost: number,
+  otherCosts: {
+    parking?: number;
+    gym?: number;
+    grocery?: number;
+    laundry?: number;
+    utilities?: number;
+  },
+  property: {
+    features?: string[];
+    amenities?: string[];
+    description?: string;
+    utilities_included?: string[];
+    parking_type?: string;
+    laundry_type?: string;
+    pet_policy?: any;
+  }
+): {
+  baseRent: number;
+  commuteCost: number;
+  additionalCosts: number;
+  amenitySavings: number;
+  trueMonthlyCost: number;
+  breakdown: AmenitySavingsBreakdown;
+} {
+  const detectedAmenities = detectAmenities(property);
+  const breakdown = calculateAmenitySavings(detectedAmenities);
+  
+  let additionalCosts = 0;
+  
+  const parkingKeys = ['parkingIncluded', 'garageParking', 'coveredParking'];
+  if (!detectedAmenities.some(a => parkingKeys.includes(a)) && otherCosts.parking) {
+    additionalCosts += otherCosts.parking;
+  }
+  
+  if (!detectedAmenities.includes('gym') && otherCosts.gym) {
+    additionalCosts += otherCosts.gym;
+  }
+  
+  const laundryKeys = ['laundryInUnit', 'laundryInBuilding'];
+  if (!detectedAmenities.some(a => laundryKeys.includes(a)) && otherCosts.laundry) {
+    additionalCosts += otherCosts.laundry;
+  }
+  
+  const utilityKeys = ['heatIncluded', 'waterIncluded', 'electricIncluded', 'gasIncluded', 'trashIncluded', 'internetIncluded', 'cableIncluded'];
+  if (!detectedAmenities.some(a => utilityKeys.includes(a)) && otherCosts.utilities) {
+    additionalCosts += otherCosts.utilities;
+  }
+  
+  if (otherCosts.grocery) {
+    additionalCosts += otherCosts.grocery;
+  }
+  
+  const trueMonthlyCost = baseRent + commuteCost + additionalCosts - breakdown.totalMonthlySavings;
+  
+  return {
+    baseRent,
+    commuteCost,
+    additionalCosts,
+    amenitySavings: breakdown.totalMonthlySavings,
+    trueMonthlyCost,
+    breakdown,
+  };
+}
+
+// ============================================
+// HELPER: USER-FRIENDLY DISPLAY
+// ============================================
+
+export function formatAmenitySavings(breakdown: AmenitySavingsBreakdown): string {
+  if (breakdown.includedAmenities.length === 0) {
+    return 'No included amenities';
+  }
+  
+  const topAmenities = breakdown.includedAmenities
+    .filter(a => a.monthlySavings > 0)
+    .sort((a, b) => b.monthlySavings - a.monthlySavings)
+    .slice(0, 3)
+    .map(a => a.displayName);
+  
+  if (topAmenities.length === 0) {
+    return `${breakdown.includedAmenities.length} amenities included`;
+  }
+  
+  return `Save $${breakdown.totalMonthlySavings}/mo (${topAmenities.join(', ')})`;
 }
