@@ -21,7 +21,7 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState({
     email: '',
-    location: 'Austin, TX',
+    location: 'Atlanta, GA',
     bio: '',
     // Financial verification fields
     gross_income: '',
@@ -57,7 +57,7 @@ const Profile: React.FC = () => {
         const typedData = data as any;
         setProfile({
           email: (user && user.email) || '',
-          location: typedData.location || 'Austin, TX',
+          location: typedData.location || 'Atlanta, GA',
           bio: typedData.bio || '',
           gross_income: typedData.budget?.toString() || '',
           employment_type: typedData.lifestyle || '',

@@ -41,11 +41,11 @@ interface PropertyData {
 }
 
 const MOCK_PROPERTIES: PropertyData[] = [
-  { id: 'apt-1', name: 'The Vue at Lake Eola', address: '101 E Pine St, Orlando, FL 32801', coordinates: { lat: 28.5420, lng: -81.3729 }, baseRent: 1850, parkingIncluded: false, bedrooms: 2, bathrooms: 2 },
-  { id: 'apt-2', name: 'Camden Orange Court', address: '601 N Orange Ave, Orlando, FL 32801', coordinates: { lat: 28.5478, lng: -81.3792 }, baseRent: 1650, parkingIncluded: true, bedrooms: 1, bathrooms: 1 },
-  { id: 'apt-3', name: 'Millenia Apartments', address: '4950 Millenia Blvd, Orlando, FL 32839', coordinates: { lat: 28.4859, lng: -81.4284 }, baseRent: 1450, parkingIncluded: true, bedrooms: 2, bathrooms: 1 },
-  { id: 'apt-4', name: 'Baldwin Harbor', address: '4225 S John Young Pkwy, Orlando, FL 32839', coordinates: { lat: 28.4612, lng: -81.4098 }, baseRent: 1350, parkingIncluded: true, bedrooms: 1, bathrooms: 1 },
-  { id: 'apt-5', name: 'ARIUM MetroWest', address: '2300 S Hiawassee Rd, Orlando, FL 32835', coordinates: { lat: 28.5089, lng: -81.4567 }, baseRent: 1275, parkingIncluded: true, bedrooms: 1, bathrooms: 1 },
+  { id: 'apt-1', name: 'The Broadstone at Midtown', address: '1015 Northside Dr NW, Atlanta, GA 30318', coordinates: { lat: 33.7866, lng: -84.4073 }, baseRent: 1850, parkingIncluded: false, bedrooms: 2, bathrooms: 2 },
+  { id: 'apt-2', name: 'Camden Buckhead Square', address: '3060 Peachtree Rd NW, Atlanta, GA 30305', coordinates: { lat: 33.8404, lng: -84.3797 }, baseRent: 1650, parkingIncluded: true, bedrooms: 1, bathrooms: 1 },
+  { id: 'apt-3', name: 'The Exchange at Vinings', address: '2800 Paces Ferry Rd SE, Atlanta, GA 30339', coordinates: { lat: 33.8627, lng: -84.4655 }, baseRent: 1450, parkingIncluded: true, bedrooms: 2, bathrooms: 1 },
+  { id: 'apt-4', name: 'Cortland at the Battery', address: '875 Battery Ave SE, Atlanta, GA 30339', coordinates: { lat: 33.8896, lng: -84.4685 }, baseRent: 1350, parkingIncluded: true, bedrooms: 1, bathrooms: 1 },
+  { id: 'apt-5', name: 'AMLI West Plano at Granite Park', address: '2175 E West Connector, Austell, GA 30106', coordinates: { lat: 33.8148, lng: -84.6327 }, baseRent: 1275, parkingIncluded: true, bedrooms: 1, bathrooms: 1 },
 ];
 
 const MOCK_MARKET_DATA = {
@@ -92,8 +92,8 @@ export default function UnifiedDashboard() {
   useEffect(() => {
     const loadDashboardData = async () => {
       setDataError(null);
-      const defaultCity = 'Orlando';
-      const defaultState = 'FL';
+      const defaultCity = 'Atlanta';
+      const defaultState = 'GA';
 
       try {
         const fetched = await api.getProperties({ city: defaultCity, state: defaultState, limit: 25 });
@@ -179,7 +179,7 @@ export default function UnifiedDashboard() {
   const { data: leaseIntelData } = useRenterLeaseIntel(propertyIds);
 
   const [pois, setPois] = useState<POI[]>([
-    { id: '1', name: 'My Office', address: '123 Main St, Orlando, FL', category: 'work', coordinates: { lat: 28.5383, lng: -81.3792 } },
+    { id: '1', name: 'My Office', address: '191 Peachtree St NE, Atlanta, GA', category: 'work', coordinates: { lat: 33.7590, lng: -84.3880 } },
   ]);
   
   const [lifestyleInputs, setLifestyleInputs] = useState<LifestyleInputs>({
@@ -319,7 +319,7 @@ export default function UnifiedDashboard() {
           </div>
         )}
         <MarketIntelBar
-          location="Orlando, FL"
+          location="Atlanta, GA"
           medianRent={marketData.medianRent}
           rentChange={marketData.rentChange}
           daysOnMarket={marketData.daysOnMarket}

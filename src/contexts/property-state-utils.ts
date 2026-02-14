@@ -17,7 +17,7 @@ export interface UserPreferences {
 }
 
 export const defaultSearchFilters: SearchFilters = {
-  location: 'Austin, TX',
+  location: 'Atlanta, GA',
   priceRange: [1000, 5000],
   bedrooms: 1,
   amenities: [],
@@ -28,7 +28,7 @@ export const defaultSearchFilters: SearchFilters = {
 
 export const defaultUserPreferences: UserPreferences = {
   budget: 2500,
-  location: 'Austin, TX',
+  location: 'Atlanta, GA',
   moveInDate: '',
   hasCompletedOnboarding: false,
   lastActiveDate: new Date().toISOString()

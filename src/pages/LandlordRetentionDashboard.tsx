@@ -308,7 +308,7 @@ export default function LandlordRetentionDashboard() {
         </div>
       </header>
 
-      <RetentionHealthBar market="Austin, TX" metrics={metrics} />
+      <RetentionHealthBar market="Atlanta, GA" metrics={metrics} />
 
       <div className="flex-1 flex overflow-hidden">
         <aside className="w-64 bg-white border-r border-gray-200 flex flex-col overflow-y-auto shrink-0">
