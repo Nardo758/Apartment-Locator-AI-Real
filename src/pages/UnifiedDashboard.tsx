@@ -14,6 +14,7 @@ import { SavingsDataGate } from '@/components/SavingsDataGate';
 import { PaywallModal } from '@/components/PaywallModal';
 import { usePaywall } from '@/hooks/usePaywall';
 import { useLocationCostContext } from '@/contexts/LocationCostContext';
+import { useUnifiedAI } from '@/contexts/UnifiedAIContext';
 import { calculateApartmentCosts, formatCurrency } from '@/services/locationCostService';
 import type { ApartmentLocationCost } from '@/types/locationCost.types';
 import { api } from '@/lib/api';
@@ -74,6 +75,7 @@ const GROCERY_STORE_MAP: Record<string, 'walmart' | 'wholefoods' | 'traderjoes' 
 
 export default function UnifiedDashboard() {
   const { inputs, gasPrice, isCalculating, setIsCalculating } = useLocationCostContext();
+  const unifiedAI = useUnifiedAI();
   const {
     isPaywallOpen,
     paywallPropertyId,
@@ -208,6 +210,62 @@ export default function UnifiedDashboard() {
     bedrooms: [1, 2],
     amenities: [],
   });
+
+  useEffect(() => {
+    const cp = unifiedAI.commutePreferences;
+    const aiPois = unifiedAI.pointsOfInterest;
+
+    if (cp) {
+      setLifestyleInputs(prev => ({
+        ...prev,
+        commuteDays: cp.daysPerWeek || prev.commuteDays,
+        vehicleMpg: cp.vehicleMpg || prev.vehicleMpg,
+      }));
+    }
+
+    if (unifiedAI.currentRentalRate) {
+      setCurrentRentalRate(String(unifiedAI.currentRentalRate));
+    }
+    if (unifiedAI.leaseExpirationDate) {
+      setLeaseExpirationDate(unifiedAI.leaseExpirationDate);
+    }
+
+    if (unifiedAI.budget && unifiedAI.budget > 0) {
+      setFilters(prev => ({
+        ...prev,
+        maxBudget: unifiedAI.budget,
+      }));
+    }
+
+    if (aiPois && aiPois.length > 0) {
+      const mappedPois: POI[] = aiPois.map(p => ({
+        id: p.id,
+        name: p.name,
+        address: p.address,
+        category: (p.category || 'other') as POICategory,
+        coordinates: p.coordinates || { lat: 33.7490, lng: -84.3880 },
+      }));
+      setPois(mappedPois);
+
+      const workPoi = aiPois.find(p => p.category === 'work');
+      if (workPoi) {
+        setLifestyleInputs(prev => ({
+          ...prev,
+          workAddress: workPoi.address,
+        }));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    unifiedAI.updateInputs({
+      commutePreferences: {
+        ...unifiedAI.commutePreferences,
+        daysPerWeek: lifestyleInputs.commuteDays,
+        vehicleMpg: lifestyleInputs.vehicleMpg,
+      },
+    });
+  }, [lifestyleInputs.commuteDays, lifestyleInputs.vehicleMpg]);
 
   const calculationProperties = useMemo(
     () => (properties.length > 0 ? properties : MOCK_PROPERTIES),
