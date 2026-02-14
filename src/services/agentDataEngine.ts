@@ -63,6 +63,12 @@ export interface AgentStats {
   closeRate: number;
 }
 
+export interface AgentMarketTracking {
+  trackedMarkets: { city: string; state: string }[];
+  targetClientTypes: ('buyer' | 'renter' | 'seller' | 'landlord')[];
+  pricingInsights: { location: string; avgCommission: number; dealCount: number }[];
+}
+
 export interface AgentData {
   // Clients
   clients: AgentClient[];
@@ -79,6 +85,9 @@ export interface AgentData {
   // Settings
   commissionRate: number; // Default commission %
   preferredAreas: string[];
+  
+  // Market Intelligence (USER INPUT DATA)
+  marketTracking: AgentMarketTracking;
   
   // Contact Info
   contactEmail: string;
@@ -126,6 +135,11 @@ export class AgentDataEngine extends UserDataEngine<AgentData> {
       },
       commissionRate: 6.0, // 6% default
       preferredAreas: [],
+      marketTracking: {
+        trackedMarkets: [],
+        targetClientTypes: ['renter'], // Default focus
+        pricingInsights: [],
+      },
       contactEmail: '',
       contactPhone: undefined,
       licenseNumber: undefined,
@@ -365,5 +379,68 @@ export class AgentDataEngine extends UserDataEngine<AgentData> {
     };
     
     await this.save({ stats } as Partial<AgentData>);
+  }
+  
+  // ============================================
+  // MARKET INTELLIGENCE METHODS
+  // ============================================
+  
+  /**
+   * Track market
+   */
+  async trackMarket(city: string, state: string): Promise<void> {
+    const current = await this.load();
+    const exists = current.marketTracking.trackedMarkets.some(
+      m => m.city.toLowerCase() === city.toLowerCase() && m.state.toLowerCase() === state.toLowerCase()
+    );
+    
+    if (!exists) {
+      const updated = {
+        marketTracking: {
+          ...current.marketTracking,
+          trackedMarkets: [...current.marketTracking.trackedMarkets, { city, state }],
+        },
+      };
+      await this.save(updated as Partial<AgentData>);
+    }
+  }
+  
+  /**
+   * Set target client types
+   */
+  async setTargetClientTypes(types: ('buyer' | 'renter' | 'seller' | 'landlord')[]): Promise<void> {
+    const current = await this.load();
+    const updated = {
+      marketTracking: {
+        ...current.marketTracking,
+        targetClientTypes: types,
+      },
+    };
+    await this.save(updated as Partial<AgentData>);
+  }
+  
+  /**
+   * Save pricing insight
+   */
+  async savePricingInsight(location: string, avgCommission: number, dealCount: number): Promise<void> {
+    const current = await this.load();
+    const existing = current.marketTracking.pricingInsights.findIndex(i => i.location === location);
+    
+    let insights;
+    if (existing >= 0) {
+      insights = current.marketTracking.pricingInsights.map((i, idx) =>
+        idx === existing ? { location, avgCommission, dealCount } : i
+      );
+    } else {
+      insights = [...current.marketTracking.pricingInsights, { location, avgCommission, dealCount }];
+    }
+    
+    const updated = {
+      marketTracking: {
+        ...current.marketTracking,
+        pricingInsights: insights,
+      },
+    };
+    await this.save(updated as Partial<AgentData>);
   }
 }

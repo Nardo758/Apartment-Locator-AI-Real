@@ -40,6 +40,23 @@ export interface SearchHistory {
   resultCount: number;
 }
 
+export interface SavedMarketSnapshot {
+  id: string;
+  location: string;
+  city: string;
+  state: string;
+  avgRent: number;
+  medianRent: number;
+  concessionRate: number;
+  savedAt: Date;
+}
+
+export interface MarketPreferences {
+  trackedLocations: { city: string; state: string }[];
+  priceAlerts: { location: string; maxPrice: number; enabled: boolean }[];
+  savedSnapshots: SavedMarketSnapshot[];
+}
+
 export interface RenterData {
   // Basic Info
   location: string;
@@ -61,6 +78,9 @@ export interface RenterData {
   
   // Saved Properties
   savedPropertyIds: string[];
+  
+  // Market Intelligence (USER INPUT DATA)
+  marketPreferences: MarketPreferences;
   
   // Setup Progress
   hasCompletedOnboarding: boolean;
@@ -111,6 +131,11 @@ export class RenterDataEngine extends UserDataEngine<RenterData> {
       },
       searchHistory: [],
       savedPropertyIds: [],
+      marketPreferences: {
+        trackedLocations: [],
+        priceAlerts: [],
+        savedSnapshots: [],
+      },
       hasCompletedOnboarding: false,
       setupProgress: 0,
       completedSteps: [],
@@ -259,5 +284,98 @@ export class RenterDataEngine extends UserDataEngine<RenterData> {
       setupProgress: progress,
       completedSteps,
     } as Partial<RenterData>);
+  }
+  
+  // ============================================
+  // MARKET INTELLIGENCE METHODS
+  // ============================================
+  
+  /**
+   * Track a location for market intel
+   */
+  async trackLocation(city: string, state: string): Promise<void> {
+    const current = await this.load();
+    const exists = current.marketPreferences.trackedLocations.some(
+      l => l.city.toLowerCase() === city.toLowerCase() && l.state.toLowerCase() === state.toLowerCase()
+    );
+    
+    if (!exists) {
+      const updated = {
+        marketPreferences: {
+          ...current.marketPreferences,
+          trackedLocations: [...current.marketPreferences.trackedLocations, { city, state }],
+        },
+      };
+      await this.save(updated as Partial<RenterData>);
+    }
+  }
+  
+  /**
+   * Untrack a location
+   */
+  async untrackLocation(city: string, state: string): Promise<void> {
+    const current = await this.load();
+    const updated = {
+      marketPreferences: {
+        ...current.marketPreferences,
+        trackedLocations: current.marketPreferences.trackedLocations.filter(
+          l => !(l.city.toLowerCase() === city.toLowerCase() && l.state.toLowerCase() === state.toLowerCase())
+        ),
+      },
+    };
+    await this.save(updated as Partial<RenterData>);
+  }
+  
+  /**
+   * Add price alert
+   */
+  async addPriceAlert(location: string, maxPrice: number): Promise<void> {
+    const current = await this.load();
+    const updated = {
+      marketPreferences: {
+        ...current.marketPreferences,
+        priceAlerts: [
+          ...current.marketPreferences.priceAlerts,
+          { location, maxPrice, enabled: true },
+        ],
+      },
+    };
+    await this.save(updated as Partial<RenterData>);
+  }
+  
+  /**
+   * Remove price alert
+   */
+  async removePriceAlert(location: string): Promise<void> {
+    const current = await this.load();
+    const updated = {
+      marketPreferences: {
+        ...current.marketPreferences,
+        priceAlerts: current.marketPreferences.priceAlerts.filter(a => a.location !== location),
+      },
+    };
+    await this.save(updated as Partial<RenterData>);
+  }
+  
+  /**
+   * Save market snapshot
+   */
+  async saveMarketSnapshot(snapshot: SavedMarketSnapshot): Promise<void> {
+    const current = await this.load();
+    const updated = {
+      marketPreferences: {
+        ...current.marketPreferences,
+        savedSnapshots: [snapshot, ...current.marketPreferences.savedSnapshots].slice(0, 20), // Keep last 20
+      },
+    };
+    await this.save(updated as Partial<RenterData>);
+  }
+  
+  /**
+   * Get tracked locations
+   */
+  async getTrackedLocations(): Promise<{ city: string; state: string }[]> {
+    const current = await this.load();
+    return current.marketPreferences.trackedLocations;
   }
 }

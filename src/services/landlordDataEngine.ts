@@ -45,6 +45,12 @@ export interface LandlordAlert {
   read: boolean;
 }
 
+export interface LandlordMarketTracking {
+  competitorProperties: string[]; // IDs of properties to track
+  trackedMarkets: { city: string; state: string }[];
+  pricingBenchmarks: { location: string; targetRent: number }[];
+}
+
 export interface LandlordData {
   // Portfolio
   properties: LandlordProperty[];
@@ -57,6 +63,9 @@ export interface LandlordData {
   
   // Alerts
   alerts: LandlordAlert[];
+  
+  // Market Intelligence (USER INPUT DATA)
+  marketTracking: LandlordMarketTracking;
   
   // Contact Preferences
   contactEmail: string;
@@ -109,6 +118,11 @@ export class LandlordDataEngine extends UserDataEngine<LandlordData> {
         competitorTracking: false,
       },
       alerts: [],
+      marketTracking: {
+        competitorProperties: [],
+        trackedMarkets: [],
+        pricingBenchmarks: [],
+      },
       contactEmail: '',
       contactPhone: undefined,
       preferredContactMethod: 'email',
@@ -269,5 +283,84 @@ export class LandlordDataEngine extends UserDataEngine<LandlordData> {
     };
     
     await this.save({ portfolioMetrics: metrics } as Partial<LandlordData>);
+  }
+  
+  // ============================================
+  // MARKET INTELLIGENCE METHODS
+  // ============================================
+  
+  /**
+   * Track competitor property
+   */
+  async trackCompetitor(propertyId: string): Promise<void> {
+    const current = await this.load();
+    if (!current.marketTracking.competitorProperties.includes(propertyId)) {
+      const updated = {
+        marketTracking: {
+          ...current.marketTracking,
+          competitorProperties: [...current.marketTracking.competitorProperties, propertyId],
+        },
+      };
+      await this.save(updated as Partial<LandlordData>);
+    }
+  }
+  
+  /**
+   * Untrack competitor
+   */
+  async untrackCompetitor(propertyId: string): Promise<void> {
+    const current = await this.load();
+    const updated = {
+      marketTracking: {
+        ...current.marketTracking,
+        competitorProperties: current.marketTracking.competitorProperties.filter(id => id !== propertyId),
+      },
+    };
+    await this.save(updated as Partial<LandlordData>);
+  }
+  
+  /**
+   * Track market
+   */
+  async trackMarket(city: string, state: string): Promise<void> {
+    const current = await this.load();
+    const exists = current.marketTracking.trackedMarkets.some(
+      m => m.city.toLowerCase() === city.toLowerCase() && m.state.toLowerCase() === state.toLowerCase()
+    );
+    
+    if (!exists) {
+      const updated = {
+        marketTracking: {
+          ...current.marketTracking,
+          trackedMarkets: [...current.marketTracking.trackedMarkets, { city, state }],
+        },
+      };
+      await this.save(updated as Partial<LandlordData>);
+    }
+  }
+  
+  /**
+   * Set pricing benchmark
+   */
+  async setPricingBenchmark(location: string, targetRent: number): Promise<void> {
+    const current = await this.load();
+    const existing = current.marketTracking.pricingBenchmarks.findIndex(b => b.location === location);
+    
+    let benchmarks;
+    if (existing >= 0) {
+      benchmarks = current.marketTracking.pricingBenchmarks.map((b, i) =>
+        i === existing ? { location, targetRent } : b
+      );
+    } else {
+      benchmarks = [...current.marketTracking.pricingBenchmarks, { location, targetRent }];
+    }
+    
+    const updated = {
+      marketTracking: {
+        ...current.marketTracking,
+        pricingBenchmarks: benchmarks,
+      },
+    };
+    await this.save(updated as Partial<LandlordData>);
   }
 }

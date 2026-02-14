@@ -13,6 +13,8 @@ export type {
   RenterPreferences,
   CommuteSettings,
   SearchHistory,
+  SavedMarketSnapshot,
+  MarketPreferences,
 } from './renterDataEngine';
 
 export { LandlordDataEngine } from './landlordDataEngine';
@@ -22,6 +24,7 @@ export type {
   PortfolioMetrics,
   PricingSettings,
   LandlordAlert,
+  LandlordMarketTracking,
 } from './landlordDataEngine';
 
 export { AgentDataEngine } from './agentDataEngine';
@@ -32,4 +35,11 @@ export type {
   AgentCommission,
   AgentPipeline,
   AgentStats,
+  AgentMarketTracking,
 } from './agentDataEngine';
+
+export { MarketIntelEngine } from './marketIntelEngine';
+export type {
+  MarketStats,
+  MarketIntelOptions,
+} from './marketIntelEngine';
