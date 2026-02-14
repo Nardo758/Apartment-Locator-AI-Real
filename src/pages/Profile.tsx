@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Save, Settings, DollarSign, Shield, CheckCircle, AlertCircle, CreditCard, MapPin, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,22 +8,21 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { designSystem } from '@/lib/design-system';
 import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import ModernCard from '@/components/modern/ModernCard';
 import Header from '@/components/Header';
-import { dataTracker } from '@/lib/data-tracker';
+import { useUser } from '@/hooks/useUser';
 
-const Profile: React.FC = () => {
+const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading, isAuthenticated } = useUser();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState({
     email: '',
     location: 'Atlanta, GA',
     bio: '',
-    // Financial verification fields
     gross_income: '',
     employment_type: '',
     employer_name: '',
@@ -37,111 +36,37 @@ const Profile: React.FC = () => {
     plaid_access_token: ''
   });
 
-  const [user, setUser] = useState<{ id?: string; email?: string } | null>(null);
-
-  const loadProfile = useCallback(async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading profile:', error);
-        return;
-      }
-
-      if (data) {
-        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-        const typedData = data as any;
-        setProfile({
-          email: (user && user.email) || '',
-          location: typedData.location || 'Atlanta, GA',
-          bio: typedData.bio || '',
-          gross_income: typedData.budget?.toString() || '',
-          employment_type: typedData.lifestyle || '',
-          employer_name: '',
-          employment_duration: '',
-          job_title: '',
-          current_rent: typedData.budget?.toString() || '',
-          credit_score: '',
-          bank_verified: typedData.has_completed_ai_programming || false,
-          income_verified: typedData.has_completed_ai_programming || false,
-          plaid_account_id: '',
-          plaid_access_token: ''
-        });
-      }
-    } catch (error) {
-      console.error('Error loading profile:', error);
-    }
-  }, [user]);
-
-  const checkAuth = useCallback(async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        navigate('/auth');
-        return;
-      }
-      setUser({ id: session.user.id, email: session.user.email });
-      await loadProfile(session.user.id);
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      navigate('/auth');
-    }
-  }, [navigate, loadProfile]);
-
   useEffect(() => {
-    checkAuth();
-
-    // Track profile page visit
-    dataTracker.trackPageView();
-    dataTracker.trackContent({
-      contentType: 'profile',
-      action: 'view',
-      contentData: { page: 'profile_settings' }
-    });
-  }, [checkAuth]);
-
-  // The `checkAuth` and `loadProfile` functions are declared above using useCallback.
-  // Keep those implementations (for stable references) and avoid redeclaring them here.
+    if (!authLoading && !isAuthenticated) {
+      navigate('/auth');
+      return;
+    }
+    if (user) {
+      setProfile(prev => ({
+        ...prev,
+        email: user.email || '',
+      }));
+    }
+  }, [authLoading, isAuthenticated, user, navigate]);
 
   const handleSave = async () => {
     if (!user) return;
-    
-    const oldProfile = { ...profile };
     setLoading(true);
     
-    // Track profile update attempt
-    dataTracker.trackContent({
-      contentType: 'profile',
-      action: 'update',
-      contentData: {
-        fields_changed: Object.keys(profile).filter(key => 
-          profile[key as keyof typeof profile] !== oldProfile[key as keyof typeof oldProfile]
-        ),
-        has_financial_info: !!(profile.gross_income || profile.current_rent),
-        employment_type: profile.employment_type,
-        timestamp: new Date().toISOString()
-      }
-    });
-    
     try {
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      const { error } = await (supabase as any)
-        .from('user_preferences')
-        .upsert({
-          user_id: user.id,
-          location: profile.location,
-          bio: profile.bio,
-          budget: parseFloat(profile.gross_income) || null,
-          lifestyle: profile.employment_type,
-          has_completed_ai_programming: profile.income_verified,
-          updated_at: new Date().toISOString()
-        });
+      const res = await fetch('/api/preferences', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          preferredCities: profile.location ? [profile.location] : [],
+          maxPrice: parseFloat(profile.current_rent) || null,
+        }),
+      });
 
-      if (error) throw error;
+      if (!res.ok) throw new Error('Failed to save');
 
       toast({
         title: "Profile Updated",
@@ -169,23 +94,19 @@ const Profile: React.FC = () => {
       income_verified: true
     });
     
-    // Track bank connection
-    dataTracker.trackContent({
-      contentType: 'financial_verification',
-      action: 'create',
-        contentData: {
-        verification_type: 'bank_connection',
-        provider: 'plaid',
-        account_type: (meta.account_type as string) || 'unknown',
-        timestamp: new Date().toISOString()
-      }
-    });
-    
     toast({
       title: "Bank Account Connected",
       description: "Your financial information has been verified successfully.",
     });
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
 
   const employmentTypes = [
     'Full-time W2', 'Part-time W2', 'Contract/1099', 'Self-employed', 
