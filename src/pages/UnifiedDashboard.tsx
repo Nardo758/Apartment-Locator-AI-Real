@@ -200,6 +200,9 @@ export default function UnifiedDashboard() {
   });
   
   const [currentRentalRate, setCurrentRentalRate] = useState('');
+  const [preferredBedrooms, setPreferredBedrooms] = useState(1);
+  const [preferredBathrooms, setPreferredBathrooms] = useState(1);
+  const [preferredMinSqft, setPreferredMinSqft] = useState(0);
 
   const [filters, setFilters] = useState<{
     minBudget: number;
@@ -479,6 +482,12 @@ export default function UnifiedDashboard() {
               isCalculating={isCalculating}
               currentRentalRate={currentRentalRate}
               onCurrentRentalRateChange={setCurrentRentalRate}
+              preferredBedrooms={preferredBedrooms}
+              onPreferredBedroomsChange={setPreferredBedrooms}
+              preferredBathrooms={preferredBathrooms}
+              onPreferredBathroomsChange={setPreferredBathrooms}
+              preferredMinSqft={preferredMinSqft}
+              onPreferredMinSqftChange={setPreferredMinSqft}
             />
           </aside>
 
