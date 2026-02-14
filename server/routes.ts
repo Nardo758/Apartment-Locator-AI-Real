@@ -31,6 +31,8 @@ import { registerPaymentRoutes } from "./routes/payments";
 import { registerLeaseVerificationRoutes } from "./routes/lease-verification";
 import { registerJediRoutes } from "./routes/jedi";
 import { registerScrapedPropertyRoutes } from "./routes/scraped-properties";
+import adminRoutes from "./routes/admin";
+import jediIntegrationRoutes from "./routes/jedi-integration";
 
 declare global {
   namespace Express {
@@ -3964,4 +3966,10 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Register scraped property routes
   registerScrapedPropertyRoutes(app);
+
+  // Register admin panel routes
+  app.use("/api/admin", adminRoutes);
+  
+  // Register JEDI RE integration routes
+  app.use("/api/jedi", jediIntegrationRoutes);
 }
