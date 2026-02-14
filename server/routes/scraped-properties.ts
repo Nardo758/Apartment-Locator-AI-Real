@@ -1,5 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { createClient } from "@supabase/supabase-js";
+import { enrichPropertiesWithPhotos, getPropertyPhoto } from "../services/places-photo";
 
 function getSupabaseClient() {
   const url = process.env.SUPABASE_URL;
@@ -58,7 +59,14 @@ export function registerScrapedPropertyRoutes(app: Express): void {
         return res.status(500).json({ error: "Failed to fetch scraped properties" });
       }
 
-      res.json((data || []).map(mapProperty));
+      const mapped = (data || []).map(mapProperty);
+      const enriched = await enrichPropertiesWithPhotos(data || [], supabase);
+      const result = mapped.map((p: any) => {
+        if (p.image_url) return p;
+        const match = enriched.find((e: any) => String(e.id) === String(p.id));
+        return match?.image_url ? { ...p, image_url: match.image_url } : p;
+      });
+      res.json(result);
     } catch (err) {
       console.error("Scraped properties error:", err);
       res.status(500).json({ error: "Internal server error" });
@@ -115,7 +123,27 @@ export function registerScrapedPropertyRoutes(app: Express): void {
         return res.status(500).json({ error: "Failed to fetch property" });
       }
 
-      res.json(mapProperty(data));
+      const mapped = mapProperty(data);
+      if (!mapped.image_url && mapped.address && !mapped.address.startsWith("http")) {
+        const photoUrl = await getPropertyPhoto(
+          mapped.address,
+          mapped.city || "",
+          mapped.state || "",
+          data.source
+        );
+        if (photoUrl) {
+          mapped.image_url = photoUrl;
+          try {
+            await supabase
+              .from("scraped_properties")
+              .update({ image_url: photoUrl })
+              .eq("id", req.params.id);
+          } catch (err) {
+            console.error("Failed to cache photo URL:", err);
+          }
+        }
+      }
+      res.json(mapped);
     } catch (err) {
       console.error("Scraped property detail error:", err);
       res.status(500).json({ error: "Internal server error" });
