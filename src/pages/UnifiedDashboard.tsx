@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock, Target, Car, ParkingCircle, ShoppingCart, Dumbbell, Train, DollarSign, ChevronDown, ChevronUp, Sparkles, Brain } from 'lucide-react';
+import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock, Target, Car, ParkingCircle, ShoppingCart, Dumbbell, Train, DollarSign, ChevronDown, ChevronUp, Sparkles, Brain, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +21,7 @@ import { api } from '@/lib/api';
 import { calculateSmartScore, type SmartScoreResult } from '@/lib/smart-score-engine';
 import type { ScrapedProperty, SavingsBreakdown } from '@/lib/savings-calculator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useSavedScrapedProperties } from '@/hooks/useSavedScrapedProperties';
 
 interface POI {
   id: string;
@@ -90,6 +91,8 @@ export default function UnifiedDashboard() {
     userIsSubscribed,
   } = usePaywall();
   
+  const { isSaved, toggleSaveDashboard } = useSavedScrapedProperties();
+
   useEffect(() => {
     document.title = 'Renter Dashboard | Apartment Locator AI';
   }, []);
@@ -588,6 +591,7 @@ export default function UnifiedDashboard() {
                     <Table>
                       <TableHeader>
                         <TableRow>
+                          <TableHead className="w-10"></TableHead>
                           <TableHead>Property</TableHead>
                           <TableHead className="text-center" data-testid="header-smart-score">Smart Score</TableHead>
                           <TableHead className="text-right">Rent</TableHead>
@@ -606,6 +610,31 @@ export default function UnifiedDashboard() {
                             onClick={() => setSelectedPropertyId(property.id)}
                             data-testid={`row-property-${property.id}`}
                           >
+                            <TableCell className="w-10">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                data-testid={`button-save-property-${property.id}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleSaveDashboard({
+                                    id: property.id,
+                                    name: property.name,
+                                    address: property.address,
+                                    baseRent: property.baseRent,
+                                    bedrooms: property.bedrooms,
+                                    bathrooms: property.bathrooms,
+                                    sqft: property.sqft,
+                                    imageUrl: property.imageUrl,
+                                    amenities: property.amenities,
+                                  });
+                                }}
+                              >
+                                <Heart
+                                  className={`w-4 h-4 ${isSaved(property.id) ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`}
+                                />
+                              </Button>
+                            </TableCell>
                             <TableCell className="font-medium">
                               <div className="flex items-center gap-2">
                                 {property.savingsRank === 1 && <Star className="w-4 h-4 text-green-500" />}

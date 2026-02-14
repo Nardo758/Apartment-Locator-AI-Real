@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Search, SlidersHorizontal, MapPin, Building2, Tag, ExternalLink, Brain, CheckCircle2, TrendingUp, DollarSign, AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, SlidersHorizontal, MapPin, Building2, Tag, ExternalLink, Brain, CheckCircle2, TrendingUp, DollarSign, AlertTriangle, Heart, Eye } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import UpfrontSavingsCalculator from '@/components/UpfrontSavingsCalculator';
 import type { ScrapedProperty } from '@/lib/savings-calculator';
 import { calculatePropertySavings, formatMoney } from '@/lib/savings-calculator';
 import { usePaywall } from '@/hooks/usePaywall';
+import { useSavedScrapedProperties } from '@/hooks/useSavedScrapedProperties';
 import { PaywallModal } from '@/components/PaywallModal';
 import { useUnifiedAI } from '@/contexts/UnifiedAIContext';
 import { calculateSmartScore, getScoreColor, getScoreBgColor, getScoreLabel, type SmartScoreResult } from '@/lib/smart-score-engine';
@@ -56,8 +58,10 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
   const [expandedScoreId, setExpandedScoreId] = useState<string | null>(null);
 
+  const navigate = useNavigate();
   const aiContext = useUnifiedAI();
   const hasPreferences = (aiContext.aiPreferences?.amenities?.length ?? 0) > 0 || aiContext.budget > 0;
+  const { isSaved, toggleSaveScraped } = useSavedScrapedProperties();
 
   const {
     isPaywallOpen,
@@ -260,7 +264,23 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
               onClick={() => setSelectedPropertyId(prev => prev === property.id ? null : property.id)}
               data-testid={`card-scraped-property-${property.id}`}
             >
-              <PropertyImage imageUrl={property.image_url} name={property.name} id={property.id} />
+              <div className="relative">
+                <PropertyImage imageUrl={property.image_url} name={property.name} id={property.id} />
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="absolute top-2 right-2 bg-background/70 backdrop-blur-sm"
+                  data-testid={`button-save-scraped-${property.id}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleSaveScraped(property);
+                  }}
+                >
+                  <Heart
+                    className={`w-4 h-4 ${isSaved(property.id) ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`}
+                  />
+                </Button>
+              </div>
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-2 gap-2 flex-wrap">
                   <div className="min-w-0 flex-1">
@@ -388,8 +408,17 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
                   )}
                 </div>
 
-                {property.website_url && (
-                  <div className="mt-2">
+                <div className="flex items-center gap-3 mt-2">
+                  <a
+                    href={`/scraped-property/${property.id}`}
+                    className="text-xs text-primary flex items-center gap-1"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/scraped-property/${property.id}`); }}
+                    data-testid={`link-view-details-${property.id}`}
+                  >
+                    <Eye className="w-3 h-3" />
+                    View Details
+                  </a>
+                  {property.website_url && (
                     <a
                       href={property.website_url}
                       target="_blank"
@@ -401,8 +430,8 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
                       <ExternalLink className="w-3 h-3" />
                       Visit Website
                     </a>
-                  </div>
-                )}
+                  )}
+                </div>
               </CardContent>
             </Card>
           );

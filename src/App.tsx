@@ -43,6 +43,7 @@ const LandlordPricing = lazy(() => import("./pages/LandlordPricing"));
 const LandlordOnboarding = lazy(() => import("./pages/LandlordOnboarding"));
 const LeaseVerification = lazy(() => import("./pages/LeaseVerification"));
 const SavedAndOffers = lazy(() => import("./pages/SavedAndOffers"));
+const ScrapedPropertyDetail = lazy(() => import("./pages/ScrapedPropertyDetail"));
 const EmailTemplates = lazy(() => import("./pages/EmailTemplates"));
 const RenewalOptimizer = lazy(() => import("./pages/RenewalOptimizer"));
 const AgentDashboard = lazy(() => import("./pages/AgentDashboard"));
@@ -142,9 +143,10 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/saved-properties" element={
-                      <ProtectedRoute allowedUserTypes={['renter']}>
-                        <SavedAndOffers />
-                      </ProtectedRoute>
+                      <SavedAndOffers />
+                    } />
+                    <Route path="/scraped-property/:id" element={
+                      <ScrapedPropertyDetail />
                     } />
                     <Route path="/property/:id" element={
                       <ProtectedRoute allowedUserTypes={['renter']}>

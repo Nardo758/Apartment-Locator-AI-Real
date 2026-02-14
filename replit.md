@@ -15,6 +15,7 @@ I want iterative development. Ask before making major changes.
   - A LeftPanelSidebar offers collapsible sections for locations, True Cost inputs, and filters.
   - A toggle view switches between map and list, with sorting options for True Cost, Base Rent, or Commute Time.
   - A Cost Comparison table highlights potential monthly savings.
+  - Heart/save buttons on each table row to save properties to My Apartments.
 - **Landlord Retention Dashboard**: Located at `/landlord-dashboard`, this dashboard focuses on retention intelligence with a light gradient theme. It includes:
   - RetentionHealthBar for portfolio metrics (rate, units at risk, vacancy cost, renewals, AI insight).
   - PortfolioHealthWidget with a retention rate hero, unit stats, and vacancy cost callout.
@@ -27,7 +28,9 @@ I want iterative development. Ask before making major changes.
   - RetentionDetailCard for property-specific risk breakdown.
   - RetentionMapView with health-colored pins.
 - **Freemium Renter Flow**: Gated savings data. Free users see basic property info; detailed savings data (deal score, potential savings, negotiation tips) is blurred. Unlocks are available per-property ($1.99) or via time-based plans (Basic: $9.99/7d, Pro: $29.99/30d, Premium: $99.99/90d).
-- **Property Browser**: `/browse-properties` displays scraped apartment listings from Supabase with AI-powered savings analysis, blurred monetization (free users see 2 properties, rest are blurred with savings teasers), upfront savings calculator separating one-time incentives from monthly concessions, and deal scoring.
+- **Property Browser**: `/browse-properties` displays scraped apartment listings from Supabase with AI-powered savings analysis, blurred monetization (free users see 2 properties, rest are blurred with savings teasers), upfront savings calculator separating one-time incentives from monthly concessions, deal scoring, heart/save buttons on each card, and "View Details" links to property detail pages.
+- **Property Detail Page**: `/scraped-property/:id` fetches individual scraped property data from Supabase and displays hero image, property details (bedrooms, bathrooms, pet policy), savings analysis, special offers, amenities, and a save button.
+- **My Apartments Page**: `/saved-properties` shows all locally-saved properties with grid/list views, CSV export, remove functionality, and links to property detail pages. Properties are saved to localStorage via `useSavedScrapedProperties` hook for seamless use without login.
 
 ### Technical Implementations
 - **Backend**: Express 5.x with TypeScript, using Drizzle ORM for PostgreSQL database interactions. CORS configured, rate limiting on `/api/auth/` (20/15min), `/api/payments/` (10/15min), `/api/` (100/min). Environment validation at startup for DATABASE_URL and JWT_SECRET.
