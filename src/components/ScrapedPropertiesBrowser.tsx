@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, SlidersHorizontal, MapPin, Building2, Tag, ExternalLink, Brain, CheckCircle2, TrendingUp, DollarSign, AlertTriangle, ImageOff } from 'lucide-react';
+import { Search, SlidersHorizontal, MapPin, Building2, Tag, ExternalLink, Brain, CheckCircle2, TrendingUp, DollarSign, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ function PropertyImage({ imageUrl, name, id }: { imageUrl?: string; name: string
 
   if (!imageUrl || imgError) {
     return (
-      <div className="w-full h-32 bg-muted flex items-center justify-center">
+      <div className="w-full h-32 bg-muted flex items-center justify-center" data-testid={`img-fallback-${id}`}>
         <div className="flex flex-col items-center gap-1 text-muted-foreground">
           <Building2 className="w-6 h-6" />
           <span className="text-xs">No image</span>
@@ -256,7 +256,7 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
           return (
             <Card
               key={property.id}
-              className={`cursor-pointer hover-elevate overflow-hidden ${selectedPropertyId === property.id ? 'ring-2 ring-primary' : ''}`}
+              className={`cursor-pointer hover-elevate ${selectedPropertyId === property.id ? 'ring-2 ring-primary' : ''}`}
               onClick={() => setSelectedPropertyId(prev => prev === property.id ? null : property.id)}
               data-testid={`card-scraped-property-${property.id}`}
             >
