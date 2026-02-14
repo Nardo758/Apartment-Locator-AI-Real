@@ -60,17 +60,53 @@ export default function ScrapedPropertyDetail() {
     document.title = 'Property Details | Apartment Locator AI';
   }, []);
 
+  const isNumericId = id ? /^\d+$/.test(id) : false;
+
   const { data: property, isLoading, error } = useQuery<ScrapedProperty>({
     queryKey: [`/api/scraped-properties/${id}`],
-    enabled: !!id,
+    enabled: !!id && isNumericId,
   });
 
-  const localProperty = saved.find(p => p.id === id);
+  const localProperty = saved.find(p => String(p.id) === String(id));
 
-  const displayProperty = property || (localProperty ? {
-    ...localProperty,
+  const localAsScraped = localProperty ? {
+    id: localProperty.id,
+    name: localProperty.name,
+    address: localProperty.address,
+    city: localProperty.city,
+    state: localProperty.state || '',
+    min_rent: localProperty.min_rent,
+    max_rent: localProperty.max_rent,
+    bedrooms_min: localProperty.bedrooms_min,
+    bedrooms_max: localProperty.bedrooms_max,
+    bathrooms_min: localProperty.bathrooms_min,
+    image_url: localProperty.image_url,
+    website_url: localProperty.website_url,
+    amenities: localProperty.amenities,
+    pet_policy: localProperty.pet_policy,
     special_offers: localProperty.specials,
-  } as unknown as ScrapedProperty : null);
+  } as unknown as ScrapedProperty : null;
+
+  const displayProperty = property || localAsScraped;
+
+  const needsPhoto = displayProperty && !displayProperty.image_url && displayProperty.address && !displayProperty.address.startsWith('http');
+  const photoQuery = useQuery<{ photo_url: string | null }>({
+    queryKey: ['/api/places-photo', displayProperty?.address, displayProperty?.city],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        address: displayProperty!.address,
+        city: displayProperty!.city || '',
+        state: displayProperty!.state || '',
+      });
+      const res = await fetch(`/api/places-photo?${params}`);
+      if (!res.ok) throw new Error('Photo lookup failed');
+      return res.json();
+    },
+    enabled: !!needsPhoto,
+    staleTime: Infinity,
+  });
+
+  const resolvedImageUrl = displayProperty?.image_url || photoQuery.data?.photo_url || undefined;
 
   if (isLoading) {
     return (
@@ -91,7 +127,7 @@ export default function ScrapedPropertyDetail() {
           <Building2 className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
           <h2 className="text-xl font-semibold mb-2">Property not found</h2>
           <p className="text-muted-foreground mb-4">This property may have been removed or the link is invalid.</p>
-          <Button onClick={() => navigate(-1)} data-testid="button-go-back">
+          <Button onClick={() => navigate('/browse-properties')} data-testid="button-go-back">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Go Back
           </Button>
@@ -110,11 +146,22 @@ export default function ScrapedPropertyDetail() {
       <Header />
 
       <div className="pt-16">
-        <PropertyHeroImage imageUrl={displayProperty.image_url} name={displayProperty.name} />
+        <PropertyHeroImage imageUrl={resolvedImageUrl} name={displayProperty.name} />
 
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-2 mb-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate(-1)} data-testid="button-back">
+            <Button
+              variant="ghost"
+              size="sm"
+              data-testid="button-back"
+              onClick={() => {
+                if (window.history.length > 1) {
+                  navigate(-1);
+                } else {
+                  navigate('/browse-properties');
+                }
+              }}
+            >
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </Button>

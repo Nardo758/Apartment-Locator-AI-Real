@@ -106,6 +106,25 @@ export function registerScrapedPropertyRoutes(app: Express): void {
     }
   });
 
+  app.get("/api/places-photo", async (req: Request, res: Response) => {
+    try {
+      const address = req.query.address as string;
+      const city = req.query.city as string;
+      const state = req.query.state as string;
+      const source = req.query.source as string | undefined;
+
+      if (!address) {
+        return res.status(400).json({ error: "address query parameter is required" });
+      }
+
+      const photoUrl = await getPropertyPhoto(address, city || "", state || "", source);
+      res.json({ photo_url: photoUrl });
+    } catch (err) {
+      console.error("Places photo lookup error:", err);
+      res.status(500).json({ error: "Failed to look up photo" });
+    }
+  });
+
   app.get("/api/scraped-properties/:id", async (req: Request, res: Response) => {
     try {
       const supabase = getSupabaseClient();
