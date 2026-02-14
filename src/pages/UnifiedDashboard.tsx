@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock, Target } from 'lucide-react';
+import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock, Target, Car, ParkingCircle, ShoppingCart, Dumbbell, Train, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -308,7 +308,7 @@ export default function UnifiedDashboard() {
   }, [inputs, lifestyleInputs, gasPrice, setIsCalculating, calculationProperties]);
 
   const propertiesWithCosts = useMemo(() => {
-    return calculationProperties.map(prop => {
+    const mapped = calculationProperties.map(prop => {
       const costResult = results.find(r => r.apartmentId === prop.id);
       return {
         ...prop,
@@ -316,6 +316,22 @@ export default function UnifiedDashboard() {
         commuteMinutes: costResult?.commuteCost.durationMinutes,
         savingsRank: costResult?.savingsRank,
         locationCosts: costResult?.totalLocationCosts,
+        savingsVsMax: undefined as number | undefined,
+        costBreakdown: costResult ? {
+          commute: costResult.commuteCost.totalMonthly,
+          commuteMinutes: costResult.commuteCost.durationMinutes,
+          commuteMiles: costResult.commuteCost.distanceMiles,
+          parking: costResult.parkingCost.estimatedMonthly,
+          parkingIncluded: costResult.parkingCost.parkingIncluded,
+          grocery: costResult.groceryCost.additionalGasCost,
+          groceryStore: costResult.groceryCost.nearestGroceryStore?.name,
+          groceryMiles: costResult.groceryCost.distanceMiles,
+          gym: costResult.gymCost.additionalGasCost,
+          gymMiles: costResult.gymCost.distanceToPreferredGym,
+          transitSavings: costResult.transitSavings.potentialMonthlySavings,
+          transitScore: costResult.transitSavings.transitScore,
+          totalLocationCosts: costResult.totalLocationCosts,
+        } : undefined,
       };
     }).filter(prop => {
       if (prop.baseRent < filters.minBudget || prop.baseRent > filters.maxBudget) return false;
@@ -333,6 +349,16 @@ export default function UnifiedDashboard() {
           return 0;
       }
     });
+
+    const filteredTrueCosts = mapped.filter(p => p.trueCost != null).map(p => p.trueCost!);
+    const maxTrueCost = filteredTrueCosts.length > 0 ? Math.max(...filteredTrueCosts) : 0;
+    mapped.forEach(p => {
+      if (p.trueCost != null && maxTrueCost > 0) {
+        p.savingsVsMax = maxTrueCost - p.trueCost;
+      }
+    });
+
+    return mapped;
   }, [results, filters, sortBy, calculationProperties]);
 
   const mapProperties = useMemo(() => {
@@ -468,7 +494,7 @@ export default function UnifiedDashboard() {
                           <h3 className="font-semibold flex items-center gap-2">
                             {property.name}
                             {property.savingsRank === 1 && (
-                              <Badge variant="default" className="bg-green-500">
+                              <Badge variant="default" className="bg-green-500 border-green-600">
                                 <Star className="w-3 h-3 mr-1" />
                                 Best Deal
                               </Badge>
@@ -490,7 +516,7 @@ export default function UnifiedDashboard() {
                           hint="True cost & savings analysis"
                           compact
                         >
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-4 flex-wrap">
                             {property.trueCost && (
                               <div className="border-l pl-4">
                                 <p className="text-xs text-muted-foreground">True Cost</p>
@@ -498,10 +524,17 @@ export default function UnifiedDashboard() {
                               </div>
                             )}
 
-                            {property.locationCosts && property.locationCosts > 0 && (
+                            {property.locationCosts != null && property.locationCosts > 0 && (
                               <div className="border-l pl-4">
                                 <p className="text-xs text-muted-foreground">Location Costs</p>
                                 <p className="text-sm text-orange-500">+{formatCurrency(property.locationCosts)}</p>
+                              </div>
+                            )}
+
+                            {property.savingsVsMax != null && property.savingsVsMax > 0 && (
+                              <div className="border-l pl-4">
+                                <p className="text-xs text-muted-foreground">You Save</p>
+                                <p className="text-sm font-semibold text-green-600">{formatCurrency(property.savingsVsMax)}/mo</p>
                               </div>
                             )}
                           </div>
@@ -541,7 +574,7 @@ export default function UnifiedDashboard() {
                         Cost Comparison
                       </CardTitle>
                       {potentialSavings > 0 && (
-                        <Badge variant="default" className="bg-green-500">
+                        <Badge variant="default" className="bg-green-500 border-green-600">
                           Save up to {formatCurrency(potentialSavings)}/mo!
                         </Badge>
                       )}
@@ -555,6 +588,7 @@ export default function UnifiedDashboard() {
                           <TableHead className="text-right">Rent</TableHead>
                           <TableHead className="text-right">Location Costs</TableHead>
                           <TableHead className="text-right">True Cost</TableHead>
+                          <TableHead className="text-right">You Save</TableHead>
                           <TableHead className="text-right">Commute</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -580,6 +614,13 @@ export default function UnifiedDashboard() {
                               {property.trueCost ? formatCurrency(property.trueCost) : '-'}
                             </TableCell>
                             <TableCell className="text-right">
+                              {property.savingsVsMax != null && property.savingsVsMax > 0 ? (
+                                <span className="font-semibold text-green-600">{formatCurrency(property.savingsVsMax)}/mo</span>
+                              ) : property.savingsVsMax === 0 ? (
+                                <span className="text-muted-foreground text-xs">Most expensive</span>
+                              ) : '-'}
+                            </TableCell>
+                            <TableCell className="text-right">
                               {property.commuteMinutes ? `${property.commuteMinutes} min` : '-'}
                             </TableCell>
                           </TableRow>
@@ -590,6 +631,99 @@ export default function UnifiedDashboard() {
                 </Card>
               </SavingsDataGate>
             )}
+
+            {selectedPropertyId && (() => {
+              const selectedProp = propertiesWithCosts.find(p => p.id === selectedPropertyId);
+              if (!selectedProp?.costBreakdown) return null;
+              const bd = selectedProp.costBreakdown;
+              const costItems = [
+                { icon: Car, label: 'Commute', value: bd.commute, detail: bd.commuteMiles ? `${bd.commuteMiles.toFixed(1)} mi, ${Math.round(bd.commuteMinutes || 0)} min each way` : undefined, color: 'text-blue-600' },
+                { icon: ParkingCircle, label: 'Parking', value: bd.parkingIncluded ? 0 : bd.parking, detail: bd.parkingIncluded ? 'Included in rent' : undefined, color: 'text-purple-600' },
+                { icon: ShoppingCart, label: 'Grocery Trips', value: bd.grocery, detail: bd.groceryStore ? `${bd.groceryStore} (${bd.groceryMiles?.toFixed(1)} mi)` : undefined, color: 'text-amber-600' },
+                { icon: Dumbbell, label: 'Gym Trips', value: bd.gym, detail: bd.gymMiles ? `${bd.gymMiles.toFixed(1)} mi away` : undefined, color: 'text-pink-600' },
+              ];
+              const totalExtras = bd.totalLocationCosts;
+
+              return (
+                <SavingsDataGate
+                  isUnlocked={true}
+                  onUnlockClick={() => openPaywall(selectedPropertyId)}
+                  hint="Full cost breakdown"
+                >
+                  <Card data-testid="card-cost-breakdown">
+                    <CardHeader className="py-3">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <DollarSign className="w-4 h-4" />
+                          Cost Breakdown: {selectedProp.name}
+                        </CardTitle>
+                        {selectedProp.savingsVsMax != null && selectedProp.savingsVsMax > 0 && (
+                          <Badge variant="default" className="bg-green-500 border-green-600">
+                            Save {formatCurrency(selectedProp.savingsVsMax)}/mo vs most expensive
+                          </Badge>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0 space-y-3">
+                      <div className="flex items-center justify-between py-2 border-b">
+                        <div className="flex items-center gap-2">
+                          <Home className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Base Rent</span>
+                        </div>
+                        <span className="text-sm font-semibold">{formatCurrency(selectedProp.baseRent)}</span>
+                      </div>
+
+                      {costItems.map((item) => (
+                        <div key={item.label} className="flex items-center justify-between py-1">
+                          <div className="flex items-center gap-2">
+                            <item.icon className={`w-4 h-4 ${item.color}`} />
+                            <div>
+                              <span className="text-sm">{item.label}</span>
+                              {item.detail && (
+                                <p className="text-xs text-muted-foreground">{item.detail}</p>
+                              )}
+                            </div>
+                          </div>
+                          <span className={`text-sm ${(item.value || 0) > 0 ? 'text-orange-500' : 'text-green-600'}`}>
+                            {(item.value || 0) > 0 ? `+${formatCurrency(item.value || 0)}` : 'Free'}
+                          </span>
+                        </div>
+                      ))}
+
+                      {bd.transitSavings > 0 && (
+                        <div className="flex items-center justify-between py-1">
+                          <div className="flex items-center gap-2">
+                            <Train className="w-4 h-4 text-green-600" />
+                            <div>
+                              <span className="text-sm">Transit Savings</span>
+                              <p className="text-xs text-muted-foreground">Transit score: {bd.transitScore}/100</p>
+                            </div>
+                          </div>
+                          <span className="text-sm text-green-600">-{formatCurrency(bd.transitSavings)}</span>
+                        </div>
+                      )}
+
+                      <div className="border-t pt-3 mt-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">Location costs</span>
+                          <span className="text-sm text-orange-500">+{formatCurrency(totalExtras)}</span>
+                        </div>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="font-semibold">True Monthly Cost</span>
+                          <span className="font-bold text-primary text-lg">{formatCurrency(selectedProp.trueCost || selectedProp.baseRent)}</span>
+                        </div>
+                        {selectedProp.savingsVsMax != null && selectedProp.savingsVsMax > 0 && (
+                          <div className="flex items-center justify-between mt-1">
+                            <span className="text-sm text-green-600 font-medium">Annual savings vs most expensive</span>
+                            <span className="text-sm font-bold text-green-600">{formatCurrency(selectedProp.savingsVsMax * 12)}/yr</span>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </SavingsDataGate>
+              );
+            })()}
 
             {selectedPropertyId && leaseIntelData[selectedPropertyId] && (
               <Card data-testid="card-selected-property-intel">
