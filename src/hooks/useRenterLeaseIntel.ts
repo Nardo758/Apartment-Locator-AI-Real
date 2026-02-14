@@ -26,7 +26,7 @@ export function useRenterLeaseIntel(propertyIds: string[]) {
   });
 
   const mapped: Record<string, RenterLeaseIntelData> = {};
-  if (data) {
+  if (data && Array.isArray(data)) {
     for (const item of data) {
       mapped[item.propertyId] = item;
     }
