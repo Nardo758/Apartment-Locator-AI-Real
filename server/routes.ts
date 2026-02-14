@@ -25,6 +25,8 @@ import { registerPaymentRoutes } from "./routes/payments";
 import { registerLeaseVerificationRoutes } from "./routes/lease-verification";
 import { registerJediRoutes } from "./routes/jedi";
 import scrapedDataRouter from "./routes/scraped-data";
+import adminRouter from "./routes/admin";
+import jediIntegrationRouter from "./routes/jedi-integration";
 
 declare global {
   namespace Express {
@@ -3659,4 +3661,10 @@ export async function registerRoutes(app: Express): Promise<void> {
   
   // Register scraped data routes (from apartment-scraper-worker)
   app.use('/api/scraped-data', scrapedDataRouter);
+  
+  // Register admin panel routes
+  app.use('/api/admin', authMiddleware, adminRouter);
+  
+  // Register JEDI RE integration routes
+  app.use('/api/jedi', jediIntegrationRouter);
 }
