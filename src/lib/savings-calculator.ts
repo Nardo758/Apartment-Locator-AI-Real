@@ -237,14 +237,22 @@ export function parseConcessions(
 
 /**
  * Calculate total savings
+ * 
+ * IMPORTANT: Total savings = Upfront + Monthly over lease term
+ * - Upfront: One-time savings (application fees, deposits, etc.)
+ * - Monthly: Recurring savings over the lease period
+ * - Grand Total: Sum of both (what the renter actually saves)
  */
 export function calculateTotalSavings(
   upfrontIncentives: UpfrontIncentive[],
-  monthlyConcessions: MonthlyConcession[]
+  monthlyConcessions: MonthlyConcession[],
+  leaseTerm: number = 12
 ): {
   upfrontTotal: number;
   monthlyTotal: number;
   grandTotal: number;
+  averageMonthlySavings: number;
+  effectiveRent: (baseRent: number) => number;
 } {
   const upfrontTotal = upfrontIncentives.reduce((sum, i) => sum + i.amount, 0);
   const monthlyTotal = monthlyConcessions.reduce(
@@ -252,9 +260,95 @@ export function calculateTotalSavings(
     0
   );
   
+  // Grand total includes BOTH upfront and monthly savings
+  const grandTotal = upfrontTotal + monthlyTotal;
+  
+  // Average monthly savings (monthly concessions only)
+  const averageMonthlySavings = monthlyTotal / leaseTerm;
+  
+  // Effective rent calculator
+  const effectiveRent = (baseRent: number) => {
+    // Monthly effective rent = base rent - average monthly concessions
+    const monthlyEffective = baseRent - averageMonthlySavings;
+    
+    // If we amortize upfront savings over the lease term:
+    const amortizedUpfront = upfrontTotal / leaseTerm;
+    
+    return {
+      withoutUpfront: monthlyEffective,
+      withAmortizedUpfront: monthlyEffective - amortizedUpfront,
+      upfrontSavingsPerMonth: amortizedUpfront,
+    };
+  };
+  
   return {
     upfrontTotal,
     monthlyTotal,
-    grandTotal: upfrontTotal + monthlyTotal,
+    grandTotal, // ⭐ THIS IS THE KEY NUMBER - Total savings over lease
+    averageMonthlySavings,
+    effectiveRent,
   };
+}
+
+/**
+ * Calculate effective monthly cost with upfront amortization
+ * 
+ * This gives the "true monthly cost" when upfront savings are spread across the lease
+ */
+export function calculateEffectiveMonthlyRent(
+  baseRent: number,
+  upfrontIncentives: UpfrontIncentive[],
+  monthlyConcessions: MonthlyConcession[],
+  leaseTerm: number = 12
+): {
+  baseRent: number;
+  monthlyDiscount: number;
+  amortizedUpfrontSavings: number;
+  effectiveMonthlyRent: number;
+  totalSavingsOverLease: number;
+} {
+  const { upfrontTotal, monthlyTotal, grandTotal, averageMonthlySavings } = calculateTotalSavings(
+    upfrontIncentives,
+    monthlyConcessions,
+    leaseTerm
+  );
+  
+  const amortizedUpfront = upfrontTotal / leaseTerm;
+  
+  return {
+    baseRent,
+    monthlyDiscount: averageMonthlySavings,
+    amortizedUpfrontSavings: amortizedUpfront,
+    effectiveMonthlyRent: baseRent - averageMonthlySavings - amortizedUpfront,
+    totalSavingsOverLease: grandTotal,
+  };
+}
+
+/**
+ * Format savings for display
+ */
+export function formatSavingsDisplay(
+  upfrontTotal: number,
+  monthlyTotal: number,
+  grandTotal: number
+): string {
+  const parts: string[] = [];
+  
+  if (upfrontTotal > 0) {
+    parts.push(`$${upfrontTotal.toLocaleString()} upfront`);
+  }
+  
+  if (monthlyTotal > 0) {
+    parts.push(`$${monthlyTotal.toLocaleString()} over lease`);
+  }
+  
+  if (parts.length === 0) {
+    return 'No savings';
+  }
+  
+  if (parts.length === 1) {
+    return `Save ${parts[0]}`;
+  }
+  
+  return `Save $${grandTotal.toLocaleString()} (${parts.join(' + ')})`;
 }

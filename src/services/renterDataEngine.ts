@@ -4,6 +4,7 @@
  */
 
 import { UserDataEngine } from './userDataEngine';
+import { ComprehensiveApartmentPreferences } from '../types/apartmentPreferences';
 
 export interface POI {
   id: string;
@@ -14,7 +15,11 @@ export interface POI {
   priority: 'high' | 'medium' | 'low';
 }
 
-export interface RenterPreferences {
+// Re-export for backward compatibility
+export type RenterPreferences = ComprehensiveApartmentPreferences;
+
+// Legacy simple preferences (for migration)
+export interface LegacyRenterPreferences {
   bedrooms: string;
   bathrooms?: string;
   amenities: string[];
@@ -117,10 +122,21 @@ export class RenterDataEngine extends UserDataEngine<RenterData> {
       preferences: {
         bedrooms: '1',
         bathrooms: '1',
-        amenities: [],
+        squareFootageMin: undefined,
+        squareFootageMax: undefined,
+        furnished: false,
+        buildingAmenities: {},
+        inUnitFeatures: {},
+        utilities: {},
+        petPolicy: {},
+        parking: {},
+        accessibility: {},
+        safety: {},
+        leaseTerms: {},
+        location: {},
         dealBreakers: [],
-        petPolicy: undefined,
-        parkingNeeded: false,
+        mustHaves: [],
+        niceToHaves: [],
       },
       commuteSettings: {
         daysPerWeek: 5,
@@ -377,5 +393,228 @@ export class RenterDataEngine extends UserDataEngine<RenterData> {
   async getTrackedLocations(): Promise<{ city: string; state: string }[]> {
     const current = await this.load();
     return current.marketPreferences.trackedLocations;
+  }
+  
+  // ============================================
+  // COMPREHENSIVE PREFERENCES HELPERS
+  // ============================================
+  
+  /**
+   * Apply a preference preset (budget-conscious, luxury, pet-owner, etc.)
+   */
+  async applyPreset(presetName: string, customizations?: Partial<RenterPreferences>): Promise<void> {
+    // Import presets dynamically to avoid circular deps
+    const { PREFERENCE_PRESETS } = await import('../types/apartmentPreferences');
+    const preset = PREFERENCE_PRESETS[presetName as keyof typeof PREFERENCE_PRESETS];
+    
+    if (!preset) {
+      throw new Error(`Unknown preset: ${presetName}`);
+    }
+    
+    const preferences = {
+      ...preset.preferences,
+      ...customizations,
+    };
+    
+    await this.updatePreferences(preferences as Partial<RenterPreferences>);
+  }
+  
+  /**
+   * Add a must-have feature
+   */
+  async addMustHave(feature: string): Promise<void> {
+    const current = await this.load();
+    if (!current.preferences.mustHaves) {
+      current.preferences.mustHaves = [];
+    }
+    
+    if (!current.preferences.mustHaves.includes(feature)) {
+      const updated = {
+        preferences: {
+          ...current.preferences,
+          mustHaves: [...current.preferences.mustHaves, feature],
+        },
+      };
+      await this.save(updated as Partial<RenterData>);
+    }
+  }
+  
+  /**
+   * Remove a must-have feature
+   */
+  async removeMustHave(feature: string): Promise<void> {
+    const current = await this.load();
+    const updated = {
+      preferences: {
+        ...current.preferences,
+        mustHaves: (current.preferences.mustHaves || []).filter(f => f !== feature),
+      },
+    };
+    await this.save(updated as Partial<RenterData>);
+  }
+  
+  /**
+   * Add a nice-to-have feature
+   */
+  async addNiceToHave(feature: string): Promise<void> {
+    const current = await this.load();
+    if (!current.preferences.niceToHaves) {
+      current.preferences.niceToHaves = [];
+    }
+    
+    if (!current.preferences.niceToHaves.includes(feature)) {
+      const updated = {
+        preferences: {
+          ...current.preferences,
+          niceToHaves: [...current.preferences.niceToHaves, feature],
+        },
+      };
+      await this.save(updated as Partial<RenterData>);
+    }
+  }
+  
+  /**
+   * Add a deal breaker
+   */
+  async addDealBreaker(dealBreaker: string): Promise<void> {
+    const current = await this.load();
+    if (!current.preferences.dealBreakers) {
+      current.preferences.dealBreakers = [];
+    }
+    
+    if (!current.preferences.dealBreakers.includes(dealBreaker)) {
+      const updated = {
+        preferences: {
+          ...current.preferences,
+          dealBreakers: [...current.preferences.dealBreakers, dealBreaker],
+        },
+      };
+      await this.save(updated as Partial<RenterData>);
+    }
+  }
+  
+  /**
+   * Remove a deal breaker
+   */
+  async removeDealBreaker(dealBreaker: string): Promise<void> {
+    const current = await this.load();
+    const updated = {
+      preferences: {
+        ...current.preferences,
+        dealBreakers: (current.preferences.dealBreakers || []).filter(d => d !== dealBreaker),
+      },
+    };
+    await this.save(updated as Partial<RenterData>);
+  }
+  
+  /**
+   * Update building amenities
+   */
+  async updateBuildingAmenities(amenities: Partial<RenterPreferences['buildingAmenities']>): Promise<void> {
+    const current = await this.load();
+    const updated = {
+      preferences: {
+        ...current.preferences,
+        buildingAmenities: {
+          ...current.preferences.buildingAmenities,
+          ...amenities,
+        },
+      },
+    };
+    await this.save(updated as Partial<RenterData>);
+  }
+  
+  /**
+   * Update in-unit features
+   */
+  async updateInUnitFeatures(features: Partial<RenterPreferences['inUnitFeatures']>): Promise<void> {
+    const current = await this.load();
+    const updated = {
+      preferences: {
+        ...current.preferences,
+        inUnitFeatures: {
+          ...current.preferences.inUnitFeatures,
+          ...features,
+        },
+      },
+    };
+    await this.save(updated as Partial<RenterData>);
+  }
+  
+  /**
+   * Update parking preferences
+   */
+  async updateParkingPreferences(parking: Partial<RenterPreferences['parking']>): Promise<void> {
+    const current = await this.load();
+    const updated = {
+      preferences: {
+        ...current.preferences,
+        parking: {
+          ...current.preferences.parking,
+          ...parking,
+        },
+      },
+    };
+    await this.save(updated as Partial<RenterData>);
+  }
+  
+  /**
+   * Update pet policy preferences
+   */
+  async updatePetPolicyPreferences(petPolicy: Partial<RenterPreferences['petPolicy']>): Promise<void> {
+    const current = await this.load();
+    const updated = {
+      preferences: {
+        ...current.preferences,
+        petPolicy: {
+          ...current.preferences.petPolicy,
+          ...petPolicy,
+        },
+      },
+    };
+    await this.save(updated as Partial<RenterData>);
+  }
+  
+  /**
+   * Update location preferences
+   */
+  async updateLocationPreferences(location: Partial<RenterPreferences['location']>): Promise<void> {
+    const current = await this.load();
+    const updated = {
+      preferences: {
+        ...current.preferences,
+        location: {
+          ...current.preferences.location,
+          ...location,
+        },
+      },
+    };
+    await this.save(updated as Partial<RenterData>);
+  }
+  
+  /**
+   * Get all preferences as a readable summary
+   */
+  async getPreferencesSummary(): Promise<{
+    basics: string[];
+    mustHaves: string[];
+    niceToHaves: string[];
+    dealBreakers: string[];
+  }> {
+    const current = await this.load();
+    const prefs = current.preferences;
+    
+    const basics: string[] = [];
+    if (prefs.bedrooms) basics.push(`${prefs.bedrooms} bedrooms`);
+    if (prefs.bathrooms) basics.push(`${prefs.bathrooms} bathrooms`);
+    if (prefs.squareFootageMin) basics.push(`Min ${prefs.squareFootageMin} sq ft`);
+    if (prefs.squareFootageMax) basics.push(`Max ${prefs.squareFootageMax} sq ft`);
+    
+    return {
+      basics,
+      mustHaves: prefs.mustHaves || [],
+      niceToHaves: prefs.niceToHaves || [],
+      dealBreakers: prefs.dealBreakers || [],
+    };
   }
 }
