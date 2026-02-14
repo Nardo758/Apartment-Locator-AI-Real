@@ -51,6 +51,7 @@ const AgentOnboarding = lazy(() => import("./pages/AgentOnboarding"));
 const UserTypeSelection = lazy(() => import("./pages/UserTypeSelection"));
 const LandlordSettings = lazy(() => import("./components/landlord/LandlordSettings"));
 const LandlordRetentionDashboard = lazy(() => import("./pages/LandlordRetentionDashboard"));
+const BrowseScrapedProperties = lazy(() => import("./pages/BrowseScrapedProperties"));
 
 function PageLoader() {
   return (
@@ -83,6 +84,7 @@ const App = () => (
                     <Route path="/landlord-pricing" element={<LandlordPricing />} />
                     <Route path="/agent-pricing" element={<AgentPricing />} />
                     
+                    <Route path="/browse-properties" element={<BrowseScrapedProperties />} />
                     <Route path="/auth" element={<AuthModern />} />
                     <Route path="/signup" element={<AuthModern />} />
                     <Route path="/trial" element={<AuthModern />} />

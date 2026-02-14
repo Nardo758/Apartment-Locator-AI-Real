@@ -27,6 +27,7 @@ I want iterative development. Ask before making major changes.
   - RetentionDetailCard for property-specific risk breakdown.
   - RetentionMapView with health-colored pins.
 - **Freemium Renter Flow**: Gated savings data. Free users see basic property info; detailed savings data (deal score, potential savings, negotiation tips) is blurred. Unlocks are available per-property ($1.99) or via time-based plans (Basic: $9.99/7d, Pro: $29.99/30d, Premium: $99.99/90d).
+- **Property Browser**: `/browse-properties` displays scraped apartment listings from Supabase with AI-powered savings analysis, blurred monetization (free users see 2 properties, rest are blurred with savings teasers), upfront savings calculator separating one-time incentives from monthly concessions, and deal scoring.
 
 ### Technical Implementations
 - **Backend**: Express 5.x with TypeScript, using Drizzle ORM for PostgreSQL database interactions. CORS configured, rate limiting on `/api/auth/` (20/15min), `/api/payments/` (10/15min), `/api/` (100/min). Environment validation at startup for DATABASE_URL and JWT_SECRET.
@@ -42,10 +43,12 @@ I want iterative development. Ask before making major changes.
 ### System Design Choices
 - **Database Schema**: Utilizes PostgreSQL with Drizzle ORM, featuring tables for `users`, `renter_profiles`, `properties`, `saved_apartments`, `search_history`, `user_preferences`, `market_snapshots`, `user_pois`, `submarkets`, `purchases`, `subscriptions`, `invoices`, `property_unlocks`, `lease_verifications`, `competition_sets`, `competition_set_competitors`, `pricing_alerts`, `alert_preferences`, `agent_clients`, `client_activity`, `deals`, `deal_notes`, `agent_leads`, and `api_keys`.
 - **Modularity**: Frontend components are organized into `components/`, `contexts/`, `pages/`, `hooks/`, `services/`, `types/`, and `lib/`. Backend is structured with `index.ts`, `routes.ts`, `storage.ts`, `db.ts`, and `vite.ts`.
-- **Environment Variables**: Critical configurations like `JWT_SECRET` and `VITE_GOOGLE_MAPS_API_KEY` are managed via Replit Secrets.
+- **Scraped Properties API**: `server/routes/scraped-properties.ts` connects to Supabase (using `SUPABASE_URL` and `SUPABASE_ANON_KEY`) to fetch scraped apartment data. Routes: `GET /api/scraped-properties` (all listings), `GET /api/scraped-properties/stats` (aggregate stats). Frontend: `src/lib/savings-calculator.ts` for deal scoring and savings breakdowns.
+- **Environment Variables**: Critical configurations like `JWT_SECRET`, `VITE_GOOGLE_MAPS_API_KEY`, `SUPABASE_URL`, and `SUPABASE_ANON_KEY` are managed via Replit Secrets.
 
 ## External Dependencies
 - **PostgreSQL**: Primary database for all application data.
 - **Google Maps API**: Used for interactive property maps and POI visualization.
 - **Stripe**: Payment gateway for handling subscriptions and one-time purchases, integrated via Replit's managed connector.
 - **Google Identity Services**: For Google OAuth-based user authentication.
+- **Supabase**: Used for scraped property data storage and retrieval via `@supabase/supabase-js`.
