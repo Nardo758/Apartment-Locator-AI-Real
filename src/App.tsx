@@ -53,6 +53,7 @@ const UserTypeSelection = lazy(() => import("./pages/UserTypeSelection"));
 const LandlordSettings = lazy(() => import("./components/landlord/LandlordSettings"));
 const LandlordRetentionDashboard = lazy(() => import("./pages/LandlordRetentionDashboard"));
 const BrowseScrapedProperties = lazy(() => import("./pages/BrowseScrapedProperties"));
+import { AdminLayout, AdminDashboard, PropertiesBrowser, UnitMixView, DemandDashboard, ScrapingMonitor } from './pages/admin';
 
 function PageLoader() {
   return (
@@ -226,11 +227,20 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     
-                    <Route path="/admin" element={
+                    <Route path="/admin-old" element={
                       <ProtectedRoute allowedUserTypes={['admin']}>
                         <Admin />
                       </ProtectedRoute>
                     } />
+
+                    {/* Admin Panel Routes */}
+                    <Route path="/admin" element={<AdminLayout />}>
+                      <Route index element={<AdminDashboard />} />
+                      <Route path="properties" element={<PropertiesBrowser />} />
+                      <Route path="units" element={<UnitMixView />} />
+                      <Route path="demand" element={<DemandDashboard />} />
+                      <Route path="scraping" element={<ScrapingMonitor />} />
+                    </Route>
                     
                     <Route path="*" element={<NotFound />} />
                   </Routes>

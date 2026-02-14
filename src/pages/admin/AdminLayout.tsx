@@ -2,10 +2,10 @@
  * Admin Layout - Navigation wrapper for admin pages
  */
 
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 
 interface AdminLayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
@@ -89,7 +89,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </div>
 
       {/* Page Content */}
-      <main>{children}</main>
+      <main>{children || <Outlet />}</main>
     </div>
   );
 }
