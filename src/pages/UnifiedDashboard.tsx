@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock, Target, Car, ParkingCircle, ShoppingCart, Dumbbell, Train, DollarSign, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock, Target, Car, ParkingCircle, ShoppingCart, Dumbbell, Train, DollarSign, ChevronDown, ChevronUp, Sparkles, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +20,9 @@ import type { ApartmentLocationCost } from '@/types/locationCost.types';
 import { api } from '@/lib/api';
 import { useRenterLeaseIntel } from '@/hooks/useRenterLeaseIntel';
 import { RenterLeaseIntelBadges } from '@/components/renter/RenterLeaseIntelBadges';
+import { calculateSmartScore, type SmartScoreResult } from '@/lib/smart-score-engine';
+import type { ScrapedProperty, SavingsBreakdown } from '@/lib/savings-calculator';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface POI {
   id: string;
@@ -59,7 +62,7 @@ const MOCK_MARKET_DATA = {
   aiRecommendation: "Market conditions favor renters. Good time to negotiate!",
 };
 
-type SortField = 'trueCost' | 'baseRent' | 'commute';
+type SortField = 'trueCost' | 'baseRent' | 'commute' | 'smartScore';
 type ViewMode = 'map' | 'list';
 
 const GROCERY_STORE_MAP: Record<string, 'walmart' | 'wholefoods' | 'traderjoes' | 'kroger' | 'costco' | undefined> = {
@@ -310,8 +313,57 @@ export default function UnifiedDashboard() {
   }, [inputs, lifestyleInputs, gasPrice, setIsCalculating, calculationProperties]);
 
   const propertiesWithCosts = useMemo(() => {
+    const aiPrefs = unifiedAI.aiPreferences;
+    const aiBudget = unifiedAI.budget || 0;
+    const aiMarket = unifiedAI.marketContext;
+    const aiPoisList = unifiedAI.pointsOfInterest || [];
+    const aiCommute = unifiedAI.commutePreferences;
+
     const mapped = calculationProperties.map(prop => {
       const costResult = results.find(r => r.apartmentId === prop.id);
+
+      const addressParts = prop.address.split(',').map(s => s.trim());
+      const scrapedAdapter: ScrapedProperty = {
+        id: prop.id,
+        name: prop.name,
+        address: prop.address,
+        city: addressParts.length >= 2 ? addressParts[addressParts.length - 2] : '',
+        state: addressParts.length >= 1 ? (addressParts[addressParts.length - 1].split(' ')[0] || '') : '',
+        min_rent: prop.baseRent,
+        max_rent: prop.baseRent,
+        bedrooms_min: prop.bedrooms,
+        bedrooms_max: prop.bedrooms,
+        bathrooms_min: prop.bathrooms,
+        bathrooms_max: prop.bathrooms,
+        amenities: prop.amenities,
+        latitude: prop.coordinates?.lat,
+        longitude: prop.coordinates?.lng,
+      };
+
+      const medianRent = marketData?.medianRent || 1700;
+      const savingsAdapter: SavingsBreakdown = {
+        monthlyRent: prop.baseRent,
+        marketMedianRent: medianRent,
+        monthlySavings: Math.max(0, medianRent - prop.baseRent),
+        annualSavings: Math.max(0, (medianRent - prop.baseRent) * 12),
+        upfrontSavings: 0,
+        monthlyConcessionsValue: 0,
+        dealScore: prop.baseRent < medianRent ? Math.min(100, Math.round(((medianRent - prop.baseRent) / medianRent) * 200)) : 30,
+        hasSpecialOffer: false,
+        specialOfferText: '',
+        savingsPercentage: medianRent > 0 ? Math.round(((medianRent - prop.baseRent) / medianRent) * 100) : 0,
+      };
+
+      const smartScore = calculateSmartScore(
+        scrapedAdapter,
+        savingsAdapter,
+        aiPrefs,
+        aiBudget,
+        aiMarket,
+        aiPoisList,
+        aiCommute,
+      );
+
       return {
         ...prop,
         trueCost: costResult?.trueMonthlyCost,
@@ -319,6 +371,7 @@ export default function UnifiedDashboard() {
         savingsRank: costResult?.savingsRank,
         locationCosts: costResult?.totalLocationCosts,
         savingsVsMax: undefined as number | undefined,
+        smartScore,
         costBreakdown: costResult ? {
           commute: costResult.commuteCost.totalMonthly,
           commuteMinutes: costResult.commuteCost.durationMinutes,
@@ -349,6 +402,8 @@ export default function UnifiedDashboard() {
           return a.baseRent - b.baseRent;
         case 'commute':
           return (a.commuteMinutes ?? 999) - (b.commuteMinutes ?? 999);
+        case 'smartScore':
+          return (b.smartScore?.overall ?? -1) - (a.smartScore?.overall ?? -1);
         default:
           return 0;
       }
@@ -363,7 +418,7 @@ export default function UnifiedDashboard() {
     });
 
     return mapped;
-  }, [results, filters, sortBy, calculationProperties]);
+  }, [results, filters, sortBy, calculationProperties, unifiedAI.aiPreferences, unifiedAI.budget, unifiedAI.marketContext, unifiedAI.pointsOfInterest, unifiedAI.commutePreferences, marketData]);
 
   const mapProperties = useMemo(() => {
     return propertiesWithCosts.map(p => ({
@@ -465,6 +520,7 @@ export default function UnifiedDashboard() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="smartScore">Smart Score</SelectItem>
                     <SelectItem value="trueCost">True Cost</SelectItem>
                     <SelectItem value="baseRent">Base Rent</SelectItem>
                     <SelectItem value="commute">Commute Time</SelectItem>
@@ -495,7 +551,7 @@ export default function UnifiedDashboard() {
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <h3 className="font-semibold flex items-center gap-2">
+                          <h3 className="font-semibold flex items-center gap-2 flex-wrap">
                             {property.name}
                             {property.savingsRank === 1 && (
                               <Badge variant="default" className="bg-green-500 border-green-600">
@@ -506,6 +562,34 @@ export default function UnifiedDashboard() {
                           </h3>
                           <p className="text-sm text-muted-foreground">{property.address}</p>
                         </div>
+                        {property.smartScore && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge
+                                data-testid={`badge-card-smart-score-${property.id}`}
+                                variant="outline"
+                                className={`shrink-0 cursor-default ${
+                                  property.smartScore.overall >= 70
+                                    ? 'border-green-500 text-green-600 bg-green-500/10'
+                                    : property.smartScore.overall >= 40
+                                    ? 'border-amber-500 text-amber-600 bg-amber-500/10'
+                                    : 'border-red-400 text-red-500 bg-red-500/10'
+                                }`}
+                              >
+                                <Brain className="w-3 h-3 mr-1" />
+                                {property.smartScore.overall}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent side="left" className="max-w-[220px]">
+                              <div className="space-y-1 text-xs">
+                                <div className="flex justify-between gap-3"><span>Location</span><span className="font-medium">{property.smartScore.locationScore}/100</span></div>
+                                <div className="flex justify-between gap-3"><span>Preferences</span><span className="font-medium">{property.smartScore.preferenceScore}/100</span></div>
+                                <div className="flex justify-between gap-3"><span>Market Intel</span><span className="font-medium">{property.smartScore.marketScore}/100</span></div>
+                                <div className="flex justify-between gap-3"><span>Value</span><span className="font-medium">{property.smartScore.valueScore}/100</span></div>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-4 mt-3">
@@ -595,6 +679,7 @@ export default function UnifiedDashboard() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Property</TableHead>
+                          <TableHead className="text-center" data-testid="header-smart-score">Smart Score</TableHead>
                           <TableHead className="text-right">Rent</TableHead>
                           <TableHead className="text-right">Location Costs</TableHead>
                           <TableHead className="text-right">True Cost</TableHead>
@@ -616,6 +701,36 @@ export default function UnifiedDashboard() {
                                 {property.savingsRank === 1 && <Star className="w-4 h-4 text-green-500" />}
                                 {property.name}
                               </div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {property.smartScore && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Badge
+                                      data-testid={`badge-smart-score-${property.id}`}
+                                      variant="outline"
+                                      className={`cursor-default ${
+                                        property.smartScore.overall >= 70
+                                          ? 'border-green-500 text-green-600 bg-green-500/10'
+                                          : property.smartScore.overall >= 40
+                                          ? 'border-amber-500 text-amber-600 bg-amber-500/10'
+                                          : 'border-red-400 text-red-500 bg-red-500/10'
+                                      }`}
+                                    >
+                                      <Brain className="w-3 h-3 mr-1" />
+                                      {property.smartScore.overall}
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="bottom" className="max-w-[220px]">
+                                    <div className="space-y-1 text-xs">
+                                      <div className="flex justify-between gap-3"><span>Location</span><span className="font-medium">{property.smartScore.locationScore}/100</span></div>
+                                      <div className="flex justify-between gap-3"><span>Preferences</span><span className="font-medium">{property.smartScore.preferenceScore}/100</span></div>
+                                      <div className="flex justify-between gap-3"><span>Market Intel</span><span className="font-medium">{property.smartScore.marketScore}/100</span></div>
+                                      <div className="flex justify-between gap-3"><span>Value</span><span className="font-medium">{property.smartScore.valueScore}/100</span></div>
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
                             </TableCell>
                             <TableCell className="text-right">{formatCurrency(property.baseRent)}</TableCell>
                             <TableCell className="text-right text-orange-500">
