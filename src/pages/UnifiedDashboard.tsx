@@ -393,7 +393,7 @@ export default function UnifiedDashboard() {
                 onPropertyClick={setSelectedPropertyId}
                 onPropertyHover={setSelectedPropertyId}
                 showConnections={true}
-                className="h-[500px]"
+                className="h-[550px]"
               />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

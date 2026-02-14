@@ -284,16 +284,15 @@ export default function InteractivePropertyMap({
         })}
       </GoogleMap>
 
-      <div className="absolute bottom-4 left-4 bg-background/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-        <p className="text-xs font-medium mb-2">Legend</p>
-        <div className="flex flex-wrap gap-2">
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg max-w-[90%]">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded-full bg-violet-500" />
             <span className="text-xs">Apartments</span>
           </div>
-          {Object.entries(POI_COLORS).map(([category, color]) => (
+          {pois.length > 0 && [...new Set(pois.map(p => p.category))].map(category => (
             <div key={category} className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: POI_COLORS[category] || POI_COLORS.other }} />
               <span className="text-xs capitalize">{category}</span>
             </div>
           ))}
