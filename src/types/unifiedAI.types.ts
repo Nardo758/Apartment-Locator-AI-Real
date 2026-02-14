@@ -46,27 +46,107 @@ export interface MarketContext {
 }
 
 export interface AIPreferences {
-  // Housing basics
   bedrooms: string;
   bathrooms?: string;
   sqft?: { min?: number; max?: number };
-  
-  // Amenities
+  furnished?: boolean;
+
+  buildingAmenities?: {
+    fitnessCenter?: boolean;
+    pool?: 'none' | 'indoor' | 'outdoor' | 'both';
+    elevator?: boolean;
+    packageRoom?: boolean;
+    laundry?: 'in-unit' | 'in-building' | 'shared' | 'none';
+    businessCenter?: boolean;
+    rooftopDeck?: boolean;
+    courtyard?: boolean;
+    bikeStorage?: boolean;
+    storageUnits?: boolean;
+    controlledAccess?: boolean;
+    doorman?: boolean;
+    conciergeService?: boolean;
+  };
+
+  inUnitFeatures?: {
+    airConditioning?: 'central' | 'window' | 'none';
+    heating?: 'central' | 'radiator' | 'heat-pump' | 'none';
+    dishwasher?: boolean;
+    garbageDisposal?: boolean;
+    washerDryer?: 'in-unit' | 'hookups' | 'none';
+    balcony?: boolean;
+    patio?: boolean;
+    walkInClosets?: boolean;
+    hardwoodFloors?: boolean;
+    fireplace?: boolean;
+    highCeilings?: boolean;
+    updatedKitchen?: boolean;
+    stainlessSteelAppliances?: boolean;
+    graniteCountertops?: boolean;
+  };
+
+  utilities?: {
+    heatIncluded?: boolean;
+    waterIncluded?: boolean;
+    electricIncluded?: boolean;
+    gasIncluded?: boolean;
+    trashIncluded?: boolean;
+    highSpeedInternet?: boolean;
+    cableReady?: boolean;
+  };
+
+  petPolicy?: {
+    dogsAllowed?: boolean;
+    catsAllowed?: boolean;
+    petSizeRestrictions?: 'none' | 'small' | 'medium' | 'large';
+    maxPetDeposit?: number;
+  };
+
+  parking?: {
+    parkingIncluded?: boolean;
+    garageParking?: boolean;
+    coveredParking?: boolean;
+    streetParking?: boolean;
+    evCharging?: boolean;
+  };
+
+  accessibility?: {
+    wheelchairAccessible?: boolean;
+    firstFloorAvailable?: boolean;
+    elevatorAccess?: boolean;
+  };
+
+  safety?: {
+    securitySystem?: boolean;
+    videoSurveillance?: boolean;
+    gatedCommunity?: boolean;
+    onsiteSecurity?: boolean;
+  };
+
+  leaseTerms?: {
+    shortTermLease?: boolean;
+    monthToMonth?: boolean;
+    flexibleLength?: boolean;
+    preferredTerm?: 6 | 9 | 12 | 15 | 18 | 24;
+  };
+
+  locationPrefs?: {
+    nearPublicTransit?: boolean;
+    walkabilityScoreMin?: number;
+    nearGroceryStores?: boolean;
+    nearParks?: boolean;
+    quietNeighborhood?: boolean;
+  };
+
   amenities: string[];
   dealBreakers: string[];
-  
-  // Location preferences
-  walkabilityScore?: number; // 0-100
+  priorities: string[];
+
+  walkabilityScore?: number;
   transitAccess?: string;
   crimeRate?: string;
   schoolQuality?: string;
-  
-  // Lifestyle
   lifestyle?: string;
   workSchedule?: string;
-  priorities: string[];
-  
-  // Additional
   bio?: string;
   useCase?: string;
   additionalNotes?: string;
