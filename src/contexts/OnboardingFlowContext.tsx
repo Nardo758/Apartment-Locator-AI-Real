@@ -17,18 +17,31 @@ export const OnboardingFlowProvider: React.FC<OnboardingFlowProviderProps> = ({ 
   
   // Load from localStorage if available
   const [currentStep, setCurrentStep] = useState(() => {
-    const saved = localStorage.getItem('onboardingCurrentStep');
-    return saved ? parseInt(saved, 10) : 0;
+    try {
+      const saved = localStorage.getItem('onboardingCurrentStep');
+      const parsed = saved ? parseInt(saved, 10) : 0;
+      return isNaN(parsed) ? 0 : parsed;
+    } catch {
+      return 0;
+    }
   });
-  
+
   const [flowData, setFlowData] = useState<OnboardingFlowData>(() => {
-    const saved = localStorage.getItem('onboardingFlowData');
-    return saved ? { ...defaultFlowData, ...JSON.parse(saved) } : defaultFlowData;
+    try {
+      const saved = localStorage.getItem('onboardingFlowData');
+      return saved ? { ...defaultFlowData, ...JSON.parse(saved) } : defaultFlowData;
+    } catch {
+      return defaultFlowData;
+    }
   });
-  
+
   const [steps, setSteps] = useState<OnboardingStep[]>(() => {
-    const saved = localStorage.getItem('onboardingSteps');
-    return saved ? JSON.parse(saved) : defaultSteps;
+    try {
+      const saved = localStorage.getItem('onboardingSteps');
+      return saved ? JSON.parse(saved) : defaultSteps;
+    } catch {
+      return defaultSteps;
+    }
   });
   
   const totalSteps = steps.length;

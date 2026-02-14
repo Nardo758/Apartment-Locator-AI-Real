@@ -207,21 +207,8 @@ export function UnifiedAIProvider({ children }: UnifiedAIProviderProps) {
       // TODO: Implement full scoring logic
       // This is a placeholder that will be expanded
       
-      console.log('🧠 Calculating Smart Scores...');
-      console.log('Inputs:', inputs);
-      
-      // For now, just clear results
-      // Real implementation will:
-      // 1. Calculate location scores (distances, costs)
-      // 2. Calculate preference matches
-      // 3. Apply market intelligence
-      // 4. Factor in concessions
-      // 5. Generate Smart Score
-      
       setScoredApartments([]);
       setLastCalculated(new Date());
-      
-      console.log('✅ Scoring complete');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Scoring failed';
       console.error('Scoring error:', errorMessage);
