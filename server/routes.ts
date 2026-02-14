@@ -721,7 +721,13 @@ export async function registerRoutes(app: Express): Promise<void> {
         return res.status(400).json({ error: "Maximum 20 properties per request" });
       }
 
-      const intel = await storage.getRenterLeaseIntelligence(propertyIds);
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const validIds = propertyIds.filter((id: string) => uuidRegex.test(id));
+      if (validIds.length === 0) {
+        return res.json({});
+      }
+
+      const intel = await storage.getRenterLeaseIntelligence(validIds);
       res.json(intel);
     } catch (error) {
       console.error("Error fetching renter lease intelligence:", error);
