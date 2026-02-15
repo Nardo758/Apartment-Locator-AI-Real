@@ -11,6 +11,11 @@ import { WebhookHandlers } from "./webhookHandlers";
 
 const isProduction = process.env.NODE_ENV === "production";
 
+if (process.env.PGHOST && process.env.PGUSER && process.env.PGPASSWORD && process.env.PGDATABASE) {
+  const port = process.env.PGPORT || '5432';
+  process.env.DATABASE_URL = `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${port}/${process.env.PGDATABASE}`;
+}
+
 function validateEnv() {
   if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is required but not set");
@@ -71,8 +76,16 @@ app.use("/api/auth/", authLimiter);
 app.use("/api/payments/", paymentLimiter);
 app.use("/api/", apiLimiter);
 
+function getDbUrl(): string | undefined {
+  if (process.env.PGHOST && process.env.PGUSER && process.env.PGPASSWORD && process.env.PGDATABASE) {
+    const port = process.env.PGPORT || '5432';
+    return `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${port}/${process.env.PGDATABASE}`;
+  }
+  return process.env.DATABASE_URL;
+}
+
 async function initStripe() {
-  const databaseUrl = process.env.DATABASE_URL;
+  const databaseUrl = getDbUrl();
   if (!databaseUrl) {
     log('DATABASE_URL not set, skipping Stripe init');
     return;
