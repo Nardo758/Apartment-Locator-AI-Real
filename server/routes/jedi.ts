@@ -1,5 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { storage } from "../storage";
+import { pool } from "../db";
 import { z } from "zod";
 import crypto from "crypto";
 
@@ -58,13 +59,70 @@ const validateApiKey = async (req: Request, res: Response, next: NextFunction) =
   }
 
   const keyHash = crypto.createHash('sha256').update(apiKey).digest('hex');
-  const keyRecord = await storage.getApiKeyByHash(keyHash);
   
+  let keyRecord: any = null;
+  try {
+    keyRecord = await storage.getApiKeyByHash(keyHash);
+  } catch (dbError: any) {
+    console.error('DB lookup failed for API key, trying env var fallback:', dbError?.message);
+  }
+
+  if (!keyRecord) {
+    const envKey = process.env.JEDI_RE_API_KEY;
+    if (envKey && apiKey === envKey) {
+      try {
+        await pool.query(`
+          CREATE TABLE IF NOT EXISTS api_keys (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            user_id UUID,
+            key_hash VARCHAR(255) NOT NULL UNIQUE,
+            key_prefix VARCHAR(20) NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            permissions JSON DEFAULT '{"endpoints":["/api/jedi/*"],"rateLimit":1000,"tier":"free"}',
+            last_used_at TIMESTAMP,
+            expires_at TIMESTAMP,
+            is_active BOOLEAN DEFAULT true,
+            request_count INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+          )
+        `);
+        const insertResult = await pool.query(
+          `INSERT INTO api_keys (key_hash, key_prefix, name, permissions, is_active, request_count)
+           VALUES ($1, $2, $3, $4, true, 0)
+           ON CONFLICT (key_hash) DO UPDATE SET updated_at = NOW()
+           RETURNING *`,
+          [keyHash, apiKey.substring(0, 12), 'JEDI RE Integration', JSON.stringify({ endpoints: ['/api/jedi/*'], rateLimit: 5000, tier: 'premium' })]
+        );
+        keyRecord = insertResult.rows[0];
+        if (keyRecord) {
+          keyRecord.isActive = keyRecord.is_active;
+          keyRecord.expiresAt = keyRecord.expires_at;
+          keyRecord.requestCount = keyRecord.request_count;
+          keyRecord.keyHash = keyRecord.key_hash;
+          keyRecord.keyPrefix = keyRecord.key_prefix;
+        }
+        console.log('JEDI API key auto-provisioned into database');
+      } catch (insertErr: any) {
+        console.error('Failed to auto-provision key, using in-memory fallback:', insertErr?.message);
+        keyRecord = {
+          id: 'env-fallback',
+          keyHash,
+          keyPrefix: apiKey.substring(0, 12),
+          name: 'JEDI RE Integration',
+          permissions: { endpoints: ['/api/jedi/*'], rateLimit: 5000, tier: 'premium' as const },
+          isActive: true,
+          requestCount: 0,
+        };
+      }
+    }
+  }
+
   if (!keyRecord) {
     return res.status(401).json({ error: "Invalid API key" });
   }
 
-  if (!keyRecord.isActive) {
+  if (!keyRecord.isActive && keyRecord.isActive !== undefined) {
     return res.status(403).json({ error: "API key is disabled" });
   }
 
@@ -75,9 +133,9 @@ const validateApiKey = async (req: Request, res: Response, next: NextFunction) =
   const permissions = keyRecord.permissions as { endpoints: string[]; rateLimit: number; tier: 'free' | 'basic' | 'premium' | 'enterprise' } | null;
   const tier = permissions?.tier || 'free';
   const endpoints = permissions?.endpoints || ['/api/jedi/*'];
-  const rateLimit = permissions?.rateLimit || 1000;
+  const rateLimit = permissions?.rateLimit || 5000;
   
-  const hasAccess = endpoints.some(pattern => matchEndpointPattern(pattern, req.path));
+  const hasAccess = endpoints.some((pattern: string) => matchEndpointPattern(pattern, req.path));
   if (!hasAccess) {
     return res.status(403).json({ 
       error: "Insufficient permissions for this endpoint",
