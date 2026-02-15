@@ -15,7 +15,9 @@ const isProduction = process.env.NODE_ENV === "production";
 
 if (process.env.PGHOST && process.env.PGUSER && process.env.PGPASSWORD && process.env.PGDATABASE) {
   const port = process.env.PGPORT || '5432';
-  process.env.DATABASE_URL = `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}:${port}/${process.env.PGDATABASE}`;
+  const host = process.env.PGHOST;
+  const sslParam = (host !== 'localhost' && host !== '127.0.0.1' && host !== 'helium') ? '?sslmode=require' : '';
+  process.env.DATABASE_URL = `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${host}:${port}/${process.env.PGDATABASE}${sslParam}`;
 }
 
 function validateEnv() {
