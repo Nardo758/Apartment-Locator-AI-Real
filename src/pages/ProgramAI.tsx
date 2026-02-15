@@ -136,7 +136,7 @@ const ProgramAI = () => {
   // Load user profile data on component mount
   useEffect(() => {
     const loadUserProfile = async () => {
-      console.warn('Supabase integration removed - using API routes');
+      console.warn('Feature not yet connected - using API routes');
     };
 
     loadUserProfile();
@@ -231,7 +231,7 @@ const ProgramAI = () => {
       // Sync with global state first
       syncWithGlobalState();
 
-      console.warn('Supabase integration removed - using API routes');
+      console.warn('Feature not yet connected - using API routes');
 
       // Track successful save
       dataTracker.trackContent({

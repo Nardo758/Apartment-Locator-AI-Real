@@ -25,7 +25,7 @@ import CostComparisonTable from '@/components/location-cost/CostComparisonTable'
 import { calculateApartmentCosts, createComparison } from '@/services/locationCostService';
 import type { ApartmentLocationCost, ApartmentComparison } from '@/types/locationCost.types';
 
-// Mock apartments - replace with Supabase data in production
+// Mock apartments - replace with database data in production
 const MOCK_APARTMENTS = [
   { id: 'apt-1', name: 'The Broadstone at Midtown', address: '1015 Northside Dr NW, Atlanta, GA 30318', coordinates: { lat: 33.7866, lng: -84.4073 }, baseRent: 1850, parkingIncluded: false },
   { id: 'apt-2', name: 'Camden Buckhead Square', address: '3060 Peachtree Rd NW, Atlanta, GA 30305', coordinates: { lat: 33.8404, lng: -84.3797 }, baseRent: 1650, parkingIncluded: true },

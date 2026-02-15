@@ -204,7 +204,7 @@ const GenerateOffer = () => {
     setIsSubmitting(true);
 
     try {
-      console.warn('Supabase integration removed - using API routes');
+      console.warn('Feature not yet connected - using API routes');
       toast({ title: "Unavailable", description: "Offer submission is currently being migrated to API routes.", variant: "destructive" });
     } catch (error) {
       console.error('Error:', error);

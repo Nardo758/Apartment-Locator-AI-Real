@@ -25,7 +25,7 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     details: ActivityDetails = {}
   ): Promise<void> => {
     if (!user) return;
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
   }, [user, pageContext, componentContext]);
 
   const trackButtonClick = useCallback((buttonName: string, additionalData?: AnyObject) => {

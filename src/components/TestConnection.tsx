@@ -151,7 +151,7 @@ export const TestConnection: React.FC = () => {
               <Database className="w-5 h-5 text-muted-foreground" />
               <div>
                 <div className="font-medium">Database Connection</div>
-                <div className="text-sm text-muted-foreground">Supabase PostgreSQL</div>
+                <div className="text-sm text-muted-foreground">Replit PostgreSQL</div>
               </div>
             </div>
             <div className="flex items-center gap-2">

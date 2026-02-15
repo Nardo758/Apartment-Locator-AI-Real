@@ -56,7 +56,7 @@ class DataTracker {
   }
 
   private async initializeSession() {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
 
     window.addEventListener('beforeunload', () => {
       this.endSession();
@@ -65,38 +65,38 @@ class DataTracker {
 
   private async createSession() {
     if (!this.userId) return;
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
   }
 
   private async endSession() {
     if (!this.userId) return;
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
   }
 
   async trackActivity(data: Omit<ActivityData, 'sessionId'>) {
     if (!this.userId) return;
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
   }
 
   async trackPageView(url?: string) {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
   }
 
   async trackClick(element: string, additionalData?: JsonObject) {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
   }
 
   async trackSearch(queryOrPayload: string | { query: string; results?: unknown[]; [k: string]: unknown }) {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
   }
 
   async trackContent(data: ContentData) {
     if (!this.userId) return;
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
   }
 
   async trackInteraction(type: string, target: string, data?: JsonObject) {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
   }
 
   getSessionId(): string {

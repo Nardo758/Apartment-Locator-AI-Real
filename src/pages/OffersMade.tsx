@@ -33,7 +33,7 @@ const OffersMade: React.FC = () => {
 
   const fetchOffers = async () => {
     try {
-      console.warn('Supabase integration removed - using API routes');
+      console.warn('Feature not yet connected - using API routes');
       setOffers([]);
     } catch (error) {
       console.error('Error fetching offers:', error);

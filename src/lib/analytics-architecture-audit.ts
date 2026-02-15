@@ -646,7 +646,7 @@ function getPrimaryLeverageFactor(result: OpportunityResult): string {
  * 
  * NEXT STEPS:
  * 1. Integrate this tracker with the existing UsageTracker component
- * 2. Add real-time analytics streaming to Supabase
+ * 2. Add real-time analytics streaming to database
  * 3. Create analytics dashboard showing algorithm performance
  * 4. Implement A/B testing framework for algorithm improvements
  * 5. Set up alerts for data quality issues

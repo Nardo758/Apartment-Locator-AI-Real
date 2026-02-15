@@ -144,7 +144,7 @@ const Admin: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Database</p>
-                    <p className="text-lg font-semibold">Supabase</p>
+                    <p className="text-lg font-semibold">PostgreSQL</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Region</p>

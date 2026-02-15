@@ -18,7 +18,7 @@ export const useSubscription = () => {
   const checkSubscription = useCallback(async () => {
     try {
       setIsLoading(true);
-      console.warn('Supabase integration removed - using API routes');
+      console.warn('Feature not yet connected - using API routes');
       setSubscription(null);
     } catch (error) {
       console.error('Error checking subscription:', error);
@@ -28,7 +28,7 @@ export const useSubscription = () => {
   }, [toast]);
 
   const validateAccessToken = async (token: string): Promise<boolean> => {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
     return false;
   };
 

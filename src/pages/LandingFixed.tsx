@@ -19,10 +19,10 @@ const LandingFixed = () => {
     setIsClient(true);
   }, []);
 
-  // Auth check skipped - Supabase integration removed
+  // Auth check skipped - not yet connected
   useEffect(() => {
     if (!isClient) return;
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
   }, [navigate, isClient]);
 
   const features = [

@@ -27,7 +27,7 @@ export function ZillowSearchPanel() {
     setIsLoading(true);
 
     try {
-      console.warn('Supabase integration removed - using API routes');
+      console.warn('Feature not yet connected - using API routes');
       toast({
         title: "Search Unavailable",
         description: "Zillow search is currently being migrated to API routes.",

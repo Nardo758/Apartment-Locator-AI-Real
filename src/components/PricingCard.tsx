@@ -31,7 +31,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
   const handlePurchase = async () => {
     try {
       setIsLoading(true);
-      console.warn('Supabase integration removed - using API routes');
+      console.warn('Feature not yet connected - using API routes');
       toast({
         variant: "destructive",
         title: "Payment Unavailable",

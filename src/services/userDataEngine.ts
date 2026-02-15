@@ -47,7 +47,7 @@ export abstract class UserDataEngine<T extends EngineData> {
   }
 
   async load(): Promise<T> {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
 
     const cached = this.loadFromCache();
     if (cached) {
@@ -69,7 +69,7 @@ export abstract class UserDataEngine<T extends EngineData> {
     this.saveToCache(this.data);
     this.notifySubscribers();
 
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
 
     return this.data;
   }

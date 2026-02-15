@@ -33,7 +33,7 @@ export const useDataExport = () => {
   const requestExport = async (request: ExportRequest) => {
     setIsLoading(true);
     try {
-      console.warn('Supabase integration removed - using API routes');
+      console.warn('Feature not yet connected - using API routes');
       toast({
         title: "Export Unavailable",
         description: "Data export is currently being migrated to API routes.",
@@ -53,18 +53,18 @@ export const useDataExport = () => {
   };
 
   const getExportHistory = async () => {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
     setExports([]);
     return [];
   };
 
   const getExportStatus = async (exportId: string) => {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
     return null;
   };
 
   const downloadExport = async (exportId: string) => {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
     toast({
       title: "Download Unavailable",
       description: "Data export download is currently being migrated to API routes.",
@@ -73,7 +73,7 @@ export const useDataExport = () => {
   };
 
   const deleteExport = async (exportId: string) => {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
     toast({
       title: "Delete Unavailable",
       description: "Data export deletion is currently being migrated to API routes.",

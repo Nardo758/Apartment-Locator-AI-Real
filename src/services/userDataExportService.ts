@@ -1,6 +1,6 @@
 export class UserDataExportService {
   async exportUserData(userId: string, exportType: string, format: string) {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
 
     try {
       let data: unknown = {}
@@ -44,19 +44,19 @@ export class UserDataExportService {
   }
 
   private async exportProfileData(userId: string) {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
     return {
       preferences: {}
     }
   }
 
   private async exportSearchData(userId: string) {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
     return []
   }
 
   private async exportSavedApartments(userId: string) {
-    console.warn('Supabase integration removed - using API routes');
+    console.warn('Feature not yet connected - using API routes');
     return []
   }
 
