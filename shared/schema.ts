@@ -1,4 +1,4 @@
-import { pgTable, text, integer, boolean, timestamp, uuid, json, decimal, serial, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, boolean, timestamp, uuid, json, decimal, serial, varchar, bigint, jsonb } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -863,3 +863,60 @@ export const propertyUnlocksRelations = relations(propertyUnlocks, ({ one }) => 
     references: [properties.id],
   }),
 }));
+
+export const scrapedProperties = pgTable("scraped_properties", {
+  id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+  propertyId: varchar("property_id", { length: 255 }),
+  unitNumber: varchar("unit_number", { length: 100 }),
+  unit: varchar("unit", { length: 100 }),
+  externalId: varchar("external_id", { length: 255 }),
+  source: varchar("source", { length: 255 }),
+  name: varchar("name", { length: 500 }),
+  address: varchar("address", { length: 500 }),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 50 }),
+  zipCode: varchar("zip_code", { length: 20 }),
+  currentPrice: integer("current_price"),
+  bedrooms: integer("bedrooms"),
+  bathrooms: decimal("bathrooms", { precision: 3, scale: 1 }),
+  squareFeet: integer("square_feet"),
+  squareFootage: integer("square_footage"),
+  listingUrl: varchar("listing_url", { length: 1000 }),
+  imageUrl: text("image_url"),
+  unitFeatures: jsonb("unit_features").$type<string[]>().default([]),
+  amenities: jsonb("amenities").$type<string[]>().default([]),
+  petPolicy: varchar("pet_policy", { length: 255 }),
+  parkingInfo: varchar("parking_info", { length: 255 }),
+  propertyType: varchar("property_type", { length: 50 }),
+  status: varchar("status", { length: 50 }).default("active"),
+  volatilityScore: integer("volatility_score").default(50),
+  priceChangeCount: integer("price_change_count").default(0),
+  lastPriceChange: timestamp("last_price_change", { withTimezone: true }),
+  daysOnMarket: integer("days_on_market"),
+  latitude: decimal("latitude", { precision: 10, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  concessionType: varchar("concession_type", { length: 100 }),
+  concessionValue: integer("concession_value"),
+  effectivePrice: integer("effective_price"),
+  freeRentConcessions: text("free_rent_concessions"),
+  securityDeposit: integer("security_deposit"),
+  applicationFee: integer("application_fee"),
+  adminFeeAmount: integer("admin_fee_amount"),
+  adminFeeWaived: boolean("admin_fee_waived").default(false),
+  marketPosition: varchar("market_position", { length: 50 }),
+  marketVelocity: varchar("market_velocity", { length: 50 }),
+  percentileRank: integer("percentile_rank"),
+  aiPrice: integer("ai_price"),
+  aiProvider: text("ai_provider"),
+  aiProvenance: jsonb("ai_provenance"),
+  aiRaw: jsonb("ai_raw"),
+  scrapedAt: timestamp("scraped_at", { withTimezone: true }).defaultNow(),
+  firstSeenAt: timestamp("first_seen_at", { withTimezone: true }).defaultNow(),
+  lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+export const insertScrapedPropertySchema = createInsertSchema(scrapedProperties);
+export type InsertScrapedProperty = z.infer<typeof insertScrapedPropertySchema>;
+export type ScrapedProperty = typeof scrapedProperties.$inferSelect;
