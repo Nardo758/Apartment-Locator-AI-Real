@@ -43,3 +43,4 @@ externalPort = 80
 [userenv]
 
 [userenv.shared]
+JEDI_RE_API_KEY = "aiq_2248e8fc535c5a9c4a09f9ed1c0d719bf0ad45f56b2c47841de6bc1421388f6b"
