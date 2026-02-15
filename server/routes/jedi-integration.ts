@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { pool } from '../db';
 import crypto from 'crypto';
+import { z } from 'zod';
 
 const router = Router();
 
@@ -648,6 +649,253 @@ router.get('/absorption-rate', async (req, res) => {
   } catch (error) {
     console.error('Absorption rate error:', error);
     res.status(500).json({ success: false, error: 'Failed to calculate absorption rate' });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /ingest – Bulk upsert scraped properties from Cloudflare Worker
+// ---------------------------------------------------------------------------
+
+const ingestPropertySchema = z.object({
+  external_id: z.string().min(1),
+  source: z.string().min(1),
+  property_id: z.string().nullish(),
+  unit_number: z.string().nullish(),
+  unit: z.string().nullish(),
+  name: z.string().nullish(),
+  address: z.string().nullish(),
+  city: z.string().nullish(),
+  state: z.string().nullish(),
+  zip_code: z.string().nullish(),
+  current_price: z.number().int().nullish(),
+  bedrooms: z.number().int().min(0).nullish(),
+  bathrooms: z.number().min(0).nullish(),
+  square_feet: z.number().int().positive().nullish(),
+  square_footage: z.number().int().positive().nullish(),
+  listing_url: z.string().nullish(),
+  image_url: z.string().nullish(),
+  unit_features: z.array(z.string()).nullish(),
+  amenities: z.array(z.string()).nullish(),
+  pet_policy: z.string().nullish(),
+  parking_info: z.string().nullish(),
+  property_type: z.string().nullish(),
+  status: z.string().nullish(),
+  latitude: z.number().nullish(),
+  longitude: z.number().nullish(),
+  concession_type: z.string().nullish(),
+  concession_value: z.number().int().nullish(),
+  effective_price: z.number().int().nullish(),
+  free_rent_concessions: z.string().nullish(),
+  security_deposit: z.number().int().nullish(),
+  application_fee: z.number().int().nullish(),
+  admin_fee_amount: z.number().int().nullish(),
+  admin_fee_waived: z.boolean().nullish(),
+  days_on_market: z.number().int().min(0).nullish(),
+  scraped_at: z.string().nullish(),
+});
+
+const ingestBatchSchema = z.object({
+  properties: z.array(ingestPropertySchema).min(1).max(500),
+});
+
+/** Create the partial unique index once per process lifetime. */
+let indexEnsured = false;
+async function ensureIngestIndex(): Promise<void> {
+  if (indexEnsured) return;
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS uq_scraped_source_external
+    ON scraped_properties (source, external_id)
+    WHERE source IS NOT NULL AND external_id IS NOT NULL
+  `);
+  indexEnsured = true;
+}
+
+const UPSERT_SQL = `
+  INSERT INTO scraped_properties (
+    external_id, source, property_id, unit_number, unit, name,
+    address, city, state, zip_code,
+    current_price, bedrooms, bathrooms, square_feet, square_footage,
+    listing_url, image_url, unit_features, amenities,
+    pet_policy, parking_info, property_type, status,
+    latitude, longitude,
+    concession_type, concession_value, effective_price,
+    free_rent_concessions, security_deposit, application_fee,
+    admin_fee_amount, admin_fee_waived, days_on_market,
+    scraped_at, first_seen_at, last_seen_at, updated_at
+  ) VALUES (
+    $1, $2, $3, $4, $5, $6,
+    $7, $8, $9, $10,
+    $11, $12, $13, $14, $15,
+    $16, $17, $18::jsonb, $19::jsonb,
+    $20, $21, $22, $23,
+    $24, $25,
+    $26, $27, $28,
+    $29, $30, $31,
+    $32, $33, $34,
+    COALESCE($35::timestamptz, NOW()), NOW(), NOW(), NOW()
+  )
+  ON CONFLICT (source, external_id)
+  WHERE source IS NOT NULL AND external_id IS NOT NULL
+  DO UPDATE SET
+    property_id   = COALESCE(EXCLUDED.property_id, scraped_properties.property_id),
+    unit_number   = COALESCE(EXCLUDED.unit_number, scraped_properties.unit_number),
+    unit          = COALESCE(EXCLUDED.unit, scraped_properties.unit),
+    name          = COALESCE(EXCLUDED.name, scraped_properties.name),
+    address       = COALESCE(EXCLUDED.address, scraped_properties.address),
+    city          = COALESCE(EXCLUDED.city, scraped_properties.city),
+    state         = COALESCE(EXCLUDED.state, scraped_properties.state),
+    zip_code      = COALESCE(EXCLUDED.zip_code, scraped_properties.zip_code),
+    current_price = EXCLUDED.current_price,
+    bedrooms      = COALESCE(EXCLUDED.bedrooms, scraped_properties.bedrooms),
+    bathrooms     = COALESCE(EXCLUDED.bathrooms, scraped_properties.bathrooms),
+    square_feet   = COALESCE(EXCLUDED.square_feet, scraped_properties.square_feet),
+    square_footage= COALESCE(EXCLUDED.square_footage, scraped_properties.square_footage),
+    listing_url   = COALESCE(EXCLUDED.listing_url, scraped_properties.listing_url),
+    image_url     = COALESCE(EXCLUDED.image_url, scraped_properties.image_url),
+    unit_features = COALESCE(EXCLUDED.unit_features, scraped_properties.unit_features),
+    amenities     = COALESCE(EXCLUDED.amenities, scraped_properties.amenities),
+    pet_policy    = COALESCE(EXCLUDED.pet_policy, scraped_properties.pet_policy),
+    parking_info  = COALESCE(EXCLUDED.parking_info, scraped_properties.parking_info),
+    property_type = COALESCE(EXCLUDED.property_type, scraped_properties.property_type),
+    status        = COALESCE(EXCLUDED.status, scraped_properties.status),
+    latitude      = COALESCE(EXCLUDED.latitude, scraped_properties.latitude),
+    longitude     = COALESCE(EXCLUDED.longitude, scraped_properties.longitude),
+    concession_type       = EXCLUDED.concession_type,
+    concession_value      = EXCLUDED.concession_value,
+    effective_price       = EXCLUDED.effective_price,
+    free_rent_concessions = EXCLUDED.free_rent_concessions,
+    security_deposit      = EXCLUDED.security_deposit,
+    application_fee       = EXCLUDED.application_fee,
+    admin_fee_amount      = EXCLUDED.admin_fee_amount,
+    admin_fee_waived      = EXCLUDED.admin_fee_waived,
+    days_on_market        = EXCLUDED.days_on_market,
+    scraped_at    = COALESCE(EXCLUDED.scraped_at, NOW()),
+    last_seen_at  = NOW(),
+    updated_at    = NOW(),
+    price_change_count = CASE
+      WHEN EXCLUDED.current_price IS DISTINCT FROM scraped_properties.current_price
+        AND EXCLUDED.current_price IS NOT NULL
+      THEN COALESCE(scraped_properties.price_change_count, 0) + 1
+      ELSE COALESCE(scraped_properties.price_change_count, 0)
+    END,
+    last_price_change = CASE
+      WHEN EXCLUDED.current_price IS DISTINCT FROM scraped_properties.current_price
+        AND EXCLUDED.current_price IS NOT NULL
+      THEN NOW()
+      ELSE scraped_properties.last_price_change
+    END,
+    volatility_score = CASE
+      WHEN EXCLUDED.current_price IS DISTINCT FROM scraped_properties.current_price
+        AND EXCLUDED.current_price IS NOT NULL
+      THEN LEAST(100, COALESCE(scraped_properties.volatility_score, 50) + 5)
+      ELSE GREATEST(0, COALESCE(scraped_properties.volatility_score, 50) - 1)
+    END
+  RETURNING (xmax = 0) AS inserted
+`;
+
+router.post('/ingest', async (req: Request, res: Response) => {
+  try {
+    const parseResult = ingestBatchSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid request body',
+        details: parseResult.error.errors.map(e => ({
+          path: e.path.join('.'),
+          message: e.message,
+        })),
+      });
+    }
+
+    await ensureIngestIndex();
+
+    const { properties } = parseResult.data;
+    const results = { inserted: 0, updated: 0, errors: [] as { external_id: string; source: string; error: string }[] };
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      for (const prop of properties) {
+        try {
+          const row = await client.query(UPSERT_SQL, [
+            prop.external_id,
+            prop.source,
+            prop.property_id ?? null,
+            prop.unit_number ?? null,
+            prop.unit ?? null,
+            prop.name ?? null,
+            prop.address ?? null,
+            prop.city ?? null,
+            prop.state ?? null,
+            prop.zip_code ?? null,
+            prop.current_price ?? null,
+            prop.bedrooms ?? null,
+            prop.bathrooms ?? null,
+            prop.square_feet ?? null,
+            prop.square_footage ?? null,
+            prop.listing_url ?? null,
+            prop.image_url ?? null,
+            JSON.stringify(prop.unit_features ?? []),
+            JSON.stringify(prop.amenities ?? []),
+            prop.pet_policy ?? null,
+            prop.parking_info ?? null,
+            prop.property_type ?? null,
+            prop.status ?? 'active',
+            prop.latitude ?? null,
+            prop.longitude ?? null,
+            prop.concession_type ?? null,
+            prop.concession_value ?? null,
+            prop.effective_price ?? null,
+            prop.free_rent_concessions ?? null,
+            prop.security_deposit ?? null,
+            prop.application_fee ?? null,
+            prop.admin_fee_amount ?? null,
+            prop.admin_fee_waived ?? null,
+            prop.days_on_market ?? null,
+            prop.scraped_at ?? null,
+          ]);
+
+          if (row.rows[0]?.inserted) {
+            results.inserted++;
+          } else {
+            results.updated++;
+          }
+        } catch (err: any) {
+          results.errors.push({
+            external_id: prop.external_id,
+            source: prop.source,
+            error: err.message,
+          });
+        }
+      }
+
+      await client.query('COMMIT');
+    } catch (txErr) {
+      await client.query('ROLLBACK');
+      throw txErr;
+    } finally {
+      client.release();
+    }
+
+    const status = results.errors.length === properties.length ? 422 : 200;
+    res.status(status).json({
+      success: results.errors.length < properties.length,
+      data: {
+        received: properties.length,
+        inserted: results.inserted,
+        updated: results.updated,
+        errors: results.errors.length,
+        error_details: results.errors.length > 0 ? results.errors : undefined,
+      },
+    });
+  } catch (error: any) {
+    console.error('JEDI ingest error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to ingest properties',
+      message: error.message,
+    });
   }
 });
 
