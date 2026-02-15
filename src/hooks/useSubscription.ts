@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface Subscription {
@@ -19,57 +18,8 @@ export const useSubscription = () => {
   const checkSubscription = useCallback(async () => {
     try {
       setIsLoading(true);
-      
-      // Get current session
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session?.user?.email) {
-        setSubscription(null);
-        return;
-      }
-
-      // Query subscriber data
-      const { data, error } = await supabase
-        .from('subscribers')
-        .select('*')
-        .eq('email', session.user.email)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error checking subscription:', error);
-        return;
-      }
-
-      if (data) {
-        // Check if subscription is expired
-        const now = new Date();
-        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-        const endDate = new Date((data as any).plan_end);
-        
-        if (endDate < now) {
-          // Subscription expired, update status
-          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-          await (supabase as any)
-            .from('subscribers')
-            .update({ status: 'expired' })
-            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-            .eq('id', (data as any).id);
-          
-          setSubscription(null);
-          toast({
-            variant: "destructive",
-            title: "Subscription Expired",
-            description: "Your plan has expired. Please upgrade to continue using our services."
-          });
-        } else {
-          setSubscription(data);
-        }
-      } else {
-        setSubscription(null);
-      }
+      console.warn('Supabase integration removed - using API routes');
+      setSubscription(null);
     } catch (error) {
       console.error('Error checking subscription:', error);
     } finally {
@@ -78,35 +28,8 @@ export const useSubscription = () => {
   }, [toast]);
 
   const validateAccessToken = async (token: string): Promise<boolean> => {
-    try {
-      const { data, error } = await supabase
-        .from('access_tokens')
-        .select('*')
-        .eq('token', token)
-        .eq('used', false)
-        .single();
-
-      if (error || !data) {
-        return false;
-      }
-
-      // Check if token is expired
-      const now = new Date();
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      const expiresAt = new Date((data as any).expires_at);
-      
-      if (expiresAt < now) {
-        return false;
-      }
-
-      // Mark token as used (optional, depending on your business logic)
-      // await supabase.from('access_tokens').update({ used: true }).eq('id', data.id);
-      
-      return true;
-    } catch (error) {
-      console.error('Error validating access token:', error);
-      return false;
-    }
+    console.warn('Supabase integration removed - using API routes');
+    return false;
   };
 
   const hasAccess = (feature?: string): boolean => {
@@ -115,7 +38,7 @@ export const useSubscription = () => {
     }
 
     if (!subscription.plan_end) {
-      return true; // No expiration date means unlimited access
+      return true;
     }
 
     const now = new Date();
@@ -125,7 +48,6 @@ export const useSubscription = () => {
       return false;
     }
 
-    // Feature-based access control
     if (feature) {
       switch (feature) {
         case 'unlimited_searches':
@@ -146,21 +68,6 @@ export const useSubscription = () => {
 
   useEffect(() => {
     checkSubscription();
-
-    // Listen for auth changes
-    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          checkSubscription();
-        } else if (event === 'SIGNED_OUT') {
-          setSubscription(null);
-        }
-      }
-    );
-
-    return () => {
-      authSubscription.unsubscribe();
-    };
   }, [checkSubscription]);
 
   return {

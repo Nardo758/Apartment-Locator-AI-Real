@@ -12,7 +12,6 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { dataTracker } from '@/lib/data-tracker';
-import type { Json } from '../../../supabase/types';
 
 interface SearchSettingsProps {
   onSettingsChange?: (settings: SearchSettings) => void;
@@ -137,7 +136,7 @@ const EnhancedSearchSettings: React.FC<SearchSettingsProps> = ({ onSettingsChang
       timestamp: new Date().toISOString()
     };
 
-  dataTracker.trackInteraction('reset_search_filters', 'all_filters', payload as unknown as Json);
+  dataTracker.trackInteraction('reset_search_filters', 'all_filters', payload as any);
     
     setSettings(defaultSettings);
     onSettingsChange?.(defaultSettings);

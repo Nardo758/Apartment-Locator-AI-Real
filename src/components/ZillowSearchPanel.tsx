@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Search, Loader2 } from "lucide-react";
 
 export function ZillowSearchPanel() {
@@ -28,26 +27,12 @@ export function ZillowSearchPanel() {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('fetch-zillow-rentals', {
-        body: {
-          zipCode,
-          maxPrice: maxPrice ? parseInt(maxPrice) : undefined,
-          minBedrooms: minBedrooms ? parseInt(minBedrooms) : undefined,
-          maxResults: parseInt(maxResults),
-        }
-      });
-
-      if (error) throw error;
-
+      console.warn('Supabase integration removed - using API routes');
       toast({
-        title: "Search Complete",
-        description: `Added ${data.count} properties from zip code ${zipCode}`,
+        title: "Search Unavailable",
+        description: "Zillow search is currently being migrated to API routes.",
+        variant: "destructive",
       });
-
-      // Reset form
-      setZipCode("");
-      setMaxPrice("");
-      setMinBedrooms("");
     } catch (error) {
       console.error('Error fetching Zillow data:', error);
       toast({

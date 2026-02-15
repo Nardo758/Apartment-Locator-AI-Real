@@ -1,25 +1,9 @@
-import { supabase } from "@/integrations/supabase/client"
-
 export class UserDataExportService {
   async exportUserData(userId: string, exportType: string, format: string) {
-    // Create export record
-    const { data: exportRecord, error: exportError } = await supabase
-      .from('data_export_requests')
-      .insert({
-        user_id: userId,
-        export_type: exportType,
-        export_format: format,
-        status: 'processing',
-        delivery_method: 'download',
-        data_categories: [exportType]
-      })
-      .select()
-      .single()
-
-    if (exportError) throw exportError
+    console.warn('Supabase integration removed - using API routes');
 
     try {
-  let data: unknown = {}
+      let data: unknown = {}
 
       switch (exportType) {
         case 'profile':
@@ -41,40 +25,18 @@ export class UserDataExportService {
           throw new Error(`Unknown export type: ${exportType}`)
       }
 
-      // Generate file based on format
       const fileContent = this.formatData(data, format)
       const fileName = `user_export_${exportType}_${Date.now()}.${format}`
 
-      // Update export record
-      await supabase
-        .from('data_export_requests')
-        .update({
-          status: 'completed',
-          file_url: fileName,
-          progress_percentage: 100,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', exportRecord.id)
-
-      return { fileName, fileContent, exportId: exportRecord.id }
+      return { fileName, fileContent, exportId: 'stub' }
 
     } catch (error) {
-      // Mark export as failed
-      await supabase
-        .from('data_export_requests')
-        .update({ 
-          status: 'failed',
-          error_message: error instanceof Error ? error.message : 'Export failed',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', exportRecord.id)
+      console.error('Export failed:', error)
       throw error
     }
   }
 
   private async exportActivityData(userId: string) {
-    // user_activities table doesn't exist in new database
-    // Return empty data for now
     return {
       activities: [],
       total: 0
@@ -82,42 +44,20 @@ export class UserDataExportService {
   }
 
   private async exportProfileData(userId: string) {
-    const { data: preferences, error: preferencesError } = await supabase
-      .from('user_preferences')
-      .select('*')
-      .eq('user_id', userId)
-      .single()
-
-    if (preferencesError && preferencesError.code !== 'PGRST116') throw preferencesError
-
+    console.warn('Supabase integration removed - using API routes');
     return {
-      preferences: preferences || {}
+      preferences: {}
     }
   }
 
   private async exportSearchData(userId: string) {
-    const { data, error } = await supabase
-      .from('search_history')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data || []
+    console.warn('Supabase integration removed - using API routes');
+    return []
   }
 
   private async exportSavedApartments(userId: string) {
-    const { data, error } = await supabase
-      .from('saved_apartments')
-      .select(`
-        *,
-        apartments (*)
-      `)
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data || []
+    console.warn('Supabase integration removed - using API routes');
+    return []
   }
 
   private async exportAllUserData(userId: string) {

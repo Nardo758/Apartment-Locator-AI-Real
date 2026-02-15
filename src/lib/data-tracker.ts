@@ -1,19 +1,16 @@
-import { supabase } from "@/integrations/supabase/client";
-import type { Json } from '@/../supabase/types'
-
-export type JsonObject = Json
+export type JsonObject = any
 
 export interface ActivityData {
   activityType: string;
   pageUrl?: string;
   elementClicked?: string;
-  activityData?: Json;
+  activityData?: any;
   sessionId: string;
 }
 
 export interface SessionData {
   sessionId: string;
-  deviceInfo: Json;
+  deviceInfo: any;
   ipAddress?: string;
   userAgent?: string;
 }
@@ -21,7 +18,7 @@ export interface SessionData {
 export interface ContentData {
   contentType: string;
   contentId?: string;
-  contentData?: Json;
+  contentData?: any;
   action: 'create' | 'update' | 'delete' | 'view';
 }
 
@@ -59,25 +56,8 @@ class DataTracker {
   }
 
   private async initializeSession() {
-    // Get current user if authenticated
-    const { data: { user } } = await supabase.auth.getUser();
-    this.userId = user?.id || null;
+    console.warn('Supabase integration removed - using API routes');
 
-    if (this.userId) {
-      await this.createSession();
-    }
-
-    // Listen for auth changes
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        this.userId = session.user.id;
-        this.createSession();
-      } else {
-        this.userId = null;
-      }
-    });
-
-    // Track page unload for session duration
     window.addEventListener('beforeunload', () => {
       this.endSession();
     });
@@ -85,113 +65,38 @@ class DataTracker {
 
   private async createSession() {
     if (!this.userId) return;
-
-    try {
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      await (supabase as any).from('user_sessions').insert({
-        user_id: this.userId,
-        session_id: this.sessionId,
-        device_info: this.deviceInfo as Json,
-        user_agent: navigator.userAgent
-      });
-    } catch (error) {
-      console.error('Failed to create session:', error);
-    }
+    console.warn('Supabase integration removed - using API routes');
   }
 
   private async endSession() {
     if (!this.userId) return;
-
-    try {
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      await (supabase as any)
-        .from('user_sessions')
-        .update({
-          logout_time: new Date().toISOString(),
-          session_duration: Math.floor((Date.now() - parseInt(this.sessionId.split('_')[1])) / 1000)
-        })
-        .eq('session_id', this.sessionId);
-    } catch (error) {
-      console.error('Failed to end session:', error);
-    }
+    console.warn('Supabase integration removed - using API routes');
   }
 
   async trackActivity(data: Omit<ActivityData, 'sessionId'>) {
     if (!this.userId) return;
-
-    try {
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      await (supabase as any).from('user_activity_logs').insert({
-        user_id: this.userId,
-        session_id: this.sessionId,
-        activity_type: data.activityType,
-        page_url: data.pageUrl || window.location.href,
-        element_clicked: data.elementClicked,
-        activity_data: (data.activityData || {}) as Json,
-        device_info: this.deviceInfo as Json
-      });
-    } catch (error) {
-      console.error('Failed to track activity:', error);
-    }
+    console.warn('Supabase integration removed - using API routes');
   }
 
   async trackPageView(url?: string) {
-    await this.trackActivity({
-      activityType: 'page_view',
-      pageUrl: url || window.location.href,
-      activityData: {
-        referrer: document.referrer,
-        timestamp: new Date().toISOString()
-      }
-    });
+    console.warn('Supabase integration removed - using API routes');
   }
 
   async trackClick(element: string, additionalData?: JsonObject) {
-    await this.trackActivity({
-      activityType: 'click',
-      elementClicked: element,
-      activityData: additionalData
-    });
+    console.warn('Supabase integration removed - using API routes');
   }
 
   async trackSearch(queryOrPayload: string | { query: string; results?: unknown[]; [k: string]: unknown }) {
-    const payload = typeof queryOrPayload === 'string' ? { query: queryOrPayload, results: [] as unknown[] } : queryOrPayload;
-    await this.trackActivity({
-      activityType: 'search',
-      activityData: {
-        query: payload.query,
-        results_count: Array.isArray(payload.results) ? payload.results.length : 0,
-        results: Array.isArray(payload.results) ? (payload.results as unknown[]) : []
-      } as Json
-    });
+    console.warn('Supabase integration removed - using API routes');
   }
 
   async trackContent(data: ContentData) {
     if (!this.userId) return;
-
-    try {
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      await (supabase as any).from('user_content_logs').insert({
-        session_id: this.sessionId,
-        content_type: data.contentType,
-        content_id: data.contentId,
-        content_data: (data.contentData || {}) as Json,
-        action: data.action
-      });
-    } catch (error) {
-      console.error('Failed to track content:', error);
-    }
+    console.warn('Supabase integration removed - using API routes');
   }
 
   async trackInteraction(type: string, target: string, data?: JsonObject) {
-    await this.trackActivity({
-      activityType: 'interaction',
-      activityData: ({
-        interaction_type: type,
-        target,
-        ...(data as Record<string, unknown>)
-      } as unknown) as Json
-    });
+    console.warn('Supabase integration removed - using API routes');
   }
 
   getSessionId(): string {
@@ -203,17 +108,13 @@ class DataTracker {
   }
 }
 
-// Create singleton instance
 export const dataTracker = new DataTracker();
 
-// Auto-track page views on route changes
 if (typeof window !== 'undefined') {
   let currentUrl = window.location.href;
   
-  // Track initial page view
   setTimeout(() => dataTracker.trackPageView(), 1000);
   
-  // Monitor for URL changes (for SPA routing)
   const observer = new MutationObserver(() => {
     if (window.location.href !== currentUrl) {
       currentUrl = window.location.href;

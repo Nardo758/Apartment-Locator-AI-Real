@@ -1,5 +1,3 @@
-import { supabase } from '@/integrations/supabase/client';
-
 export type EngineData = Record<string, any>;
 
 export type EngineType = 'renter' | 'landlord' | 'agent';
@@ -8,7 +6,7 @@ type Subscriber<T> = (data: T) => void;
 
 const CACHE_PREFIX = 'ude_cache_';
 
-const db = supabase as any;
+const db = null as any;
 
 export abstract class UserDataEngine<T extends EngineData> {
   protected userId: string;
@@ -49,24 +47,7 @@ export abstract class UserDataEngine<T extends EngineData> {
   }
 
   async load(): Promise<T> {
-    try {
-      const { data: row, error } = await db
-        .from('user_data_engines')
-        .select('data, version')
-        .eq('user_id', this.userId)
-        .eq('engine_type', this.engineType)
-        .maybeSingle();
-
-      if (!error && row?.data) {
-        this.data = { ...this.getDefaults(), ...(row.data as Partial<T>) };
-        this.version = row.version || 1;
-        this.saveToCache(this.data);
-        this.notifySubscribers();
-        return this.data;
-      }
-    } catch {
-      // fall through to cache
-    }
+    console.warn('Supabase integration removed - using API routes');
 
     const cached = this.loadFromCache();
     if (cached) {
@@ -88,26 +69,7 @@ export abstract class UserDataEngine<T extends EngineData> {
     this.saveToCache(this.data);
     this.notifySubscribers();
 
-    try {
-      const { error } = await db
-        .from('user_data_engines')
-        .upsert(
-          {
-            user_id: this.userId,
-            engine_type: this.engineType,
-            data: this.data as unknown as Record<string, unknown>,
-            version: this.version,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'user_id,engine_type' }
-        );
-
-      if (error) {
-        console.error(`[${this.engineType}Engine] Save error:`, error);
-      }
-    } catch (err) {
-      console.error(`[${this.engineType}Engine] Save failed:`, err);
-    }
+    console.warn('Supabase integration removed - using API routes');
 
     return this.data;
   }

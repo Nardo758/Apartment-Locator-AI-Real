@@ -1,7 +1,5 @@
 import { useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useUser } from './useUser';
-import type { Database } from '@/supabase/types';
 
 export interface UserInteractionHookProps {
   pageContext?: string;
@@ -19,24 +17,6 @@ type ActivityDetails = {
   metadata?: AnyObject | null;
 };
 
-import type { Json } from '@/supabase/types';
-
-const toJson = (value: unknown): Json | null => {
-  if (value === null || value === undefined) return null;
-  const t = typeof value;
-  if (t === 'string' || t === 'number' || t === 'boolean') return value as string | number | boolean;
-  if (Array.isArray(value)) return value.map((v) => toJson(v)) as Json[];
-  if (t === 'object') {
-    const out: { [k: string]: Json | undefined } = {};
-    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-      out[k] = toJson(v) ?? undefined;
-    }
-    return out as Json;
-  }
-  // fallback to string
-  return String(value) as unknown as Json;
-};
-
 export const useUserTracking = ({ pageContext, componentContext }: UserInteractionHookProps = {}) => {
   const { user } = useUser();
 
@@ -45,36 +25,7 @@ export const useUserTracking = ({ pageContext, componentContext }: UserInteracti
     details: ActivityDetails = {}
   ): Promise<void> => {
     if (!user) return;
-
-    try {
-      // Build a payload typed to the generated Database Insert type to satisfy TS
-      const payload: Database["public"]["Tables"]["user_activities"]["Insert"] = {
-        user_id: user.id,
-        activity_type: activityType,
-        page_name: details.pageName || pageContext,
-        component_name: details.componentName || componentContext,
-        action_details: toJson(details.actionDetails),
-        metadata: toJson({
-          ...(details.metadata ?? {}),
-          before_state: details.beforeState ?? null,
-          after_state: details.afterState ?? null,
-          timestamp: new Date().toISOString(),
-          url: typeof window !== 'undefined' ? window.location.href : null,
-          user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
-          screen_resolution: typeof window !== 'undefined' ? `${window.screen.width}x${window.screen.height}` : null
-        })
-      };
-
-      // Bypass typing issue with explicit cast - the payload is correctly typed
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      const { error } = await (supabase as any).from('user_activities').insert(payload);
-
-      if (error) {
-        console.error('Failed to track activity:', error);
-      }
-    } catch (error) {
-      console.error('Failed to track activity:', error);
-    }
+    console.warn('Supabase integration removed - using API routes');
   }, [user, pageContext, componentContext]);
 
   const trackButtonClick = useCallback((buttonName: string, additionalData?: AnyObject) => {

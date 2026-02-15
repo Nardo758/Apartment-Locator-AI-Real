@@ -7,7 +7,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { usePropertyState } from '@/contexts';
 import { Property } from '@/data/mockData';
@@ -205,57 +204,8 @@ const GenerateOffer = () => {
     setIsSubmitting(true);
 
     try {
-      // Call the Supabase Edge Function
-      const { data, error } = await supabase.functions.invoke('send-offer-email', {
-        body: {
-          userEmail: formData.userEmail,
-          moveInDate: formData.moveInDate,
-          leaseTerm: parseInt(formData.leaseTerm),
-          monthlyBudget: formData.monthlyBudget ? parseFloat(formData.monthlyBudget) : null,
-          securityDeposit: formData.securityDeposit ? parseFloat(formData.securityDeposit) : null,
-          notes: formData.notes,
-          // Important Terms
-          petPolicy: formData.petPolicy,
-          utilities: formData.utilities,
-          parking: formData.parking,
-          trash: formData.trash,
-          // Lease Incentives
-          leaseIncentives: {
-            firstMonthFree: formData.firstMonthFree,
-            reducedDeposit: formData.reducedDeposit,
-            waiveAppFee: formData.waiveAppFee
-          },
-          // Qualifications
-          qualifications: {
-            monthlyIncome: formData.monthlyIncome ? parseFloat(formData.monthlyIncome) : null,
-            creditScore: formData.creditScore ? parseInt(formData.creditScore) : null,
-            employmentHistory: formData.employmentHistory,
-            rentalHistory: formData.rentalHistory
-          },
-          propertyId: property?.id || propertyFromParams || '1',
-          aiSuggestions: aiSuggestions,
-          propertyDetails: {
-            id: property?.id || propertyFromParams || '1',
-            name: 'Sunshine Lake Apartments',
-            address: '4567 Sunburst Dr, Austin, TX 78713',
-            unitType: '2 bed / 2 bath - 1,120 sqft',
-            listedRent: '$2,950/month'
-          }
-        }
-      });
-
-      if (error) {
-        console.error('Error sending offer:', error);
-        toast({ title: "Error", description: "Failed to send offer. Please try again.", variant: "destructive" });
-        return;
-      }
-
-      if (data?.success) {
-        setOfferSubmitted(true);
-        toast({ title: "Success", description: "Offer sent successfully!" });
-      } else {
-        toast({ title: "Error", description: "Failed to send offer. Please try again.", variant: "destructive" });
-      }
+      console.warn('Supabase integration removed - using API routes');
+      toast({ title: "Unavailable", description: "Offer submission is currently being migrated to API routes.", variant: "destructive" });
     } catch (error) {
       console.error('Error:', error);
       toast({ title: "Error", description: "Failed to send offer. Please try again.", variant: "destructive" });

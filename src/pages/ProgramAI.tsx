@@ -9,7 +9,6 @@ import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { usePropertyState } from '@/contexts';
 import { Brain, MapPin, Target, Clock, Home, DollarSign, Heart, X, Plus, Settings } from 'lucide-react';
 import { toast } from 'sonner';
@@ -19,7 +18,6 @@ import { ModernPageLayout } from '@/components/modern/ModernPageLayout';
 import { designSystem } from '@/lib/design-system';
 import EnhancedSearchSettings, { SearchSettings } from '@/components/LocationIntelligence/EnhancedSearchSettings';
 import { dataTracker } from '@/lib/data-tracker';
-import { Json } from '../../supabase/types';
 
 interface AIPreferences {
   // Housing
@@ -138,75 +136,7 @@ const ProgramAI = () => {
   // Load user profile data on component mount
   useEffect(() => {
     const loadUserProfile = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { data: profile, error } = await supabase
-          .from('user_preferences')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error loading profile:', error);
-          return;
-        }
-
-        if (profile) {
-          const profileRecord = profile as Record<string, unknown>;
-          setPreferences(prev => ({
-            ...prev,
-            bedrooms: (profileRecord.bedrooms as string) || '1',
-            amenities: (profileRecord.amenities as string[]) || [],
-            dealBreakers: (profileRecord.deal_breakers as string[]) || [],
-            
-            // Load additional preferences from profile if they exist
-            publicTransitAccess: (profileRecord.public_transit_access as string[]) || [],
-            walkabilityScoreRequirement: (profileRecord.walkability_score_requirement as string) || 'moderate',
-            bikeFriendly: (profileRecord.bike_friendly as boolean) || false,
-            evChargingStations: (profileRecord.ev_charging_stations as boolean) || false,
-            rideShareAvailability: (profileRecord.ride_share_availability as string) || 'standard',
-            airportProximity: (profileRecord.airport_proximity as string) || 'moderate',
-            highwayAccess: (profileRecord.highway_access as boolean) || false,
-            
-            schoolDistrictQuality: (profileRecord.school_district_quality as string) || 'no-preference',
-            crimeRatePreference: (profileRecord.crime_rate_preference as string) || 'low',
-            noiseLevelTolerance: (profileRecord.noise_level_tolerance as string) || 'moderate',
-            populationDensity: (profileRecord.population_density as string) || 'moderate',
-            ageDemographics: (profileRecord.age_demographics as string) || 'mixed',
-            diversityIndex: (profileRecord.diversity_index as string) || 'moderate',
-            localCultureArts: (profileRecord.local_culture_arts as boolean) || false,
-            
-            securitySystemRequired: (profileRecord.security_system_required as boolean) || false,
-            gatedCommunityPreference: (profileRecord.gated_community_preference as string) || 'no-preference',
-            emergencyServicesResponseTime: (profileRecord.emergency_services_response_time as string) || 'standard',
-            floodZoneAvoidance: (profileRecord.flood_zone_avoidance as boolean) || false,
-            fireSafetyFeatures: (profileRecord.fire_safety_features as string[]) || [],
-            
-            groceryStoreTypes: (profileRecord.grocery_store_types as string[]) || [],
-            shoppingMallAccess: (profileRecord.shopping_mall_access as boolean) || false,
-            farmersMarkets: (profileRecord.farmers_markets as boolean) || false,
-            bankingAccess: (profileRecord.banking_access as boolean) || false,
-            postOfficeProximity: (profileRecord.post_office_proximity as boolean) || false,
-            dryCleaningServices: (profileRecord.dry_cleaning_services as boolean) || false,
-            
-            internetSpeedRequirement: (profileRecord.internet_speed_requirement as string) || 'standard',
-            cellTowerCoverage: (profileRecord.cell_tower_coverage as string) || 'good',
-            smartHomeCompatibility: (profileRecord.smart_home_compatibility as boolean) || false,
-            cableStreamingOptions: (profileRecord.cable_streaming_options as string[]) || [],
-            
-            lifestyle: (profileRecord.lifestyle as string) || '',
-            workSchedule: (profileRecord.work_schedule as string) || '',
-            priorities: (profileRecord.priorities as string[]) || [],
-            bio: (profileRecord.bio as string) || '',
-            useCase: (profileRecord.use_case as string) || '',
-            additionalNotes: (profileRecord.additional_notes as string) || ''
-          }));
-        }
-      } catch (error) {
-        console.error('Error loading user profile:', error);
-      }
+      console.warn('Supabase integration removed - using API routes');
     };
 
     loadUserProfile();
@@ -250,7 +180,7 @@ const ProgramAI = () => {
         preference_key: key,
         old_value: preferences[key],
         // new_value can be runtime-unknown; cast to Json for tracking payload
-        new_value: value as unknown as Json,
+        new_value: value as any,
         timestamp: new Date().toISOString()
       }
     });
@@ -301,89 +231,7 @@ const ProgramAI = () => {
       // Sync with global state first
       syncWithGlobalState();
 
-      // Save to Supabase
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error('Please sign in to save preferences');
-        navigate('/auth');
-        return;
-      }
-
-        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-        const { error } = await (supabase as any)
-          .from('user_preferences')
-          .upsert({
-            user_id: user.id,
-            email: user.email,
-            bedrooms: preferences.bedrooms,
-            amenities: preferences.amenities,
-            deal_breakers: preferences.dealBreakers,
-            
-            // Transportation & Mobility
-            public_transit_access: preferences.publicTransitAccess,
-            walkability_score_requirement: preferences.walkabilityScoreRequirement,
-            bike_friendly: preferences.bikeFriendly,
-            ev_charging_stations: preferences.evChargingStations,
-            ride_share_availability: preferences.rideShareAvailability,
-            airport_proximity: preferences.airportProximity,
-            highway_access: preferences.highwayAccess,
-            
-            // Neighborhood & Community
-            school_district_quality: preferences.schoolDistrictQuality,
-            crime_rate_preference: preferences.crimeRatePreference,
-            noise_level_tolerance: preferences.noiseLevelTolerance,
-            population_density: preferences.populationDensity,
-            age_demographics: preferences.ageDemographics,
-            diversity_index: preferences.diversityIndex,
-            local_culture_arts: preferences.localCultureArts,
-            
-            // Safety & Security
-            security_system_required: preferences.securitySystemRequired,
-            gated_community_preference: preferences.gatedCommunityPreference,
-            fire_safety_features: preferences.fireSafetyFeatures,
-            
-            // Shopping & Services
-            grocery_store_types: preferences.groceryStoreTypes,
-            shopping_mall_access: preferences.shoppingMallAccess,
-            farmers_markets: preferences.farmersMarkets,
-            banking_access: preferences.bankingAccess,
-            post_office_proximity: preferences.postOfficeProximity,
-            dry_cleaning_services: preferences.dryCleaningServices,
-            
-            // Technology & Connectivity
-            internet_speed_requirement: preferences.internetSpeedRequirement,
-            cell_tower_coverage: preferences.cellTowerCoverage,
-            smart_home_compatibility: preferences.smartHomeCompatibility,
-            
-            lifestyle: preferences.lifestyle,
-            work_schedule: preferences.workSchedule,
-            priorities: preferences.priorities,
-            bio: preferences.bio,
-            use_case: preferences.useCase,
-            additional_notes: preferences.additionalNotes,
-            has_completed_ai_programming: true,
-            ai_preferences: {
-              amenityImportant: preferences.amenities.length > 3,
-              transportationFocused: preferences.publicTransitAccess.length > 0 || preferences.bikeFriendly,
-              safetyConscious: preferences.securitySystemRequired || preferences.crimeRatePreference === 'very-low',
-              techSavvy: preferences.smartHomeCompatibility || preferences.internetSpeedRequirement === 'gigabit',
-              lifestyle: preferences.lifestyle,
-              priorities: preferences.priorities
-            },
-            search_criteria: {
-              preferredAmenities: preferences.amenities,
-              dealBreakers: preferences.dealBreakers,
-              transportationNeeds: preferences.publicTransitAccess,
-              safetyRequirements: preferences.fireSafetyFeatures,
-              communityPreferences: {
-                crimeRate: preferences.crimeRatePreference,
-                noiseLevel: preferences.noiseLevelTolerance,
-                demographics: preferences.ageDemographics
-              }
-            }
-          });
-
-      if (error) throw error;
+      console.warn('Supabase integration removed - using API routes');
 
       // Track successful save
       dataTracker.trackContent({

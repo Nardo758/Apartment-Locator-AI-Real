@@ -19,25 +19,10 @@ const LandingFixed = () => {
     setIsClient(true);
   }, []);
 
-  // Check if user is already authenticated - only on client side
+  // Auth check skipped - Supabase integration removed
   useEffect(() => {
     if (!isClient) return;
-    
-    const checkAuth = async () => {
-      try {
-        // Dynamic import to avoid SSR issues
-        const { supabase } = await import('@/integrations/supabase/client');
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          navigate('/dashboard');
-        }
-      } catch (error) {
-        console.log('Auth check failed:', error);
-        // Continue without auth check if it fails
-      }
-    };
-    
-    checkAuth();
+    console.warn('Supabase integration removed - using API routes');
   }, [navigate, isClient]);
 
   const features = [

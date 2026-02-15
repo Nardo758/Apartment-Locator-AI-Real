@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Star, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface PricingCardProps {
@@ -32,21 +31,12 @@ export const PricingCard: React.FC<PricingCardProps> = ({
   const handlePurchase = async () => {
     try {
       setIsLoading(true);
-
-      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: { planType }
+      console.warn('Supabase integration removed - using API routes');
+      toast({
+        variant: "destructive",
+        title: "Payment Unavailable",
+        description: "Payment processing is currently being migrated to API routes."
       });
-
-      if (error) {
-        throw error;
-      }
-
-      if (data?.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else {
-        throw new Error('No checkout URL received');
-      }
     } catch (error) {
       console.error('Payment error:', error);
       toast({

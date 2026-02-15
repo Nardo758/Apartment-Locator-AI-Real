@@ -51,11 +51,11 @@ I want iterative development. Ask before making major changes.
 - **Modularity**: Frontend components are organized into `components/`, `contexts/`, `pages/`, `hooks/`, `services/`, `types/`, and `lib/`. Backend is structured with `index.ts`, `routes.ts`, `storage.ts`, `db.ts`, and `vite.ts`.
 - **Scraped Properties API**: `server/routes/scraped-properties.ts` reads from the Replit PostgreSQL `scraped_properties` table using Drizzle ORM (migrated from Supabase). Routes: `GET /api/scraped-properties` (all listings), `GET /api/scraped-properties/:id` (single property), `GET /api/scraped-properties/stats` (aggregate stats). Backend maps Drizzle camelCase fields to frontend-expected snake_case names (currentPrice -> min_rent/max_rent, bedrooms -> bedrooms_min, bathrooms -> bathrooms_min, listingUrl -> website_url). Frontend: `src/lib/savings-calculator.ts` for deal scoring and savings breakdowns. Schema: `scrapedProperties` in `shared/schema.ts`.
 - **Google Places Photo Integration**: `server/services/places-photo.ts` uses Google Places Text Search API (New) to find apartment complex photos by address. Photos are cached in-memory (grouped by address for efficiency) and persisted to the `image_url` column in the Replit PostgreSQL database. Lookups are per-complex, not per-unit, minimizing API calls.
-- **Environment Variables**: Critical configurations like `JWT_SECRET`, `VITE_GOOGLE_MAPS_API_KEY`, `SUPABASE_URL`, and `SUPABASE_ANON_KEY` are managed via Replit Secrets.
+- **Environment Variables**: Critical configurations like `JWT_SECRET` and `VITE_GOOGLE_MAPS_API_KEY` are managed via Replit Secrets. Database connection uses Replit's built-in PG environment variables (PGHOST, PGUSER, PGPASSWORD, PGDATABASE, PGPORT) with fallback to DATABASE_URL.
+- **Database Connection**: `server/db.ts` constructs the connection URL from Replit PG env vars first, falling back to DATABASE_URL secret if PG vars aren't available.
 
 ## External Dependencies
-- **PostgreSQL**: Primary database for all application data.
+- **PostgreSQL**: Replit-managed PostgreSQL database for all application data. Supabase has been fully removed.
 - **Google Maps API**: Used for interactive property maps, POI visualization, and Google Places photo lookups for apartment complexes.
 - **Stripe**: Payment gateway for handling subscriptions and one-time purchases, integrated via Replit's managed connector.
 - **Google Identity Services**: For Google OAuth-based user authentication.
-- **Supabase**: Previously used for scraped property data; data has been migrated to the Replit PostgreSQL database. Supabase credentials are still available if needed for future sync.

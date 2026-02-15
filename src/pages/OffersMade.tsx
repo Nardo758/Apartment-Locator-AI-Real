@@ -7,7 +7,6 @@ import { designSystem } from '@/lib/design-system';
 import ModernPageLayout from '@/components/modern/ModernPageLayout';
 import ModernCard from '@/components/modern/ModernCard';
 import Header from '@/components/Header';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
 interface RentalOffer {
@@ -34,31 +33,8 @@ const OffersMade: React.FC = () => {
 
   const fetchOffers = async () => {
     try {
-      const { data, error } = await supabase
-        .from('rental_offers')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Mock status for demo purposes since we don't have a status column
-      const offersWithStatus = (data || []).map((offerRow: unknown, index: number) => {
-        const offer = offerRow as Record<string, unknown>;
-        return {
-          id: String(offer.id),
-          property_id: String(offer.property_address || 'unknown'),
-          property_details: (offer.offer_details && typeof offer.offer_details === 'object') ? offer.offer_details as Record<string, unknown> : {},
-          monthly_budget: Number(offer.monthly_budget || 2500), // Default value
-          lease_term: Number(offer.lease_term || 12), // Default value
-          move_in_date: String(offer.move_in_date || new Date().toISOString().split('T')[0]),
-          ai_suggestions: (offer.ai_suggestions && typeof offer.ai_suggestions === 'object') ? offer.ai_suggestions as Record<string, unknown> : {},
-          notes: String(offer.notes || ''), // Default empty string
-          created_at: String(offer.created_at),
-          status: (index === 0 ? 'pending' : index === 1 ? 'accepted' : 'pending') as 'pending' | 'accepted' | 'rejected' | 'expired'
-        };
-      });
-
-      setOffers(offersWithStatus);
+      console.warn('Supabase integration removed - using API routes');
+      setOffers([]);
     } catch (error) {
       console.error('Error fetching offers:', error);
       toast({
