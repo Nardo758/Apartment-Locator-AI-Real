@@ -185,6 +185,23 @@ async function seedJediApiKey() {
   }
 
   try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS api_keys (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID,
+        key_hash VARCHAR(255) NOT NULL UNIQUE,
+        key_prefix VARCHAR(20) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        permissions JSON DEFAULT '{"endpoints":["/api/jedi/*"],"rateLimit":1000,"tier":"free"}',
+        last_used_at TIMESTAMP,
+        expires_at TIMESTAMP,
+        is_active BOOLEAN DEFAULT true,
+        request_count INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
     const keyHash = crypto.createHash('sha256').update(jediKey).digest('hex');
     const keyPrefix = jediKey.substring(0, 12);
 
@@ -192,19 +209,16 @@ async function seedJediApiKey() {
 
     if (existing.rows.length === 0) {
       await pool.query(
-        `INSERT INTO api_keys (id, key_hash, key_prefix, name, permissions, is_active, request_count, created_at, updated_at)
-         VALUES (gen_random_uuid(), $1, $2, $3, $4, true, 0, NOW(), NOW())`,
+        `INSERT INTO api_keys (key_hash, key_prefix, name, permissions, is_active, request_count)
+         VALUES ($1, $2, $3, $4, true, 0)`,
         [keyHash, keyPrefix, 'JEDI RE Integration', JSON.stringify({ endpoints: ['/api/jedi/*'], rateLimit: 5000, tier: 'premium' })]
       );
-      log('JEDI RE API key seeded into database via direct SQL');
+      log('JEDI RE API key seeded into database');
     } else {
       log('JEDI RE API key already exists in database');
     }
   } catch (error: any) {
     console.error('Failed to seed JEDI API key:', error?.message || error);
-    if (error?.message?.includes('does not exist')) {
-      log('api_keys table missing - schema push may be needed');
-    }
   }
 }
 

@@ -10,7 +10,7 @@ packages = ["unzip"]
 [deployment]
 deploymentTarget = "autoscale"
 run = ["npm", "run", "start"]
-build = ["bash", "-c", "vite build --outDir dist/public && esbuild server/index.ts --platform=node --packages=external --bundle --format=cjs --outfile=dist/index.cjs && npx drizzle-kit push --force"]
+build = ["npm", "run", "build"]
 
 [workflows]
 runButton = "Project"
