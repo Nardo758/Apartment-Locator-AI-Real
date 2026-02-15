@@ -167,7 +167,13 @@ const validateApiKey = async (req: Request, res: Response, next: NextFunction) =
     rateLimit: rateLimit,
   };
 
-  await storage.updateApiKeyUsage(keyRecord.id);
+  try {
+    if (keyRecord.id && keyRecord.id !== 'env-fallback') {
+      await storage.updateApiKeyUsage(keyRecord.id);
+    }
+  } catch (usageErr: any) {
+    console.error('Non-blocking: failed to update API key usage:', usageErr?.message);
+  }
   next();
 };
 
