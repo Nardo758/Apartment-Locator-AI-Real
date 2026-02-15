@@ -8,6 +8,10 @@ import { seedAdminUser } from "./seed-admin";
 import { runMigrations } from 'stripe-replit-sync';
 import { getStripeSync } from "./stripeClient";
 import { WebhookHandlers } from "./webhookHandlers";
+import crypto from "crypto";
+import { db } from "./db";
+import { apiKeys } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -175,9 +179,40 @@ app.use((req, res, next) => {
   next();
 });
 
+async function seedJediApiKey() {
+  const jediKey = process.env.JEDI_RE_API_KEY;
+  if (!jediKey) {
+    log('JEDI_RE_API_KEY not set, skipping API key seed');
+    return;
+  }
+
+  try {
+    const keyHash = crypto.createHash('sha256').update(jediKey).digest('hex');
+    const existing = await db.select().from(apiKeys).where(eq(apiKeys.keyHash, keyHash));
+    
+    if (existing.length === 0) {
+      const keyPrefix = jediKey.substring(0, 12);
+      await db.insert(apiKeys).values({
+        keyHash,
+        keyPrefix,
+        name: 'JEDI RE Integration',
+        permissions: { endpoints: ['/api/jedi/*'], rateLimit: 5000, tier: 'premium' as const },
+        isActive: true,
+        requestCount: 0,
+      });
+      log('JEDI RE API key seeded into database');
+    } else {
+      log('JEDI RE API key already exists in database');
+    }
+  } catch (error) {
+    console.error('Failed to seed JEDI API key:', error);
+  }
+}
+
 (async () => {
   await initStripe();
   await seedAdminUser();
+  await seedJediApiKey();
   await registerRoutes(app);
 
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
