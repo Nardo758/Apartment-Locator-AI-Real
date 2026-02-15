@@ -9,9 +9,7 @@ import { runMigrations } from 'stripe-replit-sync';
 import { getStripeSync } from "./stripeClient";
 import { WebhookHandlers } from "./webhookHandlers";
 import crypto from "crypto";
-import { db } from "./db";
-import { apiKeys } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { pool } from "./db";
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -188,24 +186,25 @@ async function seedJediApiKey() {
 
   try {
     const keyHash = crypto.createHash('sha256').update(jediKey).digest('hex');
-    const existing = await db.select().from(apiKeys).where(eq(apiKeys.keyHash, keyHash));
-    
-    if (existing.length === 0) {
-      const keyPrefix = jediKey.substring(0, 12);
-      await db.insert(apiKeys).values({
-        keyHash,
-        keyPrefix,
-        name: 'JEDI RE Integration',
-        permissions: { endpoints: ['/api/jedi/*'], rateLimit: 5000, tier: 'premium' as const },
-        isActive: true,
-        requestCount: 0,
-      });
-      log('JEDI RE API key seeded into database');
+    const keyPrefix = jediKey.substring(0, 12);
+
+    const existing = await pool.query('SELECT id FROM api_keys WHERE key_hash = $1', [keyHash]);
+
+    if (existing.rows.length === 0) {
+      await pool.query(
+        `INSERT INTO api_keys (id, key_hash, key_prefix, name, permissions, is_active, request_count, created_at, updated_at)
+         VALUES (gen_random_uuid(), $1, $2, $3, $4, true, 0, NOW(), NOW())`,
+        [keyHash, keyPrefix, 'JEDI RE Integration', JSON.stringify({ endpoints: ['/api/jedi/*'], rateLimit: 5000, tier: 'premium' })]
+      );
+      log('JEDI RE API key seeded into database via direct SQL');
     } else {
       log('JEDI RE API key already exists in database');
     }
-  } catch (error) {
-    console.error('Failed to seed JEDI API key:', error);
+  } catch (error: any) {
+    console.error('Failed to seed JEDI API key:', error?.message || error);
+    if (error?.message?.includes('does not exist')) {
+      log('api_keys table missing - schema push may be needed');
+    }
   }
 }
 
