@@ -50,8 +50,8 @@ router.get('/market-data', async (req, res) => {
     const supplyRows = await safeQuery(`
       SELECT 
         COUNT(DISTINCT id) as total_properties,
-        COALESCE(SUM(CASE WHEN total_units IS NOT NULL THEN total_units ELSE 1 END), 0) as total_units,
-        AVG(CASE WHEN current_occupancy_percent IS NOT NULL THEN current_occupancy_percent ELSE 92 END) as avg_occupancy
+        COALESCE(SUM(CASE WHEN units_count IS NOT NULL THEN units_count ELSE 1 END), 0) as total_units,
+        92 as avg_occupancy
       FROM properties
       WHERE LOWER(city) = LOWER($1) AND LOWER(state) = LOWER($2)
     `, [city, state]);
@@ -190,7 +190,7 @@ router.get('/supply-pipeline', async (req, res) => {
         id,
         name,
         address,
-        COALESCE(total_units, 1) as total_units,
+        COALESCE(units_count, 1) as total_units,
         year_built
       FROM properties
       WHERE LOWER(city) = LOWER($1) AND LOWER(state) = LOWER($2)
