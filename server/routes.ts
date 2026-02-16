@@ -3961,7 +3961,11 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Register lease verification routes
   registerLeaseVerificationRoutes(app);
   
-  // Register JEDI API routes for B2B market intelligence
+  // Register JEDI RE integration routes FIRST (router-based)
+  // IMPORTANT: Must come before registerJediRoutes to avoid route conflicts
+  app.use("/api/jedi", jediIntegrationRoutes);
+  
+  // Register JEDI API routes for B2B market intelligence (direct routes)
   registerJediRoutes(app);
 
   // Register scraped property routes
@@ -3969,7 +3973,4 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Register admin panel routes
   app.use("/api/admin", adminRoutes);
-  
-  // Register JEDI RE integration routes
-  app.use("/api/jedi", jediIntegrationRoutes);
 }
