@@ -35,6 +35,7 @@ import { registerMarketIntelRoutes } from "./routes/market-intel";
 import adminRoutes from "./routes/admin";
 import jediIntegrationRoutes from "./routes/jedi-integration";
 import homePriceRoutes from "./routes/home-prices";
+import apifyImportRoutes from "./routes/apify-import";
 
 declare global {
   namespace Express {
@@ -3981,4 +3982,5 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Register admin panel routes
   app.use("/api/admin", adminRoutes);
+  app.use("/api/admin", apifyImportRoutes);
 }
