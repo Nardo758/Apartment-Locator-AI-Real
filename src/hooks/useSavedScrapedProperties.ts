@@ -19,6 +19,9 @@ export interface SavedPropertyData {
   amenities?: string[];
   pet_policy?: string;
   specials?: string;
+  concession_type?: string;
+  concession_value?: number;
+  effective_price?: number;
   sqft?: number;
   savedAt: string;
 }
@@ -74,6 +77,9 @@ export function useSavedScrapedProperties() {
             amenities: property.amenities as string[] | undefined,
             pet_policy: property.pet_policy,
             specials: property.special_offers,
+            concession_type: property.concession_type,
+            concession_value: property.concession_value,
+            effective_price: property.effective_price,
             savedAt: new Date().toISOString(),
           }];
       persistSaved(next);
