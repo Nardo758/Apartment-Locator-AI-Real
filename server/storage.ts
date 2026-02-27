@@ -280,7 +280,12 @@ export class DatabaseStorage implements IStorage {
         .leftJoin(
           scrapedProperties,
           and(
-            ilike(scrapedProperties.address, properties.address),
+            or(
+              // Match on externalId first (most reliable)
+              eq(scrapedProperties.externalId, properties.externalId),
+              // Fall back to address match
+              ilike(scrapedProperties.address, properties.address)
+            ),
             eq(scrapedProperties.status, 'active')
           )
         )

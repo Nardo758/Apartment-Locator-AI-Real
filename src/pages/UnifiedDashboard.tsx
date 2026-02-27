@@ -197,6 +197,10 @@ export default function UnifiedDashboard() {
           fetched = await api.getProperties({ city: defaultCity, state: defaultState, limit: 200 });
         }
         if (fetched.length > 0) {
+          // Default coordinates for properties missing lat/lng (Atlanta city center)
+          const DEFAULT_LAT = 33.749;
+          const DEFAULT_LNG = -84.388;
+
           const mapped = fetched
             .map((property) => {
               const lat = property.latitude ? parseFloat(property.latitude) : null;
@@ -205,19 +209,22 @@ export default function UnifiedDashboard() {
                 ? (property.minPrice + property.maxPrice) / 2
                 : property.minPrice || property.maxPrice || 0;
 
-              if (!lat || !lng) {
-                return null;
-              }
+              // Skip properties with no rent data at all
+              if (rent === 0) return null;
 
               return {
                 id: property.id,
                 name: property.name,
                 address: property.address,
-                coordinates: { lat, lng },
+                coordinates: {
+                  lat: (lat && !isNaN(lat)) ? lat : DEFAULT_LAT,
+                  lng: (lng && !isNaN(lng)) ? lng : DEFAULT_LNG,
+                },
                 baseRent: rent,
                 parkingIncluded: false,
                 bedrooms: property.bedroomsMin || property.bedroomsMax || 0,
                 bathrooms: Number(property.bathroomsMin || property.bathroomsMax || 0),
+                sqft: property.squareFeetMin || property.squareFeetMax || undefined,
                 imageUrl: property.images?.[0],
                 amenities: (Array.isArray(property.amenities) ? property.amenities : []) as string[],
                 specialOffers: property.specialOffers || undefined,
