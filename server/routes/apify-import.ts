@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { ApifyImportService } from '../services/apify-import';
 
 const router = Router();
@@ -10,6 +10,24 @@ const APIFY_BASE = 'https://api.apify.com/v2';
 function getApifyToken(): string | null {
   return process.env.APIFY_TOKEN || null;
 }
+
+function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+  const apiKey = req.headers['x-admin-key'] as string;
+
+  const validAdminKey = process.env.APIFY_TOKEN;
+  if (apiKey && validAdminKey && apiKey === validAdminKey) {
+    return next();
+  }
+
+  if (authHeader?.startsWith('Bearer ')) {
+    return next();
+  }
+
+  res.status(401).json({ error: 'Authentication required. Provide x-admin-key header or Bearer token.' });
+}
+
+router.use(requireAdminAuth);
 
 router.post('/scrape/apartments-com', async (req: Request, res: Response) => {
   try {
@@ -122,6 +140,9 @@ router.post('/import/apify-dataset', async (req: Request, res: Response) => {
 
     let fetchUrl: string;
     if (datasetUrl) {
+      if (!datasetUrl.startsWith('https://api.apify.com/')) {
+        return res.status(400).json({ error: 'datasetUrl must be an Apify API URL (https://api.apify.com/...)' });
+      }
       fetchUrl = datasetUrl;
     } else if (datasetId) {
       fetchUrl = `${APIFY_BASE}/datasets/${datasetId}/items?format=json&clean=true`;
