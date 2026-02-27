@@ -912,6 +912,7 @@ export const scrapedProperties = pgTable("scraped_properties", {
   marketPosition: varchar("market_position", { length: 50 }),
   marketVelocity: varchar("market_velocity", { length: 50 }),
   percentileRank: integer("percentile_rank"),
+  directWebsiteUrl: text("direct_website_url"),
   aiPrice: integer("ai_price"),
   aiProvider: text("ai_provider"),
   aiProvenance: jsonb("ai_provenance"),

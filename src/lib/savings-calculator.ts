@@ -19,6 +19,8 @@ export interface ScrapedProperty {
   pet_policy?: string;
   phone?: string;
   website_url?: string;
+  direct_website_url?: string;
+  listing_url?: string;
   image_url?: string;
   latitude?: number;
   longitude?: number;

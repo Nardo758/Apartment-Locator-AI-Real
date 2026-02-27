@@ -696,7 +696,18 @@ export default function ScrapedPropertyDetail() {
                     onClick={() => window.open(displayProperty.website_url!, '_blank')}
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
-                    Visit Property Website
+                    {displayProperty.direct_website_url ? 'Visit Property Website' : 'View on Apartments.com'}
+                  </Button>
+                )}
+                {displayProperty.direct_website_url && displayProperty.listing_url && displayProperty.listing_url !== displayProperty.direct_website_url && (
+                  <Button
+                    className="w-full"
+                    variant="outline"
+                    data-testid="button-view-on-apartments"
+                    onClick={() => window.open(displayProperty.listing_url!, '_blank')}
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View on Apartments.com
                   </Button>
                 )}
                 <Button
