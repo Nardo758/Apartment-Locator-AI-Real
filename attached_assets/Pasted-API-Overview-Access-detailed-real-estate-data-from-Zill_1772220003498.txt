@@ -1,0 +1,367 @@
+API Overview
+Access detailed real estate data from Zillow including property details, search, market analytics, mortgage rates, agent information, and more. All data is sourced directly from Zillow and normalized into a clean, consistent JSON format.
+
+Access detailed real estate data from Zillow including property details, search, market analytics, mortgage rates, agent information, and more. All data is sourced directly from Zillow and normalized into a clean, consistent JSON format.
+
+Zillow Real Estate API
+Get 350+ data fields per property from Zillow. Search homes for sale, rent, or recently sold across the US. Get property details, Zestimates, photos, schools, price history, tax records, agent profiles, market analytics, mortgage rates, and more — all from a single API.
+
+Most Zillow APIs on the market return 40-80 fields. This one returns 350+ — including nested data like individual room dimensions, HOA details, parking info, foreclosure records, and every photo in multiple resolutions.
+
+If anything is missing in the API, you have questions, or you need help — feel free to reach out on: Telegram
+
+Who Is This For?
+Real estate apps & platforms — Build property search, listing pages, and market dashboards with complete Zillow data
+Investment analysis tools — Compare prices, Zestimates, tax history, and price-per-sqft across markets
+Lead generation — Find agents by location, pull their reviews, listings, and contact info
+Market research — Track home values (ZHVI), rental indices (ZORI), median sale prices, and days on market for any region
+Data pipelines & analytics — Batch-fetch up to 50 properties or 10 searches per request for ETL workflows
+Mortgage & fintech apps — Get current and historical mortgage rates by program, loan type, and credit score
+Quick Start
+1. Subscribe on RapidAPI
+Sign up and choose a plan. You'll get your API key instantly.
+
+2. Search for Properties
+curl --request GET \
+  --url 'https://zillow-real-estate-api.p.rapidapi.com/v1/search?location=Miami%2C%20FL&status=for_sale&price_max=500000&beds_min=2' \
+  --header 'X-RapidAPI-Host: zillow-real-estate-api.p.rapidapi.com' \
+  --header 'X-RapidAPI-Key: YOUR_RAPIDAPI_KEY'
+3. Get Full Property Details
+Take any zpid from search results and get 350+ fields:
+
+curl --request GET \
+  --url 'https://zillow-real-estate-api.p.rapidapi.com/v1/property/67477038?include=photos,schools,history' \
+  --header 'X-RapidAPI-Host: zillow-real-estate-api.p.rapidapi.com' \
+  --header 'X-RapidAPI-Key: YOUR_RAPIDAPI_KEY'
+That's it. You're getting Zillow data.
+
+Real-World Examples
+Find Homes for Sale in Austin Under $400K
+GET /v1/search?location=Austin,TX&status=for_sale&price_max=400000&sort=newest
+Returns up to 40 listings per page with address, price, beds, baths, sqft, photos, Zestimate, days on Zillow, and more. Paginate with page=2, page=3, etc.
+
+Search Rentals in Manhattan with 2+ Bedrooms
+GET /v1/search?location=Manhattan,NY&status=for_rent&beds_min=2&sort=price_low
+Find New Construction Homes in Denver with Pool
+GET /v1/search?location=Denver,CO&status=for_sale&new_construction=true&has_pool=true
+Search by Map Area (Coordinates)
+GET /v1/search/coordinates?north=34.15&south=34.0&east=-118.15&west=-118.35&status=for_sale&price_min=1000000
+Perfect for building interactive map-based search interfaces.
+
+Get Full Details for a Property
+GET /v1/property/19977945?include=photos,schools,history,affordability
+Returns everything: address, price, Zestimate, rent Zestimate, tax history, price history, lot size, year built, HOA fees, room dimensions, parking details, heating/cooling, appliances, photos in multiple resolutions, nearby schools with ratings, affordability calculator, and much more.
+
+Look Up a Property by Address
+GET /v1/property/lookup?address=1600 Pennsylvania Ave, Washington DC&include=photos,schools
+Don't have the ZPID? Just pass the address.
+
+Paste Any Zillow URL
+GET /v1/search/url?url=https://www.zillow.com/san-francisco-ca/rentals/?searchQueryState=...
+Copy-paste any Zillow search or property URL — the API parses it and returns structured data. Works with search pages, property pages, and building pages.
+
+Get Building Details (Apartments & Condos)
+GET /v1/building/6396wc?include=photos,schools,floor_plans
+Returns building name, amenities (pool, gym, doorman, etc.), pet policies, available units with prices, floor plans, walk/transit/bike scores, and nearby points of interest.
+
+Find Top Real Estate Agents in Los Angeles
+GET /v1/agents?location=Los Angeles, CA&is_top_agent=true&specialties=luxury-homes
+Returns agent name, brokerage, rating, review count, sales in last 12 months, and price range. Filter by specialty, language, buyer/seller focus.
+
+Get Agent Profile, Reviews, and Listings
+GET /v1/agents/johndoe123
+Full profile: name, email, phone, years in industry, specialties, languages, licenses, sales stats, team members, and social links.
+
+GET /v1/agents/johndoe123/reviews?sort=newest&page_size=20
+All reviews with ratings, dates, service type (buying/selling), and recommendation status.
+
+GET /v1/agents/johndoe123/listings?type=sale
+Agent's active listings and past sales with property details.
+
+Check Market Analytics for a City or ZIP Code
+GET /v1/market?location=Seattle, WA
+Returns Zillow Home Value Index (ZHVI) with year-over-year change, median sale price, rental index (ZORI), % sold above/below list, median days to pending, inventory levels, and historical time-series data — all in one call.
+
+Get Current Mortgage Rates
+GET /v1/mortgage/rates?program=fixed_30&loan_type=conventional&state=CA
+Live rates and APR for any combination of program (30-yr fixed, 15-yr fixed, ARM 5/3, etc.), loan type (conventional, FHA, VA, USDA), credit score range, and state.
+
+Get Historical Mortgage Rate Trends
+GET /v1/mortgage/rates/history?program=fixed_30&loan_type=conventional
+Time-series data points with date, rate, and APR. Perfect for charts and trend analysis.
+
+Batch-Fetch 50 Properties at Once
+POST /v1/batch/properties
+{
+  "zpids": [19977945, 67477038, 2077862802, ...],
+  "include": ["photos", "schools"]
+}
+Get details for up to 50 properties in a single API call. Each property in the response includes a success flag so you can handle partial failures gracefully.
+
+Run Multiple Searches in One Request
+POST /v1/batch/search
+{
+  "searches": [
+    {"location": "Austin, TX", "status": "for_sale", "price_max": 500000},
+    {"location": "Denver, CO", "status": "for_sale", "price_max": 600000},
+    {"location": "Miami, FL", "status": "for_rent", "beds_min": 2}
+  ]
+}
+Compare results across cities. Up to 10 searches per request.
+
+What Data Do You Get?
+Property Details (350+ Fields)
+Category	Example Fields
+Basics	price, beds, baths, sqft, lot size, year built, home type, status
+Address	street, city, state, ZIP, neighborhood, subdivision
+Valuation	Zestimate, rent Zestimate, last sold price, tax assessed value
+Financials	tax history, price history, Zestimate history over time
+Features	heating, cooling, appliances, flooring, roof, construction materials
+Rooms	each room with type, dimensions, level, and area
+Parking	garage capacity, carport, attached/detached, features
+HOA	monthly fee, what's included, association name and phone
+Listing	MLS ID, brokerage, listing type (FSBA/FSBO/new construction), days on Zillow
+Flags	basement, fireplace, pool, new construction, senior community, furnished
+Schools	nearby schools with name, rating (1-10), level, and distance
+Photos	every photo in 13 resolutions (thumbnail to original)
+Location	lat/lng, county, FIPS code, region IDs
+Foreclosure	auction date, bank name, estimated value
+Agent	listing agent name, phone, brokerage
+Similar	comparable properties with prices
+Search Results
+Each result includes: ZPID, address, price, beds, baths, sqft, lot size, home type, status, Zestimate, rent Zestimate, listing type, days on Zillow, broker name, photos, coordinates, and direct Zillow link.
+
+Market Analytics
+Zillow Home Value Index (ZHVI), year-over-year change, Zillow Observed Rent Index (ZORI), median sale price, sale-to-list ratio, % sold above/below list, days to pending, inventory, forecast data, and full historical time series.
+
+Agent Profiles
+Name, brokerage, email, phone numbers, photo, title, years in industry, specialties, languages, licenses, service areas, sales stats (all-time and last year), team members, social links, and review summary.
+
+Code Examples
+Python — Search & Get Details
+import requests
+
+HEADERS = {
+    "X-RapidAPI-Key": "YOUR_RAPIDAPI_KEY",
+    "X-RapidAPI-Host": "zillow-real-estate-api.p.rapidapi.com"
+}
+BASE = "https://zillow-real-estate-api.p.rapidapi.com/v1"
+
+# Step 1: Search for homes in San Francisco
+response = requests.get(f"{BASE}/search", headers=HEADERS, params={
+    "location": "San Francisco, CA",
+    "status": "for_sale",
+    "price_min": 800000,
+    "price_max": 1500000,
+    "beds_min": 3,
+    "sort": "newest"
+})
+results = response.json()["data"]["results"]
+
+for prop in results[:5]:
+    print(f"{prop['address']} — ${prop['price']:,} — {prop['beds']}bd/{prop['baths']}ba")
+
+# Step 2: Get full details for the first result
+zpid = results[0]["zpid"]
+detail = requests.get(f"{BASE}/property/{zpid}", headers=HEADERS, params={
+    "include": "photos,schools,history"
+})
+property_data = detail.json()["data"]
+
+print(f"\nZestimate: ${property_data['financials']['zestimate']:,}")
+print(f"Year built: {property_data['year_built']}")
+print(f"Schools: {len(property_data.get('schools', []))} nearby")
+print(f"Photos: {property_data['photo_count']}")
+JavaScript — Interactive Search with Filters
+const HEADERS = {
+  "X-RapidAPI-Key": "YOUR_RAPIDAPI_KEY",
+  "X-RapidAPI-Host": "zillow-real-estate-api.p.rapidapi.com"
+};
+
+// Search luxury homes in Beverly Hills with pool
+const params = new URLSearchParams({
+  location: "Beverly Hills, CA",
+  status: "for_sale",
+  price_min: "2000000",
+  has_pool: "true",
+  sort: "price_high"
+});
+
+const response = await fetch(
+  `https://zillow-real-estate-api.p.rapidapi.com/v1/search?${params}`,
+  { headers: HEADERS }
+);
+
+const { data, meta } = await response.json();
+console.log(`Found ${data.total_count} properties (${meta.response_time_ms}ms)`);
+
+data.results.forEach(home =&gt; {
+  console.log(`${home.address} — $${home.price.toLocaleString()}`);
+  console.log(`  ${home.beds}bd / ${home.baths}ba / ${home.sqft.toLocaleString()} sqft`);
+  console.log(`  Zestimate: $${home.zestimate?.toLocaleString() || "N/A"}`);
+});
+Python — Market Comparison Across Cities
+import requests
+
+HEADERS = {
+    "X-RapidAPI-Key": "YOUR_RAPIDAPI_KEY",
+    "X-RapidAPI-Host": "zillow-real-estate-api.p.rapidapi.com"
+}
+
+cities = ["Austin, TX", "Denver, CO", "Nashville, TN", "Raleigh, NC"]
+
+for city in cities:
+    resp = requests.get(
+        "https://zillow-real-estate-api.p.rapidapi.com/v1/market",
+        headers=HEADERS,
+        params={"location": city}
+    )
+    market = resp.json()["data"]
+    hv = market["home_values"]
+    print(f"{city}: ZHVI ${hv['zhvi']:,.0f} (YoY {hv['zhvi_yoy']:+.1%})")
+Python — Batch Property Fetch
+import requests
+
+response = requests.post(
+    "https://zillow-real-estate-api.p.rapidapi.com/v1/batch/properties",
+    headers={
+        "X-RapidAPI-Key": "YOUR_RAPIDAPI_KEY",
+        "X-RapidAPI-Host": "zillow-real-estate-api.p.rapidapi.com",
+        "Content-Type": "application/json"
+    },
+    json={
+        "zpids": [19977945, 67477038, 2077862802],
+        "include": ["photos"]
+    }
+)
+
+batch = response.json()["data"]
+print(f"Fetched {batch['succeeded']}/{batch['total']} properties")
+
+for item in batch["results"]:
+    if item["success"]:
+        p = item["data"]
+        print(f"  {p['address']['full']} — ${p['price']:,}")
+JavaScript — Agent Search & Reviews
+const HEADERS = {
+  "X-RapidAPI-Key": "YOUR_RAPIDAPI_KEY",
+  "X-RapidAPI-Host": "zillow-real-estate-api.p.rapidapi.com"
+};
+const BASE = "https://zillow-real-estate-api.p.rapidapi.com/v1";
+
+// Find top agents in Chicago
+const agentsResp = await fetch(
+  `${BASE}/agents?location=Chicago, IL&is_top_agent=true`,
+  { headers: HEADERS }
+);
+const agents = (await agentsResp.json()).data.results;
+
+// Get reviews for the top-rated agent
+const topAgent = agents[0];
+const reviewsResp = await fetch(
+  `${BASE}/agents/${topAgent.screen_name}/reviews?sort=newest&page_size=10`,
+  { headers: HEADERS }
+);
+const reviews = (await reviewsResp.json()).data.reviews;
+
+console.log(`${topAgent.name} — ${topAgent.review_average}/5 (${topAgent.review_count} reviews)`);
+reviews.forEach(r =&gt; {
+  console.log(`  "${r.title}" — ${r.rating}/5 — ${r.date}`);
+});
+All Endpoints
+Property Search (4 endpoints)
+Method	Endpoint	Description
+GET	/v1/search	Search by city, ZIP, address, or neighborhood. 35+ filters: price, beds, baths, sqft, lot size, year built, home type, pool, garage, views, and more.
+GET	/v1/search/coordinates	Search by map bounding box (north/south/east/west). Same filters as above.
+GET	/v1/search/url	Paste any Zillow URL. Returns structured data from search, property, or building pages.
+GET	/v1/autocomplete	Location suggestions as you type. Returns region ID, type, coordinates, and population.
+Property Details (2 endpoints)
+Method	Endpoint	Description
+GET	/v1/property/{zpid}	Full details — 350+ fields. Optionally include: photos, schools, similar, nearby, history, agent, affordability, zestimate_history.
+GET	/v1/property/lookup	Same as above, but look up by street address instead of ZPID.
+Building Details (1 endpoint)
+Method	Endpoint	Description
+GET	/v1/building/{building_key}	Multi-unit buildings: amenities, units, pet policies, walk score, floor plans. Pass building key or lat,lng coordinates.
+Real Estate Agents (4 endpoints)
+Method	Endpoint	Description
+GET	/v1/agents	Search agents by location. Filter by name, top agent status, specialties, languages, price range.
+GET	/v1/agents/{screen_name}	Full agent profile: contact info, licenses, sales stats, team, service areas, social links.
+GET	/v1/agents/{screen_name}/reviews	Agent reviews with ratings, service type, and sort/filter options.
+GET	/v1/agents/{screen_name}/listings	Agent's active listings (sale/rent) and past sales with property details.
+Market Analytics (1 endpoint)
+Method	Endpoint	Description
+GET	/v1/market	ZHVI, ZORI, median sale price, sale-to-list ratio, inventory, days to pending, and full historical time series for any city or ZIP.
+Mortgage Rates (2 endpoints)
+Method	Endpoint	Description
+GET	/v1/mortgage/rates	Current rates and APR. Filter by program (30yr fixed, 15yr, ARM), loan type (conventional, FHA, VA, USDA), credit score, state.
+GET	/v1/mortgage/rates/history	Historical rate time series for trend analysis and charts.
+Batch Operations (2 endpoints)
+Method	Endpoint	Description
+POST	/v1/batch/properties	Fetch up to 50 properties in one call. Partial failure handling included.
+POST	/v1/batch/search	Run up to 10 searches in one call. Compare markets efficiently.
+Response Format
+Every endpoint returns the same consistent structure:
+
+{
+  "success": true,
+  "data": { ... },
+  "meta": {
+    "request_id": "req_a1b2c3d4e5f6",
+    "api_version": "1.0",
+    "cache_hit": false,
+    "response_time_ms": 285
+  }
+}
+On error:
+
+{
+  "success": false,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Property not found for zpid 999999999",
+    "param": "zpid",
+    "details": null
+  },
+  "meta": {
+    "request_id": "req_a1b2c3d4e5f6",
+    "api_version": "1.0",
+    "response_time_ms": 12
+  }
+}
+HTTP Code	Error Code	Meaning
+400	VALIDATION_ERROR	Bad request parameters
+401	UNAUTHORIZED	Missing or invalid API key
+404	NOT_FOUND	Property, agent, or building not found
+429	RATE_LIMIT_EXCEEDED	Plan limit reached — upgrade or wait
+502	UPSTREAM_ERROR	Temporary upstream issue — retry in a few seconds
+504	TIMEOUT	Upstream timed out — retry
+Data Freshness & Caching
+Data Type	Cache Duration	Notes
+Search results	15 minutes	Near real-time for new listings
+Property details	1 hour	Full re-fetch after TTL
+Autocomplete	1 hour	Location data rarely changes
+Market analytics	24 hours	Updated daily by Zillow
+Mortgage rates	5 minutes	Near real-time
+Agent profiles	1 hour	
+Agent search	15 minutes	
+Photos	6 hours	URLs are stable
+FAQ
+How many fields does the property endpoint return? Over 350. That includes nested objects like address (8 fields), financials (7 fields), facts (10 fields), features (16 arrays), parking (5 fields), HOA (5 fields), rooms (array with dimensions), flags (14 booleans), and more. Plus optional sub-resources: photos, schools, similar properties, price/tax/Zestimate history, agent, and affordability.
+
+What is a ZPID? Zillow Property ID. A unique number identifying each property on Zillow. You get ZPIDs from search results, and then use them to fetch full details. Example: 19977945.
+
+Can I search for rentals? Yes. Set status=for_rent on any search endpoint. Works with all the same filters (price, beds, baths, etc.).
+
+Can I search for recently sold properties? Yes. Set status=sold to get recently sold properties with sale prices.
+
+What's the difference between /search and /search/coordinates? /search takes a location name ("Miami, FL") and resolves it automatically. /search/coordinates takes explicit map bounds (north/south/east/west lat/lng) for custom map-based interfaces.
+
+How do I get photos? Add include=photos to any property or building request. Each photo comes with URLs in multiple resolutions — from thumbnails to full-size originals.
+
+What are batch endpoints for? Instead of making 50 individual API calls, you send one batch request with up to 50 ZPIDs. Each item in the batch counts as one API call for billing, but you save on latency and connection overhead. Same for batch search: 10 different location searches in one request.
+
+How do I paginate search results? Use page=1, page=2, etc. (up to page 1000). Or use cursor-based pagination with the next_cursor value returned in the response.
+
+Is the data real-time? Data comes directly from Zillow. Search results are cached for 15 minutes, property details for 1 hour. Mortgage rates refresh every 5 minutes.
+
+What US markets are covered? All of them. Every property, city, ZIP code, and neighborhood on Zillow is accessible through this API.
