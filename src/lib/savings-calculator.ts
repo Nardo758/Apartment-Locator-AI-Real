@@ -113,9 +113,17 @@ function parseSpecialOffer(offer: string | undefined | null, actualRent?: number
   return { upfront, monthlyValue, text };
 }
 
+const MIN_VALID_RENT = 200;
+const MAX_VALID_RENT = 15000;
+
+function isValidRent(price: number | undefined): boolean {
+  return price != null && price >= MIN_VALID_RENT && price <= MAX_VALID_RENT;
+}
+
 export function calculatePropertySavings(property: ScrapedProperty, cityMedianRent?: number): SavingsBreakdown {
   const medianRent = cityMedianRent || MARKET_MEDIAN_RENTS[property.city] || MARKET_MEDIAN_RENTS['default'];
-  const rent = property.min_rent || property.max_rent || medianRent;
+  const rawRent = property.min_rent || property.max_rent;
+  const rent = isValidRent(rawRent) ? rawRent! : medianRent;
 
   let offerInfo: { upfront: number; monthlyValue: number; text: string };
 

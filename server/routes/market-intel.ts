@@ -3,8 +3,14 @@ import { db } from "../db";
 import { scrapedProperties } from "../../shared/schema";
 import { sql } from "drizzle-orm";
 
+const MIN_VALID_RENT = 200;
+const MAX_VALID_RENT = 15000;
+
+function isValidRent(price: number | null | undefined): price is number {
+  return price != null && price >= MIN_VALID_RENT && price <= MAX_VALID_RENT;
+}
+
 export function registerMarketIntelRoutes(app: Express): void {
-  // Market Intel stats aggregated from real scraped properties
   app.get("/api/market-intel/stats", async (req: Request, res: Response) => {
     try {
       const city = (req.query.city as string) || undefined;
@@ -21,7 +27,7 @@ export function registerMarketIntelRoutes(app: Express): void {
 
       const rents = filtered
         .map((p) => p.currentPrice)
-        .filter((r): r is number => r != null && r > 0);
+        .filter(isValidRent);
 
       const sortedRents = [...rents].sort((a, b) => a - b);
       const medianRent =
@@ -56,9 +62,8 @@ export function registerMarketIntelRoutes(app: Express): void {
         ...new Set(data.map((p) => p.city).filter(Boolean)),
       ] as string[];
 
-      // Build competitor-style listing for top properties
       const competitors = filtered
-        .filter((p) => p.currentPrice && p.currentPrice > 0)
+        .filter((p) => isValidRent(p.currentPrice))
         .slice(0, 10)
         .map((p) => ({
           name: p.name || p.unitNumber || "Unknown",
@@ -78,6 +83,7 @@ export function registerMarketIntelRoutes(app: Express): void {
 
       res.json({
         totalProperties: filtered.length,
+        propertiesWithRent: rents.length,
         medianRent,
         avgRent,
         minRent,

@@ -114,7 +114,7 @@ export function registerScrapedPropertyRoutes(app: Express): void {
       const withOffers = properties.filter((p: any) => p.special_offers);
       const rents = properties
         .map((p: any) => p.min_rent || p.max_rent)
-        .filter((r: any) => r && r > 0);
+        .filter((r: any) => r && r >= 200 && r <= 15000);
       const avgRent = rents.length > 0
         ? Math.round(rents.reduce((a: number, b: number) => a + b, 0) / rents.length)
         : 0;
