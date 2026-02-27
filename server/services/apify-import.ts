@@ -287,27 +287,58 @@ export class ApifyImportService {
             square_feet = EXCLUDED.square_feet,
             square_footage = EXCLUDED.square_footage,
             listing_url = EXCLUDED.listing_url,
-            image_url = EXCLUDED.image_url,
-            amenities = EXCLUDED.amenities,
-            unit_features = EXCLUDED.unit_features,
-            pet_policy = EXCLUDED.pet_policy,
-            parking_info = EXCLUDED.parking_info,
-            units_available = EXCLUDED.units_available,
+            image_url = COALESCE(EXCLUDED.image_url, scraped_properties.image_url),
+            amenities = CASE
+              WHEN EXCLUDED.amenities::text != '[]' THEN EXCLUDED.amenities
+              ELSE scraped_properties.amenities
+            END,
+            unit_features = CASE
+              WHEN EXCLUDED.unit_features::text != '[]' THEN EXCLUDED.unit_features
+              ELSE scraped_properties.unit_features
+            END,
+            pet_policy = COALESCE(EXCLUDED.pet_policy, scraped_properties.pet_policy),
+            parking_info = COALESCE(EXCLUDED.parking_info, scraped_properties.parking_info),
+            units_available = COALESCE(EXCLUDED.units_available, scraped_properties.units_available),
             property_type = EXCLUDED.property_type,
             free_rent_concessions = EXCLUDED.free_rent_concessions,
             security_deposit = EXCLUDED.security_deposit,
-            latitude = EXCLUDED.latitude,
-            longitude = EXCLUDED.longitude,
+            latitude = COALESCE(EXCLUDED.latitude, scraped_properties.latitude),
+            longitude = COALESCE(EXCLUDED.longitude, scraped_properties.longitude),
+            price_change_count = CASE
+              WHEN EXCLUDED.current_price IS DISTINCT FROM scraped_properties.current_price
+              THEN COALESCE(scraped_properties.price_change_count, 0) + 1
+              ELSE COALESCE(scraped_properties.price_change_count, 0)
+            END,
+            last_price_change = CASE
+              WHEN EXCLUDED.current_price IS DISTINCT FROM scraped_properties.current_price
+              THEN NOW()
+              ELSE scraped_properties.last_price_change
+            END,
+            volatility_score = CASE
+              WHEN EXCLUDED.current_price IS DISTINCT FROM scraped_properties.current_price
+              THEN LEAST(100, COALESCE(scraped_properties.volatility_score, 50) + 5)
+              ELSE GREATEST(0, COALESCE(scraped_properties.volatility_score, 50) - 1)
+            END,
             last_seen_at = NOW(),
             updated_at = NOW()
-          RETURNING (xmax = 0) AS is_insert
+          RETURNING id, (xmax = 0) AS is_insert
         `);
 
         const rows = result.rows as any[];
-        if (rows.length > 0 && rows[0].is_insert) {
-          stats.inserted++;
-        } else {
-          stats.updated++;
+        if (rows.length > 0) {
+          const propertyId = rows[0].id;
+          if (rows[0].is_insert) {
+            stats.inserted++;
+          } else {
+            stats.updated++;
+          }
+
+          if (row.currentPrice || row.unitsAvailable) {
+            await db.execute(sql`
+              INSERT INTO property_snapshots (property_id, price, units_available, concession_type, concession_value, source)
+              VALUES (${propertyId}, ${row.currentPrice}, ${row.unitsAvailable}, ${row.freeRentConcessions}, ${null}, ${'apartments.com'})
+            `);
+          }
         }
       } catch (error) {
         console.error(`Failed to import listing ${listing.listingId}:`, error);

@@ -928,3 +928,18 @@ export const scrapedProperties = pgTable("scraped_properties", {
 export const insertScrapedPropertySchema = createInsertSchema(scrapedProperties);
 export type InsertScrapedProperty = z.infer<typeof insertScrapedPropertySchema>;
 export type ScrapedProperty = typeof scrapedProperties.$inferSelect;
+
+export const propertySnapshots = pgTable("property_snapshots", {
+  id: serial("id").primaryKey(),
+  propertyId: integer("property_id").notNull(),
+  price: integer("price"),
+  unitsAvailable: integer("units_available"),
+  concessionType: varchar("concession_type", { length: 100 }),
+  concessionValue: integer("concession_value"),
+  source: varchar("source", { length: 50 }).default("apartments.com"),
+  snapshotDate: timestamp("snapshot_date", { withTimezone: true }).defaultNow(),
+});
+
+export const insertPropertySnapshotSchema = createInsertSchema(propertySnapshots);
+export type InsertPropertySnapshot = z.infer<typeof insertPropertySnapshotSchema>;
+export type PropertySnapshot = typeof propertySnapshots.$inferSelect;
