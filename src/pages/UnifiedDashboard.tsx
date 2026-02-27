@@ -189,7 +189,13 @@ export default function UnifiedDashboard() {
       const defaultState = 'GA';
 
       try {
-        const fetched = await api.getProperties({ city: defaultCity, state: defaultState, limit: 25 });
+        // First try loading all properties (no city/state filter) to get all 125+
+        let fetched = await api.getProperties({ limit: 200 });
+
+        // If no results, try with city/state filter as fallback
+        if (fetched.length === 0) {
+          fetched = await api.getProperties({ city: defaultCity, state: defaultState, limit: 200 });
+        }
         if (fetched.length > 0) {
           const mapped = fetched
             .map((property) => {
