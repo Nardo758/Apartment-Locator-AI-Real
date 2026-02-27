@@ -19,7 +19,7 @@ interface PaywallTrigger {
 }
 
 const STORAGE_KEY = 'apartmentiq-paywall-state';
-const FREE_PROPERTY_VIEW_LIMIT = 3;
+const FREE_PROPERTY_VIEW_LIMIT = 999;
 
 export function usePaywall() {
   const { user } = useUser();

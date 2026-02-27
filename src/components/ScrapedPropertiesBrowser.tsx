@@ -22,7 +22,7 @@ interface ScrapedPropertiesBrowserProps {
   isLoading: boolean;
 }
 
-const FREE_VISIBLE_COUNT = 2;
+const FREE_VISIBLE_COUNT = 999;
 
 function PropertyImage({ imageUrl, name, id }: { imageUrl?: string; name: string; id: string }) {
   const [imgError, setImgError] = useState(false);
