@@ -53,7 +53,7 @@ function PropertyImage({ imageUrl, name, id }: { imageUrl?: string; name: string
 
 export default function ScrapedPropertiesBrowser({ properties, isLoading }: ScrapedPropertiesBrowserProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<'rent-asc' | 'rent-desc' | 'deal-score' | 'savings' | 'smart-score'>('smart-score');
+  const [sortBy, setSortBy] = useState<'rent-asc' | 'rent-desc' | 'effective-rent' | 'deal-score' | 'savings' | 'smart-score' | 'concessions'>('smart-score');
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
   const [expandedScoreId, setExpandedScoreId] = useState<string | null>(null);
@@ -127,6 +127,21 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
       case 'savings':
         result = [...result].sort((a, b) => b.savings.annualSavings - a.savings.annualSavings);
         break;
+      case 'effective-rent':
+        result = [...result].sort((a, b) => {
+          const aEff = a.property.effective_price || a.property.min_rent || 9999;
+          const bEff = b.property.effective_price || b.property.min_rent || 9999;
+          return aEff - bEff;
+        });
+        break;
+      case 'concessions':
+        result = [...result].sort((a, b) => {
+          const aHas = a.savings.hasSpecialOffer ? 1 : 0;
+          const bHas = b.savings.hasSpecialOffer ? 1 : 0;
+          if (bHas !== aHas) return bHas - aHas;
+          return b.savings.upfrontSavings - a.savings.upfrontSavings;
+        });
+        break;
     }
 
     return result;
@@ -192,6 +207,8 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="smart-score">Smart Score</SelectItem>
+              <SelectItem value="effective-rent">Effective Rent</SelectItem>
+              <SelectItem value="concessions">Best Concessions</SelectItem>
               <SelectItem value="deal-score">Best Deals</SelectItem>
               <SelectItem value="savings">Most Savings</SelectItem>
               <SelectItem value="rent-asc">Rent: Low to High</SelectItem>
@@ -369,6 +386,12 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
                         : ''}
                     </p>
                   </div>
+                  {property.effective_price && property.min_rent && property.effective_price < property.min_rent && (
+                    <div className="border-l pl-4">
+                      <p className="text-xs text-muted-foreground">Eff. Rent</p>
+                      <p className="font-bold text-green-600">{formatMoney(property.effective_price)}</p>
+                    </div>
+                  )}
                   {savings.monthlySavings > 0 && (
                     <div className="border-l pl-4">
                       <p className="text-xs text-muted-foreground">Monthly Savings</p>

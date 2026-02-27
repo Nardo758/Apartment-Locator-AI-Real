@@ -39,6 +39,8 @@ export async function calculateApartmentCosts(
     baseRent: number;
     parkingIncluded?: boolean;
     amenities?: string[];
+    concessionMonthly?: number;
+    effectiveRent?: number;
   }>,
   googleMapsApiKey: string,
   gasPriceData?: GasPriceData
@@ -106,13 +108,17 @@ export async function calculateApartmentCosts(
         transitSavings.potentialMonthlySavings -
         amenityResult.totalMonthlySavings;
       
-      const trueMonthlyCost = apartment.baseRent + totalLocationCosts;
-      
+      const effectiveRent = apartment.effectiveRent ?? apartment.baseRent;
+      const concessionMonthly = apartment.concessionMonthly ?? 0;
+      const trueMonthlyCost = effectiveRent + totalLocationCosts;
+
       results.push({
         apartmentId: apartment.id,
         apartmentAddress: apartment.address,
         apartmentCoordinates: apartment.coordinates,
         baseRent: apartment.baseRent,
+        effectiveRent,
+        concessionMonthly,
         commuteCost,
         parkingCost,
         groceryCost,

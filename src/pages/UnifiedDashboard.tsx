@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock, Target, Car, ParkingCircle, ShoppingCart, Dumbbell, Train, DollarSign, ChevronDown, ChevronUp, Sparkles, Brain, Heart } from 'lucide-react';
+import { List, Map as MapIcon, ArrowUpDown, TrendingDown, Star, Home, Lock, Target, Car, ParkingCircle, ShoppingCart, Dumbbell, Train, DollarSign, ChevronDown, ChevronUp, Sparkles, Brain, Heart, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,14 +43,19 @@ interface PropertyData {
   sqft?: number;
   imageUrl?: string;
   amenities?: string[];
+  specialOffers?: string;
+  concessionType?: string;
+  concessionValue?: number;
+  effectivePrice?: number;
+  daysOnMarket?: number;
 }
 
 const MOCK_PROPERTIES: PropertyData[] = [
-  { id: 'apt-1', name: 'The Broadstone at Midtown', address: '1015 Northside Dr NW, Atlanta, GA 30318', coordinates: { lat: 33.7866, lng: -84.4073 }, baseRent: 1850, parkingIncluded: false, bedrooms: 2, bathrooms: 2, sqft: 1050, amenities: ['gym', 'pool', 'in_unit_laundry', 'water'] },
-  { id: 'apt-2', name: 'Camden Buckhead Square', address: '3060 Peachtree Rd NW, Atlanta, GA 30305', coordinates: { lat: 33.8404, lng: -84.3797 }, baseRent: 1650, parkingIncluded: true, bedrooms: 1, bathrooms: 1, sqft: 720, amenities: ['gym', 'trash', 'sewer'] },
+  { id: 'apt-1', name: 'The Broadstone at Midtown', address: '1015 Northside Dr NW, Atlanta, GA 30318', coordinates: { lat: 33.7866, lng: -84.4073 }, baseRent: 1850, parkingIncluded: false, bedrooms: 2, bathrooms: 2, sqft: 1050, amenities: ['gym', 'pool', 'in_unit_laundry', 'water'], specialOffers: '2 weeks free', concessionType: 'weeks_free', concessionValue: 2 },
+  { id: 'apt-2', name: 'Camden Buckhead Square', address: '3060 Peachtree Rd NW, Atlanta, GA 30305', coordinates: { lat: 33.8404, lng: -84.3797 }, baseRent: 1650, parkingIncluded: true, bedrooms: 1, bathrooms: 1, sqft: 720, amenities: ['gym', 'trash', 'sewer'], specialOffers: '1 month free', concessionType: 'months_free', concessionValue: 1 },
   { id: 'apt-3', name: 'The Exchange at Vinings', address: '2800 Paces Ferry Rd SE, Atlanta, GA 30339', coordinates: { lat: 33.8627, lng: -84.4655 }, baseRent: 1450, parkingIncluded: true, bedrooms: 2, bathrooms: 1, sqft: 950, amenities: ['washer_dryer', 'water', 'trash'] },
-  { id: 'apt-4', name: 'Cortland at the Battery', address: '875 Battery Ave SE, Atlanta, GA 30339', coordinates: { lat: 33.8896, lng: -84.4685 }, baseRent: 1350, parkingIncluded: true, bedrooms: 1, bathrooms: 1, sqft: 680, amenities: ['gym', 'pool', 'internet', 'water', 'trash'] },
-  { id: 'apt-5', name: 'AMLI West Plano at Granite Park', address: '2175 E West Connector, Austell, GA 30106', coordinates: { lat: 33.8148, lng: -84.6327 }, baseRent: 1275, parkingIncluded: true, bedrooms: 1, bathrooms: 1, sqft: 650, amenities: [] },
+  { id: 'apt-4', name: 'Cortland at the Battery', address: '875 Battery Ave SE, Atlanta, GA 30339', coordinates: { lat: 33.8896, lng: -84.4685 }, baseRent: 1350, parkingIncluded: true, bedrooms: 1, bathrooms: 1, sqft: 680, amenities: ['gym', 'pool', 'internet', 'water', 'trash'], specialOffers: '6 weeks free', concessionType: 'weeks_free', concessionValue: 6 },
+  { id: 'apt-5', name: 'AMLI West Plano at Granite Park', address: '2175 E West Connector, Austell, GA 30106', coordinates: { lat: 33.8148, lng: -84.6327 }, baseRent: 1275, parkingIncluded: true, bedrooms: 1, bathrooms: 1, sqft: 650, amenities: [], specialOffers: '$500 off', concessionType: 'dollar_amount', concessionValue: 500 },
 ];
 
 const MOCK_MARKET_DATA = {
@@ -76,6 +81,86 @@ const GROCERY_STORE_MAP: Record<string, 'walmart' | 'wholefoods' | 'traderjoes' 
   'Costco': 'costco',
   'Aldi': undefined,
 };
+
+// ─── Concession Monthly Value Calculator ───
+function calculateConcessionMonthly(property: PropertyData): number {
+  // If we have a pre-calculated effective price, use it
+  if (property.effectivePrice && property.effectivePrice < property.baseRent) {
+    return property.baseRent - property.effectivePrice;
+  }
+
+  // If we have concession type + value, calculate
+  if (property.concessionType && property.concessionValue) {
+    const type = property.concessionType.toLowerCase();
+    const value = property.concessionValue;
+    const rent = property.baseRent;
+
+    if (type.includes('weeks_free') || type.includes('weeks free')) {
+      const annualRent = rent * 12;
+      const fraction = value / 52;
+      return Math.round((annualRent * fraction) / 12);
+    }
+
+    if (type.includes('months_free') || type.includes('months free') || type.includes('month_free')) {
+      return Math.round((rent * value) / 12);
+    }
+
+    if (type.includes('dollar') || type.includes('flat')) {
+      return Math.round(value / 12);
+    }
+
+    if (type.includes('percent')) {
+      return Math.round(rent * (value / 100));
+    }
+  }
+
+  // Try to parse from special_offers text
+  if (property.specialOffers) {
+    return parseSpecialOfferToMonthly(property.specialOffers, property.baseRent);
+  }
+
+  return 0;
+}
+
+function parseSpecialOfferToMonthly(offer: string, rent: number): number {
+  const text = offer.toLowerCase();
+
+  // "X weeks free"
+  const weeksMatch = text.match(/(\d+)\s*weeks?\s*free/);
+  if (weeksMatch) {
+    const weeks = parseInt(weeksMatch[1], 10);
+    return Math.round((rent * 12 * (weeks / 52)) / 12);
+  }
+
+  // "X months free"
+  const monthsMatch = text.match(/(\d+)\s*months?\s*free/);
+  if (monthsMatch) {
+    const months = parseInt(monthsMatch[1], 10);
+    return Math.round((rent * months) / 12);
+  }
+
+  // "$X off"
+  const dollarMatch = text.match(/\$(\d[\d,]*)\s*off/);
+  if (dollarMatch) {
+    const amount = parseInt(dollarMatch[1].replace(/,/g, ''), 10);
+    if (amount > 500) return Math.round(amount / 12);
+    return amount;
+  }
+
+  // "X% off"
+  const percentMatch = text.match(/(\d+)%\s*off/);
+  if (percentMatch) {
+    const pct = parseInt(percentMatch[1], 10);
+    return Math.round((rent * pct / 100) / 12);
+  }
+
+  // Common offer phrases
+  if (text.includes('look') && text.includes('lease')) return Math.round(500 / 12);
+  if (text.includes('move') && text.includes('special')) return Math.round(300 / 12);
+  if (text.includes('waiv')) return Math.round(250 / 12);
+
+  return 0;
+}
 
 export default function UnifiedDashboard() {
   const { inputs, gasPrice, isCalculating, setIsCalculating } = useLocationCostContext();
@@ -104,8 +189,18 @@ export default function UnifiedDashboard() {
       const defaultState = 'GA';
 
       try {
-        const fetched = await api.getProperties({ city: defaultCity, state: defaultState, limit: 25 });
+        // First try loading all properties (no city/state filter) to get all 125+
+        let fetched = await api.getProperties({ limit: 200 });
+
+        // If no results, try with city/state filter as fallback
+        if (fetched.length === 0) {
+          fetched = await api.getProperties({ city: defaultCity, state: defaultState, limit: 200 });
+        }
         if (fetched.length > 0) {
+          // Default coordinates for properties missing lat/lng (Atlanta city center)
+          const DEFAULT_LAT = 33.749;
+          const DEFAULT_LNG = -84.388;
+
           const mapped = fetched
             .map((property) => {
               const lat = property.latitude ? parseFloat(property.latitude) : null;
@@ -114,21 +209,29 @@ export default function UnifiedDashboard() {
                 ? (property.minPrice + property.maxPrice) / 2
                 : property.minPrice || property.maxPrice || 0;
 
-              if (!lat || !lng) {
-                return null;
-              }
+              // Skip properties with no rent data at all
+              if (rent === 0) return null;
 
               return {
                 id: property.id,
                 name: property.name,
                 address: property.address,
-                coordinates: { lat, lng },
+                coordinates: {
+                  lat: (lat && !isNaN(lat)) ? lat : DEFAULT_LAT,
+                  lng: (lng && !isNaN(lng)) ? lng : DEFAULT_LNG,
+                },
                 baseRent: rent,
                 parkingIncluded: false,
                 bedrooms: property.bedroomsMin || property.bedroomsMax || 0,
                 bathrooms: Number(property.bathroomsMin || property.bathroomsMax || 0),
+                sqft: property.squareFeetMin || property.squareFeetMax || undefined,
                 imageUrl: property.images?.[0],
                 amenities: (Array.isArray(property.amenities) ? property.amenities : []) as string[],
+                specialOffers: property.specialOffers || undefined,
+                concessionType: property.concessionType || undefined,
+                concessionValue: property.concessionValue || undefined,
+                effectivePrice: property.effectivePrice || undefined,
+                daysOnMarket: property.daysOnMarket || undefined,
               } as PropertyData;
             })
             .filter((prop): prop is PropertyData => prop !== null);
@@ -344,6 +447,10 @@ export default function UnifiedDashboard() {
     const mapped = calculationProperties.map(prop => {
       const costResult = results.find(r => r.apartmentId === prop.id);
 
+      // Calculate concession value for this property
+      const concessionMonthly = calculateConcessionMonthly(prop);
+      const effectiveRent = prop.baseRent - concessionMonthly;
+
       const addressParts = prop.address.split(',').map(s => s.trim());
       const scrapedAdapter: ScrapedProperty = {
         id: prop.id,
@@ -366,14 +473,18 @@ export default function UnifiedDashboard() {
       const savingsAdapter: SavingsBreakdown = {
         monthlyRent: prop.baseRent,
         marketMedianRent: medianRent,
-        monthlySavings: Math.max(0, medianRent - prop.baseRent),
-        annualSavings: Math.max(0, (medianRent - prop.baseRent) * 12),
+        monthlySavings: Math.max(0, medianRent - effectiveRent),
+        annualSavings: Math.max(0, (medianRent - effectiveRent) * 12),
         upfrontSavings: 0,
-        monthlyConcessionsValue: 0,
-        dealScore: prop.baseRent < medianRent ? Math.min(100, Math.round(((medianRent - prop.baseRent) / medianRent) * 200)) : 30,
-        hasSpecialOffer: false,
-        specialOfferText: '',
-        savingsPercentage: medianRent > 0 ? Math.round(((medianRent - prop.baseRent) / medianRent) * 100) : 0,
+        monthlyConcessionsValue: concessionMonthly,
+        dealScore: effectiveRent < medianRent
+          ? Math.min(100, Math.round(((medianRent - effectiveRent) / medianRent) * 200))
+          : 30,
+        hasSpecialOffer: concessionMonthly > 0,
+        specialOfferText: prop.specialOffers || '',
+        savingsPercentage: medianRent > 0
+          ? Math.round(((medianRent - effectiveRent) / medianRent) * 100)
+          : 0,
       };
 
       const smartScore = calculateSmartScore(
@@ -386,12 +497,20 @@ export default function UnifiedDashboard() {
         aiCommute,
       );
 
+      // True cost uses effective rent (base rent - concession) + location costs
+      const locationCosts = costResult?.totalLocationCosts || 0;
+      const trueCost = costResult
+        ? effectiveRent + locationCosts
+        : undefined;
+
       return {
         ...prop,
-        trueCost: costResult?.trueMonthlyCost,
+        concessionMonthly,
+        effectiveRent,
+        trueCost,
         commuteMinutes: costResult?.commuteCost.durationMinutes,
         savingsRank: costResult?.savingsRank,
-        locationCosts: costResult?.totalLocationCosts,
+        locationCosts,
         savingsVsMax: undefined as number | undefined,
         smartScore,
         costBreakdown: costResult ? {
@@ -580,11 +699,21 @@ export default function UnifiedDashboard() {
                         <TrendingDown className="w-4 h-4 text-green-500" />
                         Cost Comparison
                       </CardTitle>
-                      {potentialSavings > 0 && (
-                        <Badge variant="default" className="bg-green-500 border-green-600">
-                          Save up to {formatCurrency(potentialSavings)}/mo!
-                        </Badge>
-                      )}
+                      {(() => {
+                        const avgTrueCost = marketData?.medianRent || 1847;
+                        const bestTrueCost = Math.min(
+                          ...propertiesWithCosts
+                            .filter(p => p.trueCost != null)
+                            .map(p => p.trueCost!)
+                        );
+                        const maxSavings = propertiesWithCosts.length > 0 ? avgTrueCost - bestTrueCost : 0;
+                        if (maxSavings <= 0) return null;
+                        return (
+                          <Badge variant="default" className="bg-green-500 border-green-600">
+                            Save up to {formatCurrency(maxSavings)}/mo vs market!
+                          </Badge>
+                        );
+                      })()}
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0">
@@ -593,20 +722,32 @@ export default function UnifiedDashboard() {
                         <TableRow>
                           <TableHead className="w-10"></TableHead>
                           <TableHead>Property</TableHead>
-                          <TableHead className="text-center" data-testid="header-smart-score">Smart Score</TableHead>
+                          <TableHead className="text-center" data-testid="header-smart-score">Score</TableHead>
                           <TableHead className="text-right">Rent</TableHead>
-                          <TableHead className="text-center">Unit Type</TableHead>
-                          <TableHead className="text-right">Sq Ft</TableHead>
-                          <TableHead className="text-right">Amenities</TableHead>
-                          <TableHead className="text-right">You Save</TableHead>
-                          <TableHead className="text-right">Commute</TableHead>
+                          <TableHead className="text-right">Concession</TableHead>
+                          <TableHead className="text-right">Eff. Rent</TableHead>
+                          <TableHead className="text-right">Loc. Cost</TableHead>
+                          <TableHead className="text-right">True Cost</TableHead>
+                          <TableHead className="text-right">vs Market</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {propertiesWithCosts.map((property) => (
-                          <TableRow 
+                        {propertiesWithCosts.map((property) => {
+                          const concession = property.concessionMonthly || 0;
+                          const effRent = property.effectiveRent || property.baseRent;
+                          const locCost = property.costBreakdown?.totalLocationCosts || 0;
+                          const trueCost = property.trueCost || property.baseRent;
+                          const avgTrueCost = marketData?.medianRent || 1847;
+                          const vsMarket = avgTrueCost - trueCost;
+
+                          return (
+                          <TableRow
                             key={property.id}
-                            className={`cursor-pointer ${property.savingsRank === 1 ? 'bg-green-500/10' : ''}`}
+                            className={`cursor-pointer transition-colors ${
+                              property.savingsRank === 1
+                                ? 'bg-green-500/10 border-l-2 border-l-green-500'
+                                : 'hover:bg-muted/50'
+                            }`}
                             onClick={() => setSelectedPropertyId(property.id)}
                             data-testid={`row-property-${property.id}`}
                           >
@@ -637,8 +778,17 @@ export default function UnifiedDashboard() {
                             </TableCell>
                             <TableCell className="font-medium">
                               <div className="flex items-center gap-2">
-                                {property.savingsRank === 1 && <Star className="w-4 h-4 text-green-500" />}
-                                {property.name}
+                                {property.savingsRank === 1 && (
+                                  <Star className="w-4 h-4 text-green-500 shrink-0" />
+                                )}
+                                <div>
+                                  <span className="text-sm">{property.name}</span>
+                                  {property.specialOffers && (
+                                    <p className="text-xs text-emerald-500 font-medium mt-0.5">
+                                      {property.specialOffers}
+                                    </p>
+                                  )}
+                                </div>
                               </div>
                             </TableCell>
                             <TableCell className="text-center">
@@ -671,30 +821,55 @@ export default function UnifiedDashboard() {
                                 </Tooltip>
                               )}
                             </TableCell>
-                            <TableCell className="text-right">{formatCurrency(property.baseRent)}</TableCell>
-                            <TableCell className="text-center" data-testid={`text-table-unit-type-${property.id}`}>
-                              {property.bedrooms} bd / {property.bathrooms} ba
+                            <TableCell className="text-right text-sm">
+                              {formatCurrency(property.baseRent)}
                             </TableCell>
-                            <TableCell className="text-right" data-testid={`text-table-sqft-${property.id}`}>
-                              {property.sqft ? property.sqft.toLocaleString() : '-'}
+                            <TableCell className="text-right text-sm">
+                              {concession > 0 ? (
+                                <span className="text-emerald-500 font-medium">
+                                  -{formatCurrency(concession)}
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground">&mdash;</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-right text-sm font-medium">
+                              {concession > 0 ? (
+                                <span>{formatCurrency(effRent)}</span>
+                              ) : (
+                                <span className="text-muted-foreground">{formatCurrency(effRent)}</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-right text-sm">
+                              <span className={`font-medium ${
+                                locCost <= 100 ? 'text-emerald-500' :
+                                locCost <= 250 ? 'text-amber-500' :
+                                'text-red-500'
+                              }`}>
+                                +{formatCurrency(locCost)}
+                              </span>
                             </TableCell>
                             <TableCell className="text-right">
-                              {property.costBreakdown?.amenitySavings ? (
-                                <span className="text-emerald-600">-{formatCurrency(property.costBreakdown.amenitySavings)}</span>
-                              ) : '-'}
+                              <span className="text-base font-bold text-primary">
+                                {formatCurrency(trueCost)}
+                              </span>
                             </TableCell>
-                            <TableCell className="text-right">
-                              {property.savingsVsMax != null && property.savingsVsMax > 0 ? (
-                                <span className="font-semibold text-green-600">{formatCurrency(property.savingsVsMax)}/mo</span>
-                              ) : property.savingsVsMax === 0 ? (
-                                <span className="text-muted-foreground text-xs">Most expensive</span>
-                              ) : '-'}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {property.commuteMinutes ? `${property.commuteMinutes} min` : '-'}
+                            <TableCell className="text-right text-sm">
+                              {vsMarket > 0 ? (
+                                <span className="font-semibold text-green-600">
+                                  Save {formatCurrency(vsMarket)}/mo
+                                </span>
+                              ) : vsMarket < 0 ? (
+                                <span className="text-red-500">
+                                  +{formatCurrency(Math.abs(vsMarket))}/mo
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground text-xs">Market avg</span>
+                              )}
                             </TableCell>
                           </TableRow>
-                        ))}
+                          );
+                        })}
                       </TableBody>
                     </Table>
                   </CardContent>
@@ -727,11 +902,16 @@ export default function UnifiedDashboard() {
                           <DollarSign className="w-4 h-4" />
                           Cost Breakdown: {selectedProp.name}
                         </CardTitle>
-                        {selectedProp.savingsVsMax != null && selectedProp.savingsVsMax > 0 && (
-                          <Badge variant="default" className="bg-green-500 border-green-600">
-                            Save {formatCurrency(selectedProp.savingsVsMax)}/mo vs most expensive
-                          </Badge>
-                        )}
+                        {(() => {
+                          const detailAvgTrueCost = marketData?.medianRent || 1847;
+                          const detailVsMarket = detailAvgTrueCost - (selectedProp.trueCost || selectedProp.baseRent);
+                          if (detailVsMarket <= 0) return null;
+                          return (
+                            <Badge variant="default" className="bg-green-500 border-green-600">
+                              Save {formatCurrency(detailVsMarket)}/mo vs market
+                            </Badge>
+                          );
+                        })()}
                       </div>
                     </CardHeader>
                     <CardContent className="pt-0 space-y-3">
@@ -742,6 +922,30 @@ export default function UnifiedDashboard() {
                         </div>
                         <span className="text-sm font-semibold">{formatCurrency(selectedProp.baseRent)}</span>
                       </div>
+
+                      {(selectedProp.concessionMonthly || 0) > 0 && (
+                        <div className="flex items-center justify-between py-2 border-b border-dashed">
+                          <div className="flex items-center gap-2">
+                            <Gift className="w-4 h-4 text-emerald-500" />
+                            <div>
+                              <span className="text-sm font-medium text-emerald-600">Concession Discount</span>
+                              <p className="text-xs text-muted-foreground">
+                                {selectedProp.specialOffers || selectedProp.concessionType || 'Special offer'}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-sm font-semibold text-emerald-500">
+                            -{formatCurrency(selectedProp.concessionMonthly)}
+                          </span>
+                        </div>
+                      )}
+
+                      {(selectedProp.concessionMonthly || 0) > 0 && (
+                        <div className="flex items-center justify-between py-1 bg-muted/30 px-2 rounded">
+                          <span className="text-sm text-muted-foreground">Effective Rent</span>
+                          <span className="text-sm font-semibold">{formatCurrency(selectedProp.effectiveRent || selectedProp.baseRent)}</span>
+                        </div>
+                      )}
 
                       {costItems.map((item) => (
                         <div key={item.label} className="flex items-center justify-between py-1">
@@ -799,12 +1003,17 @@ export default function UnifiedDashboard() {
                           <span className="font-semibold">True Monthly Cost</span>
                           <span className="font-bold text-primary text-lg">{formatCurrency(selectedProp.trueCost || selectedProp.baseRent)}</span>
                         </div>
-                        {selectedProp.savingsVsMax != null && selectedProp.savingsVsMax > 0 && (
-                          <div className="flex items-center justify-between mt-1">
-                            <span className="text-sm text-green-600 font-medium">Annual savings vs most expensive</span>
-                            <span className="text-sm font-bold text-green-600">{formatCurrency(selectedProp.savingsVsMax * 12)}/yr</span>
-                          </div>
-                        )}
+                        {(() => {
+                          const annualAvgTrueCost = marketData?.medianRent || 1847;
+                          const annualVsMarket = annualAvgTrueCost - (selectedProp.trueCost || selectedProp.baseRent);
+                          if (annualVsMarket <= 0) return null;
+                          return (
+                            <div className="flex items-center justify-between mt-1">
+                              <span className="text-sm text-green-600 font-medium">Annual savings vs market</span>
+                              <span className="text-sm font-bold text-green-600">{formatCurrency(annualVsMarket * 12)}/yr</span>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </CardContent>
                   </Card>

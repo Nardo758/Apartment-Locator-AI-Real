@@ -68,6 +68,12 @@ export const properties = pgTable("properties", {
   firstScraped: timestamp("first_scraped").defaultNow(),
   lastUpdated: timestamp("last_updated").defaultNow(),
   isActive: boolean("is_active").default(true),
+  // Concession fields (synced from scrapedProperties)
+  specialOffers: text("special_offers"),
+  concessionType: varchar("concession_type", { length: 100 }),
+  concessionValue: integer("concession_value"),
+  effectivePrice: integer("effective_price"),
+  daysOnMarket: integer("days_on_market"),
   // Landlord-specific fields
   landlordId: uuid("landlord_id").references(() => users.id),
   isLandlordOwned: boolean("is_landlord_owned").default(false),

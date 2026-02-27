@@ -10,6 +10,7 @@ import { getStripeSync } from "./stripeClient";
 import { WebhookHandlers } from "./webhookHandlers";
 import crypto from "crypto";
 import { pool } from "./db";
+import { runAppMigrations } from "./run-migrations";
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -225,6 +226,7 @@ async function seedJediApiKey() {
 }
 
 (async () => {
+  await runAppMigrations();
   await initStripe();
   await seedAdminUser();
   await seedJediApiKey();

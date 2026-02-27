@@ -42,7 +42,9 @@ export interface ApartmentLocationCost {
   
   // Base rent from listing
   baseRent: number;
-  
+  effectiveRent: number;        // baseRent - concession
+  concessionMonthly: number;    // monthly concession value
+
   // Calculated costs
   commuteCost: CommuteCost;
   parkingCost: ParkingCost;

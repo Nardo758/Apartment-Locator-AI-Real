@@ -16,7 +16,9 @@ import {
   Building2,
   Bed,
   Bath,
-  Maximize
+  Maximize,
+  Tag,
+  TrendingDown
 } from 'lucide-react';
 import { useSavedScrapedProperties, type SavedPropertyData } from '@/hooks/useSavedScrapedProperties';
 import { useState } from 'react';
@@ -71,12 +73,14 @@ export default function SavedAndOffers() {
 
   const handleExport = () => {
     if (saved.length === 0) return;
-    const headers = ['Name', 'Address', 'City', 'Rent', 'Bedrooms', 'Saved Date'];
+    const headers = ['Name', 'Address', 'City', 'Rent', 'Effective Rent', 'Concession', 'Bedrooms', 'Saved Date'];
     const rows = saved.map((apt) => [
       apt.name,
       apt.address,
       apt.city,
       formatRent(apt.min_rent, apt.max_rent),
+      apt.effective_price ? `$${apt.effective_price}` : '',
+      apt.specials || '',
       apt.bedrooms_min ? `${apt.bedrooms_min}` : 'N/A',
       formatDate(apt.savedAt),
     ]);
@@ -228,9 +232,25 @@ function SavedPropertyCard({
             <div className="text-lg font-bold text-foreground" data-testid={`text-saved-rent-${property.id}`}>
               {formatRent(property.min_rent, property.max_rent)}
             </div>
-            <div className="text-xs text-muted-foreground">per month</div>
+            {property.effective_price && property.min_rent && property.effective_price < property.min_rent ? (
+              <div className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                <TrendingDown className="w-3 h-3" />
+                Eff. ${property.effective_price.toLocaleString()}/mo
+              </div>
+            ) : (
+              <div className="text-xs text-muted-foreground">per month</div>
+            )}
           </div>
         </div>
+
+        {(property.specials || property.concession_type) && (
+          <div className="mb-3">
+            <Badge variant="secondary" className="text-green-600 text-xs">
+              <Tag className="w-3 h-3 mr-1" />
+              {property.specials || `${property.concession_type}: $${property.concession_value}`}
+            </Badge>
+          </div>
+        )}
 
         <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3 flex-wrap">
           {property.bedrooms_min != null && (
@@ -319,10 +339,22 @@ function SavedPropertyListItem({
 
           <div className="text-right shrink-0">
             <div className="font-bold text-foreground">{formatRent(property.min_rent, property.max_rent)}</div>
-            <div className="text-xs text-muted-foreground">
-              {property.bedrooms_min ? `${property.bedrooms_min} bd` : ''}
-              {property.bathrooms_min ? ` / ${property.bathrooms_min} ba` : ''}
-            </div>
+            {property.effective_price && property.min_rent && property.effective_price < property.min_rent ? (
+              <div className="text-xs text-green-600 font-medium">
+                Eff. ${property.effective_price.toLocaleString()}
+              </div>
+            ) : (
+              <div className="text-xs text-muted-foreground">
+                {property.bedrooms_min ? `${property.bedrooms_min} bd` : ''}
+                {property.bathrooms_min ? ` / ${property.bathrooms_min} ba` : ''}
+              </div>
+            )}
+            {(property.specials || property.concession_type) && (
+              <Badge variant="secondary" className="text-green-600 text-xs mt-1">
+                <Tag className="w-3 h-3 mr-1" />
+                Offer
+              </Badge>
+            )}
           </div>
 
           <div className="flex items-center gap-1 shrink-0">

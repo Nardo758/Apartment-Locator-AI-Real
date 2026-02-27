@@ -31,6 +31,7 @@ import { registerPaymentRoutes } from "./routes/payments";
 import { registerLeaseVerificationRoutes } from "./routes/lease-verification";
 import { registerJediRoutes } from "./routes/jedi";
 import { registerScrapedPropertyRoutes } from "./routes/scraped-properties";
+import { registerMarketIntelRoutes } from "./routes/market-intel";
 import adminRoutes from "./routes/admin";
 import jediIntegrationRoutes from "./routes/jedi-integration";
 
@@ -3970,6 +3971,9 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Register scraped property routes
   registerScrapedPropertyRoutes(app);
+
+  // Register market intel routes
+  registerMarketIntelRoutes(app);
 
   // Register admin panel routes
   app.use("/api/admin", adminRoutes);
