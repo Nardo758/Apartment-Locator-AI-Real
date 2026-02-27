@@ -1,0 +1,668 @@
+Apartments | US and Canada | Search | Property | Richest output avatar
+Apartments | US and Canada | Search | Property | Richest output
+$30.00/month + usage
+memo23/apify-apartments-cheerio
+
+
+5.0
+
+(10)
+
+7
+114
+7
+Crafted by
+memo23 avatar
+Muhamed Didovic
+Start
+Save as a new task
+API
+
+Effortlessly scrape comprehensive property data from Apartments.com, including detailed listing info, rental pricing, amenities, and high-quality images – giving you unparalleled insights and saving countless hours of manual work.
+Input
+Information
+Runs
+0
+
+Builds
+26
+
+Integrations
+0
+
+Monitoring
+Issues
+0
+
+Saved tasks
+0
+
+Reviews
+Build
+0.0.62 / latest
+
+
+Readme
+
+
+Input
+
+Apartments | US | Canada | Search | Listing(s) | Scraper
+Overview
+The Apartments.com Search Results and Details Scraper allows you to efficiently extract detailed rental listing information from Apartments.com, including apartments, houses for rent, condos, and individual property detail pages across the United States and Canada. Whether you're conducting market research, comparing rental rates, or analyzing property data for investment purposes, this scraper provides a streamlined way to gather structured information from a wide range of property types.
+
+With Apartments.com hosting thousands of rental listings, this scraper is a useful tool for collecting and analyzing apartment, house, and condo data, including prices, amenities, and location details in both US and Canadian markets.
+
+Features
+Option to bypass limitation of only 700 listings or items that apartments.com enforces
+Scrape apartment, house, and condo search results directly from Apartments.com to collect data like titles, rent prices, unit availability, and location information
+Extract comprehensive details from each property, including amenities, property features, and contact details
+Scrape directly from individual property detail pages for apartments, houses, or condos
+Flexible input to scrape from any category or search results page on Apartments.com, including apartments, houses, and condos
+Configurable settings for maximum concurrency, request retries, and proxy setup for reliable scraping
+Option to scrape each individual listing's detail page for even more detailed information, such as specific amenities, parking fees, pet policies, and walkability scores
+How to Use
+Set Up: Ensure you have an Apify account and access to the Apify platform.
+Provide Start URLs: Add the URLs you want to scrape. These URLs can be from Apartments.com's search results page for apartments, houses, condos, or directly from any property detail page.
+Adjust Scraper Settings: Modify settings such as maxConcurrency, minConcurrency, and maxRequestRetries to match your requirements.
+Configure Proxy Settings: (Optional) Configure proxy settings to bypass rate limits or avoid IP blocks.
+Run the Scraper: Execute the scraper on the Apify platform. The output will be available in various formats, including JSON, CSV, or Excel.
+Input Configuration
+Here is an example of how to set up the input for the Apartments.com Scraper:
+
+{
+    "startUrls": [
+        "https://www.apartments.com/apartments/nc/",
+        "https://www.apartments.com/emerald-palms-apartment-miami-fl/5ps6spn/",
+        "https://www.apartments.com/houses/burlington-nc/",
+        "https://www.apartments.com/7305-ethans-way-burlington-nc/1qw4054/",
+        "https://www.apartments.com/condos/burlington-nc/",
+        "https://www.apartments.com/1895-wheeler-bridge-rd-burlington-nc-unit-id1055522p/jvx71j7/",
+        "https://www.apartments.com/toronto-on/"
+    ],
+    "maxItems": 1000,
+    "maxConcurrency": 50,
+    "minConcurrency": 1,
+    "maxRequestRetries": 100,
+    "moreResults": false,
+    "proxy": {
+        "useApifyProxy": true,
+        "apifyProxyGroups": [
+            "RESIDENTIAL"
+        ]
+    }
+}
+
+Input Fields Explanation
+Start URLs (startUrls): URLs to start scraping from. These can be search results pages for apartments, houses, condos, or direct detail pages on Apartments.com. The scraper supports both US and Canadian listings (e.g., https://www.apartments.com/toronto-on/ for Toronto, Canada).
+Max Items (maxItems): Maximum number of listings to scrape per crawl. Default is 1000.
+Max Concurrency (maxConcurrency): Maximum number of pages processed simultaneously. Default is 50.
+Min Concurrency (minConcurrency): Minimum number of pages processed simultaneously. Default is 1.
+Max Request Retries (maxRequestRetries): Number of times the scraper will retry a failed request before giving up. Default is 100.
+More Results (moreResults): If checked, the scraper will try to exhaust all possible results that it can get. Also it will take longer to finish and can consume more resources. Default is false.
+Proxy Configuration (proxy): Specifies the proxy servers used to ensure anonymity and bypass rate limits.
+Output Structure
+The scraper will generate a list of apartment listings and their details. Below is an example of the output structure:
+
+{
+    "url": "https://www.apartments.com/904-pittsburg-ave-winston-salem-nc/ymg5lhs/",
+    "fullAddress": "904 Pittsburg Ave Winston-Salem NC 27105 US",
+    "monthlyRent": {
+        "min": 1250,
+        "max": 1250
+    },
+    "bedrooms": {
+        "min": 3,
+        "max": 3
+    },
+    "bathrooms": {
+        "min": 2,
+        "max": 2
+    },
+    "squareFeet": {
+        "min": 1200,
+        "max": 1200
+    },
+    "propertyInformation": [
+        "2 units"
+    ],
+    "verified": "",
+    "scores": {
+        "walkScore": 40,
+        "transitScore": 0,
+        "bikeScore": 48,
+        "soundScore": 0
+    },
+    "fees": [],
+    "petFees": [],
+    "parkingFees": [
+        {
+            "parkingType": "Parking",
+            "feeName": "Other",
+            "feeAmount": "--"
+        }
+    ],
+    "amenities": [
+        {
+            "title": "Apartment Features",
+            "value": [
+                "Washer/Dryer Hookup",
+                "Air Conditioning",
+                "Patio",
+                "Deck",
+                "Yard"
+            ]
+        }
+    ],
+    "models": [],
+    "listingId": "ymg5lhs",
+    "resultPosition": 0,
+    "favoriteState": 0,
+    "hasRentSpecials": "false",
+    "phoneNumber": "336-930-9407",
+    "listingTypeId": 6,
+    "listingStatusId": 1,
+    "deferCarouselLoading": false,
+    "carouselCollection": [
+        {
+            "Id": 1,
+            "Width": 1240,
+            "Height": 558,
+            "Uri": "https://images1.apartments.com/i2/7AQRY-USf_4OwNSLONwlvGT4kNK5GoztnfQ02Ug2_AI/111/904-pittsburg-ave-unit-904-winston-salem-nc-primary-photo.jpg",
+            "AltText": "Primary Photo - 904 Pittsburg Ave"
+        }
+    ],
+    "galleryCollection": [],
+    "mediaCollection": [],
+    "listingCity": "Winston-Salem",
+    "listingState": "NC",
+    "listingZip": "27105",
+    "listingAddress": "904 Pittsburg Ave",
+    "listingCountry": "US",
+    "listingDMA": "Greensboro-High Point-Winston Salem, NC-VA",
+    "listingName": "",
+    "listingMinRent": 1250,
+    "listingMaxRent": 1250,
+    "AnalyticsAdLevel": 1,
+    "location": {
+        "latitude": 36.11483,
+        "longitude": -80.25371
+    },
+    "rentals": [
+        {
+            "RentalKey": "ly981pd",
+            "RentalType": 2,
+            "ModelKey": "",
+            "Beds": 3,
+            "BedsText": "3 Beds",
+            "Baths": 2,
+            "BathsText": "2 Baths",
+            "Rent": 1250,
+            "MaxRent": 1250,
+            "Deposit": 1250,
+            "SquareFeet": 1200,
+            "MaxSquareFeet": 1200,
+            "UnitNumber": "904",
+            "AvailableDateText": "Available Now",
+            "AvailableDate": "2024-11-02T00:00:00",
+            "AvailabilityStatus": 1,
+            "HasKnownAvailabilities": true,
+            "MatchType": 0,
+            "MinLeaseTerm": 12,
+            "MaxLeaseTerm": 12,
+            "UnitCount": 1,
+            "IsNew": false,
+            "ApplyNowEnabled": false,
+            "SpecialtyType": 4,
+            "PricingType": 1,
+            "Description": "",
+            "HasPropertyDescription": true,
+            "AttachmentType": 0,
+            "HasFloorPlan": false,
+            "FloorPlanCount": 0,
+            "HasVirtualTour": false,
+            "VirtualTourCount": 0,
+            "HasUnitPhoto": false,
+            "PhotoCount": 0,
+            "HasUnitVideo": false,
+            "VideoCount": 0,
+            "HasViewFromUnitAttachment": false,
+            "InteriorAmenities": {
+                "Id": 5,
+                "Name": "Rooms",
+                "SubCategories": [
+                    {
+                        "Id": 5,
+                        "Name": "Features",
+                        "Amenities": [
+                            {
+                                "Id": 82,
+                                "Name": "Washer/Dryer Hookup"
+                            },
+                            {
+                                "Id": 2,
+                                "Name": "Air Conditioning"
+                            },
+                            {
+                                "Id": 281,
+                                "Name": "Patio"
+                            },
+                            {
+                                "Id": 258,
+                                "Name": "Deck"
+                            },
+                            {
+                                "Id": 192,
+                                "Name": "Yard"
+                            }
+                        ]
+                    }
+                ],
+                "AmenitiesCount": 0
+            }
+        }
+    ],
+    "disableMediaCascadingModelToUnit": 0,
+    "reviews": false,
+    "isOpenLeadForm": false,
+    "searchCriteria": {},
+    "geo": {
+        "ID": "c55cxxd",
+        "GeographyType": 4,
+        "Address": {
+            "City": "Winston-Salem",
+            "CountryCode": "US",
+            "State": "NC",
+            "Title": "Northeast Winston-Salem"
+        },
+        "O": 0,
+        "IsPmcSearchByCityState": false
+    },
+    "defaultZoomLevel": 16,
+    "isTierTwo": false,
+    "profileType": "Prosumer",
+    "languagesSpoken": "en",
+    "isMF": false,
+    "isFromFeed": false,
+    "feedType": 0,
+    "propertyType": "Apartment",
+    "listingNeighborhood": "Northeast Winston-Salem",
+    "listingCounty": "Forsyth",
+    "companyKey": "",
+    "isGreystar": false,
+    "minBeds": 3,
+    "myApplicationsUrl": "https://www.apartments.com/my-account/#MyApplications",
+    "conduit": {
+        "conduit": {
+            "sourceOrigin": "https://www.apartments.com/",
+            "targetOrigin": "https://www.apartments.com/conduit/onlineleasing/",
+            "resizing": {
+                "isDiagnosticLoggingEnabled": false
+            }
+        }
+    },
+    "reviewActions": 0,
+    "abData": [
+        {
+            "id": null,
+            "v": null,
+            "et": 0,
+            "cdv": null,
+            "cdi": null
+        }
+    ],
+    "tourMediaId": -1,
+    "videoMediaId": -1,
+    "has3DTour": false,
+    "hasVideo": false,
+    "imageCount": 7,
+    "videoCount": 0,
+    "photoCount": 7,
+    "virtualTourCount": 0,
+    "hasTCPA": false,
+    "hasIntegratedTours": false,
+    "scheduledTourProviderTypeId": 0,
+    "hasRequestTour": true,
+    "hasPropertyWebsiteLink": false,
+    "hasOnlineScheduling": false,
+    "isTourExcluded": false,
+    "engrainKey": "DRdlRoSlcH0k2xajIIgRwJpOjl621V8Z",
+    "todaysOfficeHours": {
+        "timeOpen": {
+            "hours": 0,
+            "minutes": 0
+        },
+        "timeClose": {
+            "hours": 0,
+            "minutes": 0
+        },
+        "isClosed": true
+    },
+    "listingSpecialties": "Student",
+    "listHubListingUri": "",
+    "isBuildToRent": false,
+    "ip": "88.214.51.231",
+    "hasRentEstimate": false,
+    "hasUnitLevelAmenities": false,
+    "hasUnitLevelMedia": false,
+    "hasModelLevelMedia": false,
+    "unitAvailabilities": 1,
+    "hasRentBy": "NULL",
+    "hasPropertyMap": 0,
+    "hasApplyNow": false,
+    "leasingOffice": {},
+    "itemPage": {
+        "@type": "ItemPage",
+        "about": {
+            "@type": "localBusiness",
+            "image": "https://images1.apartments.com/i2/7AQRY-USf_4OwNSLONwlvGT4kNK5GoztnfQ02Ug2_AI/111/904-pittsburg-ave-unit-904-winston-salem-nc-primary-photo.jpg",
+            "description": "904 Pittsburg Ave Winston Salem \n•3 Bedrooms-2 Full Baths, Tastefully Upgraded and Meticulously Maintained. Over 1,200 Square Feet!\nThis 1st Floor Duplex Apartment has EVERYTHING and is Conveniently Located just off University Pkwy Between Downtown Winston Salem and The Joel Coliseum,\nProperty has a Patio, Deck, Huge Yard, Washer & Dryer Hook-ups, New Laminate and Carpeted Floors and Too Much else to List.\nPlease contact my Property Manager by Phone Only, No E-mails.\nAll of neighbors and applicants are carefully screened for Credit, Rental History, Criminal Background and Job/Income References. We do NOT advertise on Face Book, Craigslist or any other Social Media outlets. Please beware of Scams!!",
+            "offers": {
+                "@type": "AggregateOffer",
+                "priceCurrency": "USD",
+                "lowPrice": 1250,
+                "highPrice": 1250
+            },
+            "name": "904 Pittsburg Ave Winston-Salem, NC 27105"
+        },
+        "speakable": {
+            "@type": "SpeakableSpecification",
+            "cssSelector": [
+                "#subMarketSection .overView > p:first-child"
+            ],
+            "xpath": [
+                "/html/head/meta[@name='description']/@content"
+            ]
+        },
+        "breadcrumb": [
+            {
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "item": {
+                            "name": "North Carolina",
+                            "@id": "https://www.apartments.com/nc/"
+                        }
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "item": {
+                            "name": "Forsyth County",
+                            "@id": "https://www.apartments.com/forsyth-county-nc/"
+                        }
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "item": {
+                            "name": "Winston-Salem",
+                            "@id": "https://www.apartments.com/winston-salem-nc/"
+                        }
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 4,
+                        "item": {
+                            "name": "904 Pittsburg Ave Unit 904"
+                        }
+                    }
+                ],
+                "@context": "http://schema.org",
+                "@type": "BreadcrumbList"
+            }
+        ],
+        "mainEntity": [
+            {
+                "url": "https://www.apartments.com/904-pittsburg-ave-winston-salem-nc/ymg5lhs/",
+                "telephone": "+1-336-930-9407",
+                "description": "904 Pittsburg Ave Winston Salem \n•3 Bedrooms-2 Full Baths, Tastefully Upgraded and Meticulously Maintained. Over 1,200 Square Feet!\nThis 1st Floor Duplex Apartment has EVERYTHING and is Conveniently Located just off University Pkwy Between Downtown Winston Salem and The Joel Coliseum,\nProperty has a Patio, Deck, Huge Yard, Washer & Dryer Hook-ups, New Laminate and Carpeted Floors and Too Much else to List.\nPlease contact my Property Manager by Phone Only, No E-mails.\nAll of neighbors and applicants are carefully screened for Credit, Rental History, Criminal Background and Job/Income References. We do NOT advertise on Face Book, Craigslist or any other Social Media outlets. Please beware of Scams!!",
+                "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": "904 Pittsburg Ave",
+                    "addressLocality": "Winston-Salem",
+                    "addressRegion": "NC",
+                    "postalCode": "27105",
+                    "addressCountry": "US"
+                },
+                "geo": {
+                    "@type": "GeoCoordinates",
+                    "latitude": 36.11483,
+                    "longitude": -80.25371
+                },
+                "image": [
+                    "https://images1.apartments.com/i2/7AQRY-USf_4OwNSLONwlvGT4kNK5GoztnfQ02Ug2_AI/111/904-pittsburg-ave-unit-904-winston-salem-nc-primary-photo.jpg"
+                ],
+                "containsPlace": {
+                    "@type": "Apartment",
+                    "petsAllowed": false
+                },
+               "containedInPlace": {
+                    "@type": "LocalBusiness",
+                    "priceRange": "$1,250-$1,250",
+                    "telephone": "+1-336-930-9407",
+                    "image": "https://images1.apartments.com/i2/7AQRY-USf_4OwNSLONwlvGT4kNK5GoztnfQ02Ug2_AI/111/904-pittsburg-ave-unit-904-winston-salem-nc-primary-photo.jpg",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "streetAddress": "904 Pittsburg Ave",
+                        "addressLocality": "Winston-Salem",
+                        "addressRegion": "NC",
+                        "postalCode": "27105",
+                        "addressCountry": "US"
+                    },
+                    "name": "904 Pittsburg Ave Winston-Salem, NC 27105",
+                    "@id": "https://www.apartments.com/904-pittsburg-ave-winston-salem-nc/ymg5lhs/"
+                },
+                "@type": "ApartmentComplex",
+                "name": "904 Pittsburg Ave Winston-Salem, NC 27105",
+                "@id": "https://www.apartments.com/904-pittsburg-ave-winston-salem-nc/ymg5lhs/"
+            }
+        ],
+        "@context": "http://schema.org"
+    }
+}
+
+Explanations for All Properties in the Apartments.com Scraper Output
+General Listing Information
+url: This is the URL of the specific apartment listing on Apartments.com. It provides a direct link to the listing page where users can view more details.
+fullAddress: This contains the complete address of the property, including the street address, city, state, and country. It is used for identifying the exact location of the property.
+monthlyRent: An object that contains the minimum and maximum rent for the listing. Typically, if there is only one value, both the min and max fields will be the same.
+bedrooms: An object that specifies the range of bedrooms available in the property. The min and max values indicate the smallest and largest number of bedrooms offered.
+bathrooms: An object similar to bedrooms that shows the range of bathrooms available.
+squareFeet: An object containing the min and max values for the square footage of the apartment. This indicates the size of the unit in square feet.
+Property Features
+propertyInformation: This array provides additional information about the property, such as the total number of units.
+verified: This field is typically used to indicate whether the listing has been verified by Apartments.com, but in this case, it is empty.
+Scores
+scores: Contains scores related to walkability, transit, biking, and sound levels:
+walkScore: A value indicating how walkable the area is, on a scale from 0 to 100.
+transitScore: Represents the availability of public transit near the property, also on a scale from 0 to 100.
+bikeScore: Indicates how bike-friendly the area is.
+soundScore: Reflects the noise level around the property, although it's set to 0 in this case.
+Fees
+fees: An array intended to hold any general fees associated with the property, such as application or amenity fees. It is empty here.
+petFees: Similar to fees, but specifically for pets. This field lists any fees associated with having pets on the property. It is also empty in this case.
+parkingFees: An array that details parking-related fees, including the type of parking (e.g., garage, covered parking) and the fee amount.
+Amenities
+amenities: An array that lists the features available in the apartment. Each amenity is grouped by title, such as "Apartment Features," which includes items like "Washer/Dryer Hookup" and "Air Conditioning."
+Listing Metadata
+models: An array meant to contain details about different models or layouts available at the property. It is empty in this example.
+listingId: A unique identifier for the property listing.
+resultPosition: The position of this listing within the search results, useful for tracking.
+favoriteState: Indicates whether this listing is marked as a favorite by the user (represented by numerical values).
+hasRentSpecials: A boolean value indicating whether the property has special rent discounts or offers.
+phoneNumber: The contact phone number provided for the listing.
+listingTypeId: An identifier representing the type of listing, which may relate to whether it's an apartment, house, etc.
+listingStatusId: Indicates the status of the listing, such as whether it is active or no longer available.
+deferCarouselLoading: A boolean value that shows whether carousel images are deferred during page load for optimization purposes.
+Images and Media
+carouselCollection: An array of images associated with the listing, including properties like image dimensions, description, and URI (URL to the image).
+galleryCollection: An array intended for holding gallery images, currently empty.
+mediaCollection: A collection for holding various types of media, currently empty.
+Listing Location
+listingCity: The city where the property is located.
+listingState: The state abbreviation (e.g., "NC" for North Carolina).
+listingZip: The ZIP code of the property location.
+listingAddress: A shorter version of the address without country or ZIP code details.
+listingCountry: The country code (e.g., "US").
+listingDMA: Represents the Designated Market Area, which often corresponds to a metropolitan or regional area.
+listingName: The name or title of the listing, which can be left empty.
+listingMinRent and listingMaxRent: Numeric values indicating the minimum and maximum rent for the property.
+Location Coordinates
+location: An object containing the geographic coordinates (latitude and longitude) of the property.
+Rental Details
+rentals: An array containing detailed information about individual rental units available within the property:
+RentalKey: Unique identifier for the rental unit.
+RentalType: Indicates the type of rental (e.g., apartment, duplex).
+Beds and Baths: Number of bedrooms and bathrooms in the unit.
+Rent and MaxRent: The monthly rent for the unit.
+Deposit: The deposit required to secure the unit.
+AvailableDateText and AvailableDate: Availability information for the unit.
+MinLeaseTerm and MaxLeaseTerm: The minimum and maximum lease terms, respectively.
+InteriorAmenities: A list of features and amenities included in the unit, like "Washer/Dryer Hookup" or "Air Conditioning."
+Miscellaneous Properties
+disableMediaCascadingModelToUnit: A flag related to cascading media settings across different units.
+reviews: Indicates whether reviews are available for this property.
+isOpenLeadForm: Shows if a lead form (contact form) is available.
+searchCriteria: Placeholder for search filters or criteria applied during the scraping process.
+Geographical Information
+geo: Contains geographical details, including the city, state, and area title.
+GeographyType: Specifies the type of geographical entity, such as city or neighborhood.
+Address: Nested object containing city, state, country, and title information.
+Display and Property Type
+defaultZoomLevel: The default zoom level to use when displaying the property on a map.
+profileType: Indicates the type of profile, such as "Prosumer."
+propertyType: Specifies that the listing is an "Apartment."
+listingNeighborhood: The listingNeighborhood property provides the name of the neighborhood where the property is located.
+listingCounty: Indicates the county in which the property is located (e.g., Forsyth).
+Proxy and Conduit Information
+conduit: Contains metadata related to the property's integration with an online leasing conduit system.
+
+conduit: Nested metadata detailing the integration.
+sourceOrigin: URL of the source origin, "https://www.apartments.com/", indicating the original site of the listing.
+targetOrigin: URL of the target system, "https://www.apartments.com/conduit/onlineleasing/", where leasing details are processed.
+resizing: Metadata related to resizing.
+isDiagnosticLoggingEnabled: A boolean indicating if diagnostic logging is enabled for resizing operations. false means it is disabled.
+reviewActions: Represents any actions related to reviews for this listing. 0 implies that no actions have been taken.
+
+abData: Contains information for A/B testing purposes.
+
+id, v, et, cdv, cdi: Various fields used for tracking or analysis, all set to null or 0 in this case, implying no data or default values.
+tourMediaId: Represents the ID of any media related to virtual tours of the property. -1 means there are no virtual tours available.
+
+videoMediaId: Represents the ID of any video media available for the property. -1 means there is no video available.
+
+has3DTour: A boolean value indicating whether there is a 3D virtual tour available for the property. false means no 3D tour is available.
+
+hasVideo: A boolean value indicating if the property has video content. false means there is no video available.
+
+imageCount: Indicates the total number of images available for the property. 7 means there are 7 images.
+
+videoCount: Represents the number of video files available. 0 means there are no videos.
+
+photoCount: The total number of photos associated with the listing. 7 implies 7 photos are available.
+
+virtualTourCount: Indicates how many virtual tours are available. 0 means none are available.
+
+hasTCPA: A boolean value indicating whether the listing is compliant with the Telephone Consumer Protection Act (TCPA). false means it is not applicable.
+
+hasIntegratedTours: A boolean value indicating whether the property has integrated tour capabilities (e.g., scheduling, guided tours). false means it does not.
+
+scheduledTourProviderTypeId: Represents the ID of the provider for scheduled tours. 0 implies either none or a default value.
+
+hasRequestTour: A boolean indicating if there is an option for requesting a tour of the property. true means such an option is available.
+
+hasPropertyWebsiteLink: A boolean indicating whether there is a link to the property's official website. false means there is no such link.
+
+hasOnlineScheduling: Indicates whether online scheduling is available for tours. false means it is not available.
+
+isTourExcluded: A boolean value that indicates whether tours are excluded for this property. false means tours are not excluded.
+
+engrainKey: Represents a unique key related to the property, possibly for internal purposes. "DRdlRoSlcH0k2xajIIgRwJpOjl621V8Z" is the unique identifier.
+
+todaysOfficeHours: Contains details about the property's office hours for the current day.
+
+timeOpen and timeClose: Represent the hours and minutes for the office's opening and closing times. Both set to { "hours": 0, "minutes": 0 }, implying no defined hours.
+isClosed: A boolean indicating whether the office is closed. true means the office is closed today.
+listingSpecialties: Describes any special considerations or purposes of the property. "Student" indicates that this listing may be targeted towards students.
+
+listHubListingUri: The URI for ListHub, a platform often used for syndicated real estate listings. An empty string "" means no specific URI is available.
+
+isBuildToRent: A boolean value that indicates whether the property is a build-to-rent type. false means it is not specifically built for renting purposes.
+
+ip: Represents the IP address from which the listing is accessed. "88.214.51.231" is the provided IP address.
+
+hasRentEstimate: Indicates if there is a rent estimate available for the property. false means no estimate is available.
+
+hasUnitLevelAmenities: A boolean indicating whether amenities are specified for each unit in the building. false means there are no unit-specific amenities.
+
+hasUnitLevelMedia: Indicates if there is unit-level media (e.g., photos, videos). false means none are available.
+
+hasModelLevelMedia: A boolean indicating whether there are media files available at the model level (e.g., floor plans). false means there are no model-level media available.
+
+unitAvailabilities: Indicates the number of available units for the listing. 1 means there is one unit currently available.
+
+hasRentBy: Represents rent-related information, possibly indicating a partner or specific entity related to rent. "NULL" means no specific information is available.
+
+hasPropertyMap: A boolean value indicating whether the property has an associated map for locating units or amenities. 0 means no map is available.
+
+hasApplyNow: A boolean value that indicates whether there is an option to apply for the property online. false means such an option is not available.
+
+leasingOffice: Contains information related to the leasing office. {} indicates no details are provided.
+
+itemPage
+@type: Represents the schema type, indicating that this item is an ItemPage.
+about: Contains general details about the property.
+@type: Specifies that the information is about a localBusiness.
+image: URL of the main image of the property.
+description: A detailed description of the property, including features like bedrooms, baths, location, amenities, etc.
+offers: Provides details about the rental price.
+@type: Indicates that this information is an AggregateOffer.
+priceCurrency: The currency of the rental price (e.g., "USD").
+lowPrice and highPrice: The minimum and maximum rental price of the property.
+name: The name of the property or its address.
+speakable: Specifies which parts of the page are suitable for text-to-speech applications.
+@type: Indicates the type is SpeakableSpecification.
+cssSelector and xpath: Define the specific sections of the page to be read out loud, useful for accessibility.
+breadcrumb: Provides navigational information about the property's location in the broader hierarchy.
+itemListElement: Contains a list of elements that represent different levels of navigation.
+@type: Indicates that this information is a ListItem.
+position: The position in the breadcrumb list (e.g., 1, 2, 3).
+item: Represents each breadcrumb element.
+name: The name of the breadcrumb item (e.g., state, county, city, property).
+@id: The URL associated with the breadcrumb item.
+@context: Schema.org context, indicating that the breadcrumb list adheres to this standard.
+@type: Indicates that this section represents a BreadcrumbList.
+mainEntity: Provides more detailed information about the primary property being listed.
+url: The URL for the property listing.
+telephone: The phone number for contacting regarding the property.
+description: A detailed description of the property.
+address: The address of the property.
+@type: Indicates that this information is of type PostalAddress.
+streetAddress: The street address of the property.
+addressLocality: The city in which the property is located.
+addressRegion: The state or region in which the property is located.
+postalCode: The postal code of the property.
+addressCountry: The country of the property's location.
+geo: Provides geographical coordinates for the property.
+@type: Indicates that this information is of type GeoCoordinates.
+latitude and longitude: Latitude and longitude values for the property.
+image: A list of URLs for images of the property.
+containsPlace: Information about what the property contains.
+@type: Indicates that the property is an Apartment.
+petsAllowed: Specifies whether pets are allowed in the property.
+containedInPlace: Contains additional information about the local business associated with the property.
+@type: Represents the information as a LocalBusiness.
+priceRange: The price range for renting the property.
+telephone: The contact phone number for the property.
+image: URL of the primary image of the property.
+address: The address details of the local business.
+@type: Specifies that the address is of type PostalAddress.
+streetAddress, addressLocality, addressRegion, postalCode, addressCountry: Address details for the business.
+name: The name of the property or business.
+@id: The URL of the property or business.
+@type: Indicates that the listing is an ApartmentComplex.
+name: The name of the apartment complex or property.
+@id: URL for the apartment complex.
+@context: Indicates that the schema context is "http://schema.org", which standardizes the format according to Schema.org definitions.
