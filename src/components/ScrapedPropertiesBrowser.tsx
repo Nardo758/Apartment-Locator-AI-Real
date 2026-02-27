@@ -421,6 +421,9 @@ export default function ScrapedPropertiesBrowser({ properties, isLoading }: Scra
                       Offer
                     </Badge>
                   )}
+                  {property.units_available != null && property.units_available > 0 && (
+                    <Badge variant="outline">{property.units_available} units</Badge>
+                  )}
                   {property.pet_policy && (
                     <Badge variant="outline">{property.pet_policy}</Badge>
                   )}

@@ -36,12 +36,12 @@ router.post('/scrape/apartments-com', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'APIFY_TOKEN not configured' });
     }
 
-    const { city = 'atlanta', state = 'ga', maxItems = 200 } = req.body;
+    const { city = 'atlanta', state = 'ga', maxItems = 200, includeDetails = true } = req.body;
     const citySlug = city.toLowerCase().replace(/\s+/g, '-');
     const stateSlug = state.toLowerCase();
     const startUrl = `https://www.apartments.com/${citySlug}-${stateSlug}/`;
 
-    console.log(`Starting Apify scrape for ${startUrl} (maxItems: ${maxItems})`);
+    console.log(`Starting Apify scrape for ${startUrl} (maxItems: ${maxItems}, includeDetails: ${includeDetails})`);
 
     const runResponse = await fetch(
       `${APIFY_BASE}/acts/${APIFY_ACTOR}/runs?token=${token}`,
@@ -55,6 +55,7 @@ router.post('/scrape/apartments-com', async (req: Request, res: Response) => {
           minConcurrency: 1,
           maxRequestRetries: 50,
           moreResults: false,
+          includeDetailPage: includeDetails,
           proxy: {
             useApifyProxy: true,
             apifyProxyGroups: ['RESIDENTIAL'],

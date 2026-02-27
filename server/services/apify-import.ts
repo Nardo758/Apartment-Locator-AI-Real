@@ -186,6 +186,9 @@ function mapListingToRow(listing: ApifyListing) {
   const petPolicy = derivePetPolicy(listing);
   const parkingInfo = deriveParkingInfo(listing);
 
+  const unitsAvailable = listing.rentals && listing.rentals.length > 0
+    ? listing.rentals.length : null;
+
   const propertyType = (listing.propertyType || '')
     .replace(/\s*for\s*rent\s*/i, '')
     .trim() || 'Apartment';
@@ -219,6 +222,7 @@ function mapListingToRow(listing: ApifyListing) {
     unitFeatures: unitFeatures.length > 0 ? unitFeatures : [],
     petPolicy: petPolicy || null,
     parkingInfo: parkingInfo || null,
+    unitsAvailable,
     propertyType,
     status: 'active',
     freeRentConcessions: concessions,
@@ -253,7 +257,7 @@ export class ApifyImportService {
             external_id, property_id, source, name, address, city, state, zip_code,
             current_price, bedrooms, bathrooms, square_feet, square_footage,
             listing_url, image_url, amenities, unit_features,
-            pet_policy, parking_info, property_type, status,
+            pet_policy, parking_info, units_available, property_type, status,
             free_rent_concessions, security_deposit,
             latitude, longitude,
             scraped_at, first_seen_at, last_seen_at, created_at, updated_at
@@ -264,7 +268,7 @@ export class ApifyImportService {
             ${row.squareFeet}, ${row.squareFootage},
             ${row.listingUrl}, ${row.imageUrl},
             ${JSON.stringify(row.amenities)}::jsonb, ${JSON.stringify(row.unitFeatures)}::jsonb,
-            ${row.petPolicy}, ${row.parkingInfo}, ${row.propertyType}, ${row.status},
+            ${row.petPolicy}, ${row.parkingInfo}, ${row.unitsAvailable}, ${row.propertyType}, ${row.status},
             ${row.freeRentConcessions}, ${row.securityDeposit},
             ${row.latitude}, ${row.longitude},
             NOW(), NOW(), NOW(), NOW(), NOW()
@@ -288,6 +292,7 @@ export class ApifyImportService {
             unit_features = EXCLUDED.unit_features,
             pet_policy = EXCLUDED.pet_policy,
             parking_info = EXCLUDED.parking_info,
+            units_available = EXCLUDED.units_available,
             property_type = EXCLUDED.property_type,
             free_rent_concessions = EXCLUDED.free_rent_concessions,
             security_deposit = EXCLUDED.security_deposit,

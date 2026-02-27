@@ -54,6 +54,7 @@ function mapProperty(raw: any) {
     concession_value: raw.concessionValue || raw.concession_value || undefined,
     effective_price: raw.effectivePrice || raw.effective_price || undefined,
     amenities: raw.amenities || raw.unitFeatures || raw.unit_features || [],
+    units_available: raw.unitsAvailable || raw.units_available || undefined,
     pet_policy: raw.petPolicy || raw.pet_policy || undefined,
     phone: undefined,
     direct_website_url: raw.directWebsiteUrl || raw.direct_website_url || undefined,

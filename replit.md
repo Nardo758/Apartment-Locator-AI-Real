@@ -36,7 +36,8 @@ I want iterative development. Ask before making major changes.
 - **Market Intel API**: Provides aggregated market data (median rent, days on market, etc.) with city backfill using Google Geocoding.
 - **Rent vs Buy Analysis**: Provides affordability assessment, financial projections, and recommendations using real home price data.
 - **Zillow Home Price Integration**: Fetches market analytics, rental listings, and property valuations from Zillow Real Estate API, with caching and fallback estimates.
-- **Apify Apartments.com Pipeline**: Imports scraped apartment data from Apify, mapping it to the `scraped_properties` table.
+- **Apify Apartments.com Pipeline**: Imports scraped apartment data from Apify, mapping it to the `scraped_properties` table. Supports detail-page scraping for amenities and unit counts via `includeDetailPage` option.
+- **SerpApi Enrichment Pipeline**: Enriches scraped properties with direct website URLs (replacing Apartments.com links) and amenities via Google Search. Admin endpoint at `/api/admin/enrich/serp`. Stores direct URLs in `direct_website_url` column, preserving original `listing_url`.
 - **Google Places Photo Integration**: Uses Google Places Text Search API to find and cache apartment complex photos.
 - **Environment Variables**: Critical configurations managed via Replit Secrets.
 - **Database Connection**: Configured to use Replit's built-in PostgreSQL environment variables.
@@ -48,3 +49,4 @@ I want iterative development. Ask before making major changes.
 - **Google Identity Services**: For OAuth authentication.
 - **Zillow Real Estate API (via RapidAPI)**: For real-time home price data, market analytics, and rental listings.
 - **Apify**: For apartment listing scraping and data import.
+- **SerpApi**: For Google Search-based property enrichment (direct website URLs and amenities).

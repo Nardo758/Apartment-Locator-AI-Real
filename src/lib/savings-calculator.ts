@@ -16,6 +16,7 @@ export interface ScrapedProperty {
   concession_value?: number;
   effective_price?: number;
   amenities?: string[];
+  units_available?: number;
   pet_policy?: string;
   phone?: string;
   website_url?: string;

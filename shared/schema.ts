@@ -893,6 +893,7 @@ export const scrapedProperties = pgTable("scraped_properties", {
   amenities: jsonb("amenities").$type<string[]>().default([]),
   petPolicy: varchar("pet_policy", { length: 255 }),
   parkingInfo: varchar("parking_info", { length: 255 }),
+  unitsAvailable: integer("units_available"),
   propertyType: varchar("property_type", { length: 50 }),
   status: varchar("status", { length: 50 }).default("active"),
   volatilityScore: integer("volatility_score").default(50),

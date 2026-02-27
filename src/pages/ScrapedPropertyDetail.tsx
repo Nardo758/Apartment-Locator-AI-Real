@@ -369,6 +369,12 @@ export default function ScrapedPropertyDetail() {
                       {Number(sqft).toLocaleString()} sqft
                     </Badge>
                   )}
+                  {displayProperty.units_available != null && displayProperty.units_available > 0 && (
+                    <Badge variant="secondary">
+                      <Building2 className="w-3.5 h-3.5 mr-1" />
+                      {displayProperty.units_available} Units Available
+                    </Badge>
+                  )}
                   {displayProperty.pet_policy && (
                     <Badge variant="secondary">
                       <PawPrint className="w-3.5 h-3.5 mr-1" />
