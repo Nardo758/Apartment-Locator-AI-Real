@@ -16,7 +16,7 @@ export interface SmartScoreResult {
   warnings: string[];
 }
 
-const AMENITY_KEYWORDS: Record<string, string[]> = {
+export const AMENITY_KEYWORDS: Record<string, string[]> = {
   'Gym': ['gym', 'fitness', 'exercise', 'workout'],
   'Pool': ['pool', 'swimming'],
   'Elevator': ['elevator'],

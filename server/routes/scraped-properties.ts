@@ -68,6 +68,30 @@ function mapProperty(raw: any) {
   };
 }
 
+const NON_APARTMENT_KEYWORDS = [
+  'homeowners', 'hoa', 'assn ', 'assoc', 'association',
+  'llc', 'inc', 'corp', 'ltd', 'trust',
+  'church', 'school', 'hospital', 'clinic',
+  'storage', 'warehouse', 'office', 'retail',
+  'parking', 'garage only', 'lot ',
+];
+
+const MIN_VALID_RENT = 200;
+const MAX_VALID_RENT = 15000;
+
+function isValidApartment(p: any): boolean {
+  const rent = p.min_rent || p.max_rent || 0;
+  if (rent < MIN_VALID_RENT || rent > MAX_VALID_RENT) return false;
+
+  const name = (p.name || '').toLowerCase();
+  if (NON_APARTMENT_KEYWORDS.some(kw => name.includes(kw))) return false;
+
+  const address = (p.address || '').toLowerCase();
+  if (!address || address === '0' || address.length < 5) return false;
+
+  return true;
+}
+
 export function registerScrapedPropertyRoutes(app: Express): void {
   app.get("/api/scraped-properties", async (_req: Request, res: Response) => {
     try {
@@ -78,8 +102,10 @@ export function registerScrapedPropertyRoutes(app: Express): void {
 
       const mapped = data.map(mapProperty);
 
+      const valid = mapped.filter(isValidApartment);
+
       const enriched = await Promise.all(
-        mapped.map(async (p: any) => {
+        valid.map(async (p: any) => {
           if (p.image_url) return p;
           if (p.address && !p.address.startsWith("http")) {
             try {
@@ -110,11 +136,17 @@ export function registerScrapedPropertyRoutes(app: Express): void {
     try {
       const data = await db.select().from(scrapedProperties);
 
-      const properties = data.map(mapProperty);
-      const withOffers = properties.filter((p: any) => p.special_offers);
+      const allMapped = data.map(mapProperty);
+      const properties = allMapped.filter(isValidApartment);
+
+      const withOffers = properties.filter((p: any) =>
+        p.special_offers || p.concession_type || p.concession_value || p.effective_price
+      );
+
       const rents = properties
         .map((p: any) => p.min_rent || p.max_rent)
-        .filter((r: any) => r && r >= 200 && r <= 15000);
+        .filter((r: any) => r && r >= MIN_VALID_RENT && r <= MAX_VALID_RENT);
+
       const avgRent = rents.length > 0
         ? Math.round(rents.reduce((a: number, b: number) => a + b, 0) / rents.length)
         : 0;
