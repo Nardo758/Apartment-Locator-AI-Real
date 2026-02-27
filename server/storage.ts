@@ -2,6 +2,7 @@ import { db } from "./db";
 import { eq, desc, and, gte, lte, ilike, or, sql, inArray } from "drizzle-orm";
 import {
   properties,
+  scrapedProperties,
   savedApartments,
   searchHistory,
   userPreferences,
@@ -245,10 +246,8 @@ export class DatabaseStorage implements IStorage {
     bedrooms?: number;
     limit?: number;
   }): Promise<Property[]> {
-    let query = db.select().from(properties).where(eq(properties.isActive, true));
-    
     const conditions = [eq(properties.isActive, true)];
-    
+
     if (filters?.city) {
       conditions.push(ilike(properties.city, `%${filters.city}%`));
     }
@@ -264,14 +263,37 @@ export class DatabaseStorage implements IStorage {
     if (filters?.bedrooms) {
       conditions.push(gte(properties.bedroomsMin, filters.bedrooms));
     }
-    
-    const results = await db.select()
+
+    // Fetch properties with concession data from scraped_properties
+    const rows = await db.select({
+      property: properties,
+      scrapedConcessionType: scrapedProperties.concessionType,
+      scrapedConcessionValue: scrapedProperties.concessionValue,
+      scrapedEffectivePrice: scrapedProperties.effectivePrice,
+      scrapedFreeRent: scrapedProperties.freeRentConcessions,
+      scrapedDaysOnMarket: scrapedProperties.daysOnMarket,
+    })
       .from(properties)
+      .leftJoin(
+        scrapedProperties,
+        and(
+          ilike(scrapedProperties.address, properties.address),
+          eq(scrapedProperties.status, 'active')
+        )
+      )
       .where(and(...conditions))
       .orderBy(desc(properties.lastSeen))
       .limit(filters?.limit || 50);
-    
-    return results;
+
+    // Merge concession data into property objects
+    return rows.map(row => ({
+      ...row.property,
+      specialOffers: row.scrapedFreeRent || row.property.specialOffers || null,
+      concessionType: row.scrapedConcessionType || row.property.concessionType || null,
+      concessionValue: row.scrapedConcessionValue ?? row.property.concessionValue ?? null,
+      effectivePrice: row.scrapedEffectivePrice ?? row.property.effectivePrice ?? null,
+      daysOnMarket: row.scrapedDaysOnMarket ?? row.property.daysOnMarket ?? null,
+    }));
   }
 
   async getPropertyById(id: string): Promise<Property | undefined> {
