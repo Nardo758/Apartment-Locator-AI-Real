@@ -59,4 +59,56 @@ router.get("/property", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/analytics", async (req: Request, res: Response) => {
+  try {
+    const city = (req.query.city as string)?.trim();
+    const state = ((req.query.state as string) || "GA").trim();
+
+    if (!city) {
+      return res.status(400).json({ error: "city parameter is required" });
+    }
+
+    const service = ZillowHomeDataService.getInstance();
+    const data = await service.getMarketAnalytics(city, state);
+
+    res.json({
+      ...data,
+      apiConfigured: service.isConfigured(),
+    });
+  } catch (err) {
+    console.error("Market analytics error:", err);
+    res.status(500).json({ error: "Failed to fetch market analytics" });
+  }
+});
+
+router.get("/rentals", async (req: Request, res: Response) => {
+  try {
+    const city = (req.query.city as string)?.trim();
+    const state = ((req.query.state as string) || "GA").trim();
+
+    if (!city) {
+      return res.status(400).json({ error: "city parameter is required" });
+    }
+
+    const filters: any = {};
+    if (req.query.price_min) filters.price_min = Number(req.query.price_min);
+    if (req.query.price_max) filters.price_max = Number(req.query.price_max);
+    if (req.query.beds_min) filters.beds_min = Number(req.query.beds_min);
+    if (req.query.beds_max) filters.beds_max = Number(req.query.beds_max);
+    if (req.query.sort) filters.sort = req.query.sort as string;
+    if (req.query.page) filters.page = Number(req.query.page);
+
+    const service = ZillowHomeDataService.getInstance();
+    const data = await service.searchRentals(city, state, filters);
+
+    res.json({
+      ...data,
+      apiConfigured: service.isConfigured(),
+    });
+  } catch (err) {
+    console.error("Rental search error:", err);
+    res.status(500).json({ error: "Failed to search rentals" });
+  }
+});
+
 export default router;

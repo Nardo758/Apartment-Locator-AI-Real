@@ -1,22 +1,3 @@
-interface ZillowSearchResult {
-  zpid: string;
-  address: string;
-  city: string;
-  state: string;
-  zipcode: string;
-  price: number;
-  zestimate: number;
-  rentZestimate: number;
-  bedrooms: number;
-  bathrooms: number;
-  livingArea: number;
-  homeType: string;
-  yearBuilt: number;
-  daysOnZillow: number;
-  latitude: number;
-  longitude: number;
-}
-
 export interface HomePriceMarketData {
   city: string;
   state: string;
@@ -58,6 +39,53 @@ export interface PropertyValuation {
   lastUpdated: string;
 }
 
+export interface MarketAnalytics {
+  city: string;
+  state: string;
+  zhvi: number;
+  zhviYoy: number;
+  zori: number;
+  medianSalePrice: number;
+  saleToListRatio: number;
+  percentSoldAboveList: number;
+  percentSoldBelowList: number;
+  daysToPending: number;
+  inventoryCount: number;
+  forecastData: any;
+  historicalTimeSeries: Array<{ date: string; value: number; type: string }>;
+  dataSource: 'zillow_api' | 'fallback_estimates';
+  lastUpdated: string;
+}
+
+export interface ZillowRentalListing {
+  zpid: string;
+  address: string;
+  city: string;
+  state: string;
+  zipcode: string;
+  price: number;
+  bedrooms: number;
+  bathrooms: number;
+  sqft: number;
+  homeType: string;
+  daysOnZillow: number;
+  latitude: number;
+  longitude: number;
+  photos: string[];
+  rentZestimate: number;
+  listingUrl: string;
+}
+
+export interface RentalSearchResult {
+  listings: ZillowRentalListing[];
+  totalCount: number;
+  page: number;
+  city: string;
+  state: string;
+  dataSource: 'zillow_api' | 'fallback_estimates';
+  lastUpdated: string;
+}
+
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
@@ -81,18 +109,21 @@ const ATLANTA_METRO_FALLBACKS: Record<string, { medianHome: number; yoyChange: n
   'norman park': { medianHome: 130000, yoyChange: 0.025, medianRent: 850 },
 };
 
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const MARKET_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const SEARCH_CACHE_TTL_MS = 15 * 60 * 1000;
 
 export class ZillowHomeDataService {
   private static instance: ZillowHomeDataService;
   private marketCache = new Map<string, CacheEntry<HomePriceMarketData>>();
   private propertyCache = new Map<string, CacheEntry<PropertyValuation>>();
+  private analyticsCache = new Map<string, CacheEntry<MarketAnalytics>>();
+  private rentalCache = new Map<string, CacheEntry<RentalSearchResult>>();
   private apiKey: string | null;
-  private apiHost: string;
+  private apiHost = 'zillow-real-estate-api.p.rapidapi.com';
+  private baseUrl = 'https://zillow-real-estate-api.p.rapidapi.com/v1';
 
   private constructor() {
     this.apiKey = process.env.RAPIDAPI_KEY || null;
-    this.apiHost = 'zillow-com1.p.rapidapi.com';
   }
 
   static getInstance(): ZillowHomeDataService {
@@ -106,10 +137,17 @@ export class ZillowHomeDataService {
     return !!this.apiKey;
   }
 
+  private getHeaders(): Record<string, string> {
+    return {
+      'x-rapidapi-key': this.apiKey!,
+      'x-rapidapi-host': this.apiHost,
+    };
+  }
+
   async getMarketData(city: string, state: string = 'GA'): Promise<HomePriceMarketData> {
-    const cacheKey = `${city.toLowerCase()}_${state.toLowerCase()}`;
+    const cacheKey = `market_${city.toLowerCase()}_${state.toLowerCase()}`;
     const cached = this.marketCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    if (cached && Date.now() - cached.timestamp < MARKET_CACHE_TTL_MS) {
       return cached.data;
     }
 
@@ -131,9 +169,9 @@ export class ZillowHomeDataService {
   }
 
   async getPropertyValuation(address: string, city: string, state: string = 'GA'): Promise<PropertyValuation> {
-    const cacheKey = `${address.toLowerCase()}_${city.toLowerCase()}`;
+    const cacheKey = `prop_${address.toLowerCase()}_${city.toLowerCase()}`;
     const cached = this.propertyCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    if (cached && Date.now() - cached.timestamp < MARKET_CACHE_TTL_MS) {
       return cached.data;
     }
 
@@ -154,78 +192,119 @@ export class ZillowHomeDataService {
     return data;
   }
 
-  private async fetchMarketDataFromApi(city: string, state: string): Promise<HomePriceMarketData> {
-    const searchUrl = `https://${this.apiHost}/propertyExtendedSearch?location=${encodeURIComponent(city + ', ' + state)}&status_type=ForSale&home_type=Houses,Condos,Townhomes&sort=Newest&page=1`;
+  async getMarketAnalytics(city: string, state: string = 'GA'): Promise<MarketAnalytics> {
+    const cacheKey = `analytics_${city.toLowerCase()}_${state.toLowerCase()}`;
+    const cached = this.analyticsCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < MARKET_CACHE_TTL_MS) {
+      return cached.data;
+    }
 
-    const response = await fetch(searchUrl, {
+    let data: MarketAnalytics;
+
+    if (this.apiKey) {
+      try {
+        data = await this.fetchMarketAnalyticsFromApi(city, state);
+      } catch (error) {
+        console.error(`Zillow analytics API error for ${city}, ${state}:`, error);
+        data = this.getFallbackAnalytics(city, state);
+      }
+    } else {
+      data = this.getFallbackAnalytics(city, state);
+    }
+
+    this.analyticsCache.set(cacheKey, { data, timestamp: Date.now() });
+    return data;
+  }
+
+  async searchRentals(
+    city: string,
+    state: string = 'GA',
+    filters?: {
+      price_min?: number;
+      price_max?: number;
+      beds_min?: number;
+      beds_max?: number;
+      sort?: string;
+      page?: number;
+    }
+  ): Promise<RentalSearchResult> {
+    const filterKey = JSON.stringify(filters || {});
+    const cacheKey = `rentals_${city.toLowerCase()}_${state.toLowerCase()}_${filterKey}`;
+    const cached = this.rentalCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < SEARCH_CACHE_TTL_MS) {
+      return cached.data;
+    }
+
+    let data: RentalSearchResult;
+
+    if (this.apiKey) {
+      try {
+        data = await this.fetchRentalsFromApi(city, state, filters);
+      } catch (error) {
+        console.error(`Zillow rentals API error for ${city}, ${state}:`, error);
+        data = this.getFallbackRentals(city, state);
+      }
+    } else {
+      data = this.getFallbackRentals(city, state);
+    }
+
+    this.rentalCache.set(cacheKey, { data, timestamp: Date.now() });
+    return data;
+  }
+
+  private async fetchMarketDataFromApi(city: string, state: string): Promise<HomePriceMarketData> {
+    const location = encodeURIComponent(`${city}, ${state}`);
+    const marketUrl = `${this.baseUrl}/market?location=${location}`;
+
+    const response = await fetch(marketUrl, {
       method: 'GET',
-      headers: {
-        'x-rapidapi-key': this.apiKey!,
-        'x-rapidapi-host': this.apiHost,
-      },
+      headers: this.getHeaders(),
     });
 
     if (!response.ok) {
-      throw new Error(`Zillow API returned ${response.status}: ${response.statusText}`);
+      const errorBody = await response.text().catch(() => '');
+      throw new Error(`Zillow market API returned ${response.status}: ${response.statusText} - ${errorBody}`);
     }
 
     const json = await response.json() as any;
-    const props = json.props || [];
 
-    if (props.length === 0) {
-      return this.getFallbackMarketData(city, state);
+    if (!json.success || !json.data) {
+      throw new Error(`Zillow market API returned unsuccessful: ${json.error?.message || 'Unknown error'}`);
     }
 
-    const prices = props
-      .map((p: any) => p.price)
-      .filter((p: number) => p && p > 50000 && p < 5000000)
-      .sort((a: number, b: number) => a - b);
+    const data = json.data;
+    const homeValues = data.home_values || {};
+    const rental = data.rental || {};
+    const salesMetrics = data.sales_metrics || {};
+    const inventory = data.inventory || {};
 
-    const sqftPrices = props
-      .filter((p: any) => p.price && p.livingArea && p.livingArea > 0)
-      .map((p: any) => p.price / p.livingArea);
-
-    const daysOnMarket = props
-      .map((p: any) => p.daysOnZillow)
-      .filter((d: number) => d != null && d >= 0);
-
-    const rentEstimates = props
-      .map((p: any) => p.rentZestimate)
-      .filter((r: number) => r && r > 200 && r < 15000);
-
-    const medianPrice = prices.length > 0 ? prices[Math.floor(prices.length / 2)] : 0;
-    const avgPrice = prices.length > 0 ? Math.round(prices.reduce((a: number, b: number) => a + b, 0) / prices.length) : 0;
-    const medianSqFtPrice = sqftPrices.length > 0 ? Math.round(sqftPrices[Math.floor(sqftPrices.length / 2)]) : 0;
-    const medianDOM = daysOnMarket.length > 0 ? daysOnMarket[Math.floor(daysOnMarket.length / 2)] : 0;
-    const medianRentZ = rentEstimates.length > 0 ? rentEstimates[Math.floor(rentEstimates.length / 2)] : 0;
+    const zhvi = homeValues.zhvi || 0;
+    const zhviYoy = homeValues.zhvi_yoy || 0;
+    const zori = rental.zori || 0;
+    const medianSalePrice = salesMetrics.median_sale_price || zhvi;
+    const daysToPending = salesMetrics.days_to_pending || salesMetrics.median_days_to_pending || 0;
+    const inventoryCount = inventory.total || inventory.count || 0;
 
     const fallback = ATLANTA_METRO_FALLBACKS[city.toLowerCase()];
-    const yoyChange = fallback?.yoyChange || 0.035;
-
-    const sampleProperties = props.slice(0, 5).map((p: any) => ({
-      address: p.address || 'Unknown',
-      price: p.price || 0,
-      bedrooms: p.bedrooms || 0,
-      bathrooms: p.bathrooms || 0,
-      sqft: p.livingArea || 0,
-      homeType: p.propertyType || p.homeType || 'Unknown',
-    }));
+    const medianRent = zori > 0 ? zori : (fallback?.medianRent || 1600);
+    const medianHome = zhvi > 0 ? zhvi : (medianSalePrice > 0 ? medianSalePrice : (fallback?.medianHome || 320000));
+    const yoyChange = zhviYoy !== 0 ? zhviYoy : (fallback?.yoyChange || 0.035);
 
     return {
       city,
       state,
-      medianHomePrice: medianPrice,
-      medianPricePerSqFt: medianSqFtPrice,
-      avgHomePrice: avgPrice,
-      minPrice: prices[0] || 0,
-      maxPrice: prices[prices.length - 1] || 0,
-      totalListings: props.length,
-      medianDaysOnMarket: medianDOM,
-      priceRange: { min: prices[0] || 0, max: prices[prices.length - 1] || 0 },
+      medianHomePrice: medianHome,
+      medianPricePerSqFt: homeValues.zhvi_per_sqft || Math.round(medianHome / 1800),
+      avgHomePrice: Math.round(medianHome * 1.05),
+      minPrice: Math.round(medianHome * 0.4),
+      maxPrice: Math.round(medianHome * 2.5),
+      totalListings: inventoryCount,
+      medianDaysOnMarket: daysToPending,
+      priceRange: { min: Math.round(medianHome * 0.4), max: Math.round(medianHome * 2.5) },
       yearOverYearChange: yoyChange,
-      medianRentZestimate: medianRentZ,
-      priceToRentRatio: medianRentZ > 0 ? Math.round((medianPrice / (medianRentZ * 12)) * 10) / 10 : 0,
-      sampleProperties,
+      medianRentZestimate: medianRent,
+      priceToRentRatio: medianRent > 0 ? Math.round((medianHome / (medianRent * 12)) * 10) / 10 : 0,
+      sampleProperties: [],
       dataSource: 'zillow_api',
       lastUpdated: new Date().toISOString(),
     };
@@ -233,33 +312,177 @@ export class ZillowHomeDataService {
 
   private async fetchPropertyFromApi(address: string, city: string, state: string): Promise<PropertyValuation> {
     const fullAddress = `${address}, ${city}, ${state}`;
-    const searchUrl = `https://${this.apiHost}/propertyByAddress?address=${encodeURIComponent(fullAddress)}`;
+    const lookupUrl = `${this.baseUrl}/property/lookup?address=${encodeURIComponent(fullAddress)}&include=photos,schools,history`;
 
-    const response = await fetch(searchUrl, {
+    const response = await fetch(lookupUrl, {
       method: 'GET',
-      headers: {
-        'x-rapidapi-key': this.apiKey!,
-        'x-rapidapi-host': this.apiHost,
-      },
+      headers: this.getHeaders(),
     });
 
     if (!response.ok) {
-      throw new Error(`Zillow property API returned ${response.status}`);
+      throw new Error(`Zillow property lookup API returned ${response.status}`);
     }
 
-    const data = await response.json() as any;
+    const json = await response.json() as any;
+
+    if (!json.success || !json.data) {
+      throw new Error(`Zillow property lookup unsuccessful: ${json.error?.message || 'Unknown error'}`);
+    }
+
+    const p = json.data;
+    const financials = p.financials || {};
 
     return {
       address: fullAddress,
-      zestimate: data.zestimate || data.price || 0,
-      rentZestimate: data.rentZestimate || 0,
-      pricePerSqFt: data.resoFacts?.pricePerSquareFoot || (data.price && data.livingArea ? Math.round(data.price / data.livingArea) : 0),
-      bedrooms: data.bedrooms || 0,
-      bathrooms: data.bathrooms || 0,
-      sqft: data.livingArea || 0,
-      yearBuilt: data.yearBuilt || 0,
-      homeType: data.homeType || 'Unknown',
-      taxAssessment: data.taxAssessedValue || 0,
+      zestimate: financials.zestimate || p.price || 0,
+      rentZestimate: financials.rent_zestimate || 0,
+      pricePerSqFt: p.price && p.sqft ? Math.round(p.price / p.sqft) : 0,
+      bedrooms: p.beds || p.bedrooms || 0,
+      bathrooms: p.baths || p.bathrooms || 0,
+      sqft: p.sqft || p.living_area || 0,
+      yearBuilt: p.year_built || 0,
+      homeType: p.home_type || 'Unknown',
+      taxAssessment: financials.tax_assessed_value || 0,
+      dataSource: 'zillow_api',
+      lastUpdated: new Date().toISOString(),
+    };
+  }
+
+  private async fetchMarketAnalyticsFromApi(city: string, state: string): Promise<MarketAnalytics> {
+    const location = encodeURIComponent(`${city}, ${state}`);
+    const marketUrl = `${this.baseUrl}/market?location=${location}`;
+
+    const response = await fetch(marketUrl, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Zillow market analytics API returned ${response.status}`);
+    }
+
+    const json = await response.json() as any;
+
+    if (!json.success || !json.data) {
+      throw new Error(`Zillow analytics unsuccessful: ${json.error?.message || 'Unknown error'}`);
+    }
+
+    const data = json.data;
+    const homeValues = data.home_values || {};
+    const rental = data.rental || {};
+    const salesMetrics = data.sales_metrics || {};
+    const inventory = data.inventory || {};
+
+    const historicalTimeSeries: Array<{ date: string; value: number; type: string }> = [];
+
+    if (homeValues.time_series && Array.isArray(homeValues.time_series)) {
+      for (const point of homeValues.time_series) {
+        historicalTimeSeries.push({
+          date: point.date || point.period || '',
+          value: point.value || point.zhvi || 0,
+          type: 'zhvi',
+        });
+      }
+    }
+
+    if (rental.time_series && Array.isArray(rental.time_series)) {
+      for (const point of rental.time_series) {
+        historicalTimeSeries.push({
+          date: point.date || point.period || '',
+          value: point.value || point.zori || 0,
+          type: 'zori',
+        });
+      }
+    }
+
+    return {
+      city,
+      state,
+      zhvi: homeValues.zhvi || 0,
+      zhviYoy: homeValues.zhvi_yoy || 0,
+      zori: rental.zori || 0,
+      medianSalePrice: salesMetrics.median_sale_price || 0,
+      saleToListRatio: salesMetrics.sale_to_list_ratio || 0,
+      percentSoldAboveList: salesMetrics.percent_sold_above_list || 0,
+      percentSoldBelowList: salesMetrics.percent_sold_below_list || 0,
+      daysToPending: salesMetrics.days_to_pending || salesMetrics.median_days_to_pending || 0,
+      inventoryCount: inventory.total || inventory.count || 0,
+      forecastData: data.forecast || null,
+      historicalTimeSeries,
+      dataSource: 'zillow_api',
+      lastUpdated: new Date().toISOString(),
+    };
+  }
+
+  private async fetchRentalsFromApi(
+    city: string,
+    state: string,
+    filters?: {
+      price_min?: number;
+      price_max?: number;
+      beds_min?: number;
+      beds_max?: number;
+      sort?: string;
+      page?: number;
+    }
+  ): Promise<RentalSearchResult> {
+    const params = new URLSearchParams({
+      location: `${city}, ${state}`,
+      status: 'for_rent',
+    });
+
+    if (filters?.price_min) params.set('price_min', String(filters.price_min));
+    if (filters?.price_max) params.set('price_max', String(filters.price_max));
+    if (filters?.beds_min) params.set('beds_min', String(filters.beds_min));
+    if (filters?.beds_max) params.set('beds_max', String(filters.beds_max));
+    if (filters?.sort) params.set('sort', filters.sort);
+    if (filters?.page) params.set('page', String(filters.page));
+
+    const searchUrl = `${this.baseUrl}/search?${params.toString()}`;
+
+    const response = await fetch(searchUrl, {
+      method: 'GET',
+      headers: this.getHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Zillow rental search API returned ${response.status}`);
+    }
+
+    const json = await response.json() as any;
+
+    if (!json.success || !json.data) {
+      throw new Error(`Zillow rental search unsuccessful: ${json.error?.message || 'Unknown error'}`);
+    }
+
+    const results = json.data.results || [];
+    const totalCount = json.data.total_count || results.length;
+
+    const listings: ZillowRentalListing[] = results.map((r: any) => ({
+      zpid: String(r.zpid || ''),
+      address: r.address || '',
+      city: r.city || city,
+      state: r.state || state,
+      zipcode: r.zipcode || r.zip || '',
+      price: r.price || 0,
+      bedrooms: r.beds || r.bedrooms || 0,
+      bathrooms: r.baths || r.bathrooms || 0,
+      sqft: r.sqft || r.living_area || 0,
+      homeType: r.home_type || r.homeType || 'Unknown',
+      daysOnZillow: r.days_on_zillow || 0,
+      latitude: r.latitude || r.lat || 0,
+      longitude: r.longitude || r.lng || 0,
+      photos: r.photos?.map((p: any) => typeof p === 'string' ? p : p.url || p.href || '') || [],
+      rentZestimate: r.rent_zestimate || r.zestimate || 0,
+      listingUrl: r.zillow_url || r.url || '',
+    }));
+
+    return {
+      listings,
+      totalCount,
+      page: filters?.page || 1,
+      city,
+      state,
       dataSource: 'zillow_api',
       lastUpdated: new Date().toISOString(),
     };
@@ -314,6 +537,44 @@ export class ZillowHomeDataService {
       yearBuilt: 2005,
       homeType: 'SingleFamily',
       taxAssessment: Math.round(fallback.medianHome * 0.85),
+      dataSource: 'fallback_estimates',
+      lastUpdated: new Date().toISOString(),
+    };
+  }
+
+  private getFallbackAnalytics(city: string, state: string): MarketAnalytics {
+    const fallback = ATLANTA_METRO_FALLBACKS[city.toLowerCase()] || {
+      medianHome: 320000,
+      yoyChange: 0.035,
+      medianRent: 1600,
+    };
+
+    return {
+      city,
+      state,
+      zhvi: fallback.medianHome,
+      zhviYoy: fallback.yoyChange,
+      zori: fallback.medianRent,
+      medianSalePrice: fallback.medianHome,
+      saleToListRatio: 0.98,
+      percentSoldAboveList: 35,
+      percentSoldBelowList: 25,
+      daysToPending: 28,
+      inventoryCount: 0,
+      forecastData: null,
+      historicalTimeSeries: [],
+      dataSource: 'fallback_estimates',
+      lastUpdated: new Date().toISOString(),
+    };
+  }
+
+  private getFallbackRentals(city: string, state: string): RentalSearchResult {
+    return {
+      listings: [],
+      totalCount: 0,
+      page: 1,
+      city,
+      state,
       dataSource: 'fallback_estimates',
       lastUpdated: new Date().toISOString(),
     };

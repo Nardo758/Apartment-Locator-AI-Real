@@ -36,6 +36,8 @@ import { useQuery } from '@tanstack/react-query';
 import Header from '@/components/Header';
 import { RentVsBuyAnalyzer, type RentVsBuyResult } from '@/lib/rent-vs-buy-analysis';
 import { formatMoney } from '@/lib/savings-calculator';
+import { useZillowRentals, useMarketAnalytics } from '@/hooks/useHomePriceData';
+import { Search, ExternalLink, Bed, Bath, Maximize2, Clock } from 'lucide-react';
 
 interface MarketIntelStats {
   totalProperties: number;
@@ -70,6 +72,10 @@ const MarketIntel: React.FC = () => {
   const [currentSavings, setCurrentSavings] = useState(120000);
   const [activeTab, setActiveTab] = useState('overview');
   const [rentVsBuyResult, setRentVsBuyResult] = useState<RentVsBuyResult | null>(null);
+
+  const rentalCity = selectedCity !== 'all' ? selectedCity : 'Atlanta';
+  const { data: zillowRentals, isLoading: rentalsLoading } = useZillowRentals(rentalCity);
+  const { data: marketAnalytics, isLoading: analyticsLoading } = useMarketAnalytics(rentalCity);
 
   const { data: marketStats, isLoading: statsLoading, refetch } = useQuery<MarketIntelStats>({
     queryKey: ['/api/market-intel/stats', selectedCity],
@@ -245,10 +251,14 @@ const MarketIntel: React.FC = () => {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+          <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
             <TabsTrigger value="overview" className="gap-2">
               <BarChart3 size={16} />
               Overview
+            </TabsTrigger>
+            <TabsTrigger value="zillow-rentals" className="gap-2" data-testid="tab-zillow-rentals">
+              <Search size={16} />
+              Zillow Rentals
             </TabsTrigger>
             <TabsTrigger value="rent-vs-buy" className="gap-2">
               <Calculator size={16} />
@@ -373,6 +383,195 @@ const MarketIntel: React.FC = () => {
                   )}
                 </CardContent>
               </Card>
+            </div>
+          </TabsContent>
+
+          {/* Zillow Rentals Tab */}
+          <TabsContent value="zillow-rentals">
+            <div className="space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold">Live Zillow Rental Listings</h2>
+                  <p className="text-muted-foreground text-sm">
+                    Real-time rental data from Zillow for {rentalCity}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {zillowRentals?.dataSource === 'zillow_api' ? (
+                    <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" data-testid="badge-live-data">
+                      <Activity size={12} className="mr-1" /> Live Zillow Data
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" data-testid="badge-fallback-data">
+                      <Info size={12} className="mr-1" /> No Zillow Data Available
+                    </Badge>
+                  )}
+                  {zillowRentals && (
+                    <span className="text-xs text-muted-foreground">
+                      {zillowRentals.totalCount} listings found
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {marketAnalytics && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Card className="border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm">
+                    <CardContent className="p-4">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">ZHVI (Home Value Index)</p>
+                      <p className="text-2xl font-bold text-blue-600" data-testid="text-zhvi">
+                        {marketAnalytics.zhvi > 0 ? `$${marketAnalytics.zhvi.toLocaleString()}` : 'N/A'}
+                      </p>
+                      {marketAnalytics.zhviYoy !== 0 && (
+                        <p className={`text-xs ${marketAnalytics.zhviYoy > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {marketAnalytics.zhviYoy > 0 ? '+' : ''}{(marketAnalytics.zhviYoy * 100).toFixed(1)}% YoY
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                  <Card className="border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm">
+                    <CardContent className="p-4">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">ZORI (Rent Index)</p>
+                      <p className="text-2xl font-bold text-purple-600" data-testid="text-zori">
+                        {marketAnalytics.zori > 0 ? `$${marketAnalytics.zori.toLocaleString()}` : 'N/A'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">Zillow Observed Rent</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm">
+                    <CardContent className="p-4">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Days to Pending</p>
+                      <p className="text-2xl font-bold text-amber-600" data-testid="text-days-pending">
+                        {marketAnalytics.daysToPending > 0 ? marketAnalytics.daysToPending : 'N/A'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">Median days</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm">
+                    <CardContent className="p-4">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Sale-to-List Ratio</p>
+                      <p className="text-2xl font-bold text-indigo-600" data-testid="text-sale-list-ratio">
+                        {marketAnalytics.saleToListRatio > 0 ? `${(marketAnalytics.saleToListRatio * 100).toFixed(1)}%` : 'N/A'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {marketAnalytics.percentSoldAboveList > 0 && `${marketAnalytics.percentSoldAboveList.toFixed(0)}% above list`}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {rentalsLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[1, 2, 3, 4, 5, 6].map(i => (
+                    <Card key={i} className="border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm animate-pulse">
+                      <CardContent className="p-4 space-y-3">
+                        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
+                        <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
+                        <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : zillowRentals && zillowRentals.listings.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {zillowRentals.listings.map((listing, idx) => (
+                    <Card key={listing.zpid || idx} className="border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow" data-testid={`card-zillow-rental-${listing.zpid || idx}`}>
+                      {listing.photos.length > 0 && (
+                        <div className="h-40 overflow-hidden rounded-t-lg">
+                          <img
+                            src={listing.photos[0]}
+                            alt={listing.address}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <CardContent className="p-4 space-y-2">
+                        <div className="flex items-start justify-between">
+                          <p className="text-lg font-bold text-green-600" data-testid={`text-price-${listing.zpid || idx}`}>
+                            ${listing.price.toLocaleString()}/mo
+                          </p>
+                          {listing.daysOnZillow > 0 && (
+                            <Badge variant="outline" className="text-xs">
+                              <Clock size={10} className="mr-1" />
+                              {listing.daysOnZillow}d
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm font-medium truncate" title={listing.address}>
+                          <MapPin size={12} className="inline mr-1 text-muted-foreground" />
+                          {listing.address}
+                        </p>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          {listing.bedrooms > 0 && (
+                            <span className="flex items-center gap-1">
+                              <Bed size={12} /> {listing.bedrooms} bd
+                            </span>
+                          )}
+                          {listing.bathrooms > 0 && (
+                            <span className="flex items-center gap-1">
+                              <Bath size={12} /> {listing.bathrooms} ba
+                            </span>
+                          )}
+                          {listing.sqft > 0 && (
+                            <span className="flex items-center gap-1">
+                              <Maximize2 size={12} /> {listing.sqft.toLocaleString()} sqft
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="text-xs text-muted-foreground capitalize">{listing.homeType.replace(/_/g, ' ')}</span>
+                          {listing.listingUrl && (
+                            <a
+                              href={listing.listingUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                              data-testid={`link-zillow-${listing.zpid || idx}`}
+                            >
+                              View on Zillow <ExternalLink size={10} />
+                            </a>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card className="border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm">
+                  <CardContent className="p-8 text-center">
+                    <Search size={48} className="mx-auto text-muted-foreground/30 mb-4" />
+                    <h3 className="text-lg font-medium mb-2">No Zillow Rental Listings</h3>
+                    <p className="text-muted-foreground text-sm max-w-md mx-auto">
+                      {zillowRentals?.dataSource === 'fallback_estimates'
+                        ? 'Select a specific city from the dropdown above to search for live Zillow rental listings. The API key may need a plan that includes search endpoints.'
+                        : 'No rental listings found for this area. Try selecting a different city.'}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {marketAnalytics && marketAnalytics.historicalTimeSeries.length > 0 && (
+                <Card className="border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <LineChart className="w-5 h-5 text-blue-500" />
+                      Market Trends — {rentalCity}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <AreaChart data={marketAnalytics.historicalTimeSeries.filter(p => p.type === 'zhvi').slice(-24)}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                        <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`} tick={{ fontSize: 11 }} />
+                        <Tooltip formatter={(v: number) => [`$${v.toLocaleString()}`, 'Home Value']} />
+                        <Area type="monotone" dataKey="value" stroke="#6366f1" fill="#6366f1" fillOpacity={0.1} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
 
