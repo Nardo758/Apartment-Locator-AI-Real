@@ -145,7 +145,7 @@ export const useLocationIntelligence = (userProfile: Record<string, unknown> | n
       // Calculate POI drive times
       const poiTimes = pointsOfInterest.map(poi => {
         const distance = calculateDistance(property.coordinates, poi.coordinates);
-        const time = Math.round(distance * 2.5); // Rough time estimate
+        const time = Math.round(distance * 2.5 * 10) / 10;
         const color = time <= poi.maxTime * 0.7 ? 'green' : 
                      time <= poi.maxTime ? 'yellow' : 'red';
         
@@ -208,10 +208,11 @@ export const useLocationIntelligence = (userProfile: Record<string, unknown> | n
   };
 
   const addPOI = async (poi: Omit<PointOfInterest, 'id'>) => {
+    const hasValidCoords = poi.coordinates && poi.coordinates.lat !== 0 && poi.coordinates.lng !== 0;
     const newPOI: PointOfInterest = {
       ...poi,
       id: Date.now().toString(),
-      coordinates: { lat: 30.2672 + Math.random() * 0.1, lng: -97.7431 + Math.random() * 0.1 } // Mock coordinates
+      coordinates: hasValidCoords ? poi.coordinates : { lat: 30.2672 + Math.random() * 0.1, lng: -97.7431 + Math.random() * 0.1 }
     };
     
     setPointsOfInterest(prev => [...prev, newPOI]);

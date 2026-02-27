@@ -70,7 +70,9 @@ export function TrueCostCard({
       icon: ShoppingCart,
       label: 'Grocery trips',
       amount: data.groceryCost.additionalGasCost,
-      detail: `${data.groceryCost.nearestGroceryStore.name} · ${data.groceryCost.distanceMiles} mi`,
+      detail: data.groceryCost.distanceMiles > 0
+        ? `${data.groceryCost.nearestGroceryStore.name} · ${data.groceryCost.distanceMiles} mi`
+        : `${data.groceryCost.nearestGroceryStore.name}`,
       colorClass: 'bg-emerald-500/20 text-emerald-400',
     },
     {

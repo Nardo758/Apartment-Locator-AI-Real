@@ -4,6 +4,33 @@ import { scrapedProperties } from "../../shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { getPropertyPhoto } from "../services/places-photo";
 
+function buildSpecialOffers(raw: any): string | undefined {
+  const parts: string[] = [];
+
+  const concessionType = raw.concessionType || raw.concession_type;
+  const concessionValue = raw.concessionValue || raw.concession_value;
+  const freeRent = raw.freeRentConcessions || raw.free_rent_concessions;
+
+  if (freeRent) {
+    parts.push(String(freeRent));
+  } else if (concessionType && concessionValue) {
+    const type = String(concessionType).toLowerCase();
+    if (type.includes('month') || type.includes('free')) {
+      parts.push(`${concessionValue} months free`);
+    } else if (type.includes('week')) {
+      parts.push(`${concessionValue} weeks free`);
+    } else if (type.includes('percent') || type.includes('%')) {
+      parts.push(`${concessionValue}% off`);
+    } else if (type.includes('fixed') || type.includes('discount') || type.includes('dollar')) {
+      parts.push(`$${concessionValue} off`);
+    } else {
+      parts.push(`${concessionType}: $${concessionValue}`);
+    }
+  }
+
+  return parts.length > 0 ? parts.join(' • ') : undefined;
+}
+
 function mapProperty(raw: any) {
   return {
     id: String(raw.id),
@@ -22,7 +49,10 @@ function mapProperty(raw: any) {
     bedrooms_max: raw.bedrooms ?? undefined,
     bathrooms_min: raw.bathrooms ?? undefined,
     bathrooms_max: raw.bathrooms ?? undefined,
-    special_offers: undefined,
+    special_offers: buildSpecialOffers(raw),
+    concession_type: raw.concessionType || raw.concession_type || undefined,
+    concession_value: raw.concessionValue || raw.concession_value || undefined,
+    effective_price: raw.effectivePrice || raw.effective_price || undefined,
     amenities: raw.amenities || raw.unitFeatures || raw.unit_features || [],
     pet_policy: raw.petPolicy || raw.pet_policy || undefined,
     phone: undefined,

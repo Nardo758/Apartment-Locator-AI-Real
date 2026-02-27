@@ -12,6 +12,9 @@ export interface ScrapedProperty {
   bathrooms_min?: number;
   bathrooms_max?: number;
   special_offers?: string;
+  concession_type?: string;
+  concession_value?: number;
+  effective_price?: number;
   amenities?: string[];
   pet_policy?: string;
   phone?: string;
@@ -50,12 +53,13 @@ const MARKET_MEDIAN_RENTS: Record<string, number> = {
   'default': 1600,
 };
 
-function parseSpecialOffer(offer: string | undefined | null): { upfront: number; monthlyValue: number; text: string } {
+function parseSpecialOffer(offer: string | undefined | null, actualRent?: number): { upfront: number; monthlyValue: number; text: string } {
   if (!offer) return { upfront: 0, monthlyValue: 0, text: '' };
 
   const text = offer.trim();
   let upfront = 0;
   let monthlyValue = 0;
+  const rentBasis = actualRent || 1500;
 
   const weeksFreePat = /(\d+)\s*weeks?\s*free/i;
   const monthsFreePat = /(\d+)\s*months?\s*free/i;
@@ -69,13 +73,13 @@ function parseSpecialOffer(offer: string | undefined | null): { upfront: number;
   const weeksMatch = text.match(weeksFreePat);
   if (weeksMatch) {
     const weeks = parseInt(weeksMatch[1], 10);
-    upfront = Math.round((weeks / 4.33) * 1500);
+    upfront = Math.round((weeks / 4.33) * rentBasis);
   }
 
   const monthsMatch = text.match(monthsFreePat);
   if (monthsMatch) {
     const months = parseInt(monthsMatch[1], 10);
-    upfront = months * 1500;
+    upfront = months * rentBasis;
   }
 
   const dollarMatch = text.match(dollarOffPat);
@@ -91,7 +95,7 @@ function parseSpecialOffer(offer: string | undefined | null): { upfront: number;
   const percentMatch = text.match(percentOffPat);
   if (percentMatch) {
     const pct = parseInt(percentMatch[1], 10);
-    monthlyValue = Math.round((pct / 100) * 1500);
+    monthlyValue = Math.round((pct / 100) * rentBasis);
   }
 
   if (lookAndLeasePat.test(text) && upfront === 0 && monthlyValue === 0) {
@@ -112,7 +116,16 @@ function parseSpecialOffer(offer: string | undefined | null): { upfront: number;
 export function calculatePropertySavings(property: ScrapedProperty, cityMedianRent?: number): SavingsBreakdown {
   const medianRent = cityMedianRent || MARKET_MEDIAN_RENTS[property.city] || MARKET_MEDIAN_RENTS['default'];
   const rent = property.min_rent || property.max_rent || medianRent;
-  const offerInfo = parseSpecialOffer(property.special_offers);
+
+  let offerInfo: { upfront: number; monthlyValue: number; text: string };
+
+  if (property.effective_price && property.effective_price < rent) {
+    const monthlyDiscount = rent - property.effective_price;
+    const text = property.special_offers || `${property.concession_type || 'Concession'}: saves $${monthlyDiscount}/mo`;
+    offerInfo = { upfront: 0, monthlyValue: monthlyDiscount, text };
+  } else {
+    offerInfo = parseSpecialOffer(property.special_offers, rent);
+  }
 
   const monthlySavings = Math.max(0, medianRent - rent + offerInfo.monthlyValue);
   const annualSavings = monthlySavings * 12 + offerInfo.upfront;
@@ -132,7 +145,7 @@ export function calculatePropertySavings(property: ScrapedProperty, cityMedianRe
     upfrontSavings: offerInfo.upfront,
     monthlyConcessionsValue: offerInfo.monthlyValue,
     dealScore,
-    hasSpecialOffer: !!property.special_offers,
+    hasSpecialOffer: !!(property.special_offers || property.concession_type || property.effective_price),
     specialOfferText: offerInfo.text,
     savingsPercentage,
   };

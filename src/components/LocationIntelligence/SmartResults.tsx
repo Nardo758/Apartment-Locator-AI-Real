@@ -180,8 +180,9 @@ const SmartResults: React.FC<SmartResultsProps> = ({
                 }
               },
               poiDistances: property.poiTimes.reduce((acc: Record<string, {distance: string; driveTime: number}>, poi) => {
+                const distMiles = poi.time > 0 ? (poi.time / 2.5) : 0;
                 acc[poi.poiName] = {
-                  distance: `${(poi.time * 0.5).toFixed(1)} mi`,
+                  distance: distMiles < 0.1 && poi.time > 0 ? '< 0.1 mi' : `${distMiles.toFixed(1)} mi`,
                   driveTime: poi.time
                 };
                 return acc;
