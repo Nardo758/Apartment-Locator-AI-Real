@@ -34,6 +34,7 @@ import { registerScrapedPropertyRoutes } from "./routes/scraped-properties";
 import { registerMarketIntelRoutes } from "./routes/market-intel";
 import adminRoutes from "./routes/admin";
 import jediIntegrationRoutes from "./routes/jedi-integration";
+import homePriceRoutes from "./routes/home-prices";
 
 declare global {
   namespace Express {
@@ -3974,6 +3975,9 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Register market intel routes
   registerMarketIntelRoutes(app);
+
+  // Register home price routes
+  app.use("/api/home-prices", homePriceRoutes);
 
   // Register admin panel routes
   app.use("/api/admin", adminRoutes);

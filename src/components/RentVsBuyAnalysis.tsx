@@ -25,7 +25,10 @@ import {
   Calendar,
   CreditCard,
   Briefcase,
-  TrendingDown
+  TrendingDown,
+  Loader2,
+  Database,
+  Wifi
 } from 'lucide-react';
 import { 
   RentVsBuyAnalyzer, 
@@ -35,11 +38,13 @@ import {
   RentVsBuyResult,
   RentVsBuyUtils
 } from '@/lib/rent-vs-buy-analysis';
+import { useHomePriceData } from '@/hooks/useHomePriceData';
 
 interface RentVsBuyAnalysisProps {
   propertyValue?: number;
   currentRent?: number;
   location?: string;
+  city?: string;
   className?: string;
 }
 
@@ -47,9 +52,16 @@ export const RentVsBuyAnalysis: React.FC<RentVsBuyAnalysisProps> = ({
   propertyValue = 400000,
   currentRent = 2500,
   location = "San Francisco, CA",
+  city,
   className = ""
 }) => {
-  // State for user inputs
+  const cityName = city || location?.split(',')[0]?.trim();
+  const { data: homePriceData, isLoading: homePriceLoading } = useHomePriceData(cityName);
+
+  const effectivePropertyValue = homePriceData?.medianHomePrice || propertyValue;
+  const effectiveAppreciationRate = homePriceData?.yearOverYearChange || 0.04;
+  const effectivePriceToRentRatio = homePriceData?.priceToRentRatio || (effectivePropertyValue / (currentRent * 12));
+
   const [renterProfile, setRenterProfile] = useState<RenterProfile>({
     income: 85000,
     creditScore: 720,
@@ -63,26 +75,43 @@ export const RentVsBuyAnalysis: React.FC<RentVsBuyAnalysisProps> = ({
   });
 
   const [propertyScenario, setPropertyScenario] = useState<PropertyScenario>({
-    propertyValue: propertyValue,
+    propertyValue: effectivePropertyValue,
     currentRent: currentRent,
     location: location,
-    propertyTax: propertyValue * 0.015, // 1.5% annually
+    propertyTax: effectivePropertyValue * 0.015,
     hoaFees: 200,
-    maintenanceCosts: propertyValue * 0.01, // 1% annually
-    appreciationRate: 0.04, // 4% annually
-    rentGrowthRate: 0.05, // 5% annually
+    maintenanceCosts: effectivePropertyValue * 0.01,
+    appreciationRate: effectiveAppreciationRate,
+    rentGrowthRate: 0.05,
     downPaymentOptions: [10, 15, 20, 25, 30]
   });
 
   const [marketConditions, setMarketConditions] = useState<MarketConditions>({
-    mortgageRate: 0.07, // 7%
-    inflationRate: 0.03, // 3%
+    mortgageRate: 0.07,
+    inflationRate: 0.03,
     localMarketTrend: 'normal',
     inventoryLevels: 0.08,
-    priceToRentRatio: propertyValue / (currentRent * 12),
+    priceToRentRatio: effectivePriceToRentRatio,
     economicOutlook: 'stable',
     seasonality: 0.1
   });
+
+  useEffect(() => {
+    if (homePriceData) {
+      setPropertyScenario(prev => ({
+        ...prev,
+        propertyValue: homePriceData.medianHomePrice,
+        propertyTax: homePriceData.medianHomePrice * 0.015,
+        maintenanceCosts: homePriceData.medianHomePrice * 0.01,
+        appreciationRate: homePriceData.yearOverYearChange,
+      }));
+      setMarketConditions(prev => ({
+        ...prev,
+        priceToRentRatio: homePriceData.priceToRentRatio || prev.priceToRentRatio,
+        inventoryLevels: homePriceData.totalListings > 100 ? 0.12 : homePriceData.totalListings > 50 ? 0.08 : 0.05,
+      }));
+    }
+  }, [homePriceData]);
 
   const [selectedDownPayment, setSelectedDownPayment] = useState([20]);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -141,6 +170,15 @@ export const RentVsBuyAnalysis: React.FC<RentVsBuyAnalysisProps> = ({
 
   return (
     <div className={`space-y-6 ${className}`}>
+      {homePriceLoading && (
+        <Card className="border-blue-200 bg-blue-50/50">
+          <CardContent className="p-4 flex items-center gap-3">
+            <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+            <span className="text-sm text-blue-700">Loading home price data for {cityName}...</span>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Header with Key Metrics */}
       <Card className="bg-gradient-to-r from-blue-50 to-green-50 border-none">
         <CardHeader>
@@ -150,9 +188,26 @@ export const RentVsBuyAnalysis: React.FC<RentVsBuyAnalysisProps> = ({
                 <Calculator className="w-6 h-6 text-primary" />
                 Smart Rent vs Buy Analysis
               </CardTitle>
-              <p className="text-muted-foreground mt-2">
-                {location} • {RentVsBuyUtils.formatCurrency(propertyScenario.propertyValue)} property
-              </p>
+              <div className="flex items-center gap-3 mt-2">
+                <p className="text-muted-foreground">
+                  {cityName || location} • {RentVsBuyUtils.formatCurrency(propertyScenario.propertyValue)} median home
+                </p>
+                {homePriceData && (
+                  <Badge
+                    data-testid="badge-data-source"
+                    variant="outline"
+                    className={homePriceData.dataSource === 'zillow_api'
+                      ? 'bg-green-50 text-green-700 border-green-200'
+                      : 'bg-amber-50 text-amber-700 border-amber-200'}
+                  >
+                    {homePriceData.dataSource === 'zillow_api' ? (
+                      <><Wifi className="w-3 h-3 mr-1" /> Live Market Data</>
+                    ) : (
+                      <><Database className="w-3 h-3 mr-1" /> Market Estimates</>
+                    )}
+                  </Badge>
+                )}
+              </div>
             </div>
             
             <div className="flex items-center gap-4">

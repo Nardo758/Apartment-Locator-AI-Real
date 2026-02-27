@@ -12,13 +12,18 @@ import {
   Check,
   X,
   ArrowRight,
-  DollarSign
+  DollarSign,
+  Loader2,
+  Database,
+  Wifi
 } from 'lucide-react';
+import { useHomePriceData } from '@/hooks/useHomePriceData';
 
 interface RentVsBuyAnalyzerProps {
   propertyValue: number;
   currentRent: number;
   location: string;
+  city?: string;
   className?: string;
 }
 
@@ -40,16 +45,23 @@ export const RentVsBuyAnalyzer: React.FC<RentVsBuyAnalyzerProps> = ({
   propertyValue,
   currentRent,
   location,
+  city,
   className = ""
 }) => {
+  const cityName = city || location?.split(',')[0]?.trim();
+  const { data: homePriceData, isLoading: homePriceLoading } = useHomePriceData(cityName);
+
+  const effectivePropertyValue = homePriceData?.medianHomePrice || propertyValue;
+  const appreciationRate = homePriceData?.yearOverYearChange || 0.03;
+
   const [timeframe, setTimeframe] = useState(5);
   const [downPaymentPercent, setDownPaymentPercent] = useState([20]);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
 
   const calculateAnalysis = useCallback((): AnalysisResult => {
-    const downPayment = propertyValue * (downPaymentPercent[0] / 100);
-    const loanAmount = propertyValue - downPayment;
-    const interestRate = 0.07; // 7% mortgage rate
+    const downPayment = effectivePropertyValue * (downPaymentPercent[0] / 100);
+    const loanAmount = effectivePropertyValue - downPayment;
+    const interestRate = 0.07;
     const monthlyRate = interestRate / 12;
     const totalPayments = timeframe * 12;
     
@@ -57,16 +69,14 @@ export const RentVsBuyAnalyzer: React.FC<RentVsBuyAnalyzerProps> = ({
     const monthlyMortgage = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / 
                            (Math.pow(1 + monthlyRate, totalPayments) - 1);
     
-    // Additional monthly costs for buying
-    const propertyTax = (propertyValue * 0.015) / 12; // 1.5% annual
-    const insurance = (propertyValue * 0.005) / 12; // 0.5% annual
-    const maintenance = propertyValue * 0.01 / 12; // 1% annual
+    const propertyTax = (effectivePropertyValue * 0.015) / 12;
+    const insurance = (effectivePropertyValue * 0.005) / 12;
+    const maintenance = effectivePropertyValue * 0.01 / 12;
     const hoa = 150; // Average HOA
     
     const totalMonthlyBuyCost = monthlyMortgage + propertyTax + insurance + maintenance + hoa;
     
-    // Closing costs and upfront expenses
-    const closingCosts = propertyValue * 0.03; // 3%
+    const closingCosts = effectivePropertyValue * 0.03;
     const upfrontCost = downPayment + closingCosts;
     
     // Total costs over timeframe
@@ -76,7 +86,7 @@ export const RentVsBuyAnalyzer: React.FC<RentVsBuyAnalyzerProps> = ({
     // Equity calculation
     const principalPaid = loanAmount - (loanAmount * Math.pow(1 + monthlyRate, totalPayments) - 
                          monthlyMortgage * ((Math.pow(1 + monthlyRate, totalPayments) - 1) / monthlyRate));
-    const appreciation = propertyValue * Math.pow(1.03, timeframe) - propertyValue; // 3% annual
+    const appreciation = effectivePropertyValue * Math.pow(1 + appreciationRate, timeframe) - effectivePropertyValue;
     const equityBuilt = downPayment + principalPaid + appreciation;
     
     // Net worth difference (equity - extra costs)
@@ -108,7 +118,7 @@ export const RentVsBuyAnalyzer: React.FC<RentVsBuyAnalyzerProps> = ({
       upfrontCost,
       netWorthDifference
     };
-  }, [propertyValue, currentRent, timeframe, downPaymentPercent]);
+  }, [effectivePropertyValue, appreciationRate, currentRent, timeframe, downPaymentPercent]);
 
   useEffect(() => {
     setAnalysis(calculateAnalysis());
@@ -143,6 +153,15 @@ export const RentVsBuyAnalyzer: React.FC<RentVsBuyAnalyzerProps> = ({
 
   return (
     <div className={`space-y-6 ${className}`}>
+      {homePriceLoading && (
+        <Card className="border-blue-200 bg-blue-50/50">
+          <CardContent className="p-3 flex items-center gap-3">
+            <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+            <span className="text-sm text-blue-700">Loading home prices for {cityName}...</span>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Header with Controls */}
       <Card className="bg-card border-border">
         <CardHeader>
@@ -152,9 +171,26 @@ export const RentVsBuyAnalyzer: React.FC<RentVsBuyAnalyzerProps> = ({
                 <Calculator className="w-5 h-5 text-primary" />
                 Rent vs Buy Analysis
               </CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                {location} • {formatCurrency(propertyValue)} property
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-sm text-muted-foreground">
+                  {cityName || location} • {formatCurrency(effectivePropertyValue)} median home
+                </p>
+                {homePriceData && (
+                  <Badge
+                    data-testid="badge-analyzer-data-source"
+                    variant="outline"
+                    className={`text-xs ${homePriceData.dataSource === 'zillow_api'
+                      ? 'bg-green-50 text-green-700 border-green-200'
+                      : 'bg-amber-50 text-amber-700 border-amber-200'}`}
+                  >
+                    {homePriceData.dataSource === 'zillow_api' ? (
+                      <><Wifi className="w-3 h-3 mr-1" /> Live</>
+                    ) : (
+                      <><Database className="w-3 h-3 mr-1" /> Est.</>
+                    )}
+                  </Badge>
+                )}
+              </div>
             </div>
             
             {/* Timeframe Selector */}
@@ -182,7 +218,7 @@ export const RentVsBuyAnalyzer: React.FC<RentVsBuyAnalyzerProps> = ({
                 Down Payment: {downPaymentPercent[0]}%
               </label>
               <span className="text-sm text-muted-foreground">
-                {formatCurrency(propertyValue * (downPaymentPercent[0] / 100))}
+                {formatCurrency(effectivePropertyValue * (downPaymentPercent[0] / 100))}
               </span>
             </div>
             <Slider
@@ -399,7 +435,7 @@ export const RentVsBuyAnalyzer: React.FC<RentVsBuyAnalyzerProps> = ({
               <div>
                 <div className="font-medium text-sm">Market conditions</div>
                 <div className="text-xs text-muted-foreground">
-                  Current rates: ~7%, appreciation: ~3%
+                  Current rates: ~7%, appreciation: ~{(appreciationRate * 100).toFixed(1)}%
                 </div>
               </div>
             </div>

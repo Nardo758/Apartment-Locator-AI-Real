@@ -19,10 +19,105 @@ import {
   DollarSign,
   Calendar,
   Loader2,
+  Home,
+  TrendingUp,
+  Database,
+  Wifi,
 } from 'lucide-react';
 import { useSavedScrapedProperties } from '@/hooks/useSavedScrapedProperties';
 import type { ScrapedProperty } from '@/lib/savings-calculator';
 import { calculatePropertySavings, formatMoney } from '@/lib/savings-calculator';
+import { useHomePriceData } from '@/hooks/useHomePriceData';
+
+function RentVsBuyCompactCard({ monthlyRent, city }: { monthlyRent: number; city?: string }) {
+  const { data: homePriceData, isLoading } = useHomePriceData(city);
+
+  if (!city || monthlyRent <= 0) return null;
+
+  const medianHome = homePriceData?.medianHomePrice || 0;
+  if (!medianHome) return null;
+
+  const mortgageRate = 0.07;
+  const downPaymentPct = 0.20;
+  const loanAmount = medianHome * (1 - downPaymentPct);
+  const monthlyRate = mortgageRate / 12;
+  const termMonths = 360;
+  const monthlyPI = loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -termMonths));
+  const monthlyTax = (medianHome * 0.015) / 12;
+  const monthlyInsurance = (medianHome * 0.005) / 12;
+  const totalMonthlyBuy = monthlyPI + monthlyTax + monthlyInsurance;
+  const monthlyDiff = totalMonthlyBuy - monthlyRent;
+  const yoyChange = homePriceData?.yearOverYearChange || 0;
+
+  return (
+    <Card data-testid="card-rent-vs-buy-compact">
+      <CardHeader className="py-3">
+        <CardTitle className="text-sm flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Home className="w-4 h-4 text-primary" />
+            Rent vs Buy
+          </div>
+          {homePriceData && (
+            <Badge
+              variant="outline"
+              className={`text-xs ${homePriceData.dataSource === 'zillow_api'
+                ? 'bg-green-50 text-green-700 border-green-200'
+                : 'bg-amber-50 text-amber-700 border-amber-200'}`}
+            >
+              {homePriceData.dataSource === 'zillow_api' ? (
+                <><Wifi className="w-3 h-3 mr-1" /> Live</>
+              ) : (
+                <><Database className="w-3 h-3 mr-1" /> Est.</>
+              )}
+            </Badge>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0 space-y-2">
+        {isLoading ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="w-3 h-3 animate-spin" /> Loading...
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Median home ({city})</span>
+              <span className="font-medium" data-testid="text-median-home-price">
+                ${medianHome.toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Est. mortgage</span>
+              <span className="font-medium" data-testid="text-est-mortgage">${Math.round(totalMonthlyBuy).toLocaleString()}/mo</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">This rental</span>
+              <span className="font-medium" data-testid="text-rental-price">${monthlyRent.toLocaleString()}/mo</span>
+            </div>
+            <div className="flex justify-between text-sm border-t pt-2">
+              <span className="font-medium">Monthly difference</span>
+              <span className={`font-bold ${monthlyDiff > 0 ? 'text-green-600' : 'text-red-600'}`} data-testid="text-monthly-diff">
+                {monthlyDiff > 0 ? `+$${Math.round(monthlyDiff).toLocaleString()}` : `-$${Math.round(Math.abs(monthlyDiff)).toLocaleString()}`}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Appreciation</span>
+              <span className="flex items-center gap-1 text-xs" data-testid="text-appreciation">
+                <TrendingUp className="w-3 h-3 text-green-500" />
+                {(yoyChange * 100).toFixed(1)}%/yr
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {monthlyDiff > 0 
+                ? `Renting saves ~$${Math.round(monthlyDiff).toLocaleString()}/mo vs buying`
+                : `Buying costs ~$${Math.round(Math.abs(monthlyDiff)).toLocaleString()}/mo less than renting`}
+            </p>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 function PropertyHeroImage({ imageUrl, name }: { imageUrl?: string; name: string }) {
   const [imgError, setImgError] = useState(false);
@@ -312,6 +407,11 @@ export default function ScrapedPropertyDetail() {
                   </CardContent>
                 </Card>
               )}
+
+              <RentVsBuyCompactCard
+                monthlyRent={displayProperty.min_rent || displayProperty.max_rent || 0}
+                city={displayProperty.city}
+              />
 
               {displayProperty.website_url && (
                 <Button
