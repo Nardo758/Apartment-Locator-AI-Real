@@ -302,7 +302,7 @@ const AuthModern = () => {
                 ) : urlUserType === 'agent' ? (
                   <Briefcase className="w-8 h-8 text-white" />
                 ) : (
-                  <Home className="w-8 h-8 text-white" />
+                  <Building className="w-8 h-8 text-white" />
                 )}
               </div>
               
