@@ -44,8 +44,8 @@ const Landing = () => {
       <header className="fixed top-0 w-full z-[1000] py-4 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-200">
         <nav className="max-w-[1200px] mx-auto px-5 flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <img src="/lovable-uploads/10c9e4a0-b0e6-4896-884c-68dde07278eb.png" alt="Apartment Locator AI Logo" className="h-8 w-auto" />
-            <div className="text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <Building className="w-8 h-8 text-blue-600" />
+            <div className="text-2xl font-extrabold text-gray-900">
               Apartment Locator AI
             </div>
           </div>
@@ -501,12 +501,8 @@ const Landing = () => {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <img src="/lovable-uploads/10c9e4a0-b0e6-4896-884c-68dde07278eb.png" alt="Apartment Locator AI Logo" className="h-6 w-auto" />
-                <div className="text-2xl font-extrabold" style={{ 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-                  WebkitBackgroundClip: 'text', 
-                  backgroundClip: 'text', 
-                  WebkitTextFillColor: 'transparent' 
+                <Building className="w-6 h-6 text-blue-400" />
+                <div className="text-2xl font-extrabold text-white" style={{ 
                 }}>
                   Apartment Locator AI
                 </div>

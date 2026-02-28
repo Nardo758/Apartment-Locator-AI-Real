@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { User, ChevronDown, Settings, HelpCircle, CreditCard, LogOut, Menu, LogIn } from 'lucide-react';
+import { User, ChevronDown, Settings, HelpCircle, CreditCard, LogOut, Menu, LogIn, Building } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
@@ -39,8 +39,8 @@ const Header = ({ onSignOut }: HeaderProps) => {
       <div className="flex items-center justify-between px-6 py-4">
         {/* Logo */}
         <div className="flex items-center space-x-2">
-          <img src="/lovable-uploads/10c9e4a0-b0e6-4896-884c-68dde07278eb.png" alt="Apartment Locator AI Logo" className="h-8 w-auto" />
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Apartment Locator AI</h1>
+          <Building className="w-8 h-8 text-blue-600" />
+          <h1 className="text-xl font-bold text-gray-900">Apartment Locator AI</h1>
         </div>
 
         {/* Desktop Navigation */}

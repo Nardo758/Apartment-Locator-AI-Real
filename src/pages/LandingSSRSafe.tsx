@@ -34,7 +34,7 @@ const LandingSSRSafe = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Apartment Locator AI</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Apartment Locator AI</h1>
           <p className="text-gray-600 mt-2">Loading...</p>
         </div>
       </div>
@@ -77,8 +77,8 @@ const LandingSSRSafe = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <img src="/lovable-uploads/10c9e4a0-b0e6-4896-884c-68dde07278eb.png" alt="Apartment Locator AI Logo" className="h-8 w-auto" />
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Apartment Locator AI</span>
+            <Building className="w-8 h-8 text-blue-600" />
+            <span className="text-xl font-bold text-gray-900">Apartment Locator AI</span>
           </div>
           <div className="flex items-center gap-6">
             <Link to="/auth" data-testid="link-signin">
@@ -363,10 +363,7 @@ const LandingSSRSafe = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <img src="/lovable-uploads/10c9e4a0-b0e6-4896-884c-68dde07278eb.png" alt="Apartment Locator AI Logo" className="h-6 w-auto" />
-                <h3 className="text-xl font-bold">Apartment Locator AI</h3>
-              </div>
+              <h3 className="text-xl font-bold mb-4">Apartment Locator AI</h3>
               <p className="text-gray-400 mb-4">
                 Revolutionizing apartment hunting with AI-powered intelligence and market insights.
               </p>
