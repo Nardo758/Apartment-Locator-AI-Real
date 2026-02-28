@@ -12,8 +12,11 @@ function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
     return next();
   }
 
-  if (authHeader?.startsWith("Bearer ")) {
-    return next();
+  if (authHeader?.startsWith("Bearer ") && validAdminKey) {
+    const token = authHeader.slice(7);
+    if (token === validAdminKey) {
+      return next();
+    }
   }
 
   res.status(401).json({

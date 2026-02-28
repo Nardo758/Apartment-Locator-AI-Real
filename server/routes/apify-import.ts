@@ -1,10 +1,13 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { ApifyImportService } from '../services/apify-import';
+import { ApartmentListImportService } from '../services/apartmentlist-import';
 
 const router = Router();
 const importService = new ApifyImportService();
+const apartmentListImportService = new ApartmentListImportService();
 
 const APIFY_ACTOR = 'memo23~apify-apartments-cheerio';
+const APIFY_APARTMENTLIST_ACTOR_ID = 'rcYy6tgVjoEsFgj0O';
 const APIFY_BASE = 'https://api.apify.com/v2';
 
 function getApifyToken(): string | null {
@@ -20,11 +23,14 @@ function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
     return next();
   }
 
-  if (authHeader?.startsWith('Bearer ')) {
-    return next();
+  if (authHeader?.startsWith('Bearer ') && validAdminKey) {
+    const token = authHeader.slice(7);
+    if (token === validAdminKey) {
+      return next();
+    }
   }
 
-  res.status(401).json({ error: 'Authentication required. Provide x-admin-key header or Bearer token.' });
+  res.status(401).json({ error: 'Authentication required. Provide valid x-admin-key header or Bearer token.' });
 }
 
 router.use(requireAdminAuth);
@@ -195,6 +201,141 @@ router.post('/import/apify', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Apify direct import error:', error);
     res.status(500).json({ error: `Import failed: ${(error as Error).message}` });
+  }
+});
+
+router.post('/import/apartmentlist-dataset', async (req: Request, res: Response) => {
+  try {
+    const { datasetId } = req.body;
+    const token = getApifyToken();
+
+    if (!datasetId) {
+      return res.status(400).json({ error: 'datasetId is required' });
+    }
+    if (!token) {
+      return res.status(400).json({ error: 'APIFY_TOKEN not configured' });
+    }
+
+    const fetchUrl = `${APIFY_BASE}/datasets/${datasetId}/items?token=${token}&format=json&clean=true`;
+    console.log(`Fetching ApartmentList dataset: ${datasetId}`);
+
+    const response = await fetch(fetchUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch dataset: ${response.status} ${response.statusText}`);
+    }
+
+    const listings = await response.json() as any[];
+    console.log(`Fetched ${listings.length} ApartmentList listings from dataset ${datasetId}`);
+
+    const stats = await apartmentListImportService.importListings(listings);
+
+    res.json({
+      success: true,
+      source: 'apartmentlist.com',
+      datasetId,
+      listingsFound: listings.length,
+      importStats: stats,
+    });
+  } catch (error) {
+    console.error('ApartmentList dataset import error:', error);
+    res.status(500).json({ error: `Import failed: ${(error as Error).message}` });
+  }
+});
+
+router.post('/scrape/apartmentlist', async (req: Request, res: Response) => {
+  try {
+    const token = getApifyToken();
+    if (!token) {
+      return res.status(400).json({ error: 'APIFY_TOKEN not configured' });
+    }
+
+    const { city = 'atlanta', state = 'ga', maxItems = 50 } = req.body;
+
+    console.log(`Starting ApartmentList scrape for ${city}, ${state} (maxItems: ${maxItems})`);
+
+    const runResponse = await fetch(
+      `${APIFY_BASE}/acts/${APIFY_APARTMENTLIST_ACTOR_ID}/runs?token=${token}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          city: city.toLowerCase(),
+          state: state.toLowerCase(),
+          maxItems,
+        }),
+      }
+    );
+
+    if (!runResponse.ok) {
+      const errText = await runResponse.text();
+      throw new Error(`Apify run failed (${runResponse.status}): ${errText}`);
+    }
+
+    const runData = await runResponse.json() as any;
+    const runId = runData.data?.id;
+
+    if (!runId) {
+      throw new Error('No run ID returned from Apify');
+    }
+
+    console.log(`ApartmentList scrape started: ${runId}. Polling for completion...`);
+
+    let status = runData.data?.status;
+    let attempts = 0;
+    const maxAttempts = 60;
+
+    while (status !== 'SUCCEEDED' && status !== 'FAILED' && status !== 'ABORTED' && attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      attempts++;
+
+      const statusResponse = await fetch(
+        `${APIFY_BASE}/actor-runs/${runId}?token=${token}`
+      );
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json() as any;
+        status = statusData.data?.status;
+        console.log(`ApartmentList run ${runId} status: ${status} (attempt ${attempts}/${maxAttempts})`);
+      }
+    }
+
+    if (status !== 'SUCCEEDED') {
+      return res.status(500).json({
+        error: `ApartmentList scrape did not succeed. Final status: ${status}`,
+        runId,
+      });
+    }
+
+    const datasetId = runData.data?.defaultDatasetId;
+    if (!datasetId) {
+      throw new Error('No dataset ID found in run data');
+    }
+
+    const dataResponse = await fetch(
+      `${APIFY_BASE}/datasets/${datasetId}/items?token=${token}&format=json&clean=true`
+    );
+
+    if (!dataResponse.ok) {
+      throw new Error(`Failed to fetch dataset: ${dataResponse.status}`);
+    }
+
+    const listings = await dataResponse.json() as any[];
+    console.log(`Fetched ${listings.length} ApartmentList listings from dataset ${datasetId}`);
+
+    const stats = await apartmentListImportService.importListings(listings);
+
+    res.json({
+      success: true,
+      source: 'apartmentlist.com',
+      runId,
+      datasetId,
+      city,
+      state,
+      listingsFound: listings.length,
+      importStats: stats,
+    });
+  } catch (error) {
+    console.error('ApartmentList scrape error:', error);
+    res.status(500).json({ error: `Scrape failed: ${(error as Error).message}` });
   }
 });
 

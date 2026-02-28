@@ -253,7 +253,7 @@ export async function enrichPropertiesBatch(options: {
   let paramIdx = 0;
 
   if (!forceRefresh) {
-    query += ` AND (direct_website_url IS NULL OR amenities IS NULL OR amenities::text = '[]')`;
+    query += ` AND (direct_website_url IS NULL OR amenities IS NULL OR amenities::text = '[]' OR jsonb_array_length(COALESCE(amenities, '[]'::jsonb)) < 5)`;
   }
 
   if (city) {
@@ -309,10 +309,12 @@ export async function enrichPropertiesBatch(options: {
         setClauses.push(`direct_website_url = $${pIdx}`);
       }
 
-      if (enrichment.amenities.length > 0) {
-        const existingAmenities: string[] = (row.amenities && JSON.stringify(row.amenities) !== "[]")
-          ? (Array.isArray(row.amenities) ? row.amenities : [])
-          : [];
+      const existingAmenities: string[] = (row.amenities && JSON.stringify(row.amenities) !== "[]")
+        ? (Array.isArray(row.amenities) ? row.amenities : [])
+        : [];
+      const hasRichAmenities = existingAmenities.length >= 5;
+
+      if (enrichment.amenities.length > 0 && !hasRichAmenities) {
         const merged = [...new Set([...existingAmenities, ...enrichment.amenities])];
         pIdx++;
         updateParams.push(JSON.stringify(merged));
