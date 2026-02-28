@@ -214,7 +214,7 @@ export const api = {
       squareFeetMin: p.square_feet_min,
       squareFeetMax: p.square_feet_max,
       amenities: p.amenities,
-      images: p.images || p.photos || [],
+      images: p.image_url ? [p.image_url] : (p.images || p.photos || []),
       description: p.description,
       propertyType: p.property_type,
       yearBuilt: p.year_built,

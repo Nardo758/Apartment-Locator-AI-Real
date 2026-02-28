@@ -285,6 +285,7 @@ export default function UnifiedDashboard() {
     loadDashboardData();
   }, [unifiedAI.pointsOfInterest]);
   
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [sortBy, setSortBy] = useState<SortField>('trueCost');
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
@@ -783,11 +784,25 @@ export default function UnifiedDashboard() {
                               </Button>
                             </TableCell>
                             <TableCell className="font-medium">
-                              <div className="flex items-center gap-2">
-                                {property.savingsRank === 1 && (
-                                  <Star className="w-4 h-4 text-green-500 shrink-0" />
-                                )}
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                                  {property.imageUrl && !imageErrors.has(property.id) ? (
+                                    <img
+                                      src={property.imageUrl}
+                                      alt={property.name}
+                                      className="w-full h-full object-cover"
+                                      onError={() => setImageErrors(prev => new Set(prev).add(property.id))}
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                      <Home className="w-4 h-4 text-muted-foreground" />
+                                    </div>
+                                  )}
+                                </div>
                                 <div>
+                                  {property.savingsRank === 1 && (
+                                    <Star className="w-3 h-3 text-green-500 inline mr-1" />
+                                  )}
                                   <span className="text-sm">{property.name}</span>
                                   {property.specialOffers && (
                                     <p className="text-xs text-emerald-500 font-medium mt-0.5">
