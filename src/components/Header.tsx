@@ -39,8 +39,8 @@ const Header = ({ onSignOut }: HeaderProps) => {
       <div className="flex items-center justify-between px-6 py-4">
         {/* Logo */}
         <div className="flex items-center space-x-2">
-          <Building className="w-8 h-8 text-blue-600" />
-          <h1 className="text-xl font-bold text-gray-900">Apartment Locator AI</h1>
+          <Building className="w-7 h-7 text-blue-600 flex-shrink-0" />
+          <h1 className="text-xl font-bold text-gray-900 leading-none">Apartment Locator AI</h1>
         </div>
 
         {/* Desktop Navigation */}
