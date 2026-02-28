@@ -183,10 +183,48 @@ export const api = {
     if (filters?.bedrooms) params.set("bedrooms", String(filters.bedrooms));
     if (filters?.limit) params.set("limit", String(filters.limit));
     
-    const url = `/api/properties${params.toString() ? `?${params}` : ""}`;
+    const url = `/api/scraped-properties${params.toString() ? `?${params}` : ""}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error("Failed to fetch properties");
-    return res.json();
+    const data = await res.json();
+    return data.map((p: any) => ({
+      id: p.id || p.property_id,
+      externalId: p.external_id,
+      source: p.source,
+      name: p.name,
+      address: p.address,
+      city: p.city,
+      state: p.state,
+      zipCode: p.zip_code,
+      latitude: p.latitude,
+      longitude: p.longitude,
+      minPrice: p.min_rent,
+      maxPrice: p.max_rent,
+      priceRange: p.price_range,
+      bedroomsMin: p.bedrooms_min,
+      bedroomsMax: p.bedrooms_max,
+      bathroomsMin: p.bathrooms_min,
+      bathroomsMax: p.bathrooms_max,
+      squareFeetMin: p.square_feet_min,
+      squareFeetMax: p.square_feet_max,
+      amenities: p.amenities,
+      images: p.images || p.photos || [],
+      description: p.description,
+      propertyType: p.property_type,
+      yearBuilt: p.year_built,
+      unitsCount: p.units_count,
+      phone: p.phone,
+      email: p.email,
+      website: p.direct_website_url || p.listing_url,
+      listingUrl: p.listing_url,
+      specialOffers: p.special_offers,
+      concessionType: p.concession_type,
+      concessionValue: p.concession_value,
+      effectivePrice: p.effective_price,
+      daysOnMarket: p.days_on_market,
+      lastSeen: p.last_seen,
+      isActive: p.status === 'active',
+    }));
   },
 
   async getPropertyById(id: string): Promise<Property> {
