@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { ApifyImportService } from '../services/apify-import';
 import { ApartmentListImportService } from '../services/apartmentlist-import';
+import { generateMarketSnapshots } from '../services/market-snapshot-generator';
 
 const router = Router();
 const importService = new ApifyImportService();
@@ -483,6 +484,14 @@ router.post('/scrape/refresh-all', async (req: Request, res: Response) => {
       results,
     };
     console.log(`[Refresh] Complete:`, JSON.stringify(summary, null, 2));
+
+    try {
+      console.log(`[Refresh] Generating market snapshots...`);
+      const snapshotResult = await generateMarketSnapshots();
+      console.log(`[Refresh] Market snapshots generated: ${snapshotResult.snapshotsCreated} snapshots for ${snapshotResult.citiesProcessed} cities`);
+    } catch (snapshotErr) {
+      console.error(`[Refresh] Market snapshot generation failed:`, snapshotErr);
+    }
   } catch (error) {
     console.error('[Refresh] Error:', error);
   }

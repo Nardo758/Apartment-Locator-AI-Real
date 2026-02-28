@@ -37,6 +37,7 @@ import jediIntegrationRoutes from "./routes/jedi-integration";
 import homePriceRoutes from "./routes/home-prices";
 import apifyImportRoutes from "./routes/apify-import";
 import serpEnrichmentRoutes from "./routes/serp-enrichment";
+import { generateMarketSnapshots } from "./services/market-snapshot-generator";
 
 declare global {
   namespace Express {
@@ -415,6 +416,29 @@ export async function registerRoutes(app: Express): Promise<void> {
     } catch (error) {
       console.error("Error creating market snapshot:", error);
       res.status(500).json({ error: "Failed to create market snapshot" });
+    }
+  });
+
+  app.post("/api/admin/generate-market-snapshots", async (req, res) => {
+    try {
+      const apiKey = req.headers["x-admin-key"] as string;
+      const authHeader = req.headers.authorization;
+      const validKey = process.env.APIFY_TOKEN;
+
+      const isAuthed =
+        (apiKey && validKey && apiKey === validKey) ||
+        (authHeader?.startsWith("Bearer ") && validKey && authHeader.slice(7) === validKey);
+
+      if (!isAuthed) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const { cities } = req.body || {};
+      const result = await generateMarketSnapshots(cities || undefined);
+      res.json(result);
+    } catch (error) {
+      console.error("Error generating market snapshots:", error);
+      res.status(500).json({ error: "Failed to generate market snapshots" });
     }
   });
 
