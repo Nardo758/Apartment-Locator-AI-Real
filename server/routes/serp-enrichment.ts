@@ -66,6 +66,72 @@ router.post("/enrich/serp", async (req: Request, res: Response) => {
   }
 });
 
+router.post("/enrich/serp/all", async (req: Request, res: Response) => {
+  try {
+    if (!process.env.SERPAPI_KEY) {
+      return res.status(500).json({ error: "SERPAPI_KEY not configured" });
+    }
+
+    const { batchSize = 20 } = req.body;
+
+    res.json({ success: true, message: "Background enrichment started. Check server logs for progress." });
+
+    (async () => {
+      let totalEnriched = 0;
+      let totalErrors = 0;
+      let batch = 0;
+      const unenrichableIds: number[] = [];
+
+      while (true) {
+        batch++;
+        try {
+          const progress = await enrichPropertiesBatch({
+            limit: Math.min(batchSize, 50),
+            forceRefresh: false,
+            excludeIds: unenrichableIds,
+          });
+
+          totalEnriched += progress.enriched;
+          totalErrors += progress.errors;
+
+          for (const r of progress.results) {
+            if (!r.directUrl && r.amenitiesCount === 0 && !r.error) {
+              unenrichableIds.push(r.id);
+            }
+          }
+
+          console.log(
+            `[SERP Auto-Enrich] Batch ${batch}: ${progress.enriched} enriched, ${progress.errors} errors, ${progress.total} candidates (${unenrichableIds.length} skipped) | Cumulative: ${totalEnriched} enriched, ${totalErrors} errors`
+          );
+
+          if (progress.total === 0) {
+            console.log(`[SERP Auto-Enrich] Complete! Total: ${totalEnriched} enriched, ${totalErrors} errors across ${batch} batches`);
+            break;
+          }
+
+          if (progress.enriched === 0 && progress.total <= unenrichableIds.length) {
+            console.log(`[SERP Auto-Enrich] Complete! All remaining candidates unenrichable. Total: ${totalEnriched} enriched, ${totalErrors} errors across ${batch} batches`);
+            break;
+          }
+
+          await new Promise(r => setTimeout(r, 1000));
+        } catch (err: any) {
+          console.error(`[SERP Auto-Enrich] Batch ${batch} error: ${err.message}`);
+          totalErrors++;
+          if (totalErrors > 20) {
+            console.error("[SERP Auto-Enrich] Too many errors, stopping.");
+            break;
+          }
+          await new Promise(r => setTimeout(r, 5000));
+        }
+      }
+    })();
+  } catch (error: any) {
+    console.error("[SERP Auto-Enrich] Error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.post("/enrich/serp/single", async (req: Request, res: Response) => {
   try {
     const { name, city, state } = req.body;

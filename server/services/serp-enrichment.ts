@@ -240,8 +240,9 @@ export async function enrichPropertiesBatch(options: {
   city?: string;
   limit?: number;
   forceRefresh?: boolean;
+  excludeIds?: number[];
 }): Promise<EnrichmentProgress> {
-  const { city, limit = 10, forceRefresh = false } = options;
+  const { city, limit = 10, forceRefresh = false, excludeIds = [] } = options;
 
   let query = `
     SELECT id, name, city, state, direct_website_url, amenities, image_url
@@ -256,6 +257,12 @@ export async function enrichPropertiesBatch(options: {
     query += ` AND (direct_website_url IS NULL OR amenities IS NULL OR amenities::text = '[]' OR jsonb_array_length(COALESCE(amenities, '[]'::jsonb)) < 5)`;
   }
 
+  if (excludeIds.length > 0) {
+    paramIdx++;
+    params.push(excludeIds);
+    query += ` AND id != ALL($${paramIdx})`;
+  }
+
   if (city) {
     paramIdx++;
     params.push(city);
@@ -264,7 +271,7 @@ export async function enrichPropertiesBatch(options: {
 
   paramIdx++;
   params.push(limit);
-  query += ` ORDER BY id ASC LIMIT $${paramIdx}`;
+  query += ` ORDER BY CASE WHEN direct_website_url IS NULL THEN 0 ELSE 1 END, id ASC LIMIT $${paramIdx}`;
 
   const result = await pool.query(query, params);
   const rows = result.rows;
