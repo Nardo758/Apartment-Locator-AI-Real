@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { db } from "../db";
 import { scrapedProperties } from "../../shared/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql, and, ilike, gte, lte } from "drizzle-orm";
 import { getPropertyPhoto } from "../services/places-photo";
 
 function buildSpecialOffers(raw: any): string | undefined {
@@ -96,15 +96,48 @@ function isValidApartment(p: any): boolean {
 }
 
 export function registerScrapedPropertyRoutes(app: Express): void {
-  app.get("/api/scraped-properties", async (_req: Request, res: Response) => {
+  app.get("/api/scraped-properties", async (req: Request, res: Response) => {
     try {
-      const data = await db
-        .select()
-        .from(scrapedProperties)
-        .orderBy(desc(scrapedProperties.scrapedAt));
+      const { lat, lng, radius, city, state, minPrice, maxPrice, bedrooms, limit: limitParam } = req.query;
+      const resultLimit = limitParam ? Math.min(Number(limitParam), 500) : 200;
+
+      const conditions: any[] = [];
+
+      const centerLat = lat ? Number(lat) : NaN;
+      const centerLng = lng ? Number(lng) : NaN;
+      const radiusMiles = radius ? Number(radius) : NaN;
+
+      if (isFinite(centerLat) && isFinite(centerLng) && isFinite(radiusMiles) && radiusMiles > 0) {
+        const latDelta = radiusMiles / 69.0;
+        const lngDelta = radiusMiles / (69.0 * Math.cos(centerLat * Math.PI / 180));
+        conditions.push(sql`CAST(${scrapedProperties.latitude} AS double precision) >= ${centerLat - latDelta}`);
+        conditions.push(sql`CAST(${scrapedProperties.latitude} AS double precision) <= ${centerLat + latDelta}`);
+        conditions.push(sql`CAST(${scrapedProperties.longitude} AS double precision) >= ${centerLng - lngDelta}`);
+        conditions.push(sql`CAST(${scrapedProperties.longitude} AS double precision) <= ${centerLng + lngDelta}`);
+
+        conditions.push(sql`(
+          3959 * acos(
+            cos(radians(${centerLat})) * cos(radians(CAST(${scrapedProperties.latitude} AS double precision)))
+            * cos(radians(CAST(${scrapedProperties.longitude} AS double precision)) - radians(${centerLng}))
+            + sin(radians(${centerLat})) * sin(radians(CAST(${scrapedProperties.latitude} AS double precision)))
+          )
+        ) <= ${radiusMiles}`);
+      } else {
+        if (city) conditions.push(ilike(scrapedProperties.city, String(city)));
+        if (state) conditions.push(ilike(scrapedProperties.state, String(state)));
+      }
+
+      if (minPrice) conditions.push(gte(scrapedProperties.currentPrice, Number(minPrice)));
+      if (maxPrice) conditions.push(lte(scrapedProperties.currentPrice, Number(maxPrice)));
+      if (bedrooms) conditions.push(gte(scrapedProperties.bedrooms, Number(bedrooms)));
+
+      let query = db.select().from(scrapedProperties);
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions)) as any;
+      }
+      const data = await (query as any).orderBy(desc(scrapedProperties.scrapedAt)).limit(resultLimit);
 
       const mapped = data.map(mapProperty);
-
       const valid = mapped.filter(isValidApartment);
 
       const enriched = await Promise.all(

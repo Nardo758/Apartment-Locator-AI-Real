@@ -182,6 +182,9 @@ export default function UnifiedDashboard() {
     document.title = 'Renter Dashboard | Apartment Locator AI';
   }, []);
 
+  const SEARCH_RADIUS_MILES = 15;
+  const DEFAULT_CENTER = { lat: 33.749, lng: -84.388 };
+
   useEffect(() => {
     const loadDashboardData = async () => {
       setDataError(null);
@@ -189,18 +192,22 @@ export default function UnifiedDashboard() {
       const defaultState = 'GA';
 
       try {
-        // First try loading all properties (no city/state filter) to get all 125+
-        let fetched = await api.getProperties({ limit: 200 });
+        const aiPois = unifiedAI.pointsOfInterest || [];
+        const workPoi = aiPois.find(p => p.category === 'work' && p.coordinates);
+        const primaryPoi = workPoi || aiPois.find(p => p.coordinates);
+        const center = primaryPoi?.coordinates || DEFAULT_CENTER;
 
-        // If no results, try with city/state filter as fallback
+        let fetched = await api.getProperties({
+          lat: center.lat,
+          lng: center.lng,
+          radius: SEARCH_RADIUS_MILES,
+          limit: 200,
+        });
+
         if (fetched.length === 0) {
           fetched = await api.getProperties({ city: defaultCity, state: defaultState, limit: 200 });
         }
         if (fetched.length > 0) {
-          // Default coordinates for properties missing lat/lng (Atlanta city center)
-          const DEFAULT_LAT = 33.749;
-          const DEFAULT_LNG = -84.388;
-
           const mapped = fetched
             .map((property) => {
               const lat = property.latitude ? parseFloat(property.latitude) : null;
@@ -209,7 +216,6 @@ export default function UnifiedDashboard() {
                 ? (property.minPrice + property.maxPrice) / 2
                 : property.minPrice || property.maxPrice || 0;
 
-              // Skip properties with no rent data at all
               if (rent === 0) return null;
 
               return {
@@ -217,8 +223,8 @@ export default function UnifiedDashboard() {
                 name: property.name,
                 address: property.address,
                 coordinates: {
-                  lat: (lat && !isNaN(lat)) ? lat : DEFAULT_LAT,
-                  lng: (lng && !isNaN(lng)) ? lng : DEFAULT_LNG,
+                  lat: (lat && !isNaN(lat)) ? lat : center.lat,
+                  lng: (lng && !isNaN(lng)) ? lng : center.lng,
                 },
                 baseRent: rent,
                 parkingIncluded: false,
@@ -277,7 +283,7 @@ export default function UnifiedDashboard() {
     };
 
     loadDashboardData();
-  }, []);
+  }, [unifiedAI.pointsOfInterest]);
   
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [sortBy, setSortBy] = useState<SortField>('trueCost');

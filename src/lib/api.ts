@@ -170,12 +170,18 @@ export const api = {
   async getProperties(filters?: {
     city?: string;
     state?: string;
+    lat?: number;
+    lng?: number;
+    radius?: number;
     minPrice?: number;
     maxPrice?: number;
     bedrooms?: number;
     limit?: number;
   }): Promise<Property[]> {
     const params = new URLSearchParams();
+    if (filters?.lat) params.set("lat", String(filters.lat));
+    if (filters?.lng) params.set("lng", String(filters.lng));
+    if (filters?.radius) params.set("radius", String(filters.radius));
     if (filters?.city) params.set("city", filters.city);
     if (filters?.state) params.set("state", filters.state);
     if (filters?.minPrice) params.set("minPrice", String(filters.minPrice));
