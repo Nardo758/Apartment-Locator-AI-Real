@@ -3,14 +3,29 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle, TrendingUp, Users, DollarSign, Clock, Zap, Target, BarChart, Brain, Search, Mail, Star, Building, MapPin, Calendar, Home, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// SSR-Safe Landing Page - No external dependencies that could cause SSR issues
+const HERO_PHOTOS = [
+  'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+];
+
 const LandingSSRSafe = () => {
   const [mounted, setMounted] = useState(false);
+  const [activePhoto, setActivePhoto] = useState(0);
 
   // Only run client-side effects after component mounts
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const timer = setInterval(() => {
+      setActivePhoto((prev) => (prev + 1) % HERO_PHOTOS.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [mounted]);
 
   // Prevent hydration mismatches by not rendering dynamic content until mounted
   if (!mounted) {
@@ -117,8 +132,33 @@ const LandingSSRSafe = () => {
 
             <div className="relative">
               <div className="relative z-10 bg-white rounded-2xl shadow-2xl p-6 transform rotate-3 hover:rotate-0 transition-transform duration-300">
-                <div className="w-full h-64 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-lg mb-4 flex items-center justify-center">
-                  <Building className="w-16 h-16 text-blue-600" />
+                <div className="relative w-full h-64 rounded-lg mb-4 overflow-hidden" data-testid="hero-photo-carousel">
+                  {HERO_PHOTOS.map((url, i) => (
+                    <img
+                      key={i}
+                      src={url}
+                      alt={`Apartment photo ${i + 1}`}
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                      className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+                      style={{
+                        opacity: activePhoto === i ? 1 : 0,
+                        filter: 'contrast(1.1) saturate(1.3) sepia(0.15) brightness(1.05)',
+                      }}
+                      data-testid={`hero-photo-${i}`}
+                    />
+                  ))}
+                  <div
+                    className="absolute inset-0 rounded-lg pointer-events-none"
+                    style={{
+                      background: 'radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.25) 100%)',
+                    }}
+                  />
+                  <div
+                    className="absolute inset-0 rounded-lg pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(to bottom, rgba(255,235,200,0.1) 0%, transparent 50%, rgba(0,0,0,0.08) 100%)',
+                    }}
+                  />
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
