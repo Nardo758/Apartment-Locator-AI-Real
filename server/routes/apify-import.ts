@@ -253,15 +253,24 @@ router.post('/scrape/apartmentlist', async (req: Request, res: Response) => {
 
     console.log(`Starting ApartmentList scrape for ${city}, ${state} (maxItems: ${maxItems})`);
 
+    const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+    const stateSlug = state.toLowerCase();
+    const startUrl = `https://www.apartmentlist.com/${stateSlug}/${citySlug}`;
+
+    console.log(`Starting ApartmentList scrape: ${startUrl} (maxItems: ${maxItems})`);
+
     const runResponse = await fetch(
       `${APIFY_BASE}/acts/${APIFY_APARTMENTLIST_ACTOR_ID}/runs?token=${token}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          city: city.toLowerCase(),
-          state: state.toLowerCase(),
+          startUrls: [startUrl],
           maxItems,
+          endPage: 3,
+          proxy: { useApifyProxy: true },
+          customMapFunction: '(object) => { return {...object} }',
+          extendOutputFunction: '($) => { return {} }',
         }),
       }
     );
@@ -336,6 +345,170 @@ router.post('/scrape/apartmentlist', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('ApartmentList scrape error:', error);
     res.status(500).json({ error: `Scrape failed: ${(error as Error).message}` });
+  }
+});
+
+const SCRAPE_MARKETS = [
+  { city: 'atlanta', state: 'ga' },
+  { city: 'charlotte', state: 'nc' },
+  { city: 'raleigh', state: 'nc' },
+  { city: 'durham', state: 'nc' },
+  { city: 'nashville', state: 'tn' },
+  { city: 'tampa', state: 'fl' },
+  { city: 'orlando', state: 'fl' },
+  { city: 'jacksonville', state: 'fl' },
+  { city: 'miami', state: 'fl' },
+  { city: 'charleston', state: 'sc' },
+  { city: 'savannah', state: 'ga' },
+  { city: 'houston', state: 'tx' },
+  { city: 'dallas', state: 'tx' },
+  { city: 'austin', state: 'tx' },
+  { city: 'san antonio', state: 'tx' },
+  { city: 'frisco', state: 'tx' },
+];
+
+async function scrapeAndImportApartmentList(
+  token: string,
+  city: string,
+  state: string,
+  maxItems: number = 50
+): Promise<{ city: string; state: string; status: string; listings?: number; imported?: any; error?: string }> {
+  try {
+    const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+    const stateSlug = state.toLowerCase();
+    const startUrl = `https://www.apartmentlist.com/${stateSlug}/${citySlug}`;
+
+    console.log(`[Refresh] Starting ApartmentList scrape: ${startUrl}`);
+
+    const runResponse = await fetch(
+      `${APIFY_BASE}/acts/${APIFY_APARTMENTLIST_ACTOR_ID}/runs?token=${token}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          startUrls: [startUrl],
+          maxItems,
+          endPage: 3,
+          proxy: { useApifyProxy: true },
+          customMapFunction: '(object) => { return {...object} }',
+          extendOutputFunction: '($) => { return {} }',
+        }),
+      }
+    );
+
+    if (!runResponse.ok) {
+      const errText = await runResponse.text();
+      throw new Error(`Apify run failed (${runResponse.status}): ${errText}`);
+    }
+
+    const runData = await runResponse.json() as any;
+    const runId = runData.data?.id;
+    if (!runId) throw new Error('No run ID returned');
+
+    let status = runData.data?.status;
+    let attempts = 0;
+    const maxAttempts = 30;
+
+    while (status !== 'SUCCEEDED' && status !== 'FAILED' && status !== 'ABORTED' && attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      attempts++;
+      const statusResponse = await fetch(`${APIFY_BASE}/actor-runs/${runId}?token=${token}`);
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json() as any;
+        status = statusData.data?.status;
+      }
+    }
+
+    if (status !== 'SUCCEEDED') {
+      return { city, state, status: 'failed', error: `Run status: ${status}` };
+    }
+
+    const datasetId = runData.data?.defaultDatasetId;
+    if (!datasetId) throw new Error('No dataset ID');
+
+    const dataResponse = await fetch(
+      `${APIFY_BASE}/datasets/${datasetId}/items?token=${token}&format=json&clean=true`
+    );
+    if (!dataResponse.ok) throw new Error(`Dataset fetch failed: ${dataResponse.status}`);
+
+    const listings = await dataResponse.json() as any[];
+    const stats = await apartmentListImportService.importListings(listings);
+
+    console.log(`[Refresh] ${city}, ${state.toUpperCase()}: ${listings.length} listings, ${stats.inserted} new, ${stats.updated} updated`);
+    return { city, state, status: 'success', listings: listings.length, imported: stats };
+  } catch (error: any) {
+    console.error(`[Refresh] Failed ${city}, ${state}:`, error.message);
+    return { city, state, status: 'error', error: error.message };
+  }
+}
+
+router.post('/scrape/refresh-all', async (req: Request, res: Response) => {
+  try {
+    const token = getApifyToken();
+    if (!token) {
+      return res.status(400).json({ error: 'APIFY_TOKEN not configured' });
+    }
+
+    const { maxItems = 50, concurrency = 2, markets } = req.body;
+    const targetMarkets = markets && Array.isArray(markets)
+      ? markets
+      : SCRAPE_MARKETS;
+
+    console.log(`[Refresh] Starting refresh for ${targetMarkets.length} markets (concurrency: ${concurrency}, maxItems: ${maxItems})`);
+
+    res.json({
+      success: true,
+      message: `Refresh started for ${targetMarkets.length} markets. Running in background.`,
+      markets: targetMarkets.map((m: any) => `${m.city}, ${m.state.toUpperCase()}`),
+    });
+
+    const results: any[] = [];
+    for (let i = 0; i < targetMarkets.length; i += concurrency) {
+      const batch = targetMarkets.slice(i, i + concurrency);
+      const batchResults = await Promise.all(
+        batch.map((m: any) => scrapeAndImportApartmentList(token, m.city, m.state, maxItems))
+      );
+      results.push(...batchResults);
+
+      const succeeded = results.filter(r => r.status === 'success').length;
+      const totalListings = results.reduce((sum, r) => sum + (r.listings || 0), 0);
+      console.log(`[Refresh] Progress: ${results.length}/${targetMarkets.length} markets done (${succeeded} succeeded, ${totalListings} total listings)`);
+    }
+
+    const summary = {
+      total: results.length,
+      succeeded: results.filter(r => r.status === 'success').length,
+      failed: results.filter(r => r.status !== 'success').length,
+      totalListings: results.reduce((sum, r) => sum + (r.listings || 0), 0),
+      results,
+    };
+    console.log(`[Refresh] Complete:`, JSON.stringify(summary, null, 2));
+  } catch (error) {
+    console.error('[Refresh] Error:', error);
+  }
+});
+
+router.get('/markets', async (_req: Request, res: Response) => {
+  try {
+    const { db: database } = await import('../db');
+    const { sql: sqlTag } = await import('drizzle-orm');
+    const result = await database.execute(sqlTag`
+      SELECT 
+        source, city, state,
+        COUNT(*) as property_count,
+        COUNT(CASE WHEN direct_website_url IS NOT NULL THEN 1 END) as with_direct_url,
+        COUNT(CASE WHEN units_available IS NOT NULL THEN 1 END) as with_units,
+        ROUND(AVG(current_price)) as avg_price,
+        MAX(last_seen_at) as last_refreshed
+      FROM scraped_properties
+      WHERE current_price >= 200 AND current_price <= 15000
+      GROUP BY source, city, state
+      ORDER BY city, state, source
+    `);
+    res.json({ markets: result.rows, configured: SCRAPE_MARKETS });
+  } catch (error) {
+    console.error('Markets list error:', error);
+    res.status(500).json({ error: 'Failed to fetch markets' });
   }
 });
 
