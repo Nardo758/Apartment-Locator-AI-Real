@@ -34,21 +34,18 @@ function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
   res.status(401).json({ error: 'Authentication required. Provide valid x-admin-key header or Bearer token.' });
 }
 
-router.use(requireAdminAuth);
-
-router.post('/scrape/apartments-com', async (req: Request, res: Response) => {
+export async function scrapeAndImportApartmentsCom(
+  token: string,
+  city: string,
+  state: string,
+  maxItems: number = 200
+): Promise<{ city: string; state: string; status: string; listings?: number; imported?: any; error?: string }> {
   try {
-    const token = getApifyToken();
-    if (!token) {
-      return res.status(400).json({ error: 'APIFY_TOKEN not configured' });
-    }
-
-    const { city = 'atlanta', state = 'ga', maxItems = 200, includeDetails = true } = req.body;
     const citySlug = city.toLowerCase().replace(/[.']/g, '').replace(/\s+/g, '-');
     const stateSlug = state.toLowerCase();
     const startUrl = `https://www.apartments.com/${citySlug}-${stateSlug}/`;
 
-    console.log(`Starting Apify scrape for ${startUrl} (maxItems: ${maxItems}, includeDetails: ${includeDetails})`);
+    console.log(`[Apartments.com] Starting scrape: ${startUrl}`);
 
     const runResponse = await fetch(
       `${APIFY_BASE}/acts/${APIFY_ACTOR}/runs?token=${token}`,
@@ -62,7 +59,7 @@ router.post('/scrape/apartments-com', async (req: Request, res: Response) => {
           minConcurrency: 1,
           maxRequestRetries: 50,
           moreResults: false,
-          includeDetailPage: includeDetails,
+          includeDetailPage: true,
           proxy: {
             useApifyProxy: true,
             apifyProxyGroups: ['RESIDENTIAL'],
@@ -83,7 +80,7 @@ router.post('/scrape/apartments-com', async (req: Request, res: Response) => {
       throw new Error('No run ID returned from Apify');
     }
 
-    console.log(`Apify run started: ${runId}. Polling for completion...`);
+    console.log(`[Apartments.com] Run started: ${runId}. Polling for completion...`);
 
     let status = runData.data?.status;
     let attempts = 0;
@@ -99,15 +96,12 @@ router.post('/scrape/apartments-com', async (req: Request, res: Response) => {
       if (statusResponse.ok) {
         const statusData = await statusResponse.json() as any;
         status = statusData.data?.status;
-        console.log(`Apify run ${runId} status: ${status} (attempt ${attempts}/${maxAttempts})`);
+        console.log(`[Apartments.com] Run ${runId} status: ${status} (attempt ${attempts}/${maxAttempts})`);
       }
     }
 
     if (status !== 'SUCCEEDED') {
-      return res.status(500).json({
-        error: `Apify run did not succeed. Final status: ${status}`,
-        runId,
-      });
+      throw new Error(`Run did not succeed. Final status: ${status}`);
     }
 
     const datasetId = runData.data?.defaultDatasetId;
@@ -124,18 +118,34 @@ router.post('/scrape/apartments-com', async (req: Request, res: Response) => {
     }
 
     const listings = await dataResponse.json() as any[];
-    console.log(`Fetched ${listings.length} listings from Apify dataset ${datasetId}`);
+    console.log(`[Apartments.com] Fetched ${listings.length} listings for ${city}, ${state}`);
 
     const stats = await importService.importListings(listings);
 
-    res.json({
-      success: true,
-      runId,
-      datasetId,
-      scrapeUrl: startUrl,
-      listingsFound: listings.length,
-      importStats: stats,
-    });
+    return { city, state, status: 'success', listings: listings.length, imported: stats };
+  } catch (error) {
+    console.error(`[Apartments.com] Scrape error for ${city}, ${state}:`, error);
+    return { city, state, status: 'error', error: (error as Error).message };
+  }
+}
+
+router.use(requireAdminAuth);
+
+router.post('/scrape/apartments-com', async (req: Request, res: Response) => {
+  try {
+    const token = getApifyToken();
+    if (!token) {
+      return res.status(400).json({ error: 'APIFY_TOKEN not configured' });
+    }
+
+    const { city = 'atlanta', state = 'ga', maxItems = 200 } = req.body;
+    const result = await scrapeAndImportApartmentsCom(token, city, state, maxItems);
+
+    if (result.status === 'success') {
+      res.json({ success: true, ...result });
+    } else {
+      res.status(500).json({ error: result.error });
+    }
   } catch (error) {
     console.error('Apify scrape error:', error);
     res.status(500).json({ error: `Scrape failed: ${(error as Error).message}` });

@@ -1,4 +1,4 @@
-import { SCRAPE_MARKETS, scrapeAndImportApartmentList, getApifyToken } from "../routes/apify-import";
+import { SCRAPE_MARKETS, scrapeAndImportApartmentList, scrapeAndImportApartmentsCom, getApifyToken } from "../routes/apify-import";
 import { generateMarketSnapshots } from "./market-snapshot-generator";
 
 const SCHEDULE_DAY = 5; // Friday
@@ -43,35 +43,64 @@ async function runFullRefresh(): Promise<any> {
 
   isRunning = true;
   const startTime = new Date();
-  console.log(`[Scheduler] Starting weekly scrape of ${SCRAPE_MARKETS.length} markets at ${startTime.toISOString()}`);
+  console.log(`[Scheduler] Starting weekly scrape of ${SCRAPE_MARKETS.length} markets (both sources) at ${startTime.toISOString()}`);
 
   try {
-    const results: any[] = [];
+    const apartmentListResults: any[] = [];
+    const apartmentsComResults: any[] = [];
 
+    console.log(`[Scheduler] Phase 1: ApartmentList.com — ${SCRAPE_MARKETS.length} markets`);
     for (let i = 0; i < SCRAPE_MARKETS.length; i += CONCURRENCY) {
       const batch = SCRAPE_MARKETS.slice(i, i + CONCURRENCY);
       const batchResults = await Promise.all(
         batch.map((m) => scrapeAndImportApartmentList(token, m.city, m.state, MAX_ITEMS_PER_MARKET))
       );
-      results.push(...batchResults);
+      apartmentListResults.push(...batchResults);
 
-      const succeeded = results.filter((r) => r.status === "success").length;
-      const totalListings = results.reduce((sum, r) => sum + (r.listings || 0), 0);
+      const succeeded = apartmentListResults.filter((r) => r.status === "success").length;
+      const totalListings = apartmentListResults.reduce((sum, r) => sum + (r.listings || 0), 0);
       console.log(
-        `[Scheduler] Progress: ${results.length}/${SCRAPE_MARKETS.length} markets (${succeeded} succeeded, ${totalListings} listings)`
+        `[Scheduler] ApartmentList progress: ${apartmentListResults.length}/${SCRAPE_MARKETS.length} markets (${succeeded} succeeded, ${totalListings} listings)`
       );
     }
 
+    console.log(`[Scheduler] Phase 2: Apartments.com — ${SCRAPE_MARKETS.length} markets`);
+    for (let i = 0; i < SCRAPE_MARKETS.length; i += CONCURRENCY) {
+      const batch = SCRAPE_MARKETS.slice(i, i + CONCURRENCY);
+      const batchResults = await Promise.all(
+        batch.map((m) => scrapeAndImportApartmentsCom(token, m.city, m.state))
+      );
+      apartmentsComResults.push(...batchResults);
+
+      const succeeded = apartmentsComResults.filter((r) => r.status === "success").length;
+      const totalListings = apartmentsComResults.reduce((sum, r) => sum + (r.listings || 0), 0);
+      console.log(
+        `[Scheduler] Apartments.com progress: ${apartmentsComResults.length}/${SCRAPE_MARKETS.length} markets (${succeeded} succeeded, ${totalListings} listings)`
+      );
+    }
+
+    const allResults = [...apartmentListResults, ...apartmentsComResults];
     const summary = {
-      total: results.length,
-      succeeded: results.filter((r) => r.status === "success").length,
-      failed: results.filter((r) => r.status !== "success").length,
-      totalListings: results.reduce((sum, r) => sum + (r.listings || 0), 0),
+      total: allResults.length,
+      succeeded: allResults.filter((r) => r.status === "success").length,
+      failed: allResults.filter((r) => r.status !== "success").length,
+      totalListings: allResults.reduce((sum, r) => sum + (r.listings || 0), 0),
       duration: `${Math.round((Date.now() - startTime.getTime()) / 1000)}s`,
-      results,
+      sources: {
+        apartmentList: {
+          total: apartmentListResults.length,
+          succeeded: apartmentListResults.filter((r) => r.status === "success").length,
+          listings: apartmentListResults.reduce((sum, r) => sum + (r.listings || 0), 0),
+        },
+        apartmentsCom: {
+          total: apartmentsComResults.length,
+          succeeded: apartmentsComResults.filter((r) => r.status === "success").length,
+          listings: apartmentsComResults.reduce((sum, r) => sum + (r.listings || 0), 0),
+        },
+      },
     };
 
-    console.log(`[Scheduler] Scrape complete: ${summary.succeeded}/${summary.total} succeeded, ${summary.totalListings} listings in ${summary.duration}`);
+    console.log(`[Scheduler] Full scrape complete: ${summary.succeeded}/${summary.total} succeeded, ${summary.totalListings} listings in ${summary.duration}`);
 
     try {
       console.log("[Scheduler] Generating market snapshots...");
