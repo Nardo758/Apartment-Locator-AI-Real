@@ -38,6 +38,7 @@ import homePriceRoutes from "./routes/home-prices";
 import apifyImportRoutes from "./routes/apify-import";
 import serpEnrichmentRoutes from "./routes/serp-enrichment";
 import { generateMarketSnapshots } from "./services/market-snapshot-generator";
+import { getSchedulerStatus, triggerManualRun } from "./services/weekly-scheduler";
 
 declare global {
   namespace Express {
@@ -439,6 +440,47 @@ export async function registerRoutes(app: Express): Promise<void> {
     } catch (error) {
       console.error("Error generating market snapshots:", error);
       res.status(500).json({ error: "Failed to generate market snapshots" });
+    }
+  });
+
+  app.get("/api/admin/scheduler/status", async (req, res) => {
+    try {
+      const apiKey = req.headers["x-admin-key"] as string;
+      const authHeader = req.headers.authorization;
+      const validKey = process.env.APIFY_TOKEN;
+
+      const isAuthed =
+        (apiKey && validKey && apiKey === validKey) ||
+        (authHeader?.startsWith("Bearer ") && validKey && authHeader.slice(7) === validKey);
+
+      if (!isAuthed) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      res.json(getSchedulerStatus());
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get scheduler status" });
+    }
+  });
+
+  app.post("/api/admin/scheduler/run-now", async (req, res) => {
+    try {
+      const apiKey = req.headers["x-admin-key"] as string;
+      const authHeader = req.headers.authorization;
+      const validKey = process.env.APIFY_TOKEN;
+
+      const isAuthed =
+        (apiKey && validKey && apiKey === validKey) ||
+        (authHeader?.startsWith("Bearer ") && validKey && authHeader.slice(7) === validKey);
+
+      if (!isAuthed) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      res.json({ message: `Manual scrape started for ${getSchedulerStatus().totalMarkets} markets. Running in background.` });
+      triggerManualRun().catch((err) => console.error("[Scheduler] Manual run error:", err));
+    } catch (error) {
+      res.status(500).json({ error: "Failed to trigger manual run" });
     }
   });
 

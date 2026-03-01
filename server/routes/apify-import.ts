@@ -11,7 +11,7 @@ const APIFY_ACTOR = 'memo23~apify-apartments-cheerio';
 const APIFY_APARTMENTLIST_ACTOR_ID = 'rcYy6tgVjoEsFgj0O';
 const APIFY_BASE = 'https://api.apify.com/v2';
 
-function getApifyToken(): string | null {
+export function getApifyToken(): string | null {
   return process.env.APIFY_TOKEN || null;
 }
 
@@ -44,7 +44,7 @@ router.post('/scrape/apartments-com', async (req: Request, res: Response) => {
     }
 
     const { city = 'atlanta', state = 'ga', maxItems = 200, includeDetails = true } = req.body;
-    const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+    const citySlug = city.toLowerCase().replace(/[.']/g, '').replace(/\s+/g, '-');
     const stateSlug = state.toLowerCase();
     const startUrl = `https://www.apartments.com/${citySlug}-${stateSlug}/`;
 
@@ -254,7 +254,7 @@ router.post('/scrape/apartmentlist', async (req: Request, res: Response) => {
 
     console.log(`Starting ApartmentList scrape for ${city}, ${state} (maxItems: ${maxItems})`);
 
-    const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+    const citySlug = city.toLowerCase().replace(/[.']/g, '').replace(/\s+/g, '-');
     const stateSlug = state.toLowerCase();
     const startUrl = `https://www.apartmentlist.com/${stateSlug}/${citySlug}`;
 
@@ -349,33 +349,125 @@ router.post('/scrape/apartmentlist', async (req: Request, res: Response) => {
   }
 });
 
-const SCRAPE_MARKETS = [
+export const SCRAPE_MARKETS = [
+  // Georgia — Atlanta metro
   { city: 'atlanta', state: 'ga' },
+  { city: 'marietta', state: 'ga' },
+  { city: 'sandy springs', state: 'ga' },
+  { city: 'decatur', state: 'ga' },
+  { city: 'smyrna', state: 'ga' },
+  { city: 'kennesaw', state: 'ga' },
+  { city: 'duluth', state: 'ga' },
+  { city: 'lawrenceville', state: 'ga' },
+  { city: 'johns creek', state: 'ga' },
+  { city: 'brookhaven', state: 'ga' },
+  { city: 'dunwoody', state: 'ga' },
+  { city: 'peachtree city', state: 'ga' },
+  { city: 'woodstock', state: 'ga' },
+  { city: 'alpharetta', state: 'ga' },
+  { city: 'roswell', state: 'ga' },
+  // Georgia — Savannah
+  { city: 'savannah', state: 'ga' },
+
+  // Florida — Tampa Bay
+  { city: 'tampa', state: 'fl' },
+  { city: 'st. petersburg', state: 'fl' },
+  { city: 'clearwater', state: 'fl' },
+  { city: 'brandon', state: 'fl' },
+  // Florida — Orlando metro
+  { city: 'orlando', state: 'fl' },
+  { city: 'kissimmee', state: 'fl' },
+  { city: 'winter park', state: 'fl' },
+  { city: 'altamonte springs', state: 'fl' },
+  // Florida — Jacksonville
+  { city: 'jacksonville', state: 'fl' },
+  { city: 'orange park', state: 'fl' },
+  { city: 'st. augustine', state: 'fl' },
+  // Florida — South Florida
+  { city: 'miami', state: 'fl' },
+  { city: 'fort lauderdale', state: 'fl' },
+  { city: 'west palm beach', state: 'fl' },
+  { city: 'boca raton', state: 'fl' },
+  { city: 'coral gables', state: 'fl' },
+  { city: 'hialeah', state: 'fl' },
+  { city: 'doral', state: 'fl' },
+  // Florida — Gulf Coast & other
+  { city: 'fort myers', state: 'fl' },
+  { city: 'sarasota', state: 'fl' },
+  { city: 'tallahassee', state: 'fl' },
+  { city: 'gainesville', state: 'fl' },
+
+  // North Carolina — Charlotte metro
   { city: 'charlotte', state: 'nc' },
+  { city: 'concord', state: 'nc' },
+  { city: 'gastonia', state: 'nc' },
+  { city: 'huntersville', state: 'nc' },
+  { city: 'matthews', state: 'nc' },
+  { city: 'mooresville', state: 'nc' },
+  // North Carolina — Triangle
   { city: 'raleigh', state: 'nc' },
   { city: 'durham', state: 'nc' },
+  { city: 'cary', state: 'nc' },
+  { city: 'chapel hill', state: 'nc' },
+  { city: 'apex', state: 'nc' },
+  { city: 'wake forest', state: 'nc' },
+  { city: 'morrisville', state: 'nc' },
+
+  // Tennessee — Nashville metro
   { city: 'nashville', state: 'tn' },
-  { city: 'tampa', state: 'fl' },
-  { city: 'orlando', state: 'fl' },
-  { city: 'jacksonville', state: 'fl' },
-  { city: 'miami', state: 'fl' },
+  { city: 'franklin', state: 'tn' },
+  { city: 'murfreesboro', state: 'tn' },
+  { city: 'brentwood', state: 'tn' },
+  { city: 'hendersonville', state: 'tn' },
+  { city: 'clarksville', state: 'tn' },
+
+  // South Carolina — Charleston metro
   { city: 'charleston', state: 'sc' },
-  { city: 'savannah', state: 'ga' },
+  { city: 'mount pleasant', state: 'sc' },
+  { city: 'north charleston', state: 'sc' },
+  { city: 'summerville', state: 'sc' },
+  { city: 'goose creek', state: 'sc' },
+
+  // Texas — Houston metro
   { city: 'houston', state: 'tx' },
+  { city: 'sugar land', state: 'tx' },
+  { city: 'the woodlands', state: 'tx' },
+  { city: 'katy', state: 'tx' },
+  { city: 'pearland', state: 'tx' },
+  { city: 'pasadena', state: 'tx' },
+  // Texas — Dallas-Fort Worth metro
   { city: 'dallas', state: 'tx' },
-  { city: 'austin', state: 'tx' },
-  { city: 'san antonio', state: 'tx' },
   { city: 'frisco', state: 'tx' },
+  { city: 'plano', state: 'tx' },
+  { city: 'arlington', state: 'tx' },
+  { city: 'irving', state: 'tx' },
+  { city: 'mckinney', state: 'tx' },
+  { city: 'richardson', state: 'tx' },
+  { city: 'garland', state: 'tx' },
+  { city: 'denton', state: 'tx' },
+  // Texas — Austin metro
+  { city: 'austin', state: 'tx' },
+  { city: 'round rock', state: 'tx' },
+  { city: 'cedar park', state: 'tx' },
+  { city: 'georgetown', state: 'tx' },
+  { city: 'pflugerville', state: 'tx' },
+  { city: 'san marcos', state: 'tx' },
+  // Texas — San Antonio metro
+  { city: 'san antonio', state: 'tx' },
+  { city: 'new braunfels', state: 'tx' },
+  { city: 'converse', state: 'tx' },
+  { city: 'schertz', state: 'tx' },
+  { city: 'live oak', state: 'tx' },
 ];
 
-async function scrapeAndImportApartmentList(
+export async function scrapeAndImportApartmentList(
   token: string,
   city: string,
   state: string,
   maxItems: number = 50
 ): Promise<{ city: string; state: string; status: string; listings?: number; imported?: any; error?: string }> {
   try {
-    const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+    const citySlug = city.toLowerCase().replace(/[.']/g, '').replace(/\s+/g, '-');
     const stateSlug = state.toLowerCase();
     const startUrl = `https://www.apartmentlist.com/${stateSlug}/${citySlug}`;
 
