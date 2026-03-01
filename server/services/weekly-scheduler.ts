@@ -1,8 +1,8 @@
 import { SCRAPE_MARKETS, scrapeAndImportApartmentList, getApifyToken } from "../routes/apify-import";
 import { generateMarketSnapshots } from "./market-snapshot-generator";
 
-const SCHEDULE_DAY = 0; // Sunday
-const SCHEDULE_HOUR = 6; // 6 AM UTC (1 AM ET)
+const SCHEDULE_DAY = 5; // Friday
+const SCHEDULE_HOUR = 13; // 1 PM UTC (9 AM ET)
 const CONCURRENCY = 2;
 const MAX_ITEMS_PER_MARKET = 50;
 
@@ -115,19 +115,21 @@ function scheduleNext() {
 }
 
 export function startWeeklyScheduler() {
+  const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   console.log(`[Scheduler] Initializing weekly scraper for ${SCRAPE_MARKETS.length} markets`);
-  console.log(`[Scheduler] Schedule: Every Sunday at ${SCHEDULE_HOUR}:00 UTC`);
+  console.log(`[Scheduler] Schedule: Every ${DAYS[SCHEDULE_DAY]} at ${SCHEDULE_HOUR}:00 UTC`);
   scheduleNext();
 }
 
 export function getSchedulerStatus() {
+  const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   return {
     isRunning,
     lastRunAt: lastRunAt?.toISOString() || null,
     nextRunAt: nextRunAt?.toISOString() || null,
     lastRunResult,
     totalMarkets: SCRAPE_MARKETS.length,
-    schedule: `Every Sunday at ${SCHEDULE_HOUR}:00 UTC`,
+    schedule: `Every ${DAYS[SCHEDULE_DAY]} at ${SCHEDULE_HOUR}:00 UTC (${SCHEDULE_HOUR - 4}:00 AM ET)`,
   };
 }
 
