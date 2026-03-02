@@ -2,18 +2,34 @@ import { pool } from "./db";
 import { log } from "./vite";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+function resolveMigrationsDir(): string | null {
+  const candidates = [
+    path.join(process.cwd(), "server", "migrations"),
+    path.join(process.cwd(), "migrations"),
+  ];
+
+  if (typeof __dirname !== "undefined") {
+    candidates.push(path.join(__dirname, "migrations"));
+    candidates.push(path.join(__dirname, "..", "server", "migrations"));
+    candidates.push(path.join(__dirname, "..", "migrations"));
+  }
+
+  for (const candidate of [...new Set(candidates)]) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
 
 export async function runAppMigrations(): Promise<void> {
   try {
     log("Running application migrations...");
 
-    const migrationsDir = path.join(__dirname, "migrations");
-
-    if (!fs.existsSync(migrationsDir)) {
+    const migrationsDir = resolveMigrationsDir();
+    if (!migrationsDir) {
       log("No migrations directory found, skipping");
       return;
     }
