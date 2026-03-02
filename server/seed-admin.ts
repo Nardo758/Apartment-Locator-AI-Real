@@ -18,10 +18,9 @@ export async function seedAdminUser(): Promise<void> {
       .where(eq(users.email, ADMIN_EMAIL.toLowerCase()));
 
     if (existingAdmin.length > 0) {
-      console.log("Admin user already exists, updating admin credentials...");
-      const passwordHash = await hashPassword(ADMIN_PASSWORD);
+      console.log("Admin user already exists, ensuring admin role...");
       await db.update(users)
-        .set({ userType: "admin", passwordHash })
+        .set({ userType: "admin" })
         .where(eq(users.email, ADMIN_EMAIL.toLowerCase()));
       return;
     }
