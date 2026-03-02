@@ -1,7 +1,7 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 function getAuthHeaders(): Record<string, string> {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('auth_token');
   if (token) {
     return { 'Authorization': `Bearer ${token}` };
   }
@@ -9,7 +9,7 @@ function getAuthHeaders(): Record<string, string> {
 }
 
 function handleUnauthorizedRedirect() {
-  localStorage.removeItem('token');
+  localStorage.removeItem('auth_token');
   if (window.location.pathname !== '/auth') {
     window.location.href = '/auth';
   }
